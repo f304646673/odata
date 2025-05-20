@@ -3,5 +3,5 @@
 ################################################################################
 
 /csharp/Lesson/.vs/
-/csharp/Lesson/Lesson1/bin
-/csharp/Lesson/Lesson1/obj
+/csharp/Lesson/*/bin
+/csharp/Lesson/*/obj
