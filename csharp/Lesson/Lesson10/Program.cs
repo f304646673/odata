@@ -57,6 +57,59 @@ static void addEntityType(EdmModel model)
     model.AddElement(customer);
 }
 
+static void addDerivedEntityType(EdmModel model)
+{
+    EdmEntityType vipCustomer = new("Lesson10", "VipCustomer", baseType: model.FindType("Lesson10.Customer") as IEdmEntityType);
+    vipCustomer.AddStructuralProperty("VipLevel", EdmPrimitiveTypeKind.String);
+    model.AddElement(vipCustomer);
+}
+
+static void addAbstractEntityType(EdmModel model)
+{
+    EdmEntityType peopele = new("Lesson10", "Peopele", baseType: null, isAbstract: true, isOpen: false);
+    peopele.AddKeys(peopele.AddStructuralProperty("Id", EdmPrimitiveTypeKind.Int32));
+    model.AddElement(peopele);
+}
+
+static void addSingleEntityType(EdmModel model)
+{
+    EdmEntityType singleCustomer = new("Lesson10", "SingleCustomer", baseType: null, isAbstract: false, isOpen: false);
+    singleCustomer.AddKeys(singleCustomer.AddStructuralProperty("Id", EdmPrimitiveTypeKind.Int32));
+    singleCustomer.AddStructuralProperty("Name", EdmPrimitiveTypeKind.String);
+    model.AddElement(singleCustomer);
+}
+
+static void addDefaultContainer(EdmModel model)
+{
+    EdmEntityContainer container = new("Lesson10", "DefaultContainer");
+    model.AddElement(container);
+}
+
+static void addNavigationProperty(EdmModel model)
+{
+    EdmEntityType customer = model.FindType("Lesson10.Customer") as EdmEntityType;
+    EdmEntityType order = model.FindType("Lesson10.Order") as EdmEntityType;
+    if (customer != null && order != null)
+    {
+        customer.AddUnidirectionalNavigation(new EdmNavigationPropertyInfo
+        {
+            Name = "Orders",
+            TargetMultiplicity = EdmMultiplicity.Many,
+            Target = order,
+            ContainsTarget = false
+        });
+        order.AddUnidirectionalNavigation(new EdmNavigationPropertyInfo
+        {
+            Name = "Customer",
+            TargetMultiplicity = EdmMultiplicity.One,
+            Target = customer,
+            ContainsTarget = false
+        });
+
+    }
+}
+
+
 static IEdmModel GetEdmModel()
 {
     EdmModel model = new EdmModel();
@@ -65,9 +118,12 @@ static IEdmModel GetEdmModel()
     addDerivedComplexType(model);
     addAbstractComplexType(model);
     addEntityType(model);
+    addDerivedEntityType(model);
+    addAbstractEntityType(model);
+    addSingleEntityType(model);
+    addNavigationProperty(model);
 
-    var container = new EdmEntityContainer("Lesson10", "DefaultContainer");
-    model.AddElement(container);
+    addDefaultContainer(model);
 
     return model;
 }
