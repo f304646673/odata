@@ -1,4 +1,4 @@
-using Lesson2.Models;
+using Lesson8.Models;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OData.Edm;
@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 static IEdmModel GetEdmModel()
 {
     var modelBuilder = new ODataConventionModelBuilder();
-    modelBuilder.EntitySet<Shape>("Shapes");
+    modelBuilder.EntitySet<Customer>("Customers");
+
     return modelBuilder.GetEdmModel();
 }
 
