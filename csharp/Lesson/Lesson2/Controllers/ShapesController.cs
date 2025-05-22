@@ -218,6 +218,5 @@ namespace Lesson2.Controllers
 
             return NoContent();
         }
-
     }
 }
