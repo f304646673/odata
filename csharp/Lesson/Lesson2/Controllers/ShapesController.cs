@@ -17,10 +17,49 @@ namespace Lesson2.Controllers
                 new Rectangle { Id = 3, Length = 8, Width = 5, Area = 40 }
             ];
 
+        public ActionResult Post([FromBody] Shape shape)
+        {
+            shapes.Add(shape);
+
+            return Created(shape);
+        }
+
+        public ActionResult PostFromCircle([FromBody] Circle circle)
+        {
+            shapes.Add(circle);
+
+            return Created(circle);
+        }
+
+        public ActionResult PostFromRectangle([FromBody] Rectangle rectangle)
+        {
+            shapes.Add(rectangle);
+
+            return Created(rectangle);
+        }
+
         [EnableQuery]
         public ActionResult<IEnumerable<Shape>> Get()
         {
             return Ok(shapes);
+        }
+
+        [EnableQuery]
+        public ActionResult<IEnumerable<Shape>> GetFromShape()
+        {
+            return Ok(shapes.OfType<Shape>().ToList());
+        }
+
+        [EnableQuery]
+        public ActionResult<IEnumerable<Rectangle>> GetFromRectangle()
+        {
+            return Ok(shapes.OfType<Rectangle>().ToList());
+        }
+
+        [EnableQuery]
+        public ActionResult<IEnumerable<Circle>> GetFromCircle()
+        {
+            return Ok(shapes.OfType<Circle>().ToList());
         }
 
         public ActionResult<Shape> Get([FromRoute] int key)
@@ -32,7 +71,7 @@ namespace Lesson2.Controllers
                 return NotFound();
             }
 
-            return shape;
+            return Ok(shape);
         }
 
         public ActionResult<Circle> GetCircle([FromRoute] int key)
@@ -44,7 +83,7 @@ namespace Lesson2.Controllers
                 return NotFound();
             }
 
-            return circle;
+            return Ok(circle);
         }
 
         public ActionResult Put([FromRoute] int key, [FromBody] Shape shape)
@@ -126,6 +165,28 @@ namespace Lesson2.Controllers
             }
 
             delta.Patch(shape);
+
+            return Ok();
+        }
+
+        public ActionResult Patch([FromBody] DeltaSet<Shape> deltaSet)
+        {
+            foreach (Delta<Shape> delta in deltaSet)
+            {
+                if (delta.TryGetPropertyValue("Id", out object idAsObject))
+                {
+                    var shape = shapes.SingleOrDefault(d => d.Id.Equals(idAsObject));
+                    if (shape == null)
+                    {
+                        return NotFound();
+                    }
+                    else if (!shape.GetType().Equals(delta.StructuredType))
+                    {
+                        return BadRequest();
+                    }
+                    delta.Patch(shape);
+                }
+            }
 
             return Ok();
         }
