@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,7 +115,7 @@ static void addNavigationProperty(EdmModel model)
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Ìí¼ÓFunction
 static void addUnboundFunction(EdmModel model)
 {
     EdmFunction function = new("Lesson10", "GetCustomerById", new EdmEntityTypeReference(model.FindType("Lesson10.Customer") as IEdmEntityType, true), isBound: false, entitySetPathExpression: null, isComposable: false);
@@ -130,7 +131,7 @@ static void addBoundFunction(EdmModel model)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// Ìí¼ÓAction
 static void addUnboundAction(EdmModel model)
 {
     EdmAction action = new("Lesson10", "UpdateCustomer", EdmCoreModel.Instance.GetString(false), isBound: false, entitySetPathExpression: null);
@@ -147,6 +148,35 @@ static void addBoundAction(EdmModel model)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void addFunctionImport(EdmModel model)
+{
+    var container = model.EntityContainer as EdmEntityContainer;
+    if (container != null)
+    {
+        var function = model.FindDeclaredOperations("Lesson10.GetCustomerById").FirstOrDefault() as IEdmFunction;
+        if (function != null)
+        {
+            container.AddFunctionImport("GetCustomerById", function);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static void addActionImport(EdmModel model)
+{
+    var container = model.EntityContainer as EdmEntityContainer;
+    if (container != null)
+    {
+        var action = model.FindDeclaredOperations("Lesson10.UpdateCustomer").FirstOrDefault() as IEdmAction;
+        if (action != null)
+        {
+            container.AddActionImport("UpdateCustomer", action);
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 static IEdmModel GetEdmModel()
 {
@@ -174,6 +204,9 @@ static IEdmModel GetEdmModel()
     addBoundAction(model);
 
     addDefaultContainer(model);
+
+    addFunctionImport(model);
+    addActionImport(model);
 
     return model;
 }
