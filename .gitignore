@@ -5,3 +5,9 @@
 /csharp/Lesson/.vs/
 /csharp/Lesson/*/bin
 /csharp/Lesson/*/obj
+.vs/VSWorkspaceState.json
+.vs/odata/FileContentIndex/fd54d59d-d89f-49f1-9794-095a65cda70c.vsidx
+.vs/odata/v17/.wsuo
+.vs/odata/v17/DocumentLayout.json
+.vs/ProjectSettings.json
+.vs/slnx.sqlite

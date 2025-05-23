@@ -145,6 +145,10 @@ namespace Lesson2.Controllers
             {
                 return NotFound();
             }
+            else if (delta == null)
+            {
+                return BadRequest();
+            }
             else if (!shape.GetType().Equals(delta.StructuredType))
             {
                 return BadRequest();
@@ -163,7 +167,10 @@ namespace Lesson2.Controllers
             {
                 return NotFound();
             }
-
+            else if (delta == null)
+            {
+                return BadRequest();
+            }
             delta.Patch(shape);
 
             return Ok();
@@ -171,6 +178,10 @@ namespace Lesson2.Controllers
 
         public ActionResult Patch([FromBody] DeltaSet<Shape> deltaSet)
         {
+            if (deltaSet == null)
+            {
+                return BadRequest();
+            }
             foreach (Delta<Shape> delta in deltaSet)
             {
                 if (delta.TryGetPropertyValue("Id", out object idAsObject))
@@ -185,6 +196,28 @@ namespace Lesson2.Controllers
                         return BadRequest();
                     }
                     delta.Patch(shape);
+                }
+            }
+
+            return Ok();
+        }
+
+        public ActionResult PatchFromRectangle([FromBody] DeltaSet<Rectangle> deltaSet)
+        {
+            if (deltaSet == null)
+            {
+                return BadRequest();
+            }
+            foreach (Delta<Rectangle> delta in deltaSet)
+            {
+                if (delta.TryGetPropertyValue("Id", out object idAsObject))
+                {
+                    var rectangle = shapes.SingleOrDefault(d => d.Id.Equals(idAsObject)) as Rectangle;
+                    if (rectangle == null) // Ensure rectangle is not null before calling Patch
+                    {
+                        return NotFound();
+                    }
+                    delta.Patch(rectangle);
                 }
             }
 
