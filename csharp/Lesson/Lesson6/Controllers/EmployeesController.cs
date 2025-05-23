@@ -99,24 +99,5 @@ namespace Lesson6.Controllers
             return Ok();
         }
 
-
-        [HttpPost("odata/ComputeSalary")]
-        public ActionResult<decimal> ComputeSalary(ODataActionParameters parameters)
-        {
-            object? hourlyRateAsObject, hoursWorkedAsObject;
-            decimal hourlyRate;
-            int hoursWorked;
-
-            if (parameters == null
-                || !parameters.TryGetValue("hourlyRate", out hourlyRateAsObject) || hourlyRateAsObject == null
-                || !decimal.TryParse(hourlyRateAsObject.ToString(), out hourlyRate)
-                || !parameters.TryGetValue("hoursWorked", out hoursWorkedAsObject) || hoursWorkedAsObject == null
-                || !int.TryParse(hoursWorkedAsObject.ToString(), out hoursWorked))
-            {
-                return BadRequest();
-            }
-
-            return hourlyRate * hoursWorked;
-        }
     }
 }

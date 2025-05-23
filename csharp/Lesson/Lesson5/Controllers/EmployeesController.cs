@@ -67,11 +67,5 @@ namespace Lesson5.Controllers
             return manager.Bonus;
         }
 
-        [HttpGet("odata/GetSalary(hourlyRate={hourlyRate},hoursWorked={hoursWorked})")]
-        public ActionResult<decimal> GetSalary(decimal hourlyRate, int hoursWorked)
-        {
-            return hourlyRate * hoursWorked;
-        }
-
     }
 }

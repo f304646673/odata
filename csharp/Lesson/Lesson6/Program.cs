@@ -10,22 +10,19 @@ static IEdmModel GetEdmModel()
 {
     var modelBuilder = new ODataConventionModelBuilder();
     modelBuilder.EntitySet<Employee>("Employees");
+
     var employeeEntityType = modelBuilder.EntitySet<Employee>("Employees").EntityType;
+    employeeEntityType.Collection.Action("ConferSwagGifts").Parameter<string>("SwagGift");
+    employeeEntityType.Action("ConferSwagGift").Parameter<string>("SwagGift");
+
     var managerEntityType = modelBuilder.EntityType<Manager>();
+    managerEntityType.Collection.Action("ConferBonuses").Parameter<decimal>("Bonus");
+    managerEntityType.Action("ConferBonus").Parameter<decimal>("Bonus");
 
-    employeeEntityType.Collection.Action("ConferSwagGifts")
-        .Parameter<string>("SwagGift");
-    employeeEntityType.Action("ConferSwagGift")
-        .Parameter<string>("SwagGift");
-    managerEntityType.Collection.Action("ConferBonuses")
-        .Parameter<decimal>("Bonus");
-    managerEntityType.Action("ConferBonus")
-        .Parameter<decimal>("Bonus");
-
-    var getSalaryFunction = modelBuilder.Function("GetSalary");
-    getSalaryFunction.Parameter<decimal>("hourlyRate");
-    getSalaryFunction.Parameter<int>("hoursWorked");
-    getSalaryFunction.Returns<decimal>();
+    var computeSalaryFunction = modelBuilder.Action("ComputeSalary");
+    computeSalaryFunction.Parameter<decimal>("hourlyRate");
+    computeSalaryFunction.Parameter<int>("hoursWorked");
+    computeSalaryFunction.Returns<decimal>();
 
     return modelBuilder.GetEdmModel();
 }

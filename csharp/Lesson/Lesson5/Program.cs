@@ -10,17 +10,15 @@ static IEdmModel GetEdmModel()
 {
     var modelBuilder = new ODataConventionModelBuilder();
     modelBuilder.EntitySet<Employee>("Employees");
-    var employeeEntityType = modelBuilder.EntitySet<Employee>("Employees").EntityType;
-    var managerEntityType = modelBuilder.EntityType<Manager>();
 
-    employeeEntityType.Collection.Function("GetHighestRating")
-        .Returns<int>();
-    employeeEntityType.Function("GetRating")
-        .Returns<int>();
-    managerEntityType.Collection.Function("GetHighestBonus")
-        .Returns<decimal>();
-    managerEntityType.Function("GetBonus")
-        .Returns<decimal>();
+    var employeeEntityType = modelBuilder.EntitySet<Employee>("Employees").EntityType;
+    employeeEntityType.Collection.Function("GetHighestRating").Returns<int>();
+    employeeEntityType.Function("GetRating").Returns<int>();
+
+
+    var managerEntityType = modelBuilder.EntityType<Manager>();
+    managerEntityType.Collection.Function("GetHighestBonus").Returns<decimal>();
+    managerEntityType.Function("GetBonus").Returns<decimal>();
 
     var getSalaryFunction = modelBuilder.Function("GetSalary");
     getSalaryFunction.Parameter<decimal>("hourlyRate");
