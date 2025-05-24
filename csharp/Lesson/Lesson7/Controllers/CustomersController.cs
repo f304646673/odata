@@ -11,11 +11,11 @@ using System.Linq;
 
 namespace Lesson7.Controllers
 {
-    public class CustomersControllerODataController : ODataController
+    public class CustomersController : ODataController
     {
         private static Random random = new Random();
-        private static List<Customer> customers = new List<Customer>
-        {
+        private static List<Customer> customers =
+        [
             new Customer
             {
                 Id = 1,
@@ -29,7 +29,7 @@ namespace Lesson7.Controllers
                 Orders = new List<Order> { new Order { Id = 3, Amount = 50 }, new Order { Id = 4, Amount = 65 } },
                 RelationshipManagers = new List<Employee> { new Employee { Id = 1, Name = "Employee 1" } }
             }
-        };
+        ];
 
 
         public ActionResult CreateRefToOrders([FromRoute] int key, [FromRoute] int relatedKey)
@@ -102,6 +102,16 @@ namespace Lesson7.Controllers
             }
 
             return NoContent();
+        }
+
+        public ActionResult GetRefToOrders([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return Ok(customer.Orders);
         }
     }
 }

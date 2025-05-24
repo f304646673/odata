@@ -159,5 +159,15 @@ namespace Lesson7.Controllers
 
             return NoContent();
         }
+
+        public ActionResult GetRefToCustomer([FromRoute] int key)
+        {
+            var order = orders.SingleOrDefault(d => d.Id.Equals(key));
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return Ok(order.Customer);
+        }
     }
 }
