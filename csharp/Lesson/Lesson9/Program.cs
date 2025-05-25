@@ -11,10 +11,11 @@ static IEdmModel GetEdmModel()
 {
     var modelBuilder = new ODataConventionModelBuilder();
     modelBuilder.EntitySet<Book>("books");
+
     modelBuilder.EntityType<Book>().Collection.Function("mostRecent").Returns<string>();
     modelBuilder.Function("returnAllForKidsBooks").ReturnsFromEntitySet<Book>("books");
-    modelBuilder.EntityType<Book>() .Action("rate").Parameter<int>("rating");
 
+    modelBuilder.EntityType<Book>().Action("rate").Parameter<int>("rating");
     var action = modelBuilder.Action("incrementBookYear").ReturnsFromEntitySet<Book>("books");
     action.Parameter<int>("increment");
     action.Parameter<string>("id");
@@ -25,13 +26,7 @@ static IEdmModel GetEdmModel()
 // 添加 OData 服务和配置
 builder.Services.AddControllers().AddOData(options =>
     {
-        options.Select()
-           .Filter()
-           .OrderBy()
-           .Expand()
-           .Count()
-           .SetMaxTop(null)
-           .AddRouteComponents("odata", GetEdmModel());
+        options.AddRouteComponents("odata", GetEdmModel()).Count().OrderBy().Filter().Select().Expand();
         options.RouteOptions.EnableNonParenthesisForEmptyParameterFunction = true;
     }
     
