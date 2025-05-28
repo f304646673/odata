@@ -52,6 +52,60 @@ namespace Lesson8.Controllers
             }
         };
 
+        [EnableQuery]
+        public ActionResult<string> GetName([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return customer.Name;
+        }
+
+        [EnableQuery]
+        public ActionResult<decimal> GetCreditLimit([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            return enterpriseCustomer.CreditLimit;
+        }
+
+
+        [EnableQuery]
+        public ActionResult<IEnumerable<string>> GetContactPhones([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return customer.ContactPhones;
+        }
+
+        [EnableQuery]
+        public ActionResult<IEnumerable<Address>> GetShippingAddressesFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            return enterpriseCustomer.ShippingAddresses;
+        }
+
+
         public ActionResult<Address> GetBillingAddress([FromRoute] int key)
         {
             var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
@@ -112,18 +166,6 @@ namespace Lesson8.Controllers
             return enterpriseCustomer.CreditLimit;
         }
 
-        [EnableQuery]
-        public ActionResult<IEnumerable<string>> GetContactPhones([FromRoute] int key)
-        {
-            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
-
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return customer.ContactPhones;
-        }
 
         public ActionResult PostToContactPhones([FromRoute] int key, [FromBody] string contactPhone)
         {
