@@ -11,6 +11,7 @@ static IEdmModel GetEdmModel()
     var modelBuilder = new ODataConventionModelBuilder();
     modelBuilder.EntitySet<Customer>("Customers");
     modelBuilder.EntitySet<Order>("Orders");
+    modelBuilder.EntitySet<Employee>("Employees");
 
     return modelBuilder.GetEdmModel();
 }

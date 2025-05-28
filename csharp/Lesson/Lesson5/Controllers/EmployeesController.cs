@@ -24,7 +24,7 @@ namespace Lesson5.Controllers
                 return NoContent();
             }
 
-            return employees.Select(d => d.PerfRating).OrderByDescending(d => d).First();
+            return Ok(employees.Select(d => d.PerfRating).OrderByDescending(d => d).First());
         }
 
 
@@ -38,7 +38,7 @@ namespace Lesson5.Controllers
                 return NotFound();
             }
 
-            return employee.PerfRating;
+            return Ok(employee.PerfRating);
         }
 
         [HttpGet]
@@ -64,7 +64,7 @@ namespace Lesson5.Controllers
                 return NotFound();
             }
 
-            return manager.Bonus;
+            return Ok(manager.Bonus);
         }
 
     }

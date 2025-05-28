@@ -45,7 +45,7 @@ namespace Lesson4.Controllers
                 return NotFound("The employee does not have a supervisor.");
             }
 
-            return employee.Supervisor;
+            return Ok(employee.Supervisor);
         }
 
         [EnableQuery]
@@ -58,7 +58,7 @@ namespace Lesson4.Controllers
                 return NotFound();
             }
 
-            return manager.DirectReports;
+            return Ok(manager.DirectReports);
         }
 
         public ActionResult PostToPeers([FromRoute] int key, [FromBody] Employee peer)
