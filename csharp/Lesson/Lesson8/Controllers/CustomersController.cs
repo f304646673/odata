@@ -32,10 +32,10 @@ namespace Lesson8.Controllers
                 BillingAddress = new Address { Street = "Street 3A" },
                 CreditLimit = 4200,
                 RegisteredAddress = new Address { Street = "Street 3B" },
-                ShippingAddresses = new List<Address>
-                {
+                ShippingAddresses =
+                [
                     new Address { Street = "Street 3C" }
-                }
+                ]
             },
             new EnterpriseCustomer
             {
@@ -45,40 +45,16 @@ namespace Lesson8.Controllers
                 BillingAddress = new Address { Street = "Street 4A" },
                 CreditLimit = 3700,
                 RegisteredAddress = new PostalAddress { Street = "Street 4B", PostalCode = "22109" },
-                ShippingAddresses = new List<Address>
-                {
+                ShippingAddresses =
+                [
                     new Address { Street = "Street 4C" }
-                }
+                ]
             }
         };
 
-        [EnableQuery]
-        public ActionResult<string> GetName([FromRoute] int key)
-        {
-            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
-
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return customer.Name;
-        }
-
-        [EnableQuery]
-        public ActionResult<decimal> GetCreditLimit([FromRoute] int key)
-        {
-            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
-
-            if (enterpriseCustomer == null)
-            {
-                return NotFound();
-            }
-
-            return enterpriseCustomer.CreditLimit;
-        }
-
-
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// collection operations
+        
         [EnableQuery]
         public ActionResult<IEnumerable<string>> GetContactPhones([FromRoute] int key)
         {
@@ -92,6 +68,7 @@ namespace Lesson8.Controllers
             return customer.ContactPhones;
         }
 
+
         [EnableQuery]
         public ActionResult<IEnumerable<Address>> GetShippingAddressesFromEnterpriseCustomer([FromRoute] int key)
         {
@@ -104,68 +81,6 @@ namespace Lesson8.Controllers
 
             return enterpriseCustomer.ShippingAddresses;
         }
-
-
-        public ActionResult<Address> GetBillingAddress([FromRoute] int key)
-        {
-            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
-
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return customer.BillingAddress;
-        }
-
-        public ActionResult<PostalAddress> GetBillingAddressOfPostalAddress([FromRoute] int key)
-        {
-            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
-
-            if (!(customer?.BillingAddress is PostalAddress billingAddress))
-            {
-                return NotFound();
-            }
-
-            return billingAddress;
-        }
-
-        public ActionResult<Address> GetRegisteredAddressFromEnterpriseCustomer([FromRoute] int key)
-        {
-            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
-
-            if (enterpriseCustomer == null)
-            {
-                return NotFound();
-            }
-
-            return enterpriseCustomer.RegisteredAddress;
-        }
-
-        public ActionResult<PostalAddress> GetRegisteredAddressOfPostalAddressFromEnterpriseCustomer([FromRoute] int key)
-        {
-            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
-
-            if (!(enterpriseCustomer?.RegisteredAddress is PostalAddress registeredAddress))
-            {
-                return NotFound();
-            }
-
-            return registeredAddress;
-        }
-
-        public ActionResult<decimal> GetCreditLimitFromEnterpriseCustomer([FromRoute] int key)
-        {
-            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
-
-            if (enterpriseCustomer == null)
-            {
-                return NotFound();
-            }
-
-            return enterpriseCustomer.CreditLimit;
-        }
-
 
         public ActionResult PostToContactPhones([FromRoute] int key, [FromBody] string contactPhone)
         {
@@ -195,6 +110,160 @@ namespace Lesson8.Controllers
             return Accepted();
         }
 
+        public ActionResult PutToContactPhones([FromRoute] int key, [FromBody] IEnumerable<string> contactPhones)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.ContactPhones = contactPhones?.ToList() ?? [];
+
+            return Ok();
+        }
+
+        public ActionResult PutToShippingAddressesFromEnterpriseCustomer([FromRoute] int key, [FromBody] IEnumerable<Address> shippingAddresses)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            enterpriseCustomer.ShippingAddresses = shippingAddresses?.ToList() ?? [];
+
+            return Ok();
+        }
+
+        public ActionResult DeleteToContactPhones([FromRoute] int key, [FromBody] IEnumerable<string> contactPhones)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var contactPhone in contactPhones)
+            {
+                customer.ContactPhones.Remove(contactPhone);
+            }
+
+            return NoContent();
+        }
+
+        public ActionResult DeleteToContactPhones([FromRoute] int key, [FromBody] string contactPhone)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            if (!customer.ContactPhones.Remove(contactPhone))
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+
+        public ActionResult DeleteToContactPhones([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.ContactPhones.Clear();
+
+            return NoContent();
+        }
+
+        public ActionResult DeleteToShippingAddressesFromEnterpriseCustomer([FromRoute] int key, [FromBody] Address address)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            if (!enterpriseCustomer.ShippingAddresses.Remove(address))
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
+
+        public ActionResult DeleteToShippingAddressesFromEnterpriseCustomer([FromRoute] int key, [FromBody] IEnumerable<Address> shippingAddresses)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var address in shippingAddresses)
+            {
+                enterpriseCustomer.ShippingAddresses.Remove(address);
+            }
+
+            return NoContent();
+        }
+
+        public ActionResult DeleteToShippingAddressesFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            enterpriseCustomer.ShippingAddresses.Clear();
+
+            return NoContent();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// primitive
+
+        [EnableQuery]
+        public ActionResult<string> GetName([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null || customer.Name == null)
+            {
+                return NotFound();
+            }
+
+            return customer.Name;
+        }
+
+        [EnableQuery]
+        public ActionResult<decimal> GetCreditLimitFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null || !enterpriseCustomer.CreditLimit.HasValue)
+            {
+                return NotFound();
+            }
+
+            return enterpriseCustomer.CreditLimit.Value;
+        }
+
         public ActionResult PutToName([FromRoute] int key, [FromBody] string name)
         {
             var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
@@ -207,6 +276,98 @@ namespace Lesson8.Controllers
             customer.Name = name;
 
             return Ok();
+        }
+
+        public ActionResult PutToCreditLimitFromEnterpriseCustomer([FromRoute] int key, [FromBody] decimal creditLimit)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            enterpriseCustomer.CreditLimit = creditLimit;
+
+            return Ok();
+        }
+
+        public ActionResult DeleteToName([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.Name = string.Empty; // Clear the name
+
+            return NoContent();
+        }
+
+        public ActionResult DeleteToCreditLimitFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null)
+            {
+                return NotFound();
+            }
+
+            enterpriseCustomer.CreditLimit = 0; // Reset the credit limit
+
+            return NoContent();
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// single
+
+        public ActionResult<Address> GetBillingAddress([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (customer == null || customer.BillingAddress == null)
+            {
+                return NotFound();
+            }
+
+            return customer.BillingAddress;
+        }
+
+        public ActionResult<PostalAddress> GetBillingAddressOfPostalAddress([FromRoute] int key)
+        {
+            var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
+
+            if (!(customer?.BillingAddress is PostalAddress billingAddress))
+            {
+                return NotFound();
+            }
+
+            return billingAddress;
+        }
+
+        public ActionResult<Address> GetRegisteredAddressFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (enterpriseCustomer == null || enterpriseCustomer.RegisteredAddress == null)
+            {
+                return NotFound();
+            }
+
+            return enterpriseCustomer.RegisteredAddress;
+        }
+
+        public ActionResult<PostalAddress> GetRegisteredAddressOfPostalAddressFromEnterpriseCustomer([FromRoute] int key)
+        {
+            var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
+
+            if (!(enterpriseCustomer?.RegisteredAddress is PostalAddress registeredAddress))
+            {
+                return NotFound();
+            }
+
+            return registeredAddress;
         }
 
         public ActionResult PutToBillingAddress([FromRoute] int key, [FromBody] Address address)
@@ -223,17 +384,17 @@ namespace Lesson8.Controllers
             return Ok();
         }
 
-        public ActionResult PutToContactPhones([FromRoute] int key, [FromBody] IEnumerable<string> contactPhones)
+        public ActionResult PutToBillingAddressOfPostalAddress([FromRoute] int key, [FromBody] PostalAddress billingAddress)
         {
             var customer = customers.SingleOrDefault(d => d.Id.Equals(key));
 
-            if (customer == null)
+            if (!(customer?.BillingAddress is PostalAddress billingAddressInstance))
             {
                 return NotFound();
             }
 
-            // Ensure contactPhones is not null before assigning
-            customer.ContactPhones = contactPhones?.ToList() ?? [];
+            billingAddressInstance.Street = billingAddress.Street;
+            billingAddressInstance.PostalCode = billingAddress.PostalCode;
 
             return Ok();
         }
@@ -275,6 +436,11 @@ namespace Lesson8.Controllers
                 return NotFound();
             }
 
+            if (customer.BillingAddress == null)
+            {
+                return BadRequest("BillingAddress cannot be null.");
+            }
+
             if (delta == null)
             {
                 return BadRequest("Invalid request body.");
@@ -306,6 +472,11 @@ namespace Lesson8.Controllers
             if (enterpriseCustomer == null)
             {
                 return NotFound();
+            }
+
+            if (enterpriseCustomer.RegisteredAddress == null)
+            {
+                return BadRequest("RegisteredAddress cannot be null.");
             }
 
             if (delta == null)
@@ -346,6 +517,7 @@ namespace Lesson8.Controllers
             return NoContent();
         }
 
+
         public ActionResult DeleteToRegisteredAddressFromEnterpriseCustomer([FromRoute] int key)
         {
             var enterpriseCustomer = customers.OfType<EnterpriseCustomer>().SingleOrDefault(d => d.Id.Equals(key));
@@ -359,7 +531,6 @@ namespace Lesson8.Controllers
 
             return NoContent();
         }
-
 
     }
 }
