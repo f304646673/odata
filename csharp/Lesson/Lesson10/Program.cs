@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.Edm;
-using System.Security.Cryptography.X509Certificates;
-using System.Xml.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +15,7 @@ static void addEnumType(EdmModel model)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 添加复杂类型
-static void addComplexType(EdmModel model)
+static void addNonAbstractComplexType(EdmModel model)
 {
     EdmComplexType address = new("Lesson10", "Address");
     address.AddStructuralProperty("Street", EdmPrimitiveTypeKind.String);
@@ -27,7 +25,7 @@ static void addComplexType(EdmModel model)
     model.AddElement(address);
 }
 
-static void addDerivedComplexType(EdmModel model)
+static void addDerivedNonAbstractComplexTypeFromNonAbstract(EdmModel model)
 {
     EdmComplexType derivedAddress = new("Lesson10", "PostalAddress", baseType : model.FindType("Lesson10.Address") as EdmComplexType);
     derivedAddress.AddStructuralProperty("PostalCode", EdmPrimitiveTypeKind.String);
@@ -39,12 +37,37 @@ static void addAbstractComplexType(EdmModel model)
     EdmComplexType addressAbstract = new("Lesson10", "AddressAbstract", baseType: null, isAbstract: true);
     model.AddElement(addressAbstract);
 }
+
+static void addDerivedAbstractComplexTypeFromAbstractComplexType(EdmModel model)
+{
+    EdmComplexType derivedAddress = new("Lesson10", "DerivedAddress", baseType: model.FindType("Lesson10.AddressAbstract") as EdmComplexType, isAbstract: false);
+    derivedAddress.AddStructuralProperty("Street", EdmPrimitiveTypeKind.String);
+    derivedAddress.AddStructuralProperty("City", EdmPrimitiveTypeKind.String);
+    model.AddElement(derivedAddress);
+}
+
+static void addDerivedAbstractComplexTypeFromNonAbstractComplexType(EdmModel model)
+{
+    EdmComplexType derivedAddress = new("Lesson10", "DerivedAddressFromNonAbstract", baseType: model.FindType("Lesson10.Address") as EdmComplexType, isAbstract: false);
+    derivedAddress.AddStructuralProperty("Street", EdmPrimitiveTypeKind.String);
+    derivedAddress.AddStructuralProperty("City", EdmPrimitiveTypeKind.String);
+    model.AddElement(derivedAddress);
+}
+
+static void addDerivedNonAbstractComplexTypeFromAbstractComplexType(EdmModel model)
+{
+    EdmComplexType derivedAddress = new("Lesson10", "DerivedAddressFromAbstract", baseType: model.FindType("Lesson10.AddressAbstract") as EdmComplexType, isAbstract: false);
+    derivedAddress.AddStructuralProperty("Street", EdmPrimitiveTypeKind.String);
+    derivedAddress.AddStructuralProperty("City", EdmPrimitiveTypeKind.String);
+    model.AddElement(derivedAddress);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 添加实体类型
-static void addEntityType(EdmModel model)
+static void addNonAbstractEntityType(EdmModel model)
 {
     EdmEntityType customer = new("Lesson10", "Customer");
-    customer.AddKeys(customer.AddStructuralProperty("Id", EdmPrimitiveTypeKind.Int32)); 
+    customer.AddKeys(customer.AddStructuralProperty("Id", EdmPrimitiveTypeKind.Int32));
     customer.AddStructuralProperty("Name", EdmPrimitiveTypeKind.String);
     var postalAddressType = model.FindType("Lesson10.PostalAddress") as IEdmComplexType;
     if (postalAddressType != null)
@@ -54,7 +77,7 @@ static void addEntityType(EdmModel model)
     model.AddElement(customer);
 }
 
-static void addDerivedEntityType(EdmModel model)
+static void addDerivedNonAbstractEntityTypeFromNonAbstractEntityType(EdmModel model)
 {
     EdmEntityType vipCustomer = new("Lesson10", "VipCustomer", baseType: model.FindType("Lesson10.Customer") as IEdmEntityType);
     vipCustomer.AddStructuralProperty("VipLevel", EdmPrimitiveTypeKind.String);
@@ -68,9 +91,23 @@ static void addAbstractEntityType(EdmModel model)
     model.AddElement(orderAbstract);
 }
 
-static void addDerivedAbstractEntityType(EdmModel model)
+static void addDerivedAbstractEntityTypeFromAbastractEntityType(EdmModel model)
 {
-    EdmEntityType order = new("Lesson10", "Order", baseType: model.FindType("Lesson10.OrderAbstract") as IEdmEntityType);
+    EdmEntityType order = new("Lesson10", "Order", baseType: model.FindType("Lesson10.OrderAbstract") as IEdmEntityType, isAbstract: true, isOpen: false);
+    order.AddStructuralProperty("Amount", EdmPrimitiveTypeKind.Decimal);
+    model.AddElement(order);
+}
+
+static void addDerivedNonAbstractEntityTypeFromAbstractComplexType(EdmModel model)
+{
+    EdmEntityType order = new("Lesson10", "OrderFromAbstract", baseType: model.FindType("Lesson10.OrderAbstract") as IEdmEntityType, isAbstract: false, isOpen: false);
+    order.AddStructuralProperty("Amount", EdmPrimitiveTypeKind.Decimal);
+    model.AddElement(order);
+}
+
+static void addDerivedAbstractEntityTypeFromNonAbstractEntityType(EdmModel model)
+{
+    EdmEntityType order = new("Lesson10", "OrderFromNonAbstract", baseType: model.FindType("Lesson10.Customer") as IEdmEntityType, isAbstract: false, isOpen: false);
     order.AddStructuralProperty("Amount", EdmPrimitiveTypeKind.Decimal);
     model.AddElement(order);
 }
@@ -175,8 +212,32 @@ static void addActionImport(EdmModel model)
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static void addEntitySet(EdmModel model)
+{
+    var container = model.EntityContainer as EdmEntityContainer;
+    if (container != null)
+    {
+        var customerType = model.FindType("Lesson10.Customer") as IEdmEntityType;
+        if (customerType != null)
+        {
+            container.AddEntitySet("Customers", customerType);
+        }
 
+        var orderType = model.FindType("Lesson10.Order") as IEdmEntityType;
+        if (orderType != null)
+        {
+            container.AddEntitySet("Orders", orderType);
+        }
 
+        var singleCustomerType = model.FindType("Lesson10.SingleCustomer") as IEdmEntityType;
+        if (singleCustomerType != null)
+        {
+            container.AddSingleton("SingleCustomer", singleCustomerType);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 static IEdmModel GetEdmModel()
 {
@@ -184,14 +245,19 @@ static IEdmModel GetEdmModel()
 
     addEnumType(model);
 
-    addComplexType(model);
-    addDerivedComplexType(model);
+    addNonAbstractComplexType(model);
+    addDerivedNonAbstractComplexTypeFromNonAbstract(model);
     addAbstractComplexType(model);
+    addDerivedAbstractComplexTypeFromAbstractComplexType(model);
+    addDerivedAbstractComplexTypeFromNonAbstractComplexType(model);
+    addDerivedNonAbstractComplexTypeFromAbstractComplexType(model);
 
-    addEntityType(model);
-    addDerivedEntityType(model);
+    addNonAbstractEntityType(model);
+    addDerivedNonAbstractEntityTypeFromNonAbstractEntityType(model);
     addAbstractEntityType(model);
-    addDerivedAbstractEntityType(model);
+    addDerivedAbstractEntityTypeFromAbastractEntityType(model);
+    addDerivedNonAbstractEntityTypeFromAbstractComplexType(model);
+    addDerivedAbstractEntityTypeFromNonAbstractEntityType(model);
 
     addSingleEntityType(model);
 
@@ -207,6 +273,7 @@ static IEdmModel GetEdmModel()
 
     addFunctionImport(model);
     addActionImport(model);
+    addEntitySet(model);
 
     return model;
 }
