@@ -1,0 +1,855 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Olingo-OData                                                       [pom]
+[INFO] odata-lib                                                          [pom]
+[INFO] odata-commons-api                                               [bundle]
+[INFO] odata-commons-core                                              [bundle]
+[INFO] odata-client-api                                                [bundle]
+[INFO] odata-client-core                                               [bundle]
+[INFO] odata-server-api                                                [bundle]
+[INFO] odata-server-core                                               [bundle]
+[INFO] odata-server-core-ext                                              [jar]
+[INFO] odata-server-tecsvc                                                [war]
+[INFO] odata-server-test                                                  [jar]
+[INFO] odata-ext                                                          [pom]
+[INFO] odata-client-proxy                                                 [jar]
+[INFO] pojogen-maven-plugin                                      [maven-plugin]
+[INFO] odata-client-android                                               [jar]
+[INFO] odata-fit                                                          [war]
+[INFO] odata-dist                                                         [pom]
+[INFO] Olingo-OData-Client-for-Android                                    [pom]
+[INFO] Olingo-OData-Client-for-Java                                       [pom]
+[INFO] Olingo-OData-Server-for-Java                                       [pom]
+[INFO] Olingo-OData-Server-Extension-for-Java                             [pom]
+[INFO] Olingo-OData-JavaDoc                                               [pom]
+[INFO] odata-samples                                                      [pom]
+[INFO] odata-server-sample                                                [war]
+Downloading from maven-default-http-blocker: http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+Downloading from maven-default-http-blocker: http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+Downloading from maven-default-http-blocker: http://0.0.0.0/org/codehaus/mojo/versions-maven-plugin/maven-metadata.xml
+[WARNING] Could not transfer metadata org.codehaus.mojo:versions-maven-plugin/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/versions-maven-plugin/maven-metadata.xml
+[INFO] 
+[INFO] -------------------< org.apache.olingo:odata-parent >-------------------
+[INFO] Building Olingo-OData 4.9.0-SNAPSHOT                              [1/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-parent ---
+[WARNING] The artifact xml-apis:xml-apis:jar:2.0.2 has been relocated to xml-apis:xml-apis:jar:1.0.b2
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] --------------------< org.apache.olingo:odata-lib >---------------------
+[INFO] Building odata-lib 4.9.0-SNAPSHOT                                 [2/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-lib ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-commons-api >-----------------
+[INFO] Building odata-commons-api 4.9.0-SNAPSHOT                         [3/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-commons-api ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-commons-core >----------------
+[INFO] Building odata-commons-core 4.9.0-SNAPSHOT                        [4/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-commons-core ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] -----------------< org.apache.olingo:odata-client-api >-----------------
+[INFO] Building odata-client-api 4.9.0-SNAPSHOT                          [5/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-client-api ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-client-core >-----------------
+[INFO] Building odata-client-core 4.9.0-SNAPSHOT                         [6/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-client-core ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] -----------------< org.apache.olingo:odata-server-api >-----------------
+[INFO] Building odata-server-api 4.9.0-SNAPSHOT                          [7/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-api ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   javax.servlet:servlet-api ......................... 2.5 -> 3.0-alpha-1
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-server-core >-----------------
+[INFO] Building odata-server-core 4.9.0-SNAPSHOT                         [8/24]
+[INFO] -------------------------------[ bundle ]-------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-core ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   javax.servlet:servlet-api ......................... 2.5 -> 3.0-alpha-1
+[INFO] 
+[INFO] 
+[INFO] --------------< org.apache.olingo:odata-server-core-ext >---------------
+[INFO] Building odata-server-core-ext 4.9.0-SNAPSHOT                     [9/24]
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-core-ext ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.0.1 -> 4.0.1
+[INFO] 
+[INFO] 
+[INFO] ---------------< org.apache.olingo:odata-server-tecsvc >----------------
+[INFO] Building odata-server-tecsvc 4.9.0-SNAPSHOT                      [10/24]
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-tecsvc ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   javax.servlet:servlet-api ......................... 2.5 -> 3.0-alpha-1
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-server-test >-----------------
+[INFO] Building odata-server-test 4.9.0-SNAPSHOT                        [11/24]
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-test ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] --------------------< org.apache.olingo:odata-ext >---------------------
+[INFO] Building odata-ext 4.9.0-SNAPSHOT                                [12/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-ext ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-client-proxy >----------------
+[INFO] Building odata-client-proxy 4.9.0-SNAPSHOT                       [13/24]
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-client-proxy ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] ---------------< org.apache.olingo:pojogen-maven-plugin >---------------
+[INFO] Building pojogen-maven-plugin 4.9.0-SNAPSHOT                     [14/24]
+[INFO] ----------------------------[ maven-plugin ]----------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ pojogen-maven-plugin ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] ---------------< org.apache.olingo:odata-client-android >---------------
+[INFO] Building odata-client-android 4.9.0-SNAPSHOT                     [15/24]
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-client-android ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] --------------------< org.apache.olingo:odata-fit >---------------------
+[INFO] Building odata-fit 4.9.0-SNAPSHOT                                [16/24]
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-fit ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   org.slf4j:slf4j-log4j12 ....................... 1.7.36 -> 2.0.0-alpha6
+[INFO] 
+[INFO] 
+[INFO] --------------------< org.apache.olingo:odata-dist >--------------------
+[INFO] Building odata-dist 4.9.0-SNAPSHOT                               [17/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] --------------< org.apache.olingo:odata-dist-android-lib >--------------
+[INFO] Building Olingo-OData-Client-for-Android 4.9.0-SNAPSHOT          [18/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist-android-lib ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] --------------< org.apache.olingo:odata-dist-client-lib >---------------
+[INFO] Building Olingo-OData-Client-for-Java 4.9.0-SNAPSHOT             [19/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist-client-lib ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] --------------< org.apache.olingo:odata-dist-server-lib >---------------
+[INFO] Building Olingo-OData-Server-for-Java 4.9.0-SNAPSHOT             [20/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist-server-lib ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] ------------< org.apache.olingo:odata-dist-server-lib-ext >-------------
+[INFO] Building Olingo-OData-Server-Extension-for-Java 4.9.0-SNAPSHOT   [21/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist-server-lib-ext ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] No dependencies in Dependencies have newer versions.
+[INFO] 
+[INFO] 
+[INFO] ----------------< org.apache.olingo:odata-dist-javadoc >----------------
+[INFO] Building Olingo-OData-JavaDoc 4.9.0-SNAPSHOT                     [22/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-dist-javadoc ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] ------------------< org.apache.olingo:odata-samples >-------------------
+[INFO] Building odata-samples 4.9.0-SNAPSHOT                            [23/24]
+[INFO] --------------------------------[ pom ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-samples ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] 
+[INFO] ---------------< org.apache.olingo:odata-server-sample >----------------
+[INFO] Building odata-server-sample 4.9.0-SNAPSHOT                      [24/24]
+[INFO] --------------------------------[ war ]---------------------------------
+[WARNING] org.apache.maven.plugins/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.apache.maven.plugins/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/apache/maven/plugins/maven-metadata.xml
+[WARNING] org.codehaus.mojo/maven-metadata.xmlfailed to transfer from http://0.0.0.0/ during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of maven-default-http-blocker has elapsed or updates are forced. Original error: Could not transfer metadata org.codehaus.mojo/maven-metadata.xml from/to maven-default-http-blocker (http://0.0.0.0/): transfer failed for http://0.0.0.0/org/codehaus/mojo/maven-metadata.xml
+[INFO] 
+[INFO] --- versions-maven-plugin:2.1:display-dependency-updates (default-cli) @ odata-server-sample ---
+[INFO] The following dependencies in Dependency Management have newer versions:
+[INFO]   io.netty:netty-codec-http ............... 4.1.74.Final -> 5.0.0.Alpha2
+[INFO]   javax.servlet:javax.servlet-api ....................... 3.1.0 -> 4.0.1
+[INFO]   org.apache.commons:commons-vfs2 ......................... 2.0 -> 2.9.0
+[INFO]   org.apache.cxf:cxf-rt-frontend-jaxrs ................. 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-client ...................... 3.0.16 -> 3.5.0
+[INFO]   org.apache.cxf:cxf-rt-rs-security-oauth2 ............. 3.0.16 -> 3.5.0
+[INFO]   org.apache.felix:maven-bundle-plugin .................. 2.5.4 -> 5.1.4
+[INFO]   org.apache.geronimo.specs:geronimo-javamail_1.4_spec ...
+[INFO]                                                   1.7.1 -> 1.7.2-alpha-1
+[INFO]   org.apache.maven:maven-plugin-api ..................... 3.6.1 -> 3.8.4
+[INFO]   org.apache.maven.plugin-tools:maven-plugin-annotations ...
+[INFO]                                                           3.6.1 -> 3.6.4
+[INFO]   org.apache.tomcat:tomcat-jasper ................ 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-core ...... 7.0.109 -> 10.1.0-M10
+[INFO]   org.apache.tomcat.embed:tomcat-embed-logging-log4j ...
+[INFO]                                                      7.0.109 -> 9.0.0.M6
+[INFO]   org.esigate:esigate-core .................................. 4.4 -> 5.3
+[INFO]   org.mockito:mockito-all .......................... 1.9.5 -> 2.0.2-beta
+[INFO]   org.slf4j:slf4j-api ........................... 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ........................ 1.7.36 -> 2.0.0-alpha6
+[INFO]   org.springframework:spring-web ............... 4.0.9.RELEASE -> 5.3.16
+[INFO] 
+[INFO] The following dependencies in Dependencies have newer versions:
+[INFO]   javax.servlet:servlet-api ......................... 2.5 -> 3.0-alpha-1
+[INFO]   org.slf4j:slf4j-api ............................ 1.7.7 -> 2.0.0-alpha6
+[INFO]   org.slf4j:slf4j-simple ......................... 1.7.7 -> 2.0.0-alpha6
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Olingo-OData 4.9.0-SNAPSHOT:
+[INFO] 
+[INFO] Olingo-OData ....................................... SUCCESS [  0.308 s]
+[INFO] odata-lib .......................................... SUCCESS [  0.028 s]
+[INFO] odata-commons-api .................................. SUCCESS [  0.109 s]
+[INFO] odata-commons-core ................................. SUCCESS [  0.024 s]
+[INFO] odata-client-api ................................... SUCCESS [  0.037 s]
+[INFO] odata-client-core .................................. SUCCESS [  0.039 s]
+[INFO] odata-server-api ................................... SUCCESS [  0.035 s]
+[INFO] odata-server-core .................................. SUCCESS [  0.035 s]
+[INFO] odata-server-core-ext .............................. SUCCESS [  0.036 s]
+[INFO] odata-server-tecsvc ................................ SUCCESS [  0.023 s]
+[INFO] odata-server-test .................................. SUCCESS [  0.022 s]
+[INFO] odata-ext .......................................... SUCCESS [  0.017 s]
+[INFO] odata-client-proxy ................................. SUCCESS [  0.023 s]
+[INFO] pojogen-maven-plugin ............................... SUCCESS [  0.025 s]
+[INFO] odata-client-android ............................... SUCCESS [  0.016 s]
+[INFO] odata-fit .......................................... SUCCESS [  0.027 s]
+[INFO] odata-dist ......................................... SUCCESS [  0.015 s]
+[INFO] Olingo-OData-Client-for-Android .................... SUCCESS [  0.015 s]
+[INFO] Olingo-OData-Client-for-Java ....................... SUCCESS [  0.016 s]
+[INFO] Olingo-OData-Server-for-Java ....................... SUCCESS [  0.016 s]
+[INFO] Olingo-OData-Server-Extension-for-Java ............. SUCCESS [  0.018 s]
+[INFO] Olingo-OData-JavaDoc ............................... SUCCESS [  0.015 s]
+[INFO] odata-samples ...................................... SUCCESS [  0.014 s]
+[INFO] odata-server-sample ................................ SUCCESS [  0.016 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.950 s
+[INFO] Finished at: 2022-02-26T11:36:28+01:00
+[INFO] ------------------------------------------------------------------------

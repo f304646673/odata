@@ -17,6 +17,9 @@ namespace Lesson2.Controllers
                 new Rectangle { Id = 3, Length = 8, Width = 5, Area = 40 }
             ];
 
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        /// EntitySet
+
         public ActionResult Post([FromBody] Shape shape)
         {
             shapes.Add(shape);
@@ -62,6 +65,9 @@ namespace Lesson2.Controllers
             return Ok(shapes.OfType<Circle>().ToList());
         }
 
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        /// Entity
         public ActionResult<Shape> Get([FromRoute] int key)
         {
             var shape = shapes.SingleOrDefault(d => d.Id.Equals(key));
