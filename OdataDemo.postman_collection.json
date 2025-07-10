@@ -1,0 +1,3353 @@
+{
+	"info": {
+		"_postman_id": "1d195c8f-6280-4e1c-92b3-33caecb5c623",
+		"name": "OdataDemo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33584245"
+	},
+	"item": [
+		{
+			"name": "csharp",
+			"item": [
+				{
+					"name": "Lesson1",
+					"item": [
+						{
+							"name": "odata/Customers",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Name/$value",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Name/$value",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Name",
+										"$value"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers?$top=1&skip=1",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers?$top=1&skip=1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers"
+									],
+									"query": [
+										{
+											"key": "$top",
+											"value": "1"
+										},
+										{
+											"key": "skip",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)?$expand=Orders",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)?$expand=Orders",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)"
+									],
+									"query": [
+										{
+											"key": "$expand",
+											"value": "Orders"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers?$select=Name",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers?$select=Name",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers"
+									],
+									"query": [
+										{
+											"key": "$select",
+											"value": "Name"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers?$filter=Id eq 1 or Id eq 3",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers?$filter=Id eq 1 or Id eq 3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers"
+									],
+									"query": [
+										{
+											"key": "$filter",
+											"value": "Id eq 1 or Id eq 3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers?$orderby=Id desc",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers?$orderby=Id desc",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers"
+									],
+									"query": [
+										{
+											"key": "$orderby",
+											"value": "Id desc"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers{id}",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers/$count",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers/$count",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers",
+										"$count"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson2",
+					"item": [
+						{
+							"name": "EntitySet",
+							"item": [
+								{
+									"name": "odata/Shapes",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/$count",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/$count",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"$count"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/Lesson2.Models.Rectangle",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/Lesson2.Models.Rectangle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"Lesson2.Models.Rectangle"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/Lesson2.Models.Rectangle/$count",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/Lesson2.Models.Rectangle/$count",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"Lesson2.Models.Rectangle",
+												"$count"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\r\n        {\r\n            \"Id\": 1,\r\n            \"Area\": 2\r\n        },\r\n        {\r\n            \"@odata.type\": \"#Lesson2.Models.Circle\",\r\n            \"Id\": 2,\r\n            \"Radius\": 0.7,\r\n            \"Area\": 1.54\r\n        },\r\n        {\r\n            \"@odata.type\": \"#Lesson2.Models.Rectangle\",\r\n            \"Id\": 3,\r\n            \"Length\": 8,\r\n            \"Width\": 4,\r\n            \"Area\": 32\r\n        }\r\n    ]\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Id\": 4,\r\n    \"Area\": 36\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/Lesson2.Models.Circle",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Id\": 5,\r\n    \"Radius\": 1.4,\r\n    \"Area\": 6.16\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/Lesson2.Models.Circle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"Lesson2.Models.Circle"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Entity",
+							"item": [
+								{
+									"name": "odata/Shapes/Lesson2.Models.Shape",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/Lesson2.Models.Shape",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"Lesson2.Models.Shape"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(1)",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(1)",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(1)"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/2",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(2)/Lesson2.Models.Circle",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(2)/Lesson2.Models.Circle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(2)",
+												"Lesson2.Models.Circle"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(3)",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"@odata.type\": \"#Lesson2.Models.Rectangle\",\r\n    \"Id\": 3,\r\n    \"Length\": 8,\r\n    \"Width\": 6,\r\n    \"Area\": 48\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(3)",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(3)"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/1",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Id\": 1,\r\n    \"Area\": 48\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/1",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(2)/Lesson2.Models.Circle",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Id\": 2,\r\n    \"Radius\": 0.7,\r\n    \"Area\": 1.54\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(2)/Lesson2.Models.Circle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(2)",
+												"Lesson2.Models.Circle"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(3)",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"@odata.type\": \"#Lesson2.Models.Rectangle\",\r\n    \"Width\": 8,\r\n    \"Area\": 64\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(3)",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(3)"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(2)/Lesson2.Models.Circle",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Radius\": 1.4,\r\n    \"Area\": 6.16\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(2)/Lesson2.Models.Circle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(2)",
+												"Lesson2.Models.Circle"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes/Lesson2.Models.Rectangle",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\r\n        {\r\n            \"Id\": 3,\r\n            \"Length\": 8,\r\n            \"Width\": 4,\r\n            \"Area\": 32\r\n        }\r\n    ]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes/Lesson2.Models.Rectangle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes",
+												"Lesson2.Models.Rectangle"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(3)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(3)",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(3)"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Shapes(2)/Lesson2.Models.Circle",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Shapes(2)/Lesson2.Models.Circle",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Shapes(2)",
+												"Lesson2.Models.Circle"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Lesson3",
+					"item": [
+						{
+							"name": "odata/Company",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Company",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Company/Lesson3.Models.HoldingCompany",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Company/Lesson3.Models.HoldingCompany",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company",
+										"Lesson3.Models.HoldingCompany"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Company",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": 13,\r\n    \"Name\": \"Company LLP\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Company",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Company/Lesson3.Models.HoldingCompany",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": 13,\r\n    \"Name\": \"Company LTD\",\r\n    \"NumberOfSubsidiaries\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Company/Lesson3.Models.HoldingCompany",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company",
+										"Lesson3.Models.HoldingCompany"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Company",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Name\": \"Company (PTY) LTD\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Company",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Company/Lesson3.Models.HoldingCompany",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Name\": \"Company A/S\",\r\n    \"NumberOfSubsidiaries\": 3\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Company/Lesson3.Models.HoldingCompany",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Company",
+										"Lesson3.Models.HoldingCompany"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson4",
+					"item": [
+						{
+							"name": "odata/Employees",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/Supervisor",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/Supervisor",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"Supervisor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/Peers",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/Supervisor",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"Supervisor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(5)/Lesson4.Models.Manager/DirectReports",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(5)/Lesson4.Models.Manager/DirectReports",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(5)",
+										"Lesson4.Models.Manager",
+										"DirectReports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(5)/Lesson4.Models.Manager/DirectReports/$count",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(5)/Lesson4.Models.Manager/DirectReports/$count",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(5)",
+										"Lesson4.Models.Manager",
+										"DirectReports",
+										"$count"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(4)/Peers",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": 7,\r\n    \"Name\": \"Employee 7\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(4)/Peers",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(4)",
+										"Peers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(6)/Lesson4.Models.Manager/DirectReports",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": 8,\r\n    \"Name\": \"Employee 8\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(6)/Lesson4.Models.Manager/DirectReports",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(6)",
+										"Lesson4.Models.Manager",
+										"DirectReports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/Supervisor",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.type\": \"#NavigationRouting.Models.Manager\",\r\n    \"Id\": 6,\r\n    \"Name\": \"Employee 6\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/Supervisor",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"Supervisor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(6)/Lesson4.Models.Manager/PersonalAssistant",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Id\": 9,\r\n    \"Name\": \"Employee 9\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(6)/Lesson4.Models.Manager/PersonalAssistant",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(6)",
+										"Lesson4.Models.Manager",
+										"PersonalAssistant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/Supervisor",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Name\": \"Sue\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/Supervisor",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"Supervisor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/Supervisor",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/Supervisor",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"Supervisor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(6)/Lesson4.Models.Manager/PersonalAssistant",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Name\": \"Joe\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(6)/Lesson4.Models.Manager/PersonalAssistant",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(6)",
+										"Lesson4.Models.Manager",
+										"PersonalAssistant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(6)/Lession4.Models.Manager/PersonalAssistant",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(6)/Lession4.Models.Manager/PersonalAssistant",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(6)",
+										"Lession4.Models.Manager",
+										"PersonalAssistant"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson5",
+					"item": [
+						{
+							"name": "odata/Employees/GetHighestRating()",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees/GetHighestRating()",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees",
+										"GetHighestRating()"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/GetRating()",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/GetRating()",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"GetRating()"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees/Lesson5.Models.Manager/GetHighestBonus()",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees/Lesson5.Models.Manager/GetHighestBonus()",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees",
+										"Lesson5.Models.Manager",
+										"GetHighestBonus()"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(5)/Lesson5.Models.Manager/GetBonus()",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(5)/Lesson5.Models.Manager/GetBonus()",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(5)",
+										"Lesson5.Models.Manager",
+										"GetBonus()"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/GetSalary(hourlyRate=17,hoursWorked=40)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/GetSalary(hourlyRate=17,hoursWorked=40)",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"GetSalary(hourlyRate=17,hoursWorked=40)"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson6",
+					"item": [
+						{
+							"name": "odata/Employees/ConferSwagGifts",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"SwagGift\": \"Mug\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees/ConferSwagGifts",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees",
+										"ConferSwagGifts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(1)/ConferSwagGift",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"SwagGift\": \"Gaiter\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(1)/ConferSwagGift",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(1)",
+										"ConferSwagGift"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees/Lesson6.Models.Manager/ConferBonuses",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Bonus\": 130\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees/Lesson6.Models.Manager/ConferBonuses",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees",
+										"Lesson6.Models.Manager",
+										"ConferBonuses"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Employees(5)/Lesson6.Models.Manager/ConferBonus",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"Bonus\": 70\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Employees(5)/Lesson6.Models.Manager/ConferBonus",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Employees(5)",
+										"Lesson6.Models.Manager",
+										"ConferBonus"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/ComputeSalary",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"hourlyRate\": 17.0,\r\n    \"hoursWorked\": 40\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/ComputeSalary",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"ComputeSalary"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson7",
+					"item": [
+						{
+							"name": "odata/Orders(1)/Customer/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.OnlineOrder/PaidByCustomer/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(1)/Customer(11)/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer(11)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer(11)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(1)/Customer(12)/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer(12)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer(12)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer(13)/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer(13)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer(13)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer(14)/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer(14)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer(14)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(1)/Customer/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(1)/Customer/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Customers(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(1)/Customer/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Customers(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(1)/Customer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(1)",
+										"Customer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Customers(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Customers(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Orders(2)/Lesson7.Models.ThirdpartyPaymentOrder/PaidByCustomer/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Orders(2)",
+										"Lesson7.Models.ThirdpartyPaymentOrder",
+										"PaidByCustomer",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders(2)/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders(2)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders(2)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(1)/$ref",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(1)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers(1)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders(5)/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders(5)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders(5)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(2)/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(2)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers(2)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders(5)/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders(3)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders(3)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(2)/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(2)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers(2)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders(2)/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders(2)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders(2)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(1)/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers(1)/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers(1)",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Orders(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(1)/Orders/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Orders(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(1)/Orders/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(1)",
+										"Orders",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Employees(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@odata.id\": \"http://localhost:5119/odata/Employees(1)\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Customers(2)/Lesson7.Models.EnterpriseCustomer/RelationshipManagers/$ref",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Customers(2)",
+										"Lesson7.Models.EnterpriseCustomer",
+										"RelationshipManagers",
+										"$ref"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson8",
+					"item": [
+						{
+							"name": "collection",
+							"item": [
+								{
+									"name": "odata/Customers(1)/ContactPhones",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": \"798-507-2014\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\"804-855-4049\", \"491-9198-476\"]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones(Multi)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\"804-855-4049\", \"491-9198-476\"]\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones(Single)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": \"798-507-2014\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones(Clear)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/ContactPhones/$count",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/ContactPhones/$count",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"ContactPhones",
+												"$count"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\r\n        {\r\n            \"Street\": \"One Microsoft Way\"\r\n        },\r\n        {\r\n            \"Street\": \"One Google Way\"\r\n        }\r\n    ]\r\n}\r\n    ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses(Multi)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": [\r\n        {\r\n            \"Street\": \"One Microsoft Way\"\r\n        },\r\n        {\r\n            \"Street\": \"One Google Way\"\r\n        }\r\n    ]\r\n}\r\n    ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses(Single)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses(Clear)",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses/$count",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/ShippingAddresses/$count",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"ShippingAddresses",
+												"$count"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "primitive",
+							"item": [
+								{
+									"name": "odata/Customers(1)/Name",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/Name",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"Name"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/Name/$value",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/Name/$value",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"Name",
+												"$value"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"CreditLimit"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit/$value",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit/$value",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"CreditLimit",
+												"$value"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/Name",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": \"Sue\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/Name",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"Name"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"value\": 10\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"CreditLimit"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/Name",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/Name",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"Name"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/CreditLimit",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"CreditLimit"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "single",
+							"item": [
+								{
+									"name": "odata/Customers(2)/BillingAddress",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(2)/BillingAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(2)",
+												"BillingAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(2)",
+												"BillingAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(4)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(4)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/BillingAddress",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/BillingAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"BillingAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"2A\",\r\n    \"PostalCode\": \"14030\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(2)",
+												"BillingAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+									"request": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\",\r\n    \"PostalCode\": \"98052\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(4)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/BillingAddress",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/BillingAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"BillingAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"2A\",\r\n    \"PostalCode\": \"14030\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(2)/BillingAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(2)",
+												"BillingAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"content-type": true
+										}
+									},
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"content-type": true
+										}
+									},
+									"request": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"Street\": \"One Microsoft Way\",\r\n    \"PostalCode\": \"98052\"\r\n}"
+										},
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(4)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress/Lesson8.Models.PostalAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(4)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress",
+												"Lesson8.Models.PostalAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(1)/BillingAddress",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(1)/BillingAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(1)",
+												"BillingAddress"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:5119/odata/Customers(3)/Lesson8.Models.EnterpriseCustomer/RegisteredAddress",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "5119",
+											"path": [
+												"odata",
+												"Customers(3)",
+												"Lesson8.Models.EnterpriseCustomer",
+												"RegisteredAddress"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Lesson9",
+					"item": [
+						{
+							"name": "odata/Books/mostRecent()",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/Books/mostRecent()",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Books",
+										"mostRecent()"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/ReturnAllForKidsBooks",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:5119/odata/ReturnAllForKidsBooks",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"ReturnAllForKidsBooks"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/Books('1')/Rate",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"rating\": 7\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/Books('1')/Rate",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"Books('1')",
+										"Rate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "odata/incrementBookYear",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"content-type": true
+								}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"increment\": 7,\r\n    \"id\": \"1\"\r\n}"
+								},
+								"url": {
+									"raw": "http://localhost:5119/odata/incrementBookYear",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "5119",
+									"path": [
+										"odata",
+										"incrementBookYear"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Lesson10",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "odata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5119/odata",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5119",
+					"path": [
+						"odata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "odata/$metadata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5119/odata/$metadata",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5119",
+					"path": [
+						"odata",
+						"$metadata"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
