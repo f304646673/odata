@@ -18,10 +18,6 @@
  */
 package org.apache.olingo.fit.tecsvc.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -33,6 +29,9 @@ import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.fit.AbstractBaseTestITCase;
 import org.apache.olingo.fit.tecsvc.TecSvcConst;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class ODataVersionConformanceITCase extends AbstractBaseTestITCase {
@@ -96,9 +95,10 @@ public class ODataVersionConformanceITCase extends AbstractBaseTestITCase {
     connection.setRequestProperty(HttpHeader.ODATA_MAX_VERSION, "5.0");
     connection.connect();
 
+    assertEquals(HttpStatusCode.OK.getStatusCode(), connection.getResponseCode());
     assertEquals("4.0", connection.getHeaderField(HttpHeader.ODATA_VERSION));
 
-    final String content = IOUtils.toString(connection.getErrorStream(), Charset.defaultCharset());
+    final String content = IOUtils.toString(connection.getInputStream(), Charset.defaultCharset());
     assertNotNull(content);
   }
 
@@ -112,10 +112,11 @@ public class ODataVersionConformanceITCase extends AbstractBaseTestITCase {
     connection.setRequestProperty(HttpHeader.ODATA_MAX_VERSION, "5.0");
     connection.connect();
 
+    assertEquals(HttpStatusCode.OK.getStatusCode(), connection.getResponseCode());
     assertEquals("4.0", connection.getHeaderField(HttpHeader.ODATA_VERSION));
 
-    final String content = IOUtils.toString(connection.getErrorStream(), Charset.defaultCharset());
-    assertNotNull(content);;
+    final String content = IOUtils.toString(connection.getInputStream(), Charset.defaultCharset());
+    assertNotNull(content);
   }
   
   @Test
