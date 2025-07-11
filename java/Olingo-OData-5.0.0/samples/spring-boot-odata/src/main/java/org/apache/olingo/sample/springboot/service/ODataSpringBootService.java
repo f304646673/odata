@@ -3,21 +3,20 @@ package org.apache.olingo.sample.springboot.service;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.olingo.sample.springboot.data.SpringBootDataProvider;
+import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
+import org.apache.olingo.sample.springboot.processor.SpringBootCarsProcessor;
+import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataHttpHandler;
+import org.apache.olingo.server.api.ServiceMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
-import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.ODataHttpHandler;
-import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.sample.springboot.data.SpringBootDataProvider;
-import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
-import org.apache.olingo.sample.springboot.processor.SpringBootCarsProcessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * Spring Boot OData Service
@@ -42,6 +41,21 @@ public class ODataSpringBootService {
     public void processODataRequest(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
+            String requestUri = request.getRequestURI();
+            String pathInfo = request.getPathInfo();
+            String servletPath = request.getServletPath();
+            
+            LOG.info("Processing OData request - URI: {}, PathInfo: {}, ServletPath: {}", 
+                requestUri, pathInfo, servletPath);
+            
+            // Special logging for $metadata requests
+            if (requestUri.contains("$metadata")) {
+                LOG.info("*** METADATA REQUEST DETECTED ***");
+                LOG.info("Full request URL: {}", request.getRequestURL());
+                LOG.info("Query string: {}", request.getQueryString());
+                LOG.info("Accept header: {}", request.getHeader("Accept"));
+            }
+
             // Session management - similar to CarsServlet
             HttpSession session = request.getSession(true);
             SpringBootDataProvider dataProvider = (SpringBootDataProvider) session.getAttribute(
@@ -60,9 +74,14 @@ public class ODataSpringBootService {
                 new ArrayList<>()
             );
 
+            LOG.info("Created ServiceMetadata with EDM provider: {}", 
+                serviceMetadata.getEdm().getEntityContainer().getFullQualifiedName());
+
             // Create and configure OData HTTP handler
             ODataHttpHandler handler = odata.createHandler(serviceMetadata);
             handler.register(new SpringBootCarsProcessor(dataProvider));
+            
+            LOG.info("Registered processor and delegating to OData handler...");
 
             // Process the request - delegate to OData framework
             handler.process(request, response);
@@ -75,16 +94,5 @@ public class ODataSpringBootService {
                 request.getMethod(), request.getRequestURI(), e);
             throw new ServletException("OData processing failed", e);
         }
-    }
-
-    /**
-     * Get service metadata - for debugging and introspection
-     */
-    public ServiceMetadata getServiceMetadata() {
-        OData odata = OData.newInstance();
-        return odata.createServiceMetadata(
-            new SpringBootEdmProvider(), 
-            new ArrayList<>()
-        );
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,19 +37,35 @@ public class ODataController {
      * them to the ODataSpringBootService, which processes them similar to
      * how the traditional CarsServlet.service() method works.
      */
-    @RequestMapping("/**")
+    @RequestMapping(value = {"", "/", "/**"}, method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
     public void handleODataRequest(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        LOG.debug("Processing OData request: {} {}", request.getMethod(), request.getRequestURI());
+        String requestUri = request.getRequestURI();
+        String queryString = request.getQueryString();
+        String fullRequest = requestUri + (queryString != null ? "?" + queryString : "");
+        
+        LOG.info("Processing OData request: {} {} (Full URL: {})", 
+            request.getMethod(), requestUri, fullRequest);
+        LOG.debug("Request headers:");
+        request.getHeaderNames().asIterator().forEachRemaining(header -> 
+            LOG.debug("  {}: {}", header, request.getHeader(header)));
+        
+        // Special handling for $metadata requests
+        if (requestUri.endsWith("$metadata") || requestUri.endsWith("$metadata/")) {
+            LOG.info("Detected $metadata request - should return metadata document");
+        }
         
         try {
+            // Create a wrapper to provide correct servlet path and path info for OData framework
+            HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request);
+            
             // Delegate to the service layer (similar to HttpServlet pattern)
-            odataService.processODataRequest(request, response);
+            odataService.processODataRequest(wrapper, response);
             
         } catch (Exception e) {
             LOG.error("Error processing OData request: {} {}", 
-                request.getMethod(), request.getRequestURI(), e);
+                request.getMethod(), requestUri, e);
             
             // Let Spring Boot handle the error response
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -62,5 +79,48 @@ public class ODataController {
     @RequestMapping("/health")
     public String health() {
         return "Spring Boot OData Service is running";
+    }
+    
+    /**
+     * HttpServletRequest wrapper to provide correct path information for OData framework
+     */
+    private static class HttpServletRequestWrapper extends jakarta.servlet.http.HttpServletRequestWrapper {
+        
+        public HttpServletRequestWrapper(HttpServletRequest request) {
+            super(request);
+        }
+        
+        @Override
+        public String getServletPath() {
+            // Return the base service path
+            return "/cars.svc";
+        }
+        
+        @Override
+        public String getPathInfo() {
+            String requestUri = getRequestURI();
+            String contextPath = getContextPath();
+            
+            // Remove context path and servlet path to get the path info
+            String basePath = contextPath + "/cars.svc";
+            if (requestUri.startsWith(basePath)) {
+                String pathInfo = requestUri.substring(basePath.length());
+                if (pathInfo.isEmpty()) {
+                    return null; // This represents the service document request
+                }
+                return pathInfo; // This should be "/$metadata" for metadata requests
+            }
+            return null;
+        }
+        
+        @Override
+        public String getRequestURI() {
+            return super.getRequestURI();
+        }
+        
+        @Override
+        public StringBuffer getRequestURL() {
+            return super.getRequestURL();
+        }
     }
 }

@@ -57,13 +57,13 @@ public class SpringBootEdmProvider extends CsdlAbstractEdmProvider {
 
     @Override
     public CsdlEntityContainer getEntityContainer() throws ODataException {
-        // Entity Sets
-        List<CsdlEntitySet> entitySets = new ArrayList<>();
-        entitySets.add(getCarEntitySet());
-
         // Create entity container
         CsdlEntityContainer entityContainer = new CsdlEntityContainer();
         entityContainer.setName(CONTAINER_NAME);
+        
+        // Entity Sets
+        List<CsdlEntitySet> entitySets = new ArrayList<>();
+        entitySets.add(getEntitySet(CONTAINER, ES_CARS_NAME));
         entityContainer.setEntitySets(entitySets);
 
         return entityContainer;
@@ -71,20 +71,23 @@ public class SpringBootEdmProvider extends CsdlAbstractEdmProvider {
 
     @Override
     public List<CsdlSchema> getSchemas() throws ODataException {
-        // Create Schema
+        // Create Schema list
+        List<CsdlSchema> schemas = new ArrayList<>();
         CsdlSchema schema = new CsdlSchema();
         schema.setNamespace(NAMESPACE);
 
         // Add EntityTypes
         List<CsdlEntityType> entityTypes = new ArrayList<>();
-        entityTypes.add(getCarEntityType());
+        entityTypes.add(getEntityType(ET_CAR_FQN));
         schema.setEntityTypes(entityTypes);
 
         // Add EntityContainer
         schema.setEntityContainer(getEntityContainer());
+        
+        schemas.add(schema);
 
-        // Return the schema
-        return Arrays.asList(schema);
+        // Return the schemas list
+        return schemas;
     }
 
     @Override

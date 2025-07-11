@@ -6,8 +6,6 @@
             "type": "shell",
             "command": "mvn",
             "args": [
-                "-f",
-                "pom-standalone.xml",
                 "clean",
                 "compile"
             ],
