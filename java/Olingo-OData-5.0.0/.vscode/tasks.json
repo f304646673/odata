@@ -1,0 +1,103 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "maven-compile-spring-boot",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-f",
+                "pom-standalone.xml",
+                "clean",
+                "compile"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/samples/spring-boot-odata"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "maven-package-spring-boot",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-f",
+                "pom-standalone.xml",
+                "clean",
+                "package",
+                "-DskipTests"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/samples/spring-boot-odata"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "spring-boot-run",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-f",
+                "pom-standalone.xml",
+                "spring-boot:run"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/samples/spring-boot-odata"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "spring-boot-debug",
+            "type": "shell",
+            "command": "mvn",
+            "args": [
+                "-f",
+                "pom-standalone.xml",
+                "spring-boot:run",
+                "-Dspring-boot.run.jvmArguments=\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005\""
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/samples/spring-boot-odata"
+            },
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}

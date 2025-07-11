@@ -1,0 +1,63 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug CarsServlet",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "projectName": "odata-server-sample"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot OData Application",
+            "request": "launch",
+            "mainClass": "org.apache.olingo.sample.springboot.ODataSpringBootApplication",
+            "projectName": "odata-spring-boot-sample",
+            "args": "",
+            "vmArgs": "-Dserver.port=8080 -Dspring.profiles.active=dev",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/samples/spring-boot-odata",
+            "env": {
+                "SPRING_PROFILES_ACTIVE": "dev"
+            }
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot OData Debug Mode",
+            "request": "launch",
+            "mainClass": "org.apache.olingo.sample.springboot.ODataSpringBootApplication",
+            "projectName": "odata-spring-boot-sample",
+            "args": "",
+            "vmArgs": "-Dserver.port=8080 -Dspring.profiles.active=debug -Dlogging.level.org.apache.olingo=DEBUG -Dlogging.level.org.apache.olingo.sample=DEBUG",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/samples/spring-boot-odata",
+            "env": {
+                "SPRING_PROFILES_ACTIVE": "debug"
+            }
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot OData with Maven",
+            "request": "launch",
+            "mainClass": "org.springframework.boot.loader.JarLauncher",
+            "args": "",
+            "vmArgs": "-Dserver.port=8080",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}/samples/spring-boot-odata",
+            "preLaunchTask": "maven-compile-spring-boot"
+        },
+        {
+            "type": "java",
+            "name": "Attach to Spring Boot OData",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "timeout": 30000
+        }
+    ]
+}

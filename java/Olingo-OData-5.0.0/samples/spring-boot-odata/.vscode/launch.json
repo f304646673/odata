@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug ODataSpringBootApplication",
+            "request": "launch",
+            "mainClass": "org.apache.olingo.sample.springboot.ODataSpringBootApplication",
+            "projectName": "odata-spring-boot-sample",
+            "console": "internalConsole"
+        },
+        {
+            "type": "java",
+            "name": "Debug DebugTest",
+            "request": "launch",
+            "mainClass": "org.apache.olingo.sample.springboot.DebugTest",
+            "projectName": "odata-spring-boot-sample",
+            "console": "internalConsole"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "console": "internalConsole"
+        }
+    ]
+}
