@@ -51,11 +51,6 @@ public class ODataController {
         request.getHeaderNames().asIterator().forEachRemaining(header -> 
             LOG.debug("  {}: {}", header, request.getHeader(header)));
         
-        // Special handling for $metadata requests
-        if (requestUri.endsWith("$metadata") || requestUri.endsWith("$metadata/")) {
-            LOG.info("Detected $metadata request - should return metadata document");
-        }
-        
         try {
             // Create a wrapper to provide correct servlet path and path info for OData framework
             HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request);

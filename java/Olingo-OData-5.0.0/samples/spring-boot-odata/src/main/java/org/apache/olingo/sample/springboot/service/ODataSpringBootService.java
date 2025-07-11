@@ -47,14 +47,6 @@ public class ODataSpringBootService {
             
             LOG.info("Processing OData request - URI: {}, PathInfo: {}, ServletPath: {}", 
                 requestUri, pathInfo, servletPath);
-            
-            // Special logging for $metadata requests
-            if (requestUri.contains("$metadata")) {
-                LOG.info("*** METADATA REQUEST DETECTED ***");
-                LOG.info("Full request URL: {}", request.getRequestURL());
-                LOG.info("Query string: {}", request.getQueryString());
-                LOG.info("Accept header: {}", request.getHeader("Accept"));
-            }
 
             // Session management - similar to CarsServlet
             HttpSession session = request.getSession(true);

@@ -62,6 +62,13 @@
       </modules>
     </profile>
     <profile>
+      <id>spring-boot-odata</id>
+      <modules>
+        <module>server</module>
+        <module>samples/spring-boot-odata</module>
+      </modules>
+    </profile>
+    <profile>
       <id>samples</id>
       <modules>
         <module>osgi/server</module>
