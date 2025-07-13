@@ -61,7 +61,7 @@ public class Metadata extends AbstractMetadataElement {
       final XMLInputFactory ifactory = XMLInputFactory.newInstance();
       ifactory.setProperty(SUPPORT_DTD, false);
       ifactory.setProperty(IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-      final XMLEventReader reader = ifactory.createXMLEventReader(is, "UTF-8");
+      final XMLEventReader reader = ifactory.createXMLEventReader(is, org.apache.olingo.commons.api.Constants.UTF8);
 
       try {
         while (reader.hasNext()) {
