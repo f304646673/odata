@@ -81,12 +81,6 @@ java -jar target/odata-spring-boot-xml-native-sample-5.0.0.jar
 - **Manufacturers 实体集**: http://localhost:8080/cars.svc/Manufacturers
 - **单个实体**: http://localhost:8080/cars.svc/Cars(1)
 
-### 管理端点
-
-- **健康检查**: http://localhost:8080/cars.svc/health
-- **服务信息**: http://localhost:8080/cars.svc/info
-- **XML 演示**: http://localhost:8080/cars.svc/xml-demo
-
 ## 示例数据
 
 ### Cars 实体

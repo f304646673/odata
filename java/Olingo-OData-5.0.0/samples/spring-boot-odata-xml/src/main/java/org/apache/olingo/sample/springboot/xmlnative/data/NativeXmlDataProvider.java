@@ -27,16 +27,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
-import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Native XML Data Provider for Spring Boot OData
@@ -46,7 +44,6 @@ import org.slf4j.LoggerFactory;
  */
 public class NativeXmlDataProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NativeXmlDataProvider.class);
 
     private final List<Entity> carList;
     private final List<Entity> manufacturerList;
@@ -55,22 +52,17 @@ public class NativeXmlDataProvider {
      * Constructor - initializes sample data
      */
     public NativeXmlDataProvider() {
-        LOG.info("Initializing Native XML data provider");
         
         carList = new ArrayList<>();
         manufacturerList = new ArrayList<>();
         
         createSampleData();
-        
-        LOG.info("Sample data initialized - {} cars, {} manufacturers", 
-            carList.size(), manufacturerList.size());
     }
 
     /**
      * Creates sample data using Olingo's native data structures
      */
     private void createSampleData() {
-        LOG.debug("Creating sample data");
         
         // Create manufacturers first
         createManufacturer(1, "BMW", "Petuelring 130", "Munich", "80809", "Germany");
@@ -151,7 +143,6 @@ public class NativeXmlDataProvider {
      * Get entity collection for entity set using Olingo's native approach
      */
     public EntityCollection getEntityCollection(EdmEntitySet edmEntitySet) throws ODataApplicationException {
-        LOG.debug("Getting entity collection for: {}", edmEntitySet.getName());
 
         EntityCollection entityCollection = new EntityCollection();
 
@@ -168,7 +159,6 @@ public class NativeXmlDataProvider {
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
-        LOG.debug("Returning {} entities for entity set: {}", entityCollection.getEntities().size(), entitySetName);
         return entityCollection;
     }
 
@@ -176,7 +166,6 @@ public class NativeXmlDataProvider {
      * Get single entity by key using Olingo's native approach
      */
     public Entity getEntity(EdmEntitySet edmEntitySet, List<String> keyValues) throws ODataApplicationException {
-        LOG.debug("Getting entity from set: {} with key: {}", edmEntitySet.getName(), keyValues);
 
         if (keyValues.isEmpty()) {
             throw new ODataApplicationException("Key values cannot be empty.",
@@ -212,7 +201,6 @@ public class NativeXmlDataProvider {
                 HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
         }
 
-        LOG.debug("Found entity: {}", entity);
         return entity;
     }
 
@@ -220,7 +208,6 @@ public class NativeXmlDataProvider {
      * Get data statistics using Olingo's native approach
      */
     public Map<String, Object> getDataStatistics() {
-        LOG.debug("Getting data statistics");
         
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalCars", carList.size());
@@ -234,7 +221,6 @@ public class NativeXmlDataProvider {
      * Creates a new entity using Olingo's native data structures
      */
     public Entity createEntity(EdmEntitySet edmEntitySet, Entity entity) throws ODataApplicationException {
-        LOG.debug("Creating entity in set: {}", edmEntitySet.getName());
 
         String entitySetName = edmEntitySet.getName();
         
@@ -256,7 +242,6 @@ public class NativeXmlDataProvider {
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
-        LOG.debug("Created entity with ID: {}", newId);
         return entity;
     }
 
@@ -264,7 +249,6 @@ public class NativeXmlDataProvider {
      * Updates an existing entity using Olingo's native data structures
      */
     public void updateEntity(EdmEntitySet edmEntitySet, List<String> keyValues, Entity updateEntity) throws ODataApplicationException {
-        LOG.debug("Updating entity in set: {} with key: {}", edmEntitySet.getName(), keyValues);
 
         Entity existingEntity = getEntity(edmEntitySet, keyValues);
         
@@ -275,14 +259,12 @@ public class NativeXmlDataProvider {
             }
         }
 
-        LOG.debug("Updated entity: {}", existingEntity);
     }
 
     /**
      * Deletes an entity using Olingo's native data structures
      */
     public void deleteEntity(EdmEntitySet edmEntitySet, List<String> keyValues) throws ODataApplicationException {
-        LOG.debug("Deleting entity from set: {} with key: {}", edmEntitySet.getName(), keyValues);
 
         Entity entityToDelete = getEntity(edmEntitySet, keyValues);
         
@@ -299,7 +281,6 @@ public class NativeXmlDataProvider {
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
-        LOG.debug("Deleted entity");
     }
 
     /**

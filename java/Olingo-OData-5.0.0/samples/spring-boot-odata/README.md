@@ -214,11 +214,6 @@ GET http://localhost:8080/cars.svc/$metadata
 GET http://localhost:8080/cars.svc/Cars
 ```
 
-### 4. Health Check
-```
-GET http://localhost:8080/cars.svc/health
-```
-
 ## Debugging
 
 The application supports remote debugging on port 5005 when started with JVM debug arguments. You can use VS Code or any IDE to attach to the debug session.
@@ -236,5 +231,4 @@ The application supports remote debugging on port 5005 when started with JVM deb
 1. **Simplified Configuration**: No need for web.xml or external container setup
 2. **Auto-configuration**: Spring Boot handles many configuration details automatically
 3. **Embedded Server**: No need for separate Tomcat installation
-4. **Production Ready**: Built-in metrics, health checks, and monitoring
-5. **Developer Experience**: Hot reload, better debugging, and development tools
+4. **Developer Experience**: Hot reload, better debugging, and development tools

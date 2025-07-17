@@ -28,8 +28,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.core.MetadataParser;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -51,14 +49,12 @@ import java.util.List;
  */
 public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NativeXmlEdmProvider.class);
     
     // XML file path
     private static final String XML_METADATA_FILE = "service-metadata.xml";
     
     // Initialize the provider by loading XML metadata
     public NativeXmlEdmProvider() {
-        LOG.info("Initializing Native XML EDM Provider using Olingo's MetadataParser");
         loadMetadataFromXml();
     }
     
@@ -74,7 +70,6 @@ public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
                 throw new IllegalStateException("XML metadata file not found: " + XML_METADATA_FILE);
             }
             
-            LOG.debug("Loading XML metadata from: {}", XML_METADATA_FILE);
             
             // Create Olingo's MetadataParser
             MetadataParser parser = new MetadataParser();
@@ -87,16 +82,11 @@ public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
                 List<CsdlSchema> schemas = xmlProvider.getSchemas();
                 for (CsdlSchema schema : schemas) {
                     this.addSchema(schema);
-                    LOG.debug("Added schema: {} with {} entity types", 
-                             schema.getNamespace(), 
-                             schema.getEntityTypes().size());
                 }
                 
-                LOG.info("Successfully loaded {} schema(s) from XML metadata", schemas.size());
             }
             
         } catch (Exception e) {
-            LOG.error("Failed to load XML metadata: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to initialize NativeXmlEdmProvider", e);
         }
     }

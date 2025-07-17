@@ -54,12 +54,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring Boot Starter Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
         <!-- Apache Olingo OData Server API -->
         <dependency>
             <groupId>org.apache.olingo</groupId>
@@ -85,6 +79,13 @@
         <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>odata-commons-core</artifactId>
+            <version>${olingo.version}</version>
+        </dependency>
+
+        <!-- Apache Olingo OData Server Core Extensions -->
+        <dependency>
+            <groupId>org.apache.olingo</groupId>
+            <artifactId>odata-server-core-ext</artifactId>
             <version>${olingo.version}</version>
         </dependency>
 

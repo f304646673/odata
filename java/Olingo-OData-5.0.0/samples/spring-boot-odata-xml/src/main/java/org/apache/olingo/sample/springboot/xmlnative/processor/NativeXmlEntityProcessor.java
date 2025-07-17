@@ -44,8 +44,6 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
 
@@ -56,7 +54,6 @@ import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
  */
 public class NativeXmlEntityProcessor implements EntityCollectionProcessor, EntityProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NativeXmlEntityProcessor.class);
 
     private final NativeXmlDataProvider dataProvider;
     private OData odata;
@@ -64,7 +61,6 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
 
     public NativeXmlEntityProcessor(NativeXmlDataProvider dataProvider) {
         this.dataProvider = dataProvider;
-        LOG.info("Native XML Entity Processor initialized");
     }
 
     @Override
@@ -77,7 +73,6 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
     public void readEntityCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing entity collection request");
 
         // Get the entity set from the URI
         List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
@@ -104,14 +99,12 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
 
-        LOG.info("Successfully processed entity collection request for: {}", edmEntitySet.getName());
     }
 
     @Override
     public void readEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing single entity request");
 
         // Get the entity set from the URI
         List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
@@ -143,14 +136,12 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
 
-        LOG.info("Successfully processed single entity request for: {} with key: {}", edmEntitySet.getName(), keyValues);
     }
 
     @Override
     public void createEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType requestFormat, ContentType responseFormat)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing create entity request");
 
         // Get the entity set from the URI
         List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
@@ -171,7 +162,6 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
     public void updateEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType requestFormat, ContentType responseFormat)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing update entity request");
 
         throw new ODataApplicationException("UPDATE operations are not yet implemented in this sample.",
             HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
@@ -181,7 +171,6 @@ public class NativeXmlEntityProcessor implements EntityCollectionProcessor, Enti
     public void deleteEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing delete entity request");
 
         throw new ODataApplicationException("DELETE operations are not yet implemented in this sample.",
             HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot OData XML Service - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .section h2 {
+            color: #555;
+            margin-top: 0;
+        }
+        .endpoint {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-left: 4px solid #007bff;
+            border-radius: 3px;
+        }
+        .endpoint .method {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        .endpoint .method.post { background-color: #28a745; }
+        .endpoint .method.put { background-color: #ffc107; color: #333; }
+        .endpoint .method.delete { background-color: #dc3545; }
+        .endpoint .url {
+            font-family: monospace;
+            font-weight: bold;
+            color: #333;
+        }
+        .endpoint .description {
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+        .test-links {
+            margin-top: 10px;
+        }
+        .test-links a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .test-links a:hover {
+            background-color: #0056b3;
+        }
+        .info-box {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-box h3 {
+            color: #155724;
+            margin-top: 0;
+        }
+        .info-box p {
+            color: #155724;
+            margin-bottom: 0;
+        }
+        .feature-list {
+            columns: 2;
+            column-gap: 30px;
+        }
+        .feature-list li {
+            margin-bottom: 8px;
+            break-inside: avoid;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Spring Boot OData XML Service</h1>
+        
+        <div class="info-box">
+            <h3>📋 Service Information</h3>
+            <p>This is a Spring Boot OData service that loads its Entity Data Model (EDM) from an XML file. 
+            The service demonstrates how to create a flexible OData API with XML-based schema definition.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Service Features</h2>
+            <ul class="feature-list">
+                <li>✅ XML-based EDM definition</li>
+                <li>✅ RESTful OData endpoints</li>
+                <li>✅ JSON and XML response formats</li>
+                <li>✅ Full CRUD operations</li>
+                <li>✅ Entity relationships</li>
+                <li>✅ Complex types support</li>
+                <li>✅ Spring Boot integration</li>
+                <li>✅ In-memory data provider</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🌐 Core OData Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/$metadata</span>
+                <div class="description">Service metadata document (EDM)</div>
+                <div class="test-links">
+                    <a href="/odata/$metadata" target="_blank">View Metadata</a>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/</span>
+                <div class="description">Service document (available entity sets)</div>
+                <div class="test-links">
+                    <a href="/odata/" target="_blank">View Service Document</a>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/Cars</span>
+                <div class="description">All cars in the system</div>
+                <div class="test-links">
+                    <a href="/odata/Cars" target="_blank">View Cars</a>
+                    <a href="/odata/Cars?$format=json" target="_blank">JSON Format</a>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/Cars(1)</span>
+                <div class="description">Single car by ID</div>
+                <div class="test-links">
+                    <a href="/odata/Cars(1)" target="_blank">View Car #1</a>
+                    <a href="/odata/Cars(2)" target="_blank">View Car #2</a>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/Manufacturers</span>
+                <div class="description">All manufacturers</div>
+                <div class="test-links">
+                    <a href="/odata/Manufacturers" target="_blank">View Manufacturers</a>
+                    <a href="/odata/Manufacturers?$format=json" target="_blank">JSON Format</a>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/odata/Manufacturers(1)</span>
+                <div class="description">Single manufacturer by ID</div>
+                <div class="test-links">
+                    <a href="/odata/Manufacturers(1)" target="_blank">View Manufacturer #1</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2> CRUD Operations</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/odata/Cars</span>
+                <div class="description">Create a new car</div>
+                <div class="test-links">
+                    <small>Use REST client with JSON payload</small>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <span class="url">/odata/Cars(1)</span>
+                <div class="description">Update an existing car</div>
+                <div class="test-links">
+                    <small>Use REST client with JSON payload</small>
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <span class="url">/odata/Cars(1)</span>
+                <div class="description">Delete a car</div>
+                <div class="test-links">
+                    <small>Use REST client</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Sample Data</h2>
+            <p>The service includes sample data:</p>
+            <ul>
+                <li><strong>Cars:</strong> X3, A4, C-Class, X5, A6</li>
+                <li><strong>Manufacturers:</strong> BMW, Audi, Mercedes-Benz</li>
+                <li><strong>Complex Types:</strong> Address with Street, City, ZipCode, Country</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Testing with curl</h2>
+            <p>Example commands to test the service:</p>
+            <pre><code># Get all cars
+curl -X GET "http://localhost:8080/odata/Cars"
+
+# Get specific car
+curl -X GET "http://localhost:8080/odata/Cars(1)"
+
+# Get metadata
+curl -X GET "http://localhost:8080/odata/\$metadata"
+
+# Create new car
+curl -X POST "http://localhost:8080/odata/Cars" \
+  -H "Content-Type: application/json" \
+  -d '{"Model":"A8","ModelYear":2023,"Price":75000.00,"Currency":"USD"}'</code></pre>
+        </div>
+
+        <div class="info-box">
+            <h3>🎯 Key Features Demonstrated</h3>
+            <p>This sample demonstrates XML-based EDM loading, Spring Boot integration, 
+            full CRUD operations, complex types, and flexible OData service architecture.</p>
+        </div>
+    </div>
+</body>
+</html>
