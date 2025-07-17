@@ -18,11 +18,13 @@
  */
 package org.apache.olingo.sample.springboot.xmlnative.controller;
 
-import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.apache.olingo.sample.springboot.xmlnative.edm.NativeXmlEdmProvider;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
+import org.apache.olingo.sample.springboot.xmlnative.edm.NativeXmlEdmProvider;
 import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlEntityProcessor;
-import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlMetadataProcessor;
+import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlServiceDocumentProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -31,8 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * OData Controller for Native XML Processing
@@ -76,7 +76,10 @@ public class NativeXmlODataController {
             // Create HTTP handler for this request
             ODataHttpHandler handler = odata.createHandler(serviceMetadata);
             
-            // Register only entity processor - Olingo will handle $metadata automatically
+            // Register service document processor
+            handler.register(new NativeXmlServiceDocumentProcessor());
+            
+            // Register entity processor
             NativeXmlEntityProcessor entityProcessor = new NativeXmlEntityProcessor(dataProvider);
             handler.register(entityProcessor);
             

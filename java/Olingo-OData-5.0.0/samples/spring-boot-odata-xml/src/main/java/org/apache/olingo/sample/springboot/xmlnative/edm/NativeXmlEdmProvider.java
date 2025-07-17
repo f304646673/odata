@@ -18,22 +18,19 @@
  */
 package org.apache.olingo.sample.springboot.xmlnative.edm;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.List;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.core.MetadataParser;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import org.springframework.core.io.ClassPathResource;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.List;
 
 /**
  * Native XML EDM Provider using Olingo's built-in XML parsing capabilities
@@ -89,5 +86,45 @@ public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize NativeXmlEdmProvider", e);
         }
+    }
+    
+    /**
+     * Get entity container - this is crucial for service document generation
+     */
+    @Override
+    public CsdlEntityContainer getEntityContainer() throws ODataException {
+        // Get the container from parent class
+        CsdlEntityContainer container = super.getEntityContainer();
+        
+        if (container != null && container.getEntitySets() != null) {
+            // Force all entity sets to be included in service document
+            for (CsdlEntitySet entitySet : container.getEntitySets()) {
+                entitySet.setIncludeInServiceDocument(true);
+            }
+        }
+        
+        return container;
+    }
+    
+    /**
+     * Get entity container info - this is crucial for service document generation
+     */
+    @Override
+    public CsdlEntityContainerInfo getEntityContainerInfo(FullQualifiedName entityContainerName) throws ODataException {
+        // Let the parent class handle this using the loaded schemas
+        return super.getEntityContainerInfo(entityContainerName);
+    }
+    
+    /**
+     * Get entity set - override to ensure IncludeInServiceDocument is true
+     */
+    @Override
+    public CsdlEntitySet getEntitySet(FullQualifiedName entityContainer, String entitySetName) throws ODataException {
+        CsdlEntitySet entitySet = super.getEntitySet(entityContainer, entitySetName);
+        if (entitySet != null) {
+            // Force IncludeInServiceDocument to true
+            entitySet.setIncludeInServiceDocument(true);
+        }
+        return entitySet;
     }
 }
