@@ -18,10 +18,10 @@
  */
 package org.apache.olingo.sample.springboot.xmlnative;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Spring Boot OData XML Native Sample Application
@@ -49,8 +49,6 @@ public class ODataXmlNativeSpringBootApplication {
         LOG.info("External:       http://{}:8080/", getExternalAddress());
         LOG.info("OData Service:  http://localhost:8080/cars.svc");
         LOG.info("OData Metadata: http://localhost:8080/cars.svc/$metadata");
-        LOG.info("Cars Collection: http://localhost:8080/cars.svc/Cars");
-        LOG.info("Manufacturers Collection: http://localhost:8080/cars.svc/Manufacturers");
         LOG.info("Profile(s):     {}", System.getProperty("spring.profiles.active", "default"));
         LOG.info("EDM Source:     XML file with Olingo native parsing");
         LOG.info("----------------------------------------------------------");

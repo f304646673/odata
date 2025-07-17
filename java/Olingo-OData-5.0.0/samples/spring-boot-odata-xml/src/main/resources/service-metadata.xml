@@ -56,10 +56,10 @@
             
             <!-- Entity Container -->
             <EntityContainer Name="Container">
-                <EntitySet Name="Cars" EntityType="OData.Demo.Car" IncludeInServiceDocument="true">
+                <EntitySet Name="Cars" EntityType="OData.Demo.Car">
                     <NavigationPropertyBinding Path="Manufacturer" Target="Manufacturers"/>
                 </EntitySet>
-                <EntitySet Name="Manufacturers" EntityType="OData.Demo.Manufacturer" IncludeInServiceDocument="true">
+                <EntitySet Name="Manufacturers" EntityType="OData.Demo.Manufacturer">
                     <NavigationPropertyBinding Path="Cars" Target="Cars"/>
                 </EntitySet>
             </EntityContainer>
