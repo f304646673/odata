@@ -74,6 +74,13 @@
             <version>${olingo.version}</version>
         </dependency>
 
+        <!-- Apache Olingo OData Server Core Extensions -->
+        <dependency>
+            <groupId>org.apache.olingo</groupId>
+            <artifactId>odata-server-core-ext</artifactId>
+            <version>${olingo.version}</version>
+        </dependency>
+
         <!-- Apache Olingo OData Commons API -->
         <dependency>
             <groupId>org.apache.olingo</groupId>
@@ -88,14 +95,12 @@
             <version>${olingo.version}</version>
         </dependency>
 
-        <!-- JAXB for XML parsing -->
+        <!-- Servlet API -->
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test Dependencies -->

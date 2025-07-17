@@ -16,17 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xml.controller;
+package org.apache.olingo.sample.springboot.xmlnative.controller;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.olingo.sample.springboot.xml.data.XmlBasedDataProvider;
-import org.apache.olingo.sample.springboot.xml.edm.XmlBasedEdmProvider;
-import org.apache.olingo.sample.springboot.xml.processor.XmlBasedEntityProcessor;
-import org.apache.olingo.sample.springboot.xml.processor.XmlBasedMetadataProcessor;
-import org.apache.olingo.sample.springboot.xml.processor.XmlBasedServiceDocumentProcessor;
+import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
+import org.apache.olingo.sample.springboot.xmlnative.edm.NativeXmlEdmProvider;
+import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlEntityProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -39,60 +33,59 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
- * XML-based OData Controller for Spring Boot
+ * Native XML OData Controller for Spring Boot
  * 
- * This controller handles all OData requests and routes them to the appropriate
- * processors using the XML-based EDM provider and data provider.
+ * This controller handles all OData requests using Olingo's native XML processing capabilities.
+ * It demonstrates how to use Olingo's built-in APIs without manual XML parsing.
  */
 @RestController
 @RequestMapping("/cars.svc")
-public class XmlBasedODataController {
+public class NativeXmlODataController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XmlBasedODataController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NativeXmlODataController.class);
 
-    private final XmlBasedEdmProvider edmProvider;
-    private final XmlBasedDataProvider dataProvider;
+    private final NativeXmlEdmProvider edmProvider;
+    private final NativeXmlDataProvider dataProvider;
     private final ODataHttpHandler handler;
 
     /**
-     * Constructor - initializes the OData handler with XML-based providers
+     * Constructor - initializes the OData handler with native XML providers
      */
-    public XmlBasedODataController() {
-        LOG.info("Initializing XML-based OData Controller");
+    public NativeXmlODataController() {
+        LOG.info("Initializing Native XML OData Controller");
 
         try {
-            // Initialize providers
-            this.edmProvider = new XmlBasedEdmProvider("service-metadata.xml");
-            this.dataProvider = new XmlBasedDataProvider();
+            // Initialize providers using Olingo's native approach
+            this.edmProvider = new NativeXmlEdmProvider();
+            this.dataProvider = new NativeXmlDataProvider();
 
-            // Create OData instance
+            // Create OData instance using Olingo's native factory
             OData odata = OData.newInstance();
             ServiceMetadata serviceMetadata = odata.createServiceMetadata(edmProvider, Collections.emptyList());
 
-            // Create and configure handler
+            // Create and configure handler using Olingo's native API
             this.handler = odata.createHandler(serviceMetadata);
             
-            // Register processors
-            XmlBasedEntityProcessor entityProcessor = new XmlBasedEntityProcessor(dataProvider);
-            XmlBasedMetadataProcessor metadataProcessor = new XmlBasedMetadataProcessor();
-            XmlBasedServiceDocumentProcessor serviceDocumentProcessor = new XmlBasedServiceDocumentProcessor();
+            // Register processors using Olingo's native registration
+            NativeXmlEntityProcessor entityProcessor = new NativeXmlEntityProcessor(dataProvider);
             
             handler.register(entityProcessor);
-            handler.register(metadataProcessor);
-            handler.register(serviceDocumentProcessor);
 
-            LOG.info("XML-based OData Controller initialized successfully");
+            LOG.info("Native XML OData Controller initialized successfully");
             
         } catch (Exception e) {
-            LOG.error("Failed to initialize XML-based OData Controller", e);
+            LOG.error("Failed to initialize Native XML OData Controller", e);
             throw new RuntimeException("Failed to initialize OData controller", e);
         }
     }
 
     /**
-     * Handle all OData requests
+     * Handle all OData requests using Olingo's native request processing
      */
     @RequestMapping(value = {"", "/", "/**"}, method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
     public void process(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -107,7 +100,7 @@ public class XmlBasedODataController {
             // Create a wrapper to provide correct servlet path and path info for OData framework
             HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request);
             
-            // Process the request using the OData handler
+            // Process the request using Olingo's native handler
             handler.process(wrapper, response);
             
             LOG.debug("OData request processed successfully");
@@ -117,7 +110,7 @@ public class XmlBasedODataController {
                 request.getMethod(), requestUri, e);
             
             // Set error response
-            response.setStatus(500); // HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+            response.setStatus(500);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Internal server error: " + e.getMessage() + "\"}");
         }
@@ -133,10 +126,11 @@ public class XmlBasedODataController {
         
         Map<String, Object> health = Map.of(
             "status", "UP",
-            "service", "XML-based OData Service",
+            "service", "Native XML OData Service",
             "edmProvider", edmProvider.getClass().getSimpleName(),
             "dataProvider", dataProvider.getClass().getSimpleName(),
-            "dataStats", dataProvider.getDataStatistics()
+            "dataStats", dataProvider.getDataStatistics(),
+            "approach", "Olingo Native XML Processing"
         );
         
         LOG.debug("Health check completed: {}", health);
@@ -152,13 +146,14 @@ public class XmlBasedODataController {
         LOG.debug("Info requested");
         
         Map<String, Object> info = Map.of(
-            "service", "XML-based Spring Boot OData Service",
+            "service", "Native XML Spring Boot OData Service",
             "version", "1.0.0",
-            "description", "OData service with EDM loaded from XML file",
+            "description", "OData service using Olingo's native XML processing capabilities",
             "features", Map.of(
-                "edmSource", "XML file (service-metadata.xml)",
-                "dataProvider", "In-memory with sample data",
-                "supportedOperations", "GET, POST, PUT, DELETE",
+                "edmSource", "Olingo native EDM provider",
+                "dataProvider", "Native XML data provider with Olingo APIs",
+                "xmlProcessing", "Olingo built-in XML serialization/deserialization",
+                "supportedOperations", "GET (read-only in this sample)",
                 "supportedFormats", "JSON, XML"
             ),
             "endpoints", Map.of(
@@ -168,11 +163,32 @@ public class XmlBasedODataController {
                 "manufacturers", "/cars.svc/Manufacturers",
                 "health", "/cars.svc/health",
                 "info", "/cars.svc/info"
-            )
+            ),
+            "xmlDemo", "Use /cars.svc/xml-demo to see Olingo's native XML serialization"
         );
         
         LOG.debug("Info completed: {}", info);
         return info;
+    }
+
+    /**
+     * Demonstrate Olingo's native XML serialization capabilities
+     */
+    @RequestMapping("/xml-demo")
+    @ResponseBody
+    public String xmlDemo() {
+        LOG.debug("XML demo requested");
+        
+        try {
+            // Use the EDM provider's native XML serialization
+            String xmlOutput = edmProvider.serializeToXml();
+            
+            LOG.debug("XML demo completed");
+            return xmlOutput;
+        } catch (Exception e) {
+            LOG.error("Error in XML demo", e);
+            return "Error demonstrating XML serialization: " + e.getMessage();
+        }
     }
     
     /**

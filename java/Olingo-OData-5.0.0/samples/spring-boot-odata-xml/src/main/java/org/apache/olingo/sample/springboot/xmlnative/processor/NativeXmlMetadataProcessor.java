@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xml.processor;
+package org.apache.olingo.sample.springboot.xmlnative.processor;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -27,7 +27,7 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.processor.ServiceDocumentProcessor;
+import org.apache.olingo.server.api.processor.MetadataProcessor;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -35,39 +35,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * XML-based Service Document Processor for Spring Boot OData
+ * Native XML Metadata Processor for Spring Boot OData
  * 
- * This processor handles requests to the root service document.
+ * This processor handles $metadata requests using Olingo's native APIs.
  */
-public class XmlBasedServiceDocumentProcessor implements ServiceDocumentProcessor {
+public class NativeXmlMetadataProcessor implements MetadataProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XmlBasedServiceDocumentProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NativeXmlMetadataProcessor.class);
 
     private OData odata;
     private ServiceMetadata serviceMetadata;
+
+    public NativeXmlMetadataProcessor() {
+        LOG.info("Native XML Metadata Processor initialized");
+    }
 
     @Override
     public void init(OData odata, ServiceMetadata serviceMetadata) {
         this.odata = odata;
         this.serviceMetadata = serviceMetadata;
-        LOG.info("XML-based Service Document Processor initialized");
     }
 
     @Override
-    public void readServiceDocument(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
+    public void readMetadata(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
             throws ODataApplicationException, ODataLibraryException {
         
-        LOG.debug("Processing service document request");
+        LOG.info("Processing $metadata request - method called!");
+        LOG.debug("Request URI: {}", request.getRawRequestUri());
+        LOG.debug("Response format: {}", responseFormat);
 
-        // Create service document serializer
+        // Serialize the metadata using Olingo's native serializer
         ODataSerializer serializer = odata.createSerializer(responseFormat);
-        SerializerResult serviceDocumentResult = serializer.serviceDocument(serviceMetadata, request.getRawBaseUri());
+        SerializerResult serializerResult = serializer.metadataDocument(serviceMetadata);
 
-        // Set response
-        response.setContent(serviceDocumentResult.getContent());
+        // Configure the response
+        response.setContent(serializerResult.getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
 
-        LOG.info("Successfully processed service document request");
+        LOG.info("Successfully processed $metadata request");
     }
 }
