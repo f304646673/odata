@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <!-- This schema references C and D -->
+    <edmx:Reference Uri="schema-c.xml">
+        <edmx:Include Namespace="Test.Schema.C"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="schema-d.xml">
+        <edmx:Include Namespace="Test.Schema.D"/>
+    </edmx:Reference>
+    
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Schema.B">
+            
+            <!-- Complex Type -->
+            <ComplexType Name="ComplexTypeB">
+                <Property Name="PropertyB1" Type="Edm.String" MaxLength="50"/>
+                <Property Name="PropertyB2" Type="Edm.Int32"/>
+                <Property Name="TypeFromC" Type="Test.Schema.C.ComplexTypeC"/>
+                <Property Name="TypeFromD" Type="Test.Schema.D.ComplexTypeD"/>
+            </ComplexType>
+            
+            <!-- Entity Type -->
+            <EntityType Name="EntityB">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="ComplexProp" Type="Test.Schema.B.ComplexTypeB"/>
+            </EntityType>
+            
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

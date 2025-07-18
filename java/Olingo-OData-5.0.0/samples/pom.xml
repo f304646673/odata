@@ -38,6 +38,7 @@
     <module>server</module>
     <module>spring-boot-odata-xml</module>
     <module>spring-boot-odata-xml-split</module>
+    <module>spring-boot-odata-xml-import</module>
   </modules>
 
   <properties>
@@ -78,6 +79,7 @@
         <module>spring-boot-odata</module>
         <module>spring-boot-odata-xml</module>
         <module>spring-boot-odata-xml-split</module>
+        <module>spring-boot-odata-xml-import</module>
       </modules>
     </profile>
     <profile>

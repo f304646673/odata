@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <!-- This schema references P1, which references P2, creating a circular dependency -->
+    <edmx:Reference Uri="schema-p1.xml">
+        <edmx:Include Namespace="Test.Circular3.P1"/>
+    </edmx:Reference>
+    
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Circular3.P3">
+            
+            <!-- Complex Type that uses a type from P1 -->
+            <ComplexType Name="ComplexTypeP3">
+                <Property Name="PropertyP3" Type="Edm.String" MaxLength="100"/>
+                <Property Name="TypeFromP1" Type="Test.Circular3.P1.ComplexTypeP1"/>
+            </ComplexType>
+            
+            <!-- Entity Type -->
+            <EntityType Name="EntityP3">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="ComplexProp" Type="Test.Circular3.P3.ComplexTypeP3"/>
+                <NavigationProperty Name="RelatedP1" Type="Test.Circular3.P1.EntityP1"/>
+            </EntityType>
+            
+            <!-- Entity Container -->
+            <EntityContainer Name="ContainerP3">
+                <EntitySet Name="EntitiesP3" EntityType="Test.Circular3.P3.EntityP3" IncludeInServiceDocument="true"/>
+            </EntityContainer>
+            
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

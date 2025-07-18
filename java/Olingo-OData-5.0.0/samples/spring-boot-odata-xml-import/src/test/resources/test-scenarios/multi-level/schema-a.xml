@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <!-- This schema references B and C -->
+    <edmx:Reference Uri="schema-b.xml">
+        <edmx:Include Namespace="Test.Schema.B"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="schema-c.xml">
+        <edmx:Include Namespace="Test.Schema.C"/>
+    </edmx:Reference>
+    
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Schema.A">
+            
+            <!-- Entity Type that uses types from B and C -->
+            <EntityType Name="EntityA">
+                <Key>
+                    <PropertyRef Name="Id"/>
+                </Key>
+                <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+                <Property Name="TypeFromB" Type="Test.Schema.B.ComplexTypeB"/>
+                <Property Name="TypeFromC" Type="Test.Schema.C.ComplexTypeC"/>
+            </EntityType>
+            
+            <!-- Entity Container -->
+            <EntityContainer Name="ContainerA">
+                <EntitySet Name="EntitiesA" EntityType="Test.Schema.A.EntityA" IncludeInServiceDocument="true"/>
+            </EntityContainer>
+            
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
