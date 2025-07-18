@@ -36,6 +36,8 @@
 
   <modules>
     <module>server</module>
+    <module>spring-boot-odata-xml</module>
+    <module>spring-boot-odata-xml-split</module>
   </modules>
 
   <properties>
@@ -73,6 +75,9 @@
       <modules>
         <module>osgi/server</module>
         <module>client</module>
+        <module>spring-boot-odata</module>
+        <module>spring-boot-odata-xml</module>
+        <module>spring-boot-odata-xml-split</module>
       </modules>
     </profile>
     <profile>

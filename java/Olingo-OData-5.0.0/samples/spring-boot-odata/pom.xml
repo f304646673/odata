@@ -24,11 +24,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.olingo</groupId>
-    <artifactId>odata-spring-boot-sample</artifactId>
+    <artifactId>odata-spring-boot</artifactId>
     <version>5.0.0</version>
     <packaging>jar</packaging>
-    <name>Spring Boot OData Sample</name>
-    <description>Spring Boot OData Sample using Apache Olingo</description>
+    <name>Spring Boot OData</name>
+    <description>Spring Boot OData using Apache Olingo</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
