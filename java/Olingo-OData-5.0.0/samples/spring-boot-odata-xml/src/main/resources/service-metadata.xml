@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm"
+            Namespace="OData.Demo"
+            Alias="Self">
+
+      <!-- Complex Types -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="10"/>
+      </ComplexType>
+
+      <!-- Entity Types -->
+      <EntityType Name="Car">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Model" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="19" Scale="2"/>
+        <Property Name="Year" Type="Edm.Int32"/>
+        <NavigationProperty Name="Manufacturer" Type="OData.Demo.Manufacturer" Partner="Cars"/>
+      </EntityType>
+
+      <EntityType Name="Manufacturer">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Founded" Type="Edm.Int32"/>
+        <Property Name="Address" Type="OData.Demo.Address"/>
+        <NavigationProperty Name="Cars" Type="Collection(OData.Demo.Car)" Partner="Manufacturer"/>
+      </EntityType>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="Container">
+        <EntitySet Name="Cars" EntityType="OData.Demo.Car">
+          <NavigationPropertyBinding Path="Manufacturer" Target="Manufacturers"/>
+        </EntitySet>
+        <EntitySet Name="Manufacturers" EntityType="OData.Demo.Manufacturer">
+          <NavigationPropertyBinding Path="Cars" Target="Cars"/>
+        </EntitySet>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
