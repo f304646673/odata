@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.controller;
+package org.apache.olingo.sample.springboot.xml.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
-import org.apache.olingo.sample.springboot.xmlnative.edm.NativeXmlEdmProvider;
-import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlEntityProcessor;
-import org.apache.olingo.sample.springboot.xmlnative.processor.NativeXmlServiceDocumentProcessor;
+import org.apache.olingo.sample.springboot.xml.data.XmlDataProvider;
+import org.apache.olingo.sample.springboot.xml.edm.XmlEdmProvider;
+import org.apache.olingo.sample.springboot.xml.processor.XmlEntityProcessor;
+import org.apache.olingo.sample.springboot.xml.processor.XmlServiceDocumentProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -35,7 +35,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * OData Controller for Native XML Processing
+ * OData Controller for  XML Processing
  * 
  * This controller demonstrates how to use Olingo's native XML parsing capabilities
  * for loading EDM from XML files and processing OData requests.
@@ -47,20 +47,20 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/cars.svc")
-public class NativeXmlODataController {
+public class XmlODataController {
     
-    private final NativeXmlDataProvider dataProvider;
-    private final NativeXmlEdmProvider edmProvider;
+    private final XmlDataProvider dataProvider;
+    private final XmlEdmProvider edmProvider;
     
     /**
      * Initialize OData controller with native XML-based EDM provider
      */
-    public NativeXmlODataController() {
+    public XmlODataController() {
         // Create EDM provider using native XML parsing
-        edmProvider = new NativeXmlEdmProvider();
+        edmProvider = new XmlEdmProvider();
         
         // Create data provider
-        dataProvider = new NativeXmlDataProvider();
+        dataProvider = new XmlDataProvider();
     }
     
     /**
@@ -77,10 +77,10 @@ public class NativeXmlODataController {
             ODataHttpHandler handler = odata.createHandler(serviceMetadata);
             
             // Register service document processor
-            handler.register(new NativeXmlServiceDocumentProcessor());
+            handler.register(new XmlServiceDocumentProcessor());
             
             // Register entity processor
-            NativeXmlEntityProcessor entityProcessor = new NativeXmlEntityProcessor(dataProvider);
+            XmlEntityProcessor entityProcessor = new XmlEntityProcessor(dataProvider);
             handler.register(entityProcessor);
             
             // Create wrapper to provide correct servlet path and path info for OData framework

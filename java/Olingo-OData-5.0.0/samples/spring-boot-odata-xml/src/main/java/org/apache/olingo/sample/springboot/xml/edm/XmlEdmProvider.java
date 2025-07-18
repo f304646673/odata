@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.edm;
+package org.apache.olingo.sample.springboot.xml.edm;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -33,7 +33,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import org.springframework.core.io.ClassPathResource;
 
 /**
- * Native XML EDM Provider using Olingo's built-in XML parsing capabilities
+ *  XML EDM Provider using Olingo's built-in XML parsing capabilities
  * 
  * This provider demonstrates how to use Olingo's native XML parsing capabilities
  * to load EDM directly from XML files without manual parsing or programmatic definition.
@@ -44,14 +44,14 @@ import org.springframework.core.io.ClassPathResource;
  * - No manual XML parsing or programmatic EDM definition required
  * - True "native" Olingo approach to XML metadata loading
  */
-public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
+public class XmlEdmProvider extends SchemaBasedEdmProvider {
 
     
     // XML file path
     private static final String XML_METADATA_FILE = "service-metadata.xml";
     
     // Initialize the provider by loading XML metadata
-    public NativeXmlEdmProvider() {
+    public XmlEdmProvider() {
         loadMetadataFromXml();
     }
     
@@ -84,7 +84,7 @@ public class NativeXmlEdmProvider extends SchemaBasedEdmProvider {
             }
             
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize NativeXmlEdmProvider", e);
+            throw new RuntimeException("Failed to initialize XmlEdmProvider", e);
         }
     }
     

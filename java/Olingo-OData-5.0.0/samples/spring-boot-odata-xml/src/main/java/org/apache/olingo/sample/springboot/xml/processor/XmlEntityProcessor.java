@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.processor;
+package org.apache.olingo.sample.springboot.xml.processor;
 
 import java.util.List;
 import java.util.Locale;
@@ -45,21 +45,21 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
-import org.apache.olingo.sample.springboot.xmlnative.data.NativeXmlDataProvider;
+import org.apache.olingo.sample.springboot.xml.data.XmlDataProvider;
 
 /**
- * Native XML Entity Processor for Spring Boot OData
+ *  XML Entity Processor for Spring Boot OData
  * 
  * This processor handles entity and entity collection requests using Olingo's native APIs.
  */
-public class NativeXmlEntityProcessor implements EntityCollectionProcessor, EntityProcessor {
+public class XmlEntityProcessor implements EntityCollectionProcessor, EntityProcessor {
 
 
-    private final NativeXmlDataProvider dataProvider;
+    private final XmlDataProvider dataProvider;
     private OData odata;
     private ServiceMetadata serviceMetadata;
 
-    public NativeXmlEntityProcessor(NativeXmlDataProvider dataProvider) {
+    public XmlEntityProcessor(XmlDataProvider dataProvider) {
         this.dataProvider = dataProvider;
     }
 

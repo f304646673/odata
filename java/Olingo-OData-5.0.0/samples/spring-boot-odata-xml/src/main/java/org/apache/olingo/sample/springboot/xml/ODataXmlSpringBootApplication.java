@@ -1,12 +1,12 @@
-package org.apache.olingo.sample.springboot.xmlnative;
+package org.apache.olingo.sample.springboot.xml;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ODataXmlNativeSpringBootApplication {
+public class ODataXmlSpringBootApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ODataXmlNativeSpringBootApplication.class, args);
+        SpringApplication.run(ODataXmlSpringBootApplication.class, args);
     }
 }

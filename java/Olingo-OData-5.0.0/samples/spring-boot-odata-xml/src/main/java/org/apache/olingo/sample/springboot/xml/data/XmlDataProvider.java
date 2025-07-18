@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.data;
+package org.apache.olingo.sample.springboot.xml.data;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -37,12 +37,12 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 /**
- * Native XML Data Provider for Spring Boot OData
+ *  XML Data Provider for Spring Boot OData
  * 
  * This provider manages data for the XML-native EDM provider.
  * It uses Olingo's native data structures and APIs.
  */
-public class NativeXmlDataProvider {
+public class XmlDataProvider {
 
 
     private final List<Entity> carList;
@@ -51,7 +51,7 @@ public class NativeXmlDataProvider {
     /**
      * Constructor - initializes sample data
      */
-    public NativeXmlDataProvider() {
+    public XmlDataProvider() {
         
         carList = new ArrayList<>();
         manufacturerList = new ArrayList<>();
@@ -212,7 +212,7 @@ public class NativeXmlDataProvider {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalCars", carList.size());
         stats.put("totalManufacturers", manufacturerList.size());
-        stats.put("dataProvider", "Native XML Data Provider");
+        stats.put("dataProvider", " XML Data Provider");
         
         return stats;
     }

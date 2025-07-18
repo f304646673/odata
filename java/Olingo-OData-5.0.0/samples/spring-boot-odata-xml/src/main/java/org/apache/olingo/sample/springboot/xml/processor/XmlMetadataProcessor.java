@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.processor;
+package org.apache.olingo.sample.springboot.xml.processor;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -33,11 +33,11 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 
 /**
- * Native XML Metadata Processor for Spring Boot OData
+ *  XML Metadata Processor for Spring Boot OData
  * 
  * This processor handles $metadata requests using Olingo's native APIs.
  */
-public class NativeXmlMetadataProcessor implements MetadataProcessor {
+public class XmlMetadataProcessor implements MetadataProcessor {
 
     private OData odata;
     private ServiceMetadata serviceMetadata;

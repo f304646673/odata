@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.sample.springboot.xmlnative.processor;
+package org.apache.olingo.sample.springboot.xml.processor;
 
 import java.io.InputStream;
 
@@ -35,9 +35,9 @@ import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.uri.UriInfo;
 
 /**
- * Service Document Processor for Native XML OData Service
+ * Service Document Processor for  XML OData Service
  */
-public class NativeXmlServiceDocumentProcessor implements ServiceDocumentProcessor {
+public class XmlServiceDocumentProcessor implements ServiceDocumentProcessor {
 
     private OData odata;
     private ServiceMetadata serviceMetadata;
