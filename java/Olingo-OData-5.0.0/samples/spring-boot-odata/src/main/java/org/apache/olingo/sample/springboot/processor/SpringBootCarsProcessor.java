@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.ContextURL.Suffix;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
@@ -40,12 +39,10 @@ import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.sample.springboot.data.SpringBootDataProvider;
 import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
@@ -59,7 +56,6 @@ import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -78,11 +74,9 @@ import org.apache.olingo.server.api.uri.queryoption.SelectOption;
  * This implementation is based on the original CarsProcessor but adapted for Spring Boot
  * with the SpringBootDataProvider for data access.
  */
-public class SpringBootCarsProcessor implements EntityProcessor,
+public class SpringBootCarsProcessor extends BaseODataProcessor implements EntityProcessor,
         PrimitiveValueProcessor, ComplexProcessor, CountEntityCollectionProcessor {
 
-    private OData odata;
-    private ServiceMetadata serviceMetadata;
     private final SpringBootDataProvider dataProvider;
 
     /**
@@ -91,12 +85,6 @@ public class SpringBootCarsProcessor implements EntityProcessor,
      */
     public SpringBootCarsProcessor(final SpringBootDataProvider dataProvider) {
         this.dataProvider = dataProvider;
-    }
-
-    @Override
-    public void init(OData odata, ServiceMetadata serviceMetadata) {
-        this.odata = odata;
-        this.serviceMetadata = serviceMetadata;
     }
 
     // ==================== EntityCollectionProcessor Methods ====================
@@ -434,45 +422,5 @@ public class SpringBootCarsProcessor implements EntityProcessor,
             }
             return null;
         }
-    }
-
-    /**
-     * Get EdmEntitySet from UriInfo
-     */
-    private EdmEntitySet getEdmEntitySet(final UriInfoResource uriInfo) throws ODataApplicationException {
-        final List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-        
-        // To get the entity set we have to interpret all URI segments
-        if (!(resourcePaths.get(0) instanceof UriResourceEntitySet)) {
-            throw new ODataApplicationException("Invalid resource type for first segment.",
-                    HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
-        }
-
-        // Here we should interpret the whole URI but in this example we do not support navigation
-        final UriResourceEntitySet uriResource = (UriResourceEntitySet) resourcePaths.get(0);
-        return uriResource.getEntitySet();
-    }
-
-    /**
-     * Create context URL for serialization
-     */
-    private ContextURL getContextUrl(final EdmEntitySet entitySet, final boolean isSingleEntity,
-            final ExpandOption expand, final SelectOption select, final String navOrPropertyPath)
-            throws SerializerException {
-
-        return ContextURL.with().entitySet(entitySet)
-                .selectList(odata.createUriHelper().buildContextURLSelectList(entitySet.getEntityType(), expand, select))
-                .suffix(isSingleEntity ? Suffix.ENTITY : null)
-                .navOrPropertyPath(navOrPropertyPath)
-                .build();
-    }
-
-    /**
-     * Check if OData metadata format is set to none
-     */
-    public static boolean isODataMetadataNone(final ContentType contentType) {
-        return contentType.isCompatible(ContentType.APPLICATION_JSON) 
-               && ContentType.VALUE_ODATA_METADATA_NONE.equalsIgnoreCase(
-                   contentType.getParameter(ContentType.PARAMETER_ODATA_METADATA));
     }
 }

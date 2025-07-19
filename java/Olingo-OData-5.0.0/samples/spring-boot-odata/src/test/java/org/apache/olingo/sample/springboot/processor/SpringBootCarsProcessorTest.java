@@ -116,10 +116,6 @@ class SpringBootCarsProcessorTest {
         // Arrange
         ContentType contentType = ContentType.APPLICATION_JSON;
         
-        // Mock UriHelper
-        when(odata.createUriHelper()).thenReturn(uriHelper);
-        when(uriHelper.buildContextURLSelectList(any(), any(), any())).thenReturn("selectList");
-        
         // Mock URI info and entity set
         when(uriInfo.asUriInfoResource()).thenReturn(uriInfo);
         when(uriInfo.getUriResourceParts()).thenReturn(Collections.singletonList(uriResourceEntitySet));
@@ -158,10 +154,6 @@ class SpringBootCarsProcessorTest {
     void shouldHandleEmptyEntityCollection() throws Exception {
         // Arrange
         ContentType contentType = ContentType.APPLICATION_JSON;
-        
-        // Mock UriHelper
-        when(odata.createUriHelper()).thenReturn(uriHelper);
-        when(uriHelper.buildContextURLSelectList(any(), any(), any())).thenReturn("selectList");
         
         when(uriInfo.asUriInfoResource()).thenReturn(uriInfo);
         when(uriInfo.getUriResourceParts()).thenReturn(Collections.singletonList(uriResourceEntitySet));
@@ -311,11 +303,11 @@ class SpringBootCarsProcessorTest {
         ContentType metadataNone = ContentType.APPLICATION_JSON;
         // Note: In a real implementation, you would need to properly create ContentType with parameters
         // For this test, we'll test the basic logic
-        assertFalse(SpringBootCarsProcessor.isODataMetadataNone(metadataNone));
+        assertFalse(BaseODataProcessor.isODataMetadataNone(metadataNone));
 
         // Test with XML content type
         ContentType xmlContentType = ContentType.APPLICATION_XML;
-        assertFalse(SpringBootCarsProcessor.isODataMetadataNone(xmlContentType));
+        assertFalse(BaseODataProcessor.isODataMetadataNone(xmlContentType));
     }
 
     @Test
@@ -327,10 +319,6 @@ class SpringBootCarsProcessorTest {
         realProcessor.init(odata, serviceMetadata);
         
         ContentType contentType = ContentType.APPLICATION_JSON;
-        
-        // Mock UriHelper
-        when(odata.createUriHelper()).thenReturn(uriHelper);
-        when(uriHelper.buildContextURLSelectList(any(), any(), any())).thenReturn("selectList");
         
         when(uriInfo.asUriInfoResource()).thenReturn(uriInfo);
         when(uriInfo.getUriResourceParts()).thenReturn(Collections.singletonList(uriResourceEntitySet));

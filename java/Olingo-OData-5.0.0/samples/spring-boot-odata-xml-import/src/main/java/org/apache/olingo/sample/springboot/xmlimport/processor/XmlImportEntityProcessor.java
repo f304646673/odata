@@ -24,16 +24,13 @@ import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.format.ContentType;
-import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
+import org.apache.olingo.sample.springboot.xmlimport.data.XmlImportDataProvider;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.EntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
@@ -41,64 +38,42 @@ import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.sample.springboot.xmlimport.data.XmlImportDataProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class XmlImportEntityProcessor implements EntityCollectionProcessor, EntityProcessor {
+public class XmlImportEntityProcessor extends BaseXmlImportODataProcessor implements EntityCollectionProcessor, EntityProcessor {
 
     @Autowired
     private XmlImportDataProvider dataProvider;
-    
-    private OData odata;
-    private ServiceMetadata serviceMetadata;
-    
-    @Override
-    public void init(OData odata, ServiceMetadata serviceMetadata) {
-        this.odata = odata;
-        this.serviceMetadata = serviceMetadata;
-    }
     
     @Override
     public void readEntityCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
             ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
         
-        List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-        UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-        EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
-        
+        EdmEntitySet edmEntitySet = getEntitySetFromUri(uriInfo);
         EntityCollection entityCollection = getEntityCollection(edmEntitySet);
         
         ODataSerializer serializer = odata.createSerializer(responseFormat);
-        EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-        
-        ContextURL contextUrl = ContextURL.with()
-                .entitySet(edmEntitySet)
-                .build();
+        ContextURL contextUrl = createContextUrl(edmEntitySet);
         
         EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
                 .contextURL(contextUrl)
                 .build();
         
-        SerializerResult serializerResult = serializer.entityCollection(serviceMetadata, edmEntityType, entityCollection, options);
+        SerializerResult serializerResult = serializer.entityCollection(serviceMetadata, edmEntitySet.getEntityType(), entityCollection, options);
         
-        response.setContent(serializerResult.getContent());
-        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-        response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+        configureResponse(response, serializerResult, responseFormat, HttpStatusCode.OK);
     }
     
     @Override
     public void readEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
             ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
         
-        List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-        UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-        EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
-        
-        List<org.apache.olingo.server.api.uri.UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
+        EdmEntitySet edmEntitySet = getEntitySetFromUri(uriInfo);
+        List<org.apache.olingo.server.api.uri.UriParameter> keyPredicates = 
+            ((UriResourceEntitySet) uriInfo.getUriResourceParts().get(0)).getKeyPredicates();
         
         Entity entity = getEntity(edmEntitySet, keyPredicates);
         
@@ -107,21 +82,15 @@ public class XmlImportEntityProcessor implements EntityCollectionProcessor, Enti
         }
         
         ODataSerializer serializer = odata.createSerializer(responseFormat);
-        EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-        
-        ContextURL contextUrl = ContextURL.with()
-                .entitySet(edmEntitySet)
-                .build();
+        ContextURL contextUrl = createEntityContextUrl(edmEntitySet);
         
         EntitySerializerOptions options = EntitySerializerOptions.with()
                 .contextURL(contextUrl)
                 .build();
         
-        SerializerResult serializerResult = serializer.entity(serviceMetadata, edmEntityType, entity, options);
+        SerializerResult serializerResult = serializer.entity(serviceMetadata, edmEntitySet.getEntityType(), entity, options);
         
-        response.setContent(serializerResult.getContent());
-        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-        response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+        configureResponse(response, serializerResult, responseFormat, HttpStatusCode.OK);
     }
     
     @Override

@@ -26,15 +26,12 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.format.ContentType;
-import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.sample.springboot.xmlsplit.data.XmlSplitDataProvider;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.EntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
@@ -49,44 +46,30 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 /**
  * Entity processor for XML Split Sample
  */
-public class XmlSplitEntityProcessor implements EntityCollectionProcessor, EntityProcessor {
+public class XmlSplitEntityProcessor extends BaseXmlSplitODataProcessor implements EntityCollectionProcessor, EntityProcessor {
     
-    private OData odata;
-    private ServiceMetadata serviceMetadata;
-    private XmlSplitDataProvider dataProvider;
+    private final XmlSplitDataProvider dataProvider;
     
     public XmlSplitEntityProcessor() {
         this.dataProvider = new XmlSplitDataProvider();
     }
     
     @Override
-    public void init(OData odata, ServiceMetadata serviceMetadata) {
-        this.odata = odata;
-        this.serviceMetadata = serviceMetadata;
-    }
-    
-    @Override
     public void readEntityCollection(ODataRequest request, ODataResponse response,
             UriInfo uriInfo, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
         
-        List<UriResource> resourceParts = uriInfo.getUriResourceParts();
-        UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourceParts.get(0);
-        EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+        EdmEntitySet edmEntitySet = getEntitySet(uriInfo);
         
-        EntityCollection entityCollection = null;
-        
-        if (edmEntitySet.getName().equals("Cars")) {
-            entityCollection = dataProvider.getCars();
-        } else if (edmEntitySet.getName().equals("Manufacturers")) {
-            entityCollection = dataProvider.getManufacturers();
-        } else {
-            throw new ODataApplicationException("Entity set not found", HttpStatusCode.NOT_FOUND.getStatusCode(), null);
-        }
+        EntityCollection entityCollection = switch (edmEntitySet.getName()) {
+            case "Cars" -> dataProvider.getCars();
+            case "Manufacturers" -> dataProvider.getManufacturers();
+            default -> throw new ODataApplicationException("Entity set not found", HttpStatusCode.NOT_FOUND.getStatusCode(), null);
+        };
         
         ODataSerializer serializer = odata.createSerializer(responseFormat);
         
         EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-        ContextURL contextUrl = ContextURL.with().entitySet(edmEntitySet).build();
+        ContextURL contextUrl = createEntityCollectionContextUrl(edmEntitySet);
         
         final String id = request.getRawBaseUri() + "/" + edmEntitySet.getName();
         EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
@@ -96,9 +79,7 @@ public class XmlSplitEntityProcessor implements EntityCollectionProcessor, Entit
         
         SerializerResult serializerResult = serializer.entityCollection(serviceMetadata, edmEntityType, entityCollection, options);
         
-        response.setContent(serializerResult.getContent());
-        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-        response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+        configureResponse(response, serializerResult, responseFormat);
     }
     
     @Override
@@ -112,15 +93,11 @@ public class XmlSplitEntityProcessor implements EntityCollectionProcessor, Entit
         List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
         int id = Integer.parseInt(keyPredicates.get(0).getText());
         
-        Entity entity = null;
-        
-        if (edmEntitySet.getName().equals("Cars")) {
-            entity = dataProvider.getCar(id);
-        } else if (edmEntitySet.getName().equals("Manufacturers")) {
-            entity = dataProvider.getManufacturer(id);
-        } else {
-            throw new ODataApplicationException("Entity set not found", HttpStatusCode.NOT_FOUND.getStatusCode(), null);
-        }
+        Entity entity = switch (edmEntitySet.getName()) {
+            case "Cars" -> dataProvider.getCar(id);
+            case "Manufacturers" -> dataProvider.getManufacturer(id);
+            default -> throw new ODataApplicationException("Entity set not found", HttpStatusCode.NOT_FOUND.getStatusCode(), null);
+        };
         
         if (entity == null) {
             throw new ODataApplicationException("Entity not found", HttpStatusCode.NOT_FOUND.getStatusCode(), null);
@@ -129,7 +106,7 @@ public class XmlSplitEntityProcessor implements EntityCollectionProcessor, Entit
         ODataSerializer serializer = odata.createSerializer(responseFormat);
         
         EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-        ContextURL contextUrl = ContextURL.with().entitySet(edmEntitySet).suffix(ContextURL.Suffix.ENTITY).build();
+        ContextURL contextUrl = createEntityContextUrl(edmEntitySet);
         
         EntitySerializerOptions options = EntitySerializerOptions.with()
                 .contextURL(contextUrl)
@@ -137,9 +114,7 @@ public class XmlSplitEntityProcessor implements EntityCollectionProcessor, Entit
         
         SerializerResult serializerResult = serializer.entity(serviceMetadata, edmEntityType, entity, options);
         
-        response.setContent(serializerResult.getContent());
-        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-        response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+        configureResponse(response, serializerResult, responseFormat);
     }
     
     @Override
