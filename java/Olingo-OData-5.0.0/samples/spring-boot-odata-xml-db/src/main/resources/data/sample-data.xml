@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataRoot xmlns="http://www.apache.org/olingo/sample/xmldb">
+    <manufacturers>
+        <manufacturer>
+            <id>1</id>
+            <name>BMW</name>
+            <founded>1916</founded>
+            <headquarters>Munich, Germany</headquarters>
+        </manufacturer>
+        <manufacturer>
+            <id>2</id>
+            <name>Audi</name>
+            <founded>1909</founded>
+            <headquarters>Ingolstadt, Germany</headquarters>
+        </manufacturer>
+        <manufacturer>
+            <id>3</id>
+            <name>Toyota</name>
+            <founded>1937</founded>
+            <headquarters>Toyota, Japan</headquarters>
+        </manufacturer>
+    </manufacturers>
+    <cars>
+        <car>
+            <id>1</id>
+            <model>X5</model>
+            <modelYear>2021</modelYear>
+            <price>65000.00</price>
+            <currency>USD</currency>
+            <manufacturerId>1</manufacturerId>
+        </car>
+        <car>
+            <id>2</id>
+            <model>A4</model>
+            <modelYear>2022</modelYear>
+            <price>45000.00</price>
+            <currency>USD</currency>
+            <manufacturerId>2</manufacturerId>
+        </car>
+        <car>
+            <id>3</id>
+            <model>Camry</model>
+            <modelYear>2023</modelYear>
+            <price>35000.00</price>
+            <currency>USD</currency>
+            <manufacturerId>3</manufacturerId>
+        </car>
+        <car>
+            <id>4</id>
+            <model>320i</model>
+            <modelYear>2021</modelYear>
+            <price>40000.00</price>
+            <currency>USD</currency>
+            <manufacturerId>1</manufacturerId>
+        </car>
+    </cars>
+</dataRoot>

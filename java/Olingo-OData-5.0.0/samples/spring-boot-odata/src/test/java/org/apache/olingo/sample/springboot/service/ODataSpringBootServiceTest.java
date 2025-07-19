@@ -48,6 +48,7 @@ class ODataSpringBootServiceTest {
     @Mock
     private HttpSession session;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         service = new ODataSpringBootService();

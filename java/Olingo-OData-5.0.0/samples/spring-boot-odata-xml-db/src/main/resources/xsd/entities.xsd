@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.apache.org/olingo/sample/xmldb"
+           xmlns:tns="http://www.apache.org/olingo/sample/xmldb"
+           elementFormDefault="qualified">
+
+    <!-- Car Entity -->
+    <xs:element name="car" type="tns:CarType"/>
+    <xs:element name="cars" type="tns:CarsType"/>
+
+    <xs:complexType name="CarType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="model" type="xs:string"/>
+            <xs:element name="modelYear" type="xs:int" minOccurs="0"/>
+            <xs:element name="price" type="xs:decimal" minOccurs="0"/>
+            <xs:element name="currency" type="xs:string" minOccurs="0"/>
+            <xs:element name="manufacturerId" type="xs:int" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CarsType">
+        <xs:sequence>
+            <xs:element name="car" type="tns:CarType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Manufacturer Entity -->
+    <xs:element name="manufacturer" type="tns:ManufacturerType"/>
+    <xs:element name="manufacturers" type="tns:ManufacturersType"/>
+
+    <xs:complexType name="ManufacturerType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="founded" type="xs:int" minOccurs="0"/>
+            <xs:element name="headquarters" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ManufacturersType">
+        <xs:sequence>
+            <xs:element name="manufacturer" type="tns:ManufacturerType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Root element for data import -->
+    <xs:element name="dataRoot" type="tns:DataRootType"/>
+
+    <xs:complexType name="DataRootType">
+        <xs:sequence>
+            <xs:element name="manufacturers" type="tns:ManufacturersType" minOccurs="0"/>
+            <xs:element name="cars" type="tns:CarsType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

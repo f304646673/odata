@@ -31,6 +31,7 @@ class SpringBootDataProviderTest {
 
     private SpringBootDataProvider dataProvider;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() {
         dataProvider = new SpringBootDataProvider();

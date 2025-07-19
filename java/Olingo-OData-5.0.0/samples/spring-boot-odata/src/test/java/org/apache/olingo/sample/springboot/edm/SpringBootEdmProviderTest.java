@@ -35,6 +35,7 @@ class SpringBootEdmProviderTest {
     private SpringBootEdmProvider edmProvider;
 
     @BeforeEach
+    @SuppressWarnings("unused") // Suppress warning about unused method, used by JUnit 5
     void setUp() {
         edmProvider = new SpringBootEdmProvider();
     }
