@@ -18,6 +18,7 @@
  */
 package org.apache.olingo.sample.springboot.xmldb.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -45,6 +46,7 @@ public class CarEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manufacturer_id", insertable = false, updatable = false)
+    @JsonBackReference
     private ManufacturerEntity manufacturer;
     
     // Constructors

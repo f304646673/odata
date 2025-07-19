@@ -3,13 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.olingo</groupId>
-        <artifactId>odata-samples</artifactId>
-        <version>5.0.0</version>
-    </parent>
-
+    <groupId>org.apache.olingo</groupId>
     <artifactId>odata-spring-boot-xml-db-sample</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Spring Boot OData XML Database Sample</name>
 
@@ -20,49 +16,20 @@
         <spring.boot.version>3.2.0</spring.boot.version>
         <olingo.version>5.0.0</olingo.version>
         <postgresql.version>42.7.3</postgresql.version>
-        <slf4j.version>2.0.9</slf4j.version>
-        
-        <!-- Override parent project properties to match Spring Boot 3.2.0 -->
-        <spring.version>6.1.0</spring.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- Override SLF4J version to fix conflicts -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        
-        <!-- Jakarta Servlet API for testing -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.0.0</version>
-            <scope>provided</scope>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <!-- PostgreSQL Driver -->
@@ -110,13 +77,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>2.2.224</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

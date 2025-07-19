@@ -18,6 +18,7 @@
  */
 package org.apache.olingo.sample.springboot.xmldb.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class ManufacturerEntity {
     private String headquarters;
     
     @OneToMany(mappedBy = "manufacturer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<CarEntity> cars;
     
     // Constructors
