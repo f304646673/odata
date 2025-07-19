@@ -38,6 +38,8 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.sample.springboot.data.SpringBootDataProvider;
+import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -46,9 +48,8 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
-import org.apache.olingo.server.api.processor.EntityCollectionProcessor;
+import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
-import org.apache.olingo.server.api.processor.PrimitiveProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
 import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
@@ -63,8 +64,6 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.sample.springboot.data.SpringBootDataProvider;
-import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
 
 /**
  * Spring Boot Cars Processor
@@ -79,8 +78,8 @@ import org.apache.olingo.sample.springboot.edm.SpringBootEdmProvider;
  * This implementation is based on the original CarsProcessor but adapted for Spring Boot
  * with the SpringBootDataProvider for data access.
  */
-public class SpringBootCarsProcessor implements EntityCollectionProcessor, EntityProcessor,
-        PrimitiveProcessor, PrimitiveValueProcessor, ComplexProcessor {
+public class SpringBootCarsProcessor implements EntityProcessor,
+        PrimitiveValueProcessor, ComplexProcessor, CountEntityCollectionProcessor {
 
     private OData odata;
     private ServiceMetadata serviceMetadata;
@@ -133,6 +132,26 @@ public class SpringBootCarsProcessor implements EntityCollectionProcessor, Entit
         response.setContent(serializedContent);
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
+    }
+
+    @Override
+    public void countEntityCollection(final ODataRequest request, ODataResponse response, final UriInfo uriInfo)
+            throws ODataApplicationException, SerializerException {
+        
+        // First we have to figure out which entity set to use
+        final EdmEntitySet edmEntitySet = getEdmEntitySet(uriInfo.asUriInfoResource());
+
+        // Second we fetch the data for this specific entity set from the data provider and count it
+        EntityCollection entityCollection = readEntityCollectionData(edmEntitySet);
+        int count = entityCollection.getEntities().size();
+
+        // Return the count as plain text
+        InputStream serializedContent = new ByteArrayInputStream(String.valueOf(count).getBytes(Charset.forName("UTF-8")));
+        
+        // Set the response
+        response.setContent(serializedContent);
+        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+        response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.TEXT_PLAIN.toContentTypeString());
     }
 
     // ==================== EntityProcessor Methods ====================
