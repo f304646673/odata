@@ -20,7 +20,6 @@ package org.apache.olingo.sample.springboot.xml.processor;
 
 import java.io.InputStream;
 
-import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -51,9 +50,6 @@ public class XmlServiceDocumentProcessor implements ServiceDocumentProcessor {
     @Override
     public void readServiceDocument(ODataRequest request, ODataResponse response, UriInfo uriInfo, 
             ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
-        
-        // Create context URL for service document
-        ContextURL contextUrl = ContextURL.with().build();
         
         // Serialize the service document
         ODataSerializer serializer = odata.createSerializer(responseFormat);

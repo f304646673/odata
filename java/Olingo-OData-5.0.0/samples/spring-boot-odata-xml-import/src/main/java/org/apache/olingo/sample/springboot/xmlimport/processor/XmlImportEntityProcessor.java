@@ -113,15 +113,12 @@ public class XmlImportEntityProcessor extends BaseXmlImportODataProcessor implem
     
     private EntityCollection getEntityCollection(EdmEntitySet edmEntitySet) {
         String entitySetName = edmEntitySet.getName();
-        
-        switch (entitySetName) {
-            case "Cars":
-                return dataProvider.getCars();
-            case "Manufacturers":
-                return dataProvider.getManufacturers();
-            default:
-                return new EntityCollection();
-        }
+
+        return switch (entitySetName) {
+            case "Cars" -> dataProvider.getCars();
+            case "Manufacturers" -> dataProvider.getManufacturers();
+            default -> new EntityCollection();
+        };
     }
     
     private Entity getEntity(EdmEntitySet edmEntitySet, List<org.apache.olingo.server.api.uri.UriParameter> keyPredicates) {
@@ -129,13 +126,10 @@ public class XmlImportEntityProcessor extends BaseXmlImportODataProcessor implem
         
         int id = Integer.parseInt(keyPredicates.get(0).getText());
         
-        switch (entitySetName) {
-            case "Cars":
-                return dataProvider.getCar(id);
-            case "Manufacturers":
-                return dataProvider.getManufacturer(id);
-            default:
-                return null;
-        }
+        return switch (entitySetName) {
+            case "Cars" -> dataProvider.getCar(id);
+            case "Manufacturers" -> dataProvider.getManufacturer(id);
+            default -> null;
+        };
     }
 }

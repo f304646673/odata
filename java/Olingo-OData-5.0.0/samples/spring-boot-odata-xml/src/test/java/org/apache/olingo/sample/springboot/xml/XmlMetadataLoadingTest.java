@@ -38,6 +38,7 @@ class XmlMetadataLoadingTest {
     private XmlEdmProvider edmProvider;
 
     @BeforeEach
+    @SuppressWarnings("unused")
     void setUp() {
         edmProvider = new XmlEdmProvider();
     }
@@ -106,12 +107,12 @@ class XmlMetadataLoadingTest {
         // Then
         assertThat(carsEntitySet).isNotNull();
         assertThat(carsEntitySet.getName()).isEqualTo("Cars");
-        assertThat(carsEntitySet.getType().toString()).isEqualTo("OData.Demo.Car");
+        assertThat(carsEntitySet.getType()).isEqualTo("OData.Demo.Car");
         assertThat(carsEntitySet.isIncludeInServiceDocument()).isTrue();
 
         assertThat(manufacturersEntitySet).isNotNull();
         assertThat(manufacturersEntitySet.getName()).isEqualTo("Manufacturers");
-        assertThat(manufacturersEntitySet.getType().toString()).isEqualTo("OData.Demo.Manufacturer");
+        assertThat(manufacturersEntitySet.getType()).isEqualTo("OData.Demo.Manufacturer");
         assertThat(manufacturersEntitySet.isIncludeInServiceDocument()).isTrue();
     }
 

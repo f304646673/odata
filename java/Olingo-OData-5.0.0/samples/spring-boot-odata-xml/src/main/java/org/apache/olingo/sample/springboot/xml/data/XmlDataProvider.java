@@ -148,14 +148,9 @@ public class XmlDataProvider {
 
         String entitySetName = edmEntitySet.getName();
         switch (entitySetName) {
-            case "Cars":
-                entityCollection.getEntities().addAll(carList);
-                break;
-            case "Manufacturers":
-                entityCollection.getEntities().addAll(manufacturerList);
-                break;
-            default:
-                throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
+            case "Cars" -> entityCollection.getEntities().addAll(carList);
+            case "Manufacturers" -> entityCollection.getEntities().addAll(manufacturerList);
+            default -> throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
@@ -176,17 +171,12 @@ public class XmlDataProvider {
         int keyValue = Integer.parseInt(keyValues.get(0));
 
         List<Entity> entityList;
-        switch (entitySetName) {
-            case "Cars":
-                entityList = carList;
-                break;
-            case "Manufacturers":
-                entityList = manufacturerList;
-                break;
-            default:
-                throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
+        entityList = switch (entitySetName) {
+            case "Cars" -> carList;
+            case "Manufacturers" -> manufacturerList;
+            default -> throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
-        }
+        };
 
         Entity entity = entityList.stream()
             .filter(e -> {
@@ -231,14 +221,9 @@ public class XmlDataProvider {
 
         // Add to appropriate list
         switch (entitySetName) {
-            case "Cars":
-                carList.add(entity);
-                break;
-            case "Manufacturers":
-                manufacturerList.add(entity);
-                break;
-            default:
-                throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
+            case "Cars" -> carList.add(entity);
+            case "Manufacturers" -> manufacturerList.add(entity);
+            default -> throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
@@ -270,14 +255,9 @@ public class XmlDataProvider {
         
         String entitySetName = edmEntitySet.getName();
         switch (entitySetName) {
-            case "Cars":
-                carList.remove(entityToDelete);
-                break;
-            case "Manufacturers":
-                manufacturerList.remove(entityToDelete);
-                break;
-            default:
-                throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
+            case "Cars" -> carList.remove(entityToDelete);
+            case "Manufacturers" -> manufacturerList.remove(entityToDelete);
+            default -> throw new ODataApplicationException("Entity set " + entitySetName + " is not supported.",
                     HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
         }
 
@@ -287,19 +267,16 @@ public class XmlDataProvider {
      * Gets next available ID for entity set
      */
     private int getNextId(String entitySetName) {
-        switch (entitySetName) {
-            case "Cars":
-                return carList.stream()
+        return switch (entitySetName) {
+            case "Cars" -> carList.stream()
                     .mapToInt(e -> (Integer) e.getProperty("Id").getValue())
                     .max()
                     .orElse(0) + 1;
-            case "Manufacturers":
-                return manufacturerList.stream()
+            case "Manufacturers" -> manufacturerList.stream()
                     .mapToInt(e -> (Integer) e.getProperty("Id").getValue())
                     .max()
                     .orElse(0) + 1;
-            default:
-                return 1;
-        }
+            default -> 1;
+        };
     }
 }

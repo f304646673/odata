@@ -20,7 +20,6 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,9 +86,8 @@ class SpringBootCarsProcessorTest {
     @Mock
     private SerializerResult serializerResult;
     
-    @Mock
-    private UriHelper uriHelper;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() throws Exception {
         processor = new SpringBootCarsProcessor(dataProvider);
