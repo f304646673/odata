@@ -19,7 +19,9 @@
 package myservice.mynamespace.web;
 
 import java.io.IOException;
-import java.lang.Override;import java.lang.RuntimeException;import java.util.ArrayList;
+import java.lang.Override;
+import java.lang.RuntimeException;
+import java.util.ArrayList;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;

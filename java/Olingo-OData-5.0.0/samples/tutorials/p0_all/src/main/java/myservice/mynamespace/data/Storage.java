@@ -581,7 +581,7 @@ private void initAdvertisementSampleData() {
     entity = new Entity();
     entity.setType(DemoEdmProvider.ET_ADVERTISEMENT_FQN.getFullQualifiedNameAsString());
     entity.addProperty(new Property(null, "ID", ValueType.PRIMITIVE,
-        UUID.fromString("db2d2186-1c29-4d1e-88ef-a127f521b9c67")));
+        UUID.fromString("db2d2186-1c29-4d1e-88ef-a127f521b9c6")));
     entity.addProperty(new Property(null, "Name", ValueType.PRIMITIVE, "Early morning start, need coffee"));
     entity.addProperty(new Property(null, "AirDate", ValueType.PRIMITIVE, Timestamp.valueOf("2000-02-29 00:00:00")));
     entity.addProperty(new Property(null, MEDIA_PROPERTY_NAME, ValueType.PRIMITIVE, "Super content2".getBytes()));

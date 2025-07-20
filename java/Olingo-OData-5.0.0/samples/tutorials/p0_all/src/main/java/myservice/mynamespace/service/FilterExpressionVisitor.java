@@ -27,7 +27,6 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmString;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -147,6 +146,12 @@ public class FilterExpressionVisitor implements ExpressionVisitor<Object> {
 	    throw new ODataApplicationException("Binary operation " + operator.name() + " is not implemented", 
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
 	  }
+  }
+
+	public Object visitBinaryOperator(BinaryOperatorKind operator, Object left, List<Object> right)
+	    throws ExpressionVisitException, ODataApplicationException {
+	  // Delegate to the two-parameter version using the first right operand
+	  return visitBinaryOperator(operator, left, right.get(0));
   }
 
 	private Object evaluateBooleanOperation(BinaryOperatorKind operator, Object left, Object right)
