@@ -154,8 +154,8 @@ erDiagram
 flowchart TD
     A[HTTP GET Request] --> B[URL 解析]
     B --> C{查询类型}
-    C -->|/Products| D[直接查询实体集合]
-    C -->|/Categories\(1\)/Products| E[通过导航查询实体集合]
+    C -->|"/Products"| D[直接查询实体集合]
+    C -->|"/Categories(1)/Products"| E[通过导航查询实体集合]
     D --> F[权限检查<br/>格式验证]
     E --> F
     F --> G[从Storage获取数据]
