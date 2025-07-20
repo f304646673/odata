@@ -15,47 +15,45 @@
 
 ### OData 客户端架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    OData 客户端架构                              │
-├─────────────────────────────────────────────────────────────────┤
-│                   Application Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  Business       │  │   Data Access   │  │   Service       │ │
-│  │  Logic          │  │   Objects       │  │   Integration   │ │
-│  │                 │  │                 │  │                 │ │
-│  │ OlingoSampleApp │  │ ClientEntity    │  │ REST Services   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Client API                             │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   ODataClient   │  │   Request       │  │   Response      │ │
-│  │                 │  │   Builders      │  │   Handlers      │ │
-│  │ ODataClientFac  │  │                 │  │                 │ │
-│  │ tory.getClient()│  │ EntityRequest   │  │ ClientEntity    │ │
-│  │                 │  │ MetadataRequest │  │ ClientEntitySet │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   HTTP Communication                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  HTTP Client    │  │   Authentication│  │   Serialization │ │
-│  │  Factory        │  │   & Security    │  │   & Format      │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Custom Factories│  │ OAuth2, Cookie  │  │ JSON, XML, Atom │ │
-│  │ Connection Pool │  │ Custom Headers  │  │ Content Types   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   OData Service                                 │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  Remote OData Service                       │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │   Metadata  │ │   Entities  │ │   Actions   │           │ │
-│  │  │   $metadata │ │   Cars      │ │   Functions │           │ │
-│  │  │             │ │   Manufact. │ │             │           │ │
-│  │  │ EDM Schema  │ │ CRUD & Query│ │ Operations  │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph AL ["Application Layer"]
+        BL["Business Logic<br/>OlingoSampleApp"]
+        DAO["Data Access Objects<br/>ClientEntity"]
+        SI["Service Integration<br/>REST Services"]
+        BL --- DAO
+        DAO --- SI
+    end
+    
+    subgraph OAPI ["OData Client API"]
+        OC["ODataClient<br/>ODataClientFactory.getClient()"]
+        RB["Request Builders<br/>EntityRequest<br/>MetadataRequest"]
+        RH["Response Handlers<br/>ClientEntity<br/>ClientEntitySet"]
+        OC --- RB
+        RB --- RH
+    end
+    
+    subgraph HTTP ["HTTP Communication"]
+        HCF["HTTP Client Factory<br/>Custom Factories<br/>Connection Pool"]
+        AUTH["Authentication & Security<br/>OAuth2, Cookie<br/>Custom Headers"]
+        SERIAL["Serialization & Format<br/>JSON, XML, Atom<br/>Content Types"]
+        HCF --- AUTH
+        AUTH --- SERIAL
+    end
+    
+    subgraph OS ["OData Service"]
+        subgraph REMOTE ["Remote OData Service"]
+            META["Metadata<br/>$metadata<br/>EDM Schema"]
+            ENT["Entities<br/>Cars<br/>Manufactures<br/>CRUD & Query"]
+            ACT["Actions<br/>Functions<br/>Operations"]
+            META --- ENT
+            ENT --- ACT
+        end
+    end
+    
+    AL --> OAPI
+    OAPI --> HTTP
+    HTTP --> OS
 ```
 
 ## 核心组件

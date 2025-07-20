@@ -15,50 +15,35 @@
 
 ### XML 导入处理架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              XML 元数据导入处理架构                               │
-├─────────────────────────────────────────────────────────────────┤
-│                   Import Source Layer                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   External      │  │   Legacy        │  │   Third-party   │ │
-│  │   Systems       │  │   Systems       │  │   APIs          │ │
-│  │                 │  │                 │  │                 │ │
-│  │ SAP OData       │  │ Custom XML      │  │ External EDM    │ │
-│  │ SharePoint      │  │ Schema Files    │  │ API Metadata    │ │
-│  │ Web Services    │  │ Database Meta   │  │ Standard CSDL   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Import Processing Layer                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   XML           │  │   Schema        │  │   Metadata      │ │
-│  │   Validation    │  │   Transformation│  │   Enrichment    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Schema Valid    │  │ XSLT Transform  │  │ Add Annotations │ │
-│  │ CSDL Compliance │  │ Format Convert  │  │ Default Values  │ │
-│  │ Structure Check │  │ Namespace Map   │  │ Validation Rule │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Metadata Management                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Version       │  │   Conflict      │  │   Backup &      │ │
-│  │   Control       │  │   Resolution    │  │   Recovery      │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Semantic Ver    │  │ Merge Strategy  │  │ Metadata Store  │ │
-│  │ Change Track    │  │ Override Rules  │  │ Rollback Mgmt   │ │
-│  │ Compatibility   │  │ Diff Analysis   │  │ History Track   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Runtime Integration                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Dynamic       │  │   Hot Reload    │  │   Service       │ │
-│  │   Loading       │  │   Support       │  │   Discovery     │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Runtime Import  │  │ Zero Downtime   │  │ Auto Register   │ │
-│  │ Lazy Loading    │  │ Config Refresh  │  │ Endpoint Gen    │ │
-│  │ Cache Strategy  │  │ Service Restart │  │ Client Update   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SOURCE_LAYER ["Import Source Layer"]
+        EXTERNAL["External<br/>Systems<br/>SAP OData<br/>SharePoint<br/>Web Services"]
+        LEGACY["Legacy<br/>Systems<br/>Custom XML<br/>Schema Files<br/>Database Meta"]
+        THIRDPARTY["Third-party<br/>APIs<br/>External EDM<br/>API Metadata<br/>Standard CSDL"]
+    end
+    
+    subgraph PROCESS_LAYER ["Import Processing Layer"]
+        XML_VALID["XML<br/>Validation<br/>Schema Valid<br/>CSDL Compliance<br/>Structure Check"]
+        SCHEMA_TRANS["Schema<br/>Transformation<br/>XSLT Transform<br/>Format Convert<br/>Namespace Map"]
+        META_ENRICH["Metadata<br/>Enrichment<br/>Add Annotations<br/>Default Values<br/>Validation Rule"]
+    end
+    
+    subgraph MGMT_LAYER ["Metadata Management"]
+        VERSION_CTRL["Version<br/>Control<br/>Semantic Ver<br/>Change Track<br/>Compatibility"]
+        CONFLICT_RES["Conflict<br/>Resolution<br/>Merge Strategy<br/>Override Rules<br/>Diff Analysis"]
+        BACKUP_REC["Backup &<br/>Recovery<br/>Metadata Store<br/>Rollback Mgmt<br/>History Track"]
+    end
+    
+    subgraph RUNTIME_LAYER ["Runtime Integration"]
+        DYNAMIC_LOAD["Dynamic<br/>Loading<br/>Runtime Import<br/>Lazy Loading<br/>Cache Strategy"]
+        HOT_RELOAD["Hot Reload<br/>Support<br/>Zero Downtime<br/>Config Refresh<br/>Service Restart"]
+        SERVICE_DISC["Service<br/>Discovery<br/>Auto Register<br/>Endpoint Gen<br/>Client Update"]
+    end
+    
+    SOURCE_LAYER --> PROCESS_LAYER
+    PROCESS_LAYER --> MGMT_LAYER
+    MGMT_LAYER --> RUNTIME_LAYER
 ```
 
 ## 核心组件

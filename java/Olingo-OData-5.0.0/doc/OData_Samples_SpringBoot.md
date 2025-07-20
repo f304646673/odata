@@ -15,62 +15,52 @@
 
 ### Spring Boot OData 架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                Spring Boot OData 服务架构                       │
-├─────────────────────────────────────────────────────────────────┤
-│                    Spring Boot Layer                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Application   │  │   Auto Config   │  │   Embedded      │ │
-│  │   Context       │  │                 │  │   Tomcat        │ │
-│  │                 │  │ @SpringBootApp  │  │                 │ │
-│  │ Bean Management │  │ Component Scan  │  │ HTTP Server     │ │
-│  │ DI Container    │  │ Configuration   │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Spring MVC Layer                             │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP Request  │  │   Controller    │  │   HTTP Response │ │
-│  │                 │  │                 │  │                 │ │
-│  │ POST /odata/    │  │ @RestController │  │ JSON/XML Data   │ │
-│  │ Cars            │  │ @RequestMapping │  │                 │ │
-│  │ GET /odata/     │  │ ODataController │  │ Status Codes    │ │
-│  │ Manufacturers   │  │                 │  │ Headers         │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Framework                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   OData         │  │   Service       │  │   Request       │ │
-│  │   Instance      │  │   Handler       │  │   Processors    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Framework Init  │  │ Handler Factory │  │ Entity Proc     │ │
-│  │ Service Setup   │  │ Processor Reg   │  │ Collection Proc │ │
-│  │                 │  │ Error Handling  │  │ Action Proc     │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Business Logic Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   EDM Provider  │  │   Data Provider │  │   Processors    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ @Component      │  │ @Component      │  │ @Component      │ │
-│  │ Schema Builder  │  │ Data Access     │  │ Business Logic  │ │
-│  │ Metadata Def    │  │ CRUD Operations │  │ Request Handle  │ │
-│  │                 │  │ Bean Injection  │  │ Response Build  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Model                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                   Car Domain Model                          │ │
-│  │  ┌─────────────┐         ┌─────────────┐                   │ │
-│  │  │Manufacturer │ 1    *  │    Car      │                   │ │
-│  │  │  - Id       │<------->│  - Id       │                   │ │
-│  │  │  - Name     │         │  - Model    │                   │ │
-│  │  │  - Founded  │         │  - ModelYear│                   │ │
-│  │  │  - Address  │         │  - Price    │                   │ │
-│  │  │             │         │  - Currency │                   │ │
-│  │  └─────────────┘         └─────────────┘                   │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph SpringBootOData ["Spring Boot OData 服务架构"]
+        subgraph SpringBootLayer ["Spring Boot Layer"]
+            AppContext["Application Context<br/>Bean Management<br/>DI Container"]
+            AutoConfig["Auto Config<br/>@SpringBootApp<br/>Component Scan<br/>Configuration"]
+            EmbeddedTomcat["Embedded Tomcat<br/>HTTP Server"]
+        end
+        
+        subgraph SpringMVCLayer ["Spring MVC Layer"]
+            HTTPRequest["HTTP Request<br/>POST /odata/Cars<br/>GET /odata/Manufacturers"]
+            Controller["Controller<br/>@RestController<br/>@RequestMapping<br/>ODataController"]
+            HTTPResponse["HTTP Response<br/>JSON/XML Data<br/>Status Codes<br/>Headers"]
+        end
+        
+        subgraph ODataFramework ["OData Framework"]
+            ODataInstance["OData Instance<br/>Framework Init<br/>Service Setup"]
+            ServiceHandler["Service Handler<br/>Handler Factory<br/>Processor Reg<br/>Error Handling"]
+            RequestProcessors["Request Processors<br/>Entity Proc<br/>Collection Proc<br/>Action Proc"]
+        end
+        
+        subgraph BusinessLogicLayer ["Business Logic Layer"]
+            EDMProvider["EDM Provider<br/>@Component<br/>Schema Builder<br/>Metadata Def"]
+            DataProvider["Data Provider<br/>@Component<br/>Data Access<br/>CRUD Operations<br/>Bean Injection"]
+            Processors["Processors<br/>@Component<br/>Business Logic<br/>Request Handle<br/>Response Build"]
+        end
+        
+        subgraph DataModel ["Data Model"]
+            subgraph CarDomainModel ["Car Domain Model"]
+                Manufacturer["Manufacturer<br/>- Id<br/>- Name<br/>- Founded<br/>- Address"]
+                Car["Car<br/>- Id<br/>- Model<br/>- ModelYear<br/>- Price<br/>- Currency"]
+                Manufacturer -.->|"1 to *"| Car
+            end
+        end
+    end
+    
+    HTTPRequest --> Controller
+    Controller --> HTTPResponse
+    Controller --> ODataInstance
+    ODataInstance --> ServiceHandler
+    ServiceHandler --> RequestProcessors
+    RequestProcessors --> EDMProvider
+    RequestProcessors --> DataProvider
+    RequestProcessors --> Processors
+    EDMProvider --> CarDomainModel
+    DataProvider --> CarDomainModel
 ```
 
 ## 核心组件

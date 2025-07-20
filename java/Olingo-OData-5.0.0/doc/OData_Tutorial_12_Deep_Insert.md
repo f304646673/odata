@@ -30,72 +30,49 @@
 
 ### 深度插入架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   深度插入增强OData服务架构                        │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Request                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  POST /Orders                               │ │
-│  │  {                                                          │ │
-│  │    "CustomerName": "John Doe",                              │ │
-│  │    "OrderItems": [                                          │ │
-│  │      {                                                      │ │
-│  │        "ProductID": 1,                                      │ │
-│  │        "Quantity": 2                                        │ │
-│  │      },                                                     │ │
-│  │      {                                                      │ │
-│  │        "ProductID": 2,                                      │ │
-│  │        "Quantity": 1                                        │ │
-│  │      }                                                      │ │
-│  │    ]                                                        │ │
-│  │  }                                                          │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Deep Insert Processing                        │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ EntityProcessor │  │   Request       │  │   Navigation    │ │
-│  │                 │  │   Parsing       │  │   Property      │ │
-│  │ createEntity()  │  │                 │  │   Handling      │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Relationship Processing                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Main Entity   │  │   Related       │  │   Validation    │ │
-│  │   Creation      │  │   Entities      │  │   & Integrity   │ │
-│  │                 │  │   Creation      │  │                 │ │
-│  │ Order Object    │  │ OrderItem List  │  │ FK Constraints  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Storage Layer Enhancement                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Transactional │  │   Relationship  │  │   ID           │ │
-│  │   Create        │  │   Management    │  │   Generation    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Atomic Insert   │  │ FK Assignment   │  │ Auto-increment  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Model                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │              Extended Entity Relationships                  │ │
-│  │  ┌─────────────┐          ┌─────────────┐                  │ │
-│  │  │   Orders    │ 1     *  │ OrderItems  │                  │ │
-│  │  │  - ID       │<-------->│  - ID       │                  │ │
-│  │  │  - Customer │          │  - OrderID  │                  │ │
-│  │  │  - Date     │          │  - ProductID│                  │ │
-│  │  │             │          │  - Quantity │                  │ │
-│  │  └─────────────┘          └─────────────┘                  │ │
-│  │                                    │                       │ │
-│  │                                    │ *                     │ │
-│  │                                    │                       │ │
-│  │                           ┌─────────────┐                  │ │
-│  │                           │  Products   │                  │ │
-│  │                           │  - ID       │                  │ │
-│  │                           │  - Name     │                  │ │
-│  │                           │  - Price    │                  │ │
-│  │                           └─────────────┘                  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "深度插入增强OData服务架构"
+        subgraph Request["Client Request"]
+            CR1["POST /Orders<br/>{<br/>  'CustomerName': 'John Doe',<br/>  'OrderItems': [<br/>    { 'ProductID': 1, 'Quantity': 2 },<br/>    { 'ProductID': 2, 'Quantity': 1 }<br/>  ]<br/>}"]
+        end
+        
+        subgraph Processing["Deep Insert Processing"]
+            P1["EntityProcessor<br/>createEntity()"]
+            P2["Request Parsing"]
+            P3["Navigation Property<br/>Handling"]
+        end
+        
+        subgraph Relationship["Relationship Processing"]
+            R1["Main Entity Creation<br/>Order Object"]
+            R2["Related Entities Creation<br/>OrderItem List"]
+            R3["Validation & Integrity<br/>FK Constraints"]
+        end
+        
+        subgraph Storage["Storage Layer Enhancement"]
+            S1["Transactional Create<br/>Atomic Insert"]
+            S2["Relationship Management<br/>FK Assignment"]
+            S3["ID Generation<br/>Auto-increment"]
+        end
+        
+        subgraph Model["Data Model"]
+            DM1["Extended Entity Relationships"]
+            
+            subgraph Entities["Entity Types"]
+                E1["Orders<br/>- ID<br/>- Customer<br/>- Date"]
+                E2["OrderItems<br/>- ID<br/>- OrderID<br/>- ProductID<br/>- Quantity"]
+                E3["Products<br/>- ID<br/>- Name<br/>- Price"]
+                
+                E1 -.->|"1 to *"| E2
+                E2 -.->|"* to 1"| E3
+            end
+        end
+    end
+    
+    Request --> Processing
+    Processing --> Relationship
+    Relationship --> Storage
+    Storage --> Model
 ```
 
 ## EDM 模型扩展

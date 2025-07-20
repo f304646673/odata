@@ -31,59 +31,49 @@
 
 ### 流式处理架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   流式处理增强OData服务架构                        │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Streaming     │  │   Pagination    │  │   Progressive   │ │
-│  │   Request       │  │   Support       │  │   Loading       │ │
-│  │                 │  │                 │  │                 │ │
-│  │ GET /Products   │  │ $skip, $top     │  │ Real-time UI    │ │
-│  │ Accept-Encoding │  │ $orderby        │  │ Updates         │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Streaming Processing Layer                    │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │StreamingEntity  │  │   Chunk         │  │   Memory        │ │
-│  │CollectionProc   │  │   Processing    │  │   Management    │ │
-│  │                 │  │                 │  │                 │ │
-│  │readEntityColl() │  │ Batch Reader    │  │ Buffer Control  │ │
-│  │streamResponse() │  │ Data Chunks     │  │ GC Optimization │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Data Processing Pipeline                      │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Data Source   │  │   Transform     │  │   Serialization │ │
-│  │   Iterator      │  │   Pipeline      │  │   Streaming     │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Database Cursor │  │ Filter/Sort     │  │ JSON Streaming  │ │
-│  │ File Reader     │  │ Map/Reduce      │  │ XML Streaming   │ │
-│  │ API Iterator    │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Resource Management                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Connection    │  │   Thread        │  │   Error         │ │
-│  │   Pooling       │  │   Management    │  │   Recovery      │ │
-│  │                 │  │                 │  │                 │ │
-│  │ DB Connections  │  │ Async Execution │  │ Circuit Breaker │ │
-│  │ HTTP Connections│  │ BackPressure    │  │ Retry Logic     │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Enhanced Storage                             │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                   Streaming Storage                         │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │   Data      │ │   Index     │ │   Cache     │           │ │
-│  │  │   Iterator  │ │   Support   │ │   Strategy  │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  │ Lazy Load   │ │ B-Tree      │ │ LRU/TTL     │           │ │
-│  │  │ Pagination  │ │ Range Query │ │ Write-Back  │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "流式处理增强OData服务架构"
+        subgraph Client["Client Layer"]
+            C1["Streaming Request<br/>GET /Products<br/>Accept-Encoding"]
+            C2["Pagination Support<br/>$skip, $top<br/>$orderby"]
+            C3["Progressive Loading<br/>Real-time UI Updates"]
+        end
+        
+        subgraph Processing["Streaming Processing Layer"]
+            P1["StreamingEntityCollectionProc<br/>readEntityColl()<br/>streamResponse()"]
+            P2["Chunk Processing<br/>Batch Reader<br/>Data Chunks"]
+            P3["Memory Management<br/>Buffer Control<br/>GC Optimization"]
+        end
+        
+        subgraph Pipeline["Data Processing Pipeline"]
+            D1["Data Source Iterator<br/>Database Cursor<br/>File Reader<br/>API Iterator"]
+            D2["Transform Pipeline<br/>Filter/Sort<br/>Map/Reduce"]
+            D3["Serialization Streaming<br/>JSON Streaming<br/>XML Streaming"]
+        end
+        
+        subgraph Resource["Resource Management"]
+            R1["Connection Pooling<br/>DB Connections<br/>HTTP Connections"]
+            R2["Thread Management<br/>Async Execution<br/>BackPressure"]
+            R3["Error Recovery<br/>Circuit Breaker<br/>Retry Logic"]
+        end
+        
+        subgraph Storage["Enhanced Storage"]
+            S1["Streaming Storage"]
+            S2["Data Iterator<br/>Lazy Load<br/>Pagination"]
+            S3["Index Support<br/>B-Tree<br/>Range Query"]
+            S4["Cache Strategy<br/>LRU/TTL<br/>Write-Back"]
+            
+            S1 --> S2
+            S1 --> S3
+            S1 --> S4
+        end
+    end
+    
+    Client --> Processing
+    Processing --> Pipeline
+    Pipeline --> Resource
+    Resource --> Storage
 ```
 
 ## 流式EntityCollectionProcessor

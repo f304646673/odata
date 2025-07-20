@@ -15,50 +15,47 @@
 
 ### 系统架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   最小化OData服务架构                              │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐              ┌─────────────────┐           │
-│  │   HTTP GET      │              │   JSON Response │           │
-│  │  /Products      │              │   {Products[]}  │           │
-│  └─────────────────┘              └─────────────────┘           │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Handler Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  DemoServlet    │  │ODataHttpHandler │  │ ServiceMetadata │ │
-│  │                 │  │                 │  │                 │ │
-│  │  (Entry Point)  │  │ (URL Routing)   │  │ (Schema Info)   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │            DemoEntityCollectionProcessor                    │ │
-│  │                                                             │ │
-│  │     专门处理实体集合的GET请求                                │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityType  │ │ EntitySet   │ │ Container   │           │ │
-│  │  │  Product    │ │  Products   │ │             │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐                                            │ │
-│  │  │  Products   │                                            │ │
-│  │  │    List     │                                            │ │
-│  │  │(In-Memory)  │                                            │ │
-│  │  └─────────────┘                                            │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[HTTP GET<br/>/Products]
+        B[JSON Response<br/>{Products[]}]
+    end
+    
+    subgraph "OData Handler Layer"
+        C[DemoServlet<br/>Entry Point]
+        D[ODataHttpHandler<br/>URL Routing]
+        E[ServiceMetadata<br/>Schema Info]
+    end
+    
+    subgraph "Processor Layer"
+        F[DemoEntityCollectionProcessor<br/>专门处理实体集合的GET请求]
+    end
+    
+    subgraph "EDM Provider Layer"
+        G[DemoEdmProvider]
+        H[EntityType<br/>Product]
+        I[EntitySet<br/>Products]
+        J[Container]
+    end
+    
+    subgraph "Data Layer"
+        K[Storage]
+        L[Products List<br/>In-Memory]
+    end
+    
+    A --> C
+    C --> D
+    D --> E
+    D --> F
+    F --> G
+    G --> H
+    G --> I
+    G --> J
+    G --> K
+    K --> L
+    F --> B
+    B --> A
 ```
 
 ## 核心组件详解
@@ -107,14 +104,13 @@ public class DemoServlet extends HttpServlet {
 **功能**：定义最简单的实体数据模型，只包含Product实体。
 
 **数据模型图**：
-```
-┌─────────────────┐
-│     Product     │
-├─────────────────┤
-│ ID (Key)        │ ← Int32, 主键
-│ Name            │ ← String, 产品名称
-│ Description     │ ← String, 产品描述
-└─────────────────┘
+```mermaid
+erDiagram
+    Product {
+        Int32 ID PK "主键"
+        String Name "产品名称"
+        String Description "产品描述"
+    }
 ```
 
 **实现细节**：
@@ -184,43 +180,19 @@ public CsdlEntityContainer getEntityContainer() throws ODataException {
 **功能**：处理对实体集合的HTTP GET请求，是本教程的核心组件。
 
 **处理流程图**：
-```
-HTTP GET /Products
-       │
-       ▼
-┌─────────────────┐
-│   URL解析       │
-│ UriInfo解析     │ ──► 确定请求的实体集
-│ ResourcePath    │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  实体集识别     │
-│ EdmEntitySet    │ ──► 验证请求的实体集是否存在
-│ 类型检查        │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  数据获取       │
-│ Storage.read    │ ──► 从数据存储获取实体集合数据
-│ EntitySetData   │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  响应序列化     │
-│ ODataSerializer │ ──► 将数据序列化为JSON/XML格式
-│ ContextURL      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  HTTP响应       │
-│ 200 OK          │ ──► 返回序列化后的实体集合
-│ Content-Type    │
-└─────────────────┘
+```mermaid
+flowchart TD
+    A[HTTP GET /Products] --> B[URL解析<br/>UriInfo解析<br/>ResourcePath]
+    B --> C[实体集识别<br/>EdmEntitySet<br/>类型检查]
+    C --> D[数据获取<br/>Storage.read<br/>EntitySetData]
+    D --> E[响应序列化<br/>ODataSerializer<br/>ContextURL]
+    E --> F[HTTP响应<br/>200 OK<br/>Content-Type]
+    
+    B -.-> B1[确定请求的实体集]
+    C -.-> C1[验证请求的实体集是否存在]
+    D -.-> D1[从数据存储获取实体集合数据]
+    E -.-> E1[将数据序列化为JSON/XML格式]
+    F -.-> F1[返回序列化后的实体集合]
 ```
 
 **核心实现**：

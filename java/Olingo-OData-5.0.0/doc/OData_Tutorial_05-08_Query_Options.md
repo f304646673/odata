@@ -17,51 +17,50 @@
 
 ### 查询选项处理架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                 查询选项增强OData服务架构                          │
-├─────────────────────────────────────────────────────────────────┤
-│                     Query Parameters                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ ?$top=10        │  │ ?$orderby=Name  │  │ ?$filter=Price  │ │
-│  │ &$skip=5        │  │ &$count=true    │  │    gt 100       │ │
-│  │ &$count=true    │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   URI Processing Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ UriInfo         │  │ Query Options   │  │ Expression      │ │
-│  │ getTopOption()  │  │ Parsing         │  │ Parsing         │ │
-│  │ getSkipOption() │  │ getOrderByOption│  │ getFilterOption │ │
-│  │ getCountOption()│  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│              EntityCollectionProcessor Layer                    │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │            DemoEntityCollectionProcessor                    │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ Pagination  │ │   Sorting   │ │  Filtering  │           │ │
-│  │  │ Processing  │ │ Processing  │ │ Processing  │           │ │
-│  │  │ $top/$skip  │ │ $orderby    │ │ $filter     │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Expression Evaluation                         │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ Filter          │  │ OrderBy         │  │ Pagination      │ │
-│  │ Expression      │  │ Expression      │  │ Logic           │ │
-│  │ Evaluation      │  │ Evaluation      │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐                                            │ │
-│  │  │ EntityList  │ ──► 应用查询选项后的数据处理                  │ │
-│  │  │ Processing  │                                            │ │
-│  │  └─────────────┘                                            │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "查询选项增强OData服务架构"
+        subgraph Params["Query Parameters"]
+            Q1["?$top=10<br/>&$skip=5<br/>&$count=true"]
+            Q2["?$orderby=Name<br/>&$count=true"]
+            Q3["?$filter=Price gt 100"]
+        end
+        
+        subgraph URI["URI Processing Layer"]
+            U1["UriInfo<br/>getTopOption()<br/>getSkipOption()<br/>getCountOption()"]
+            U2["Query Options Parsing<br/>getOrderByOption"]
+            U3["Expression Parsing<br/>getFilterOption"]
+        end
+        
+        subgraph Processor["EntityCollectionProcessor Layer"]
+            P1["DemoEntityCollectionProcessor"]
+            P2["Pagination Processing<br/>$top/$skip"]
+            P3["Sorting Processing<br/>$orderby"]
+            P4["Filtering Processing<br/>$filter"]
+            
+            P1 --> P2
+            P1 --> P3
+            P1 --> P4
+        end
+        
+        subgraph Expression["Expression Evaluation"]
+            E1["Filter Expression<br/>Evaluation"]
+            E2["OrderBy Expression<br/>Evaluation"]
+            E3["Pagination Logic"]
+        end
+        
+        subgraph Data["Data Layer"]
+            D1["Storage"]
+            D2["EntityList Processing<br/>应用查询选项后的数据处理"]
+            
+            D1 --> D2
+        end
+    end
+    
+    Params --> URI
+    URI --> Processor
+    Processor --> Expression
+    Expression --> Data
 ```
 
 ## P5: $top, $count, $skip 分页选项

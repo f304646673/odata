@@ -15,56 +15,52 @@
 
 ### OSGi OData 架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    OSGi OData 服务架构                           │
-├─────────────────────────────────────────────────────────────────┤
-│                    OSGi Framework                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   OSGi Runtime  │  │   Bundle        │  │   Service       │ │
-│  │                 │  │   Lifecycle     │  │   Registry      │ │
-│  │ Felix/Equinox   │  │                 │  │                 │ │
-│  │ Framework       │  │ Start/Stop      │  │ Service Pub/Sub │ │
-│  │ Class Loading   │  │ Install/Update  │  │ Dependency Inj  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    HTTP Service Layer                           │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP Service  │  │   Servlet       │  │   URL Mapping   │ │
-│  │                 │  │   Registration  │  │                 │ │
-│  │ OSGi HttpServ   │  │                 │  │ /odata/*        │ │
-│  │ Jetty/Tomcat    │  │ OData Servlet   │  │ Context Path    │ │
-│  │ HTTP Connector  │  │ Bundle Context  │  │ Resource Map    │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Bundle                                 │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Bundle        │  │   OData         │  │   Service       │ │
-│  │   Activator     │  │   Components    │  │   Components    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ BundleContext   │  │ EDM Provider    │  │ Data Provider   │ │
-│  │ Service Reg     │  │ Processors      │  │ Business Logic  │ │
-│  │ Lifecycle Mgmt  │  │ Handler Setup   │  │ Repository      │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Module Dependencies                          │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                Bundle Dependency Graph                      │ │
-│  │                                                             │ │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │ │
-│  │  │   Olingo    │───▶│   OData     │───▶│   Business  │    │ │
-│  │  │   Core      │    │   Service   │    │   Logic     │    │ │
-│  │  │   Bundle    │    │   Bundle    │    │   Bundle    │    │ │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘    │ │
-│  │         │                   │                   │         │ │
-│  │         ▼                   ▼                   ▼         │ │
-│  │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    │ │
-│  │  │   HTTP      │    │   Servlet   │    │   Data      │    │ │
-│  │  │   Service   │    │   API       │    │   Access    │    │ │
-│  │  │   Bundle    │    │   Bundle    │    │   Bundle    │    │ │
-│  │  └─────────────┘    └─────────────┘    └─────────────┘    │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph OSGI_FW ["OSGi Framework"]
+        RUNTIME["OSGi Runtime<br/>Felix/Equinox<br/>Framework<br/>Class Loading"]
+        LIFECYCLE["Bundle Lifecycle<br/>Start/Stop<br/>Install/Update"]
+        SERVICE_REG["Service Registry<br/>Service Pub/Sub<br/>Dependency Inj"]
+        RUNTIME --- LIFECYCLE
+        LIFECYCLE --- SERVICE_REG
+    end
+    
+    subgraph HTTP_LAYER ["HTTP Service Layer"]
+        HTTP_SERV["HTTP Service<br/>OSGi HttpServ<br/>Jetty/Tomcat<br/>HTTP Connector"]
+        SERVLET_REG["Servlet Registration<br/>OData Servlet<br/>Bundle Context"]
+        URL_MAP["URL Mapping<br/>/odata/*<br/>Context Path<br/>Resource Map"]
+        HTTP_SERV --- SERVLET_REG
+        SERVLET_REG --- URL_MAP
+    end
+    
+    subgraph ODATA_BUNDLE ["OData Bundle"]
+        ACTIVATOR["Bundle Activator<br/>BundleContext<br/>Service Reg<br/>Lifecycle Mgmt"]
+        ODATA_COMP["OData Components<br/>EDM Provider<br/>Processors<br/>Handler Setup"]
+        SERVICE_COMP["Service Components<br/>Data Provider<br/>Business Logic<br/>Repository"]
+        ACTIVATOR --- ODATA_COMP
+        ODATA_COMP --- SERVICE_COMP
+    end
+    
+    subgraph MOD_DEPS ["Module Dependencies"]
+        subgraph DEP_GRAPH ["Bundle Dependency Graph"]
+            OLINGO_CORE["Olingo Core<br/>Bundle"]
+            ODATA_SERVICE["OData Service<br/>Bundle"]
+            BIZ_LOGIC["Business Logic<br/>Bundle"]
+            HTTP_SERVICE["HTTP Service<br/>Bundle"]
+            SERVLET_API["Servlet API<br/>Bundle"]
+            DATA_ACCESS["Data Access<br/>Bundle"]
+            
+            OLINGO_CORE --> ODATA_SERVICE
+            ODATA_SERVICE --> BIZ_LOGIC
+            OLINGO_CORE --> HTTP_SERVICE
+            ODATA_SERVICE --> SERVLET_API
+            BIZ_LOGIC --> DATA_ACCESS
+        end
+    end
+    
+    OSGI_FW --> HTTP_LAYER
+    HTTP_LAYER --> ODATA_BUNDLE
+    ODATA_BUNDLE --> MOD_DEPS
 ```
 
 ## 核心组件
@@ -782,44 +778,25 @@ diag <bundle-id>
 
 ```
 Bundle Dependency Resolution:
-┌─────────────────────────────────────────────────────────────────┐
-│                Bundle Dependency Tree                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐                                            │
-│  │ System Bundle   │                                            │
-│  │ (Framework)     │                                            │
-│  └─────────┬───────┘                                            │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │ HTTP Service    │    │ SCR Service     │                    │
-│  │ Bundle          │    │ Bundle          │                    │
-│  │ (Jetty/PAX)     │    │ (Felix SCR)     │                    │
-│  └─────────┬───────┘    └─────────┬───────┘                    │
-│            │                      │                            │
-│            └─────────┬────────────┘                            │
-│                      ▼                                         │
-│            ┌─────────────────┐                                 │
-│            │ Olingo Core     │                                 │
-│            │ Bundles         │                                 │
-│            │ - Server API    │                                 │
-│            │ - Server Core   │                                 │
-│            │ - Commons API   │                                 │
-│            │ - Commons Core  │                                 │
-│            └─────────┬───────┘                                 │
-│                      │                                         │
-│                      ▼                                         │
-│            ┌─────────────────┐                                 │
-│            │ OData Service   │                                 │
-│            │ Bundle          │                                 │
-│            │ - EDM Provider  │                                 │
-│            │ - Data Provider │                                 │
-│            │ - Processors    │                                 │
-│            │ - Servlet       │                                 │
-│            └─────────────────┘                                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+
+```mermaid
+flowchart TD
+    SYSTEM["System Bundle<br/>(Framework)"]
+    
+    HTTP_BUNDLE["HTTP Service<br/>Bundle<br/>(Jetty/PAX)"]
+    SCR_BUNDLE["SCR Service<br/>Bundle<br/>(Felix SCR)"]
+    
+    OLINGO_CORE["Olingo Core<br/>Bundles<br/>- Server API<br/>- Server Core<br/>- Commons API<br/>- Commons Core"]
+    
+    ODATA_SERVICE["OData Service<br/>Bundle<br/>- EDM Provider<br/>- Data Provider<br/>- Processors<br/>- Servlet"]
+    
+    SYSTEM --> HTTP_BUNDLE
+    SYSTEM --> SCR_BUNDLE
+    
+    HTTP_BUNDLE --> OLINGO_CORE
+    SCR_BUNDLE --> OLINGO_CORE
+    
+    OLINGO_CORE --> ODATA_SERVICE
 ```
 
 ## API 使用示例

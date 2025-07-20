@@ -10,11 +10,18 @@
 
 在传统的Java EE环境中（如Tomcat + WAR部署），HTTP请求的路径解析遵循标准的Servlet规范：
 
-```
-完整URL: http://localhost:8080/myapp/api/cars.svc/$metadata
-        └─────────────┘ └───┘ └─┘ └──────┘ └─────────┘
-        协议+主机+端口   Context Servlet   Path
-                       Path    Path      Info
+```mermaid
+graph LR
+    subgraph URL ["完整URL: http://localhost:8080/myapp/api/cars.svc/$metadata"]
+        A["协议+主机+端口"]
+        B["Context Path<br/>/myapp"]  
+        C["Servlet Path<br/>/api/cars.svc"]
+        D["Path Info<br/>/$metadata"]
+        
+        A --> B
+        B --> C
+        C --> D
+    end
 ```
 
 **各组件说明：**
@@ -359,16 +366,32 @@ public class ODataController {
 以下是一个完整的Apache Olingo OData集成示例：
 
 ### 项目结构
-```
-src/main/java/
-├── com/example/odata/
-│   ├── ODataApplication.java
-│   ├── controller/
-│   │   └── ODataController.java
-│   ├── service/
-│   │   └── ODataService.java
-│   └── config/
-│       └── ODataConfig.java
+
+```mermaid
+graph TD
+    ROOT[/"📁 src/main/java"/]
+    
+    ROOT --> PKG[/"📁 com/example/odata"/]
+    
+    PKG --> APP["📄 ODataApplication.java<br/>🚀 Spring Boot 应用入口"]
+    PKG --> CONTROLLER_DIR[/"📁 controller"/]
+    PKG --> SERVICE_DIR[/"📁 service"/]
+    PKG --> CONFIG_DIR[/"📁 config"/]
+    
+    CONTROLLER_DIR --> CONTROLLER["📄 ODataController.java<br/>🌐 OData REST 控制器"]
+    SERVICE_DIR --> SERVICE["📄 ODataService.java<br/>⚙️ 业务逻辑服务"]
+    CONFIG_DIR --> CONFIG["📄 ODataConfig.java<br/>🔧 OData 配置"]
+    
+    %% 样式定义
+    classDef folderStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef javaStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef mainStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef configStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class ROOT,PKG,CONTROLLER_DIR,SERVICE_DIR,CONFIG_DIR folderStyle
+    class CONTROLLER,SERVICE javaStyle
+    class APP mainStyle
+    class CONFIG configStyle
 ```
 
 ### 主要配置文件

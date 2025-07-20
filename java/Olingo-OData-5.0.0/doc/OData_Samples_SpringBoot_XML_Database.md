@@ -15,55 +15,43 @@
 
 ### XML + Database 架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│           XML 元数据 + 数据库集成 OData 架构                      │
-├─────────────────────────────────────────────────────────────────┤
-│                    Spring Boot Layer                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Application   │  │   Auto Config   │  │   Data Source   │ │
-│  │   Context       │  │                 │  │   Config        │ │
-│  │                 │  │ @SpringBootApp  │  │                 │ │
-│  │ Bean Management │  │ JPA Config      │  │ Connection Pool │ │
-│  │ Transaction Mgr │  │ OData Config    │  │ Database Driver │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   OData + Persistence Layer                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   XML Metadata  │  │   JPA Entities  │  │   Repository    │ │
-│  │                 │  │                 │  │   Layer         │ │
-│  │ service-        │  │ @Entity         │  │                 │ │
-│  │ metadata.xml    │  │ @Table          │  │ @Repository     │ │
-│  │ CSDL Schema     │  │ @Column         │  │ Spring Data     │ │
-│  │ EDM Definition  │  │ @Relationship   │  │ CRUD Methods    │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Data Access Integration                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   OData Query   │  │   Query         │  │   Database      │ │
-│  │   Translation   │  │   Translation   │  │   Execution     │ │
-│  │                 │  │                 │  │                 │ │
-│  │ $filter -> SQL  │  │ Criteria API    │  │ SQL Commands    │ │
-│  │ $orderby -> SQL │  │ Query Builder   │  │ Result Sets     │ │
-│  │ $top/$skip      │  │ Pagination      │  │ Transactions    │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                     Database Layer                              │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                   关系数据库模型                              │ │
-│  │                                                             │ │
-│  │  ┌─────────────┐         ┌─────────────┐                   │ │
-│  │  │MANUFACTURER │ 1    *  │    CAR      │                   │ │
-│  │  │  - id (PK)  │<------->│  - id (PK)  │                   │ │
-│  │  │  - name     │         │  - model    │                   │ │
-│  │  │  - founded  │         │  - price    │                   │ │
-│  │  │  - street   │         │  - year     │                   │ │
-│  │  │  - city     │         │  - mfr_id(FK)│                  │ │
-│  │  │  - country  │         │             │                   │ │
-│  │  │  - postal   │         │             │                   │ │
-│  │  └─────────────┘         └─────────────┘                   │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SBL ["Spring Boot Layer"]
+        APP_CTX["Application Context<br/>Bean Management<br/>Transaction Mgr"]
+        AUTO_CFG["Auto Config<br/>@SpringBootApp<br/>JPA Config<br/>OData Config"]
+        DATA_SRC["Data Source Config<br/>Connection Pool<br/>Database Driver"]
+        APP_CTX --- AUTO_CFG
+        AUTO_CFG --- DATA_SRC
+    end
+    
+    subgraph ODP ["OData + Persistence Layer"]
+        XML_META["XML Metadata<br/>service-metadata.xml<br/>CSDL Schema<br/>EDM Definition"]
+        JPA_ENT["JPA Entities<br/>@Entity<br/>@Table<br/>@Column<br/>@Relationship"]
+        REPO_LAYER["Repository Layer<br/>@Repository<br/>Spring Data<br/>CRUD Methods"]
+        XML_META --- JPA_ENT
+        JPA_ENT --- REPO_LAYER
+    end
+    
+    subgraph DAI ["Data Access Integration"]
+        ODATA_QUERY["OData Query Translation<br/>$filter -> SQL<br/>$orderby -> SQL<br/>$top/$skip"]
+        QUERY_TRANS["Query Translation<br/>Criteria API<br/>Query Builder<br/>Pagination"]
+        DB_EXEC["Database Execution<br/>SQL Commands<br/>Result Sets<br/>Transactions"]
+        ODATA_QUERY --> QUERY_TRANS
+        QUERY_TRANS --> DB_EXEC
+    end
+    
+    subgraph DB_LAYER ["Database Layer"]
+        subgraph REL_MODEL ["关系数据库模型"]
+            MANU_TBL["MANUFACTURER<br/>- id (PK)<br/>- name<br/>- founded<br/>- street<br/>- city<br/>- country<br/>- postal"]
+            CAR_TBL["CAR<br/>- id (PK)<br/>- model<br/>- price<br/>- year<br/>- mfr_id (FK)"]
+            MANU_TBL -.->|1:*| CAR_TBL
+        end
+    end
+    
+    SBL --> ODP
+    ODP --> DAI
+    DAI --> DB_LAYER
 ```
 
 ## 核心组件

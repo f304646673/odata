@@ -20,24 +20,48 @@
 
 ## 项目结构
 
-```
-src/
-├── main/java/com/example/xmlimport/
-│   ├── AdvancedMetadataParser.java          # 核心解析器
-│   ├── AdvancedXmlImportEdmProvider.java    # EDM提供者
-│   ├── XmlImportApplication.java            # Spring Boot应用
-│   ├── XmlImportODataController.java        # OData控制器
-│   └── XmlImportMetadataProcessor.java      # 元数据处理器
-├── test/java/com/example/xmlimport/
-│   ├── AdvancedMetadataParserTest.java      # 核心测试
-│   ├── AdvancedXmlImportEdmProviderIntegrationTest.java # 集成测试
-│   └── AdvancedMetadataParserUsageExampleTest.java # 使用示例
-└── test/resources/test-scenarios/
-    ├── multi-level/                         # 多层依赖测试场景
-    │   ├── schema-a.xml → schema-b.xml → schema-c.xml → schema-d.xml
-    └── circular/                            # 循环依赖测试场景
-        ├── schema-x.xml ←→ schema-y.xml     # 两方循环
-        └── schema-p1.xml → schema-p2.xml → schema-p3.xml → schema-p1.xml # 三方循环
+```mermaid
+graph TD
+    ROOT[/"📁 spring-boot-odata-xml-import"/]
+    
+    ROOT --> SRC[/"📁 src"/]
+    
+    SRC --> MAIN[/"📁 main"/]
+    SRC --> TEST[/"📁 test"/]
+    
+    MAIN --> JAVA_MAIN[/"📁 java/com/example/xmlimport"/]
+    
+    JAVA_MAIN --> PARSER["📄 AdvancedMetadataParser.java<br/>🔍 核心解析器"]
+    JAVA_MAIN --> PROVIDER["📄 AdvancedXmlImportEdmProvider.java<br/>🏗️ EDM提供者"]
+    JAVA_MAIN --> APP["📄 XmlImportApplication.java<br/>🚀 Spring Boot应用"]
+    JAVA_MAIN --> CONTROLLER["📄 XmlImportODataController.java<br/>🌐 OData控制器"]
+    JAVA_MAIN --> PROCESSOR["📄 XmlImportMetadataProcessor.java<br/>⚙️ 元数据处理器"]
+    
+    TEST --> JAVA_TEST[/"📁 java/com/example/xmlimport"/]
+    TEST --> RES_TEST[/"📁 resources/test-scenarios"/]
+    
+    JAVA_TEST --> TEST_PARSER["📄 AdvancedMetadataParserTest.java<br/>🧪 核心测试"]
+    JAVA_TEST --> TEST_INTEGRATION["📄 AdvancedXmlImportEdmProviderIntegrationTest.java<br/>🔗 集成测试"]
+    JAVA_TEST --> TEST_EXAMPLE["📄 AdvancedMetadataParserUsageExampleTest.java<br/>📋 使用示例"]
+    
+    RES_TEST --> MULTILEVEL[/"📁 multi-level"/]
+    RES_TEST --> CIRCULAR[/"📁 circular"/]
+    
+    MULTILEVEL --> ML_CHAIN["📄 多层依赖链<br/>schema-a.xml → schema-b.xml<br/>→ schema-c.xml → schema-d.xml"]
+    
+    CIRCULAR --> CIRC_TWO["📄 两方循环<br/>schema-x.xml ↔ schema-y.xml"]
+    CIRCULAR --> CIRC_THREE["📄 三方循环<br/>schema-p1.xml → schema-p2.xml<br/>→ schema-p3.xml → schema-p1.xml"]
+    
+    %% 样式定义
+    classDef folderStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef javaStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef testStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef xmlStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class ROOT,SRC,MAIN,TEST,JAVA_MAIN,JAVA_TEST,RES_TEST,MULTILEVEL,CIRCULAR folderStyle
+    class PARSER,PROVIDER,APP,CONTROLLER,PROCESSOR javaStyle
+    class TEST_PARSER,TEST_INTEGRATION,TEST_EXAMPLE testStyle
+    class ML_CHAIN,CIRC_TWO,CIRC_THREE xmlStyle
 ```
 
 ## 核心类详解

@@ -24,52 +24,63 @@
 
 ### 系统架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                  扩展的OData服务架构                               │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP GET      │  │   HTTP GET      │  │   HTTP GET      │ │
-│  │  /Products      │  │  /Products(1)   │  │ /Products(1)/   │ │
-│  │                 │  │                 │  │     Name        │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Handler Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  DemoServlet    │  │ODataHttpHandler │  │ ServiceMetadata │ │
-│  │                 │  │                 │  │                 │ │
-│  │  (Entry Point)  │  │ (URL Routing)   │  │ (Schema Info)   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │EntityCollection │  │ EntityProcessor │  │PrimitiveProcessor│ │
-│  │   Processor     │  │      (新增)      │  │     (新增)      │ │
-│  │                 │  │                 │  │                 │ │
-│  │  处理集合查询    │  │ 处理单实体查询   │  │  处理属性查询    │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityType  │ │ EntitySet   │ │ Container   │           │ │
-│  │  │  Product    │ │  Products   │ │             │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐                                            │ │
-│  │  │  Products   │  ← 支持按键值查找单个实体                    │ │
-│  │  │    List     │                                            │ │
-│  │  │(In-Memory)  │                                            │ │
-│  │  └─────────────┘                                            │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph ExtendedODataArchitecture ["扩展的OData服务架构"]
+        subgraph ClientLayer ["Client Layer"]
+            HTTPGet1["HTTP GET<br/>/Products"]
+            HTTPGet2["HTTP GET<br/>/Products(1)"]
+            HTTPGet3["HTTP GET<br/>/Products(1)/Name"]
+        end
+        
+        subgraph ODataHandlerLayer ["OData Handler Layer"]
+            DemoServlet["DemoServlet<br/>(Entry Point)"]
+            ODataHttpHandler["ODataHttpHandler<br/>(URL Routing)"]
+            ServiceMetadata["ServiceMetadata<br/>(Schema Info)"]
+        end
+        
+        subgraph ProcessorLayer ["Processor Layer"]
+            EntityCollectionProcessor["EntityCollection<br/>Processor<br/>处理集合查询"]
+            EntityProcessor["EntityProcessor<br/>(新增)<br/>处理单实体查询"]
+            PrimitiveProcessor["PrimitiveProcessor<br/>(新增)<br/>处理属性查询"]
+        end
+        
+        subgraph EDMProviderLayer ["EDM Provider Layer"]
+            subgraph DemoEdmProvider ["DemoEdmProvider"]
+                EntityType["EntityType<br/>Product"]
+                EntitySet["EntitySet<br/>Products"]
+                Container["Container"]
+            end
+        end
+        
+        subgraph DataLayer ["Data Layer"]
+            subgraph Storage ["Storage"]
+                ProductsList["Products List<br/>(In-Memory)<br/>← 支持按键值查找单个实体"]
+            end
+        end
+    end
+    
+    HTTPGet1 --> DemoServlet
+    HTTPGet2 --> DemoServlet
+    HTTPGet3 --> DemoServlet
+    
+    DemoServlet --> ODataHttpHandler
+    ODataHttpHandler --> ServiceMetadata
+    
+    ODataHttpHandler --> EntityCollectionProcessor
+    ODataHttpHandler --> EntityProcessor
+    ODataHttpHandler --> PrimitiveProcessor
+    
+    EntityCollectionProcessor --> DemoEdmProvider
+    EntityProcessor --> DemoEdmProvider
+    PrimitiveProcessor --> DemoEdmProvider
+    
+    EntityCollectionProcessor --> Storage
+    EntityProcessor --> Storage
+    PrimitiveProcessor --> Storage
+    
+    style EntityProcessor fill:#e8f5e8
+    style PrimitiveProcessor fill:#e8f5e8
 ```
 
 ## 新增组件详解
@@ -79,50 +90,25 @@
 **功能**：处理对单个实体的HTTP GET请求，支持键值解析。
 
 **处理流程图**：
-```
-HTTP GET /Products(1)
-       │
-       ▼
-┌─────────────────┐
-│   URL解析       │
-│ UriInfo解析     │ ──► 解析实体集和键值
-│ KeyPredicates   │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  键值提取       │
-│ UriParameter    │ ──► 从URL中提取ID=1
-│ 类型转换        │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  实体查找       │
-│ Storage.read    │ ──► 根据键值查找特定实体
-│ EntityData      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  存在性检查     │
-│ Null Check      │ ──► 检查实体是否存在
-│ 404处理         │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  响应序列化     │
-│ ODataSerializer │ ──► 将实体序列化为JSON/XML
-│ ContextURL      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  HTTP响应       │
-│ 200 OK / 404    │ ──► 返回单个实体或未找到
-│ Content-Type    │
-└─────────────────┘
+```mermaid
+flowchart TD
+    A["HTTP GET /Products(1)"] --> B["URL解析<br/>UriInfo解析<br/>KeyPredicates"]
+    B --> C["键值提取<br/>UriParameter<br/>类型转换"]
+    C --> D["实体查找<br/>Storage.read<br/>EntityData"]
+    D --> E["存在性检查<br/>Null Check<br/>404处理"]
+    E --> F["响应序列化<br/>ODataSerializer<br/>ContextURL"]
+    F --> G["HTTP响应<br/>200 OK / 404<br/>Content-Type"]
+    
+    B -.-> B1["解析实体集和键值"]
+    C -.-> C1["从URL中提取ID=1"]
+    D -.-> D1["根据键值查找特定实体"]
+    E -.-> E1["检查实体是否存在"]
+    F -.-> F1["将实体序列化为JSON/XML"]
+    G -.-> G1["返回单个实体或未找到"]
+    
+    style A fill:#e1f5fe
+    style E fill:#fff3e0
+    style G fill:#e8f5e8
 ```
 
 **核心实现**：
@@ -177,43 +163,23 @@ public void readEntity(ODataRequest request, ODataResponse response, UriInfo uri
 **功能**：处理对实体属性的HTTP GET请求，返回特定属性的值。
 
 **处理流程图**：
-```
-HTTP GET /Products(1)/Name
-       │
-       ▼
-┌─────────────────┐
-│   URL解析       │
-│ UriInfo解析     │ ──► 解析实体集、键值和属性名
-│ ResourceParts   │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  实体查找       │
-│ Entity by Key   │ ──► 先找到目标实体
-│                 │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  属性提取       │
-│ Property Value  │ ──► 从实体中提取指定属性值
-│ Type Check      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  值序列化       │
-│ Primitive       │ ──► 将属性值序列化为JSON格式
-│ Serializer      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  HTTP响应       │
-│ 200 OK          │ ──► 返回属性值
-│ {"value": "..."}│
-└─────────────────┘
+```mermaid
+flowchart TD
+    A["HTTP GET /Products(1)/Name"] --> B["URL解析<br/>UriInfo解析<br/>ResourceParts"]
+    B --> C["实体查找<br/>Entity by Key"]
+    C --> D["属性提取<br/>Property Value<br/>Type Check"]
+    D --> E["值序列化<br/>Primitive<br/>Serializer"]
+    E --> F["HTTP响应<br/>200 OK<br/>{\"value\": \"...\"}"]
+    
+    B -.-> B1["解析实体集、键值和属性名"]
+    C -.-> C1["先找到目标实体"]
+    D -.-> D1["从实体中提取指定属性值"]
+    E -.-> E1["将属性值序列化为JSON格式"]
+    F -.-> F1["返回属性值"]
+    
+    style A fill:#e1f5fe
+    style D fill:#fff3e0
+    style F fill:#e8f5e8
 ```
 
 **核心实现**：

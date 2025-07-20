@@ -29,51 +29,47 @@
 
 ### 批处理架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   批处理增强OData服务架构                          │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP POST     │  │  Multipart      │  │   Batch         │ │
-│  │   /$batch       │  │  Content        │  │  Boundary       │ │
-│  │                 │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Batch Processing Layer                        │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ BatchProcessor  │  │  Request        │  │   Response      │ │
-│  │                 │  │  Parsing        │  │  Generation     │ │
-│  │ processBatch()  │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Sub-Request Processing                        │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Individual    │  │   ChangeSet     │  │   Error         │ │
-│  │   Requests      │  │   Transaction   │  │   Handling      │ │
-│  │                 │  │                 │  │                 │ │
-│  │ GET, POST, PUT  │  │ Atomic Batch    │  │ Sub-Response    │ │
-│  │ PATCH, DELETE   │  │                 │  │   Status        │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                Regular Processor Delegation                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │EntityCollection │  │ EntityProcessor │  │ActionProcessor  │ │
-│  │   Processor     │  │                 │  │                 │ │
-│  │                 │  │                 │  │                 │ │
-│  │  (Reuse)        │  │   (Reuse)       │  │    (Reuse)      │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐ ┌─────────────┐                           │ │
-│  │  │ Transaction │ │    Data     │                           │ │
-│  │  │  Support    │ │  Storage    │                           │ │
-│  │  │(ChangeSet)  │ │ (existing)  │                           │ │
-│  │  └─────────────┘ └─────────────┘                           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "批处理增强OData服务架构"
+        subgraph Client["Client Layer"]
+            C1["HTTP POST<br/>/$batch"]
+            C2["Multipart Content"]
+            C3["Batch Boundary"]
+        end
+        
+        subgraph Batch["Batch Processing Layer"]
+            B1["BatchProcessor<br/>processBatch()"]
+            B2["Request Parsing"]
+            B3["Response Generation"]
+        end
+        
+        subgraph SubReq["Sub-Request Processing"]
+            SR1["Individual Requests<br/>GET, POST, PUT<br/>PATCH, DELETE"]
+            SR2["ChangeSet Transaction<br/>Atomic Batch"]
+            SR3["Error Handling<br/>Sub-Response Status"]
+        end
+        
+        subgraph Delegation["Regular Processor Delegation"]
+            D1["EntityCollection Processor<br/>(Reuse)"]
+            D2["EntityProcessor<br/>(Reuse)"]
+            D3["ActionProcessor<br/>(Reuse)"]
+        end
+        
+        subgraph Data["Data Layer"]
+            DL1["Storage"]
+            DL2["Transaction Support<br/>(ChangeSet)"]
+            DL3["Data Storage<br/>(existing)"]
+            
+            DL1 --> DL2
+            DL1 --> DL3
+        end
+    end
+    
+    Client --> Batch
+    Batch --> SubReq
+    SubReq --> Delegation
+    Delegation --> Data
 ```
 
 ## DemoBatchProcessor 实现

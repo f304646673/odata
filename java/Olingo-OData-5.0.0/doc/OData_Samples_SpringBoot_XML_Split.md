@@ -15,61 +15,56 @@
 
 ### XML 元数据拆分架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│               XML 元数据拆分管理架构                              │
-├─────────────────────────────────────────────────────────────────┤
-│                   Source Metadata Layer                         │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │               Monolithic XML Metadata                       │ │
-│  │  ┌─────────────┐┌─────────────┐┌─────────────┐┌───────────┐  │ │
-│  │  │ Entity Sets ││ Entity Types││ Associations││ Functions │  │ │
-│  │  │ (2000+ ETs) ││ Properties  ││ Navigation  ││ Actions   │  │ │
-│  │  │ Large       ││ Complex     ││ Properties  ││ Complex   │  │ │
-│  │  │ Schemas     ││ Types       ││ Constraints ││ Operations│  │ │
-│  │  └─────────────┘└─────────────┘└─────────────┘└───────────┘  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Splitting Strategy Layer                      │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Domain-based  │  │   Size-based    │  │   Dependency    │ │
-│  │   Splitting     │  │   Splitting     │  │   Analysis      │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Business Domain │  │ Max 500 Entities│  │ Reference Graph │ │
-│  │ Functional Area │  │ File Size Limit │  │ Circular Deps   │ │
-│  │ Team Ownership  │  │ Memory Footprint│  │ Load Priority   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Module Management Layer                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Core Module   │  │   Domain        │  │   Extension     │ │
-│  │                 │  │   Modules       │  │   Modules       │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Common Types    │  │ HR.xml          │  │ Custom.xml      │ │
-│  │ Base Entities   │  │ Finance.xml     │  │ Integration.xml │ │
-│  │ Shared Schemas  │  │ Sales.xml       │  │ Analytics.xml   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Dynamic Assembly Layer                        │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Module        │  │   Dependency    │  │   Assembly      │ │
-│  │   Discovery     │  │   Resolution    │  │   Engine        │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Auto Scan       │  │ Topological     │  │ XML Merge       │ │
-│  │ Config Based    │  │ Sort            │  │ Namespace Fix   │ │
-│  │ Runtime Load    │  │ Circular Check  │  │ Reference Link  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Caching & Performance Layer                   │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Module        │  │   Assembled     │  │   Runtime       │ │
-│  │   Cache         │  │   Cache         │  │   Optimization  │ │
-│  │                 │  │                 │  │                 │ │
-│  │ L1: Memory      │  │ Full Schema     │  │ Lazy Loading    │ │
-│  │ L2: Disk        │  │ Partial Schema  │  │ Parallel Load   │ │
-│  │ L3: Distributed │  │ Version Cache   │  │ Stream Process  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SML ["Source Metadata Layer"]
+        subgraph MONO ["Monolithic XML Metadata"]
+            ES["Entity Sets<br/>(2000+ ETs)<br/>Large Schemas"]
+            ET["Entity Types<br/>Properties<br/>Complex Types"]
+            ASSOC["Associations<br/>Navigation Properties<br/>Constraints"]
+            FUNC["Functions<br/>Actions<br/>Complex Operations"]
+            ES --- ET
+            ET --- ASSOC
+            ASSOC --- FUNC
+        end
+    end
+    
+    subgraph SSL ["Splitting Strategy Layer"]
+        DOMAIN["Domain-based Splitting<br/>Business Domain<br/>Functional Area<br/>Team Ownership"]
+        SIZE["Size-based Splitting<br/>Max 500 Entities<br/>File Size Limit<br/>Memory Footprint"]
+        DEP["Dependency Analysis<br/>Reference Graph<br/>Circular Deps<br/>Load Priority"]
+        DOMAIN --- SIZE
+        SIZE --- DEP
+    end
+    
+    subgraph MML ["Module Management Layer"]
+        CORE["Core Module<br/>Common Types<br/>Base Entities<br/>Shared Schemas"]
+        DOMAIN_MOD["Domain Modules<br/>HR.xml<br/>Finance.xml<br/>Sales.xml"]
+        EXT["Extension Modules<br/>Custom.xml<br/>Integration.xml<br/>Analytics.xml"]
+        CORE --- DOMAIN_MOD
+        DOMAIN_MOD --- EXT
+    end
+    
+    subgraph DAL ["Dynamic Assembly Layer"]
+        DISC["Module Discovery<br/>Auto Scan<br/>Config Based<br/>Runtime Load"]
+        RESOLVE["Dependency Resolution<br/>Topological Sort<br/>Circular Check"]
+        ENGINE["Assembly Engine<br/>XML Merge<br/>Namespace Fix<br/>Reference Link"]
+        DISC --- RESOLVE
+        RESOLVE --- ENGINE
+    end
+    
+    subgraph CPL ["Caching & Performance Layer"]
+        MOD_CACHE["Module Cache<br/>L1: Memory<br/>L2: Disk<br/>L3: Distributed"]
+        ASM_CACHE["Assembled Cache<br/>Full Schema<br/>Partial Schema<br/>Version Cache"]
+        RUNTIME["Runtime Optimization<br/>Lazy Loading<br/>Parallel Load<br/>Stream Process"]
+        MOD_CACHE --- ASM_CACHE
+        ASM_CACHE --- RUNTIME
+    end
+    
+    SML --> SSL
+    SSL --> MML
+    MML --> DAL
+    DAL --> CPL
 ```
 
 ## 核心组件

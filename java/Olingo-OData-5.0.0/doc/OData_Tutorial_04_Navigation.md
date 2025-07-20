@@ -24,19 +24,24 @@
 ## 数据模型设计
 
 ### 实体关系图
-```
-┌─────────────────┐    1        ∞    ┌─────────────────┐
-│    Category     │◄──────────────────┤     Product     │
-├─────────────────┤                   ├─────────────────┤
-│ ID (Key)        │                   │ ID (Key)        │
-│ Name            │                   │ Name            │
-│ Description     │                   │ Description     │
-└─────────────────┘                   │ ReleaseDate     │
-                                      │ DiscontinuedDate│
-                                      │ Rating          │
-                                      │ Price           │
-                                      │ CategoryID (FK) │
-                                      └─────────────────┘
+```mermaid
+erDiagram
+    Category ||--o{ Product : contains
+    Category {
+        int ID "Primary Key"
+        string Name
+        string Description
+    }
+    Product {
+        int ID "Primary Key"
+        string Name
+        string Description
+        date ReleaseDate
+        date DiscontinuedDate
+        int Rating
+        decimal Price
+        int CategoryID "Foreign Key"
+    }
 ```
 
 ### 导航属性定义
@@ -46,54 +51,94 @@
 ## 核心架构
 
 ### 导航处理架构图
+```mermaid
+graph TB
+    subgraph "导航增强OData服务架构"
+        subgraph URLs["Navigation URLs"]
+            N1["/Products(1)/Category<br/>(多对一导航)"]
+            N2["/Categories(1)/Products<br/>(一对多导航)"]
+            N3["/Products(1)/Category/Name<br/>(导航+属性)"]
+        end
+        
+        subgraph Resolution["URI Resolution Layer"]
+            R1["URI Parsing<br/>UriInfo<br/>ResourceParts"]
+            R2["Navigation Detection<br/>UriNavigation"]
+            R3["Resource Path Analysis<br/>Segment Count"]
+        end
+        
+        subgraph Processor["Processor Layer"]
+            P1["EntityCollection Processor<br/>+ Navigation Collection Support"]
+            P2["EntityProcessor<br/>+ Navigation Entity Support"]
+            P3["Navigation Handling<br/>+ Key Resolution<br/>+ Relationship Traversal"]
+        end
+        
+        subgraph EDM["EDM Provider Layer"]
+            E1["DemoEdmProvider"]
+            E2["EntityTypes<br/>Product, Category"]
+            E3["EntitySets +<br/>Navigation Bindings"]
+            E4["Navigation Properties<br/>(双向)"]
+            
+            E1 --> E2
+            E1 --> E3
+            E1 --> E4
+        end
+    end
+    
+    URLs --> Resolution
+    Resolution --> Processor
+    Processor --> EDM
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    导航增强OData服务架构                           │
-├─────────────────────────────────────────────────────────────────┤
-│                     Navigation URLs                             │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ /Products(1)/   │  │ /Categories(1)/ │  │ /Products(1)/   │ │
-│  │   Category      │  │   Products      │  │ Category/Name   │ │
-│  │ (多对一导航)     │  │ (一对多导航)     │  │ (导航+属性)     │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   URI Resolution Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ URI Parsing     │  │ Navigation      │  │ Resource Path   │ │
-│  │ UriInfo         │  │ Detection       │  │ Analysis        │ │
-│  │ ResourceParts   │  │ UriNavigation   │  │ Segment Count   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │EntityCollection │  │ EntityProcessor │  │ Navigation      │ │
-│  │   Processor     │  │                 │  │ Handling        │ │
-│  │                 │  │                 │  │                 │ │
-│  │ + Navigation    │  │ + Navigation    │  │ + Key Resolution│ │
-│  │   Collection    │  │   Entity        │  │ + Relationship  │ │
-│  │   Support       │  │   Support       │  │   Traversal     │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityTypes │ │EntitySets + │ │ Navigation  │           │ │
-│  │  │  Product    │ │ Navigation  │ │ Properties  │           │ │
-│  │  │  Category   │ │ Bindings    │ │ (双向)      │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │  Products   │ │ Categories  │ │ Navigation  │           │ │
-│  │  │    List     │ │    List     │ │  Methods    │           │ │
-│  │  │(+CategoryID)│ │             │ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+
+```mermaid
+flowchart TD
+    subgraph NAV_URLS ["Navigation URLs"]
+        URL1["/Products(1)/Category<br/>(多对一导航)"]
+        URL2["/Categories(1)/Products<br/>(一对多导航)"]
+        URL3["/Products(1)/Category/Name<br/>(导航+属性)"]
+        URL1 --- URL2
+        URL2 --- URL3
+    end
+    
+    subgraph URI_LAYER ["URI Resolution Layer"]
+        URI_PARSE["URI Parsing<br/>UriInfo<br/>ResourceParts"]
+        NAV_DETECT["Navigation Detection<br/>UriNavigation"]
+        PATH_ANALYSIS["Resource Path Analysis<br/>Segment Count"]
+        URI_PARSE --- NAV_DETECT
+        NAV_DETECT --- PATH_ANALYSIS
+    end
+    
+    subgraph PROC_LAYER ["Processor Layer"]
+        ENTITY_COLL["EntityCollection Processor<br/>+ Navigation Collection Support"]
+        ENTITY_PROC["EntityProcessor<br/>+ Navigation Entity Support"]
+        NAV_HANDLE["Navigation Handling<br/>+ Key Resolution<br/>+ Relationship Traversal"]
+        ENTITY_COLL --- ENTITY_PROC
+        ENTITY_PROC --- NAV_HANDLE
+    end
+    
+    subgraph EDM_LAYER ["EDM Provider Layer"]
+        subgraph DEMO_EDM ["DemoEdmProvider"]
+            ENTITY_TYPES["EntityTypes<br/>Product<br/>Category"]
+            ENTITY_SETS["EntitySets +<br/>Navigation Bindings"]
+            NAV_PROPS["Navigation Properties<br/>(双向)"]
+            ENTITY_TYPES --- ENTITY_SETS
+            ENTITY_SETS --- NAV_PROPS
+        end
+    end
+    
+    subgraph DATA_LAYER ["Data Layer"]
+        subgraph STORAGE ["Storage"]
+            PRODUCTS["Products List<br/>(+CategoryID)"]
+            CATEGORIES["Categories List"]
+            NAV_METHODS["Navigation Methods"]
+            PRODUCTS --- CATEGORIES
+            CATEGORIES --- NAV_METHODS
+        end
+    end
+    
+    NAV_URLS --> URI_LAYER
+    URI_LAYER --> PROC_LAYER
+    PROC_LAYER --> EDM_LAYER
+    EDM_LAYER --> DATA_LAYER
 ```
 
 ## EDM Provider 导航扩展

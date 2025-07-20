@@ -15,50 +15,43 @@
 
 ### OData Server 架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                  传统 Servlet OData 服务架构                      │
-├─────────────────────────────────────────────────────────────────┤
-│                      HTTP Layer                                 │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP Request  │  │   Servlet       │  │   HTTP Response │ │
-│  │                 │  │   Container     │  │                 │ │
-│  │ GET /cars.svc/  │  │                 │  │ JSON/XML Data   │ │
-│  │ Manufacturers   │  │ CarsServlet     │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Framework                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   OData         │  │   Service       │  │   ODataHttp     │ │
-│  │   Instance      │  │   Metadata      │  │   Handler       │ │
-│  │                 │  │                 │  │                 │ │
-│  │ OData.newInst() │  │ EDM Provider    │  │ Request Router  │ │
-│  │                 │  │ Schema Def      │  │ Processor Mgmt  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Business Logic                                │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   EDM Provider  │  │   Processors    │  │   Data Provider │ │
-│  │                 │  │                 │  │                 │ │
-│  │ CarsEdmProvider │  │ CarsProcessor   │  │ DataProvider    │ │
-│  │ - Entities      │  │ - Read/Write    │  │ - In-Memory     │ │
-│  │ - Relationships │  │ - Query Logic   │  │ - CRUD Ops      │ │
-│  │ - Schema        │  │ - Serialization │  │ - Session Mgmt  │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Model                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                     Car Domain                              │ │
-│  │  ┌─────────────┐          ┌─────────────┐                  │ │
-│  │  │Manufacturer │ 1     *  │    Car      │                  │ │
-│  │  │  - Id       │<-------->│  - Id       │                  │ │
-│  │  │  - Name     │          │  - Model    │                  │ │
-│  │  │  - Founded  │          │  - ModelYear│                  │ │
-│  │  │  - Address  │          │  - Price    │                  │ │
-│  │  │             │          │  - Currency │                  │ │
-│  │  └─────────────┘          └─────────────┘                  │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph HTTP ["HTTP Layer"]
+        REQ["HTTP Request<br/>GET /cars.svc/Manufacturers"]
+        SERVLET["Servlet Container<br/>CarsServlet"]
+        RESP["HTTP Response<br/>JSON/XML Data"]
+        REQ --> SERVLET
+        SERVLET --> RESP
+    end
+    
+    subgraph ODATA ["OData Framework"]
+        INSTANCE["OData Instance<br/>OData.newInst()"]
+        METADATA["Service Metadata<br/>EDM Provider<br/>Schema Def"]
+        HANDLER["ODataHttp Handler<br/>Request Router<br/>Processor Mgmt"]
+        INSTANCE --- METADATA
+        METADATA --- HANDLER
+    end
+    
+    subgraph BL ["Business Logic"]
+        EDM["EDM Provider<br/>CarsEdmProvider<br/>- Entities<br/>- Relationships<br/>- Schema"]
+        PROC["Processors<br/>CarsProcessor<br/>- Read/Write<br/>- Query Logic<br/>- Serialization"]
+        DATA["Data Provider<br/>DataProvider<br/>- In-Memory<br/>- CRUD Ops<br/>- Session Mgmt"]
+        EDM --- PROC
+        PROC --- DATA
+    end
+    
+    subgraph DM ["Data Model"]
+        subgraph CAR_DOMAIN ["Car Domain"]
+            MANU["Manufacturer<br/>- Id<br/>- Name<br/>- Founded<br/>- Address"]
+            CAR["Car<br/>- Id<br/>- Model<br/>- ModelYear<br/>- Price<br/>- Currency"]
+            MANU -.->|1:*| CAR
+        end
+    end
+    
+    HTTP --> ODATA
+    ODATA --> BL
+    BL --> DM
 ```
 
 ## 核心组件

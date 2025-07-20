@@ -27,56 +27,68 @@
 
 ### 系统架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    完整CRUD OData服务架构                         │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP GET      │  │  HTTP POST      │  │ HTTP PUT/PATCH  │ │
-│  │ 读取操作         │  │  创建实体       │  │ 更新操作        │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-│  ┌─────────────────┐                                           │
-│  │ HTTP DELETE     │                                           │
-│  │ 删除操作        │                                           │
-│  └─────────────────┘                                           │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Handler Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  DemoServlet    │  │ODataHttpHandler │  │ ServiceMetadata │ │
-│  │                 │  │                 │  │                 │ │
-│  │  (Entry Point)  │  │ (URL Routing)   │  │ (Schema Info)   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │EntityCollection │  │ EntityProcessor │  │PrimitiveProcessor│ │
-│  │   Processor     │  │    (扩展)       │  │    (扩展)       │ │
-│  │                 │  │                 │  │                 │ │
-│  │  readCollection │  │ create/update/  │  │ update/delete   │ │
-│  │                 │  │ delete Entity   │  │ Property        │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityType  │ │ EntitySet   │ │ Container   │           │ │
-│  │  │  Product    │ │  Products   │ │             │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐                                            │ │
-│  │  │  Products   │  ← 支持CRUD操作                             │ │
-│  │  │    List     │  ← ID生成机制                              │ │
-│  │  │(In-Memory)  │  ← 数据验证                                │ │
-│  │  └─────────────┘                                            │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph CompleteCRUDODataArchitecture ["完整CRUD OData服务架构"]
+        subgraph ClientLayer ["Client Layer"]
+            HTTPGet["HTTP GET<br/>读取操作"]
+            HTTPPost["HTTP POST<br/>创建实体"]
+            HTTPPutPatch["HTTP PUT/PATCH<br/>更新操作"]
+            HTTPDelete["HTTP DELETE<br/>删除操作"]
+        end
+        
+        subgraph ODataHandlerLayer ["OData Handler Layer"]
+            DemoServlet["DemoServlet<br/>(Entry Point)"]
+            ODataHttpHandler["ODataHttpHandler<br/>(URL Routing)"]
+            ServiceMetadata["ServiceMetadata<br/>(Schema Info)"]
+        end
+        
+        subgraph ProcessorLayer ["Processor Layer"]
+            EntityCollectionProcessor["EntityCollection<br/>Processor<br/>readCollection"]
+            EntityProcessor["EntityProcessor<br/>(扩展)<br/>create/update/<br/>delete Entity"]
+            PrimitiveProcessor["PrimitiveProcessor<br/>(扩展)<br/>update/delete<br/>Property"]
+        end
+        
+        subgraph EDMProviderLayer ["EDM Provider Layer"]
+            subgraph DemoEdmProvider ["DemoEdmProvider"]
+                EntityType["EntityType<br/>Product"]
+                EntitySet["EntitySet<br/>Products"]
+                Container["Container"]
+            end
+        end
+        
+        subgraph DataLayer ["Data Layer"]
+            subgraph Storage ["Storage"]
+                ProductsList["Products List<br/>(In-Memory)<br/>← 支持CRUD操作<br/>← ID生成机制<br/>← 数据验证"]
+            end
+        end
+    end
+    
+    HTTPGet --> DemoServlet
+    HTTPPost --> DemoServlet
+    HTTPPutPatch --> DemoServlet
+    HTTPDelete --> DemoServlet
+    
+    DemoServlet --> ODataHttpHandler
+    ODataHttpHandler --> ServiceMetadata
+    
+    ODataHttpHandler --> EntityCollectionProcessor
+    ODataHttpHandler --> EntityProcessor
+    ODataHttpHandler --> PrimitiveProcessor
+    
+    EntityCollectionProcessor --> DemoEdmProvider
+    EntityProcessor --> DemoEdmProvider
+    PrimitiveProcessor --> DemoEdmProvider
+    
+    EntityCollectionProcessor --> Storage
+    EntityProcessor --> Storage
+    PrimitiveProcessor --> Storage
+    
+    style HTTPPost fill:#e8f5e8
+    style HTTPPutPatch fill:#fff3e0
+    style HTTPDelete fill:#ffebee
+    style EntityProcessor fill:#e8f5e8
+    style PrimitiveProcessor fill:#e8f5e8
 ```
 
 ## 核心组件扩展
@@ -402,43 +414,23 @@ Content-Type: application/json
 ## 数据验证和错误处理
 
 ### 验证流程图
-```
-客户端请求
-    │
-    ▼
-┌─────────────────┐
-│   请求验证      │
-│ Content-Type    │ ──► 检查请求格式是否支持
-│ HTTP Method     │
-└─────────────────┘
-    │
-    ▼
-┌─────────────────┐
-│   数据反序列化  │
-│ JSON/XML        │ ──► 将请求体转换为实体对象
-│ Schema验证      │
-└─────────────────┘
-    │
-    ▼
-┌─────────────────┐
-│   业务验证      │
-│ 实体存在性      │ ──► 检查要操作的实体是否存在
-│ 数据完整性      │
-└─────────────────┘
-    │
-    ▼
-┌─────────────────┐
-│   执行操作      │
-│ CRUD操作        │ ──► 执行实际的数据操作
-│ 状态更新        │
-└─────────────────┘
-    │
-    ▼
-┌─────────────────┐
-│   响应生成      │
-│ 状态码设置      │ ──► 返回适当的HTTP响应
-│ 内容序列化      │
-└─────────────────┘
+```mermaid
+flowchart TD
+    A["客户端请求"] --> B["请求验证<br/>Content-Type<br/>HTTP Method"]
+    B --> C["数据反序列化<br/>JSON/XML<br/>Schema验证"]
+    C --> D["业务验证<br/>实体存在性<br/>数据完整性"]
+    D --> E["执行操作<br/>CRUD操作<br/>状态更新"]
+    E --> F["响应生成<br/>状态码设置<br/>内容序列化"]
+    
+    B -.-> B1["检查请求格式是否支持"]
+    C -.-> C1["将请求体转换为实体对象"]
+    D -.-> D1["检查要操作的实体是否存在"]
+    E -.-> E1["执行实际的数据操作"]
+    F -.-> F1["返回适当的HTTP响应"]
+    
+    style A fill:#e1f5fe
+    style D fill:#fff3e0
+    style F fill:#e8f5e8
 ```
 
 ### 常见错误处理

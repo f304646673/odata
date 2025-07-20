@@ -8,55 +8,67 @@
 
 ### 系统架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     OData Service 架构                            │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP Request   │  │   JSON/XML      │  │    $metadata    │ │
-│  │   GET/POST/PUT/  │  │   Response      │  │    Document     │ │
-│  │   DELETE/PATCH   │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Handler Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  DemoServlet    │  │ ODataHttpHandler│  │  ServiceMetadata│ │
-│  │                 │  │                 │  │                 │ │
-│  │  (Entry Point)  │  │ (URL Routing)   │  │ (Schema Info)   │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │EntityCollection │  │ EntityProcessor │  │PrimitiveProcessor│ │
-│  │   Processor     │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │ActionProcessor  │  │BatchProcessor   │  │   (其他处理器)   │ │
-│  │                 │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityTypes │ │ EntitySets  │ │ Navigation  │           │ │
-│  │  │  Product    │ │  Products   │ │ Properties  │           │ │
-│  │  │  Category   │ │  Categories │ │             │           │ │
-│  │  │Advertisement│ │Advertisements│ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │  Products   │ │ Categories  │ │Advertisements│           │ │
-│  │  │    List     │ │    List     │ │    List     │           │ │
-│  │  │(In-Memory)  │ │(In-Memory)  │ │(In-Memory)  │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[HTTP Request<br/>GET/POST/PUT/DELETE/PATCH]
+        B[JSON/XML Response]
+        C[$metadata Document]
+    end
+    
+    subgraph "OData Handler Layer"
+        D[DemoServlet<br/>Entry Point]
+        E[ODataHttpHandler<br/>URL Routing]
+        F[ServiceMetadata<br/>Schema Info]
+    end
+    
+    subgraph "Processor Layer"
+        G[EntityCollection Processor]
+        H[Entity Processor]
+        I[Primitive Processor]
+        J[Action Processor]
+        K[Batch Processor]
+        L[其他处理器]
+    end
+    
+    subgraph "EDM Provider Layer"
+        M[DemoEdmProvider]
+        N[EntityTypes<br/>Product/Category/Advertisement]
+        O[EntitySets<br/>Products/Categories/Advertisements]
+        P[Navigation Properties]
+    end
+    
+    subgraph "Data Layer"
+        Q[Storage]
+        R[Products List<br/>In-Memory]
+        S[Categories List<br/>In-Memory]
+        T[Advertisements List<br/>In-Memory]
+    end
+    
+    A --> D
+    B --> A
+    C --> A
+    D --> E
+    E --> F
+    E --> G
+    E --> H
+    E --> I
+    E --> J
+    E --> K
+    E --> L
+    G --> M
+    H --> M
+    I --> M
+    J --> M
+    K --> M
+    L --> M
+    M --> N
+    M --> O
+    M --> P
+    M --> Q
+    Q --> R
+    Q --> S
+    Q --> T
 ```
 
 ## 核心组件
@@ -97,29 +109,33 @@ protected void service(HttpServletRequest req, HttpServletResponse resp) {
 **功能**：定义OData服务的完整数据模型，包括实体类型、关系、操作等。
 
 **数据模型图**：
-```
-┌─────────────────┐    1    ∞    ┌─────────────────┐
-│    Category     │◄──────────────┤     Product     │
-├─────────────────┤               ├─────────────────┤
-│ ID (Key)        │               │ ID (Key)        │
-│ Name            │               │ Name            │
-│ Description     │               │ Description     │
-└─────────────────┘               │ ReleaseDate     │
-                                  │ DiscontinuedDate│
-                                  │ Rating          │
-                                  │ Price           │
-                                  │ CategoryID (FK) │
-                                  └─────────────────┘
-                                           │
-                                           │ 0..1
-                                           ▼
-                                  ┌─────────────────┐
-                                  │ Advertisement   │
-                                  ├─────────────────┤
-                                  │ ID (Key)        │
-                                  │ Name            │
-                                  │ AirDate         │
-                                  └─────────────────┘
+```mermaid
+erDiagram
+    Category ||--o{ Product : "has many"
+    Product ||--o| Advertisement : "may have"
+    
+    Category {
+        int ID PK "Primary Key"
+        string Name
+        string Description
+    }
+    
+    Product {
+        int ID PK "Primary Key"
+        string Name
+        string Description
+        date ReleaseDate
+        date DiscontinuedDate
+        int Rating
+        decimal Price
+        int CategoryID FK "Foreign Key"
+    }
+    
+    Advertisement {
+        int ID PK "Primary Key"
+        string Name
+        date AirDate
+    }
 ```
 
 **关键特性**：
@@ -134,37 +150,17 @@ protected void service(HttpServletRequest req, HttpServletResponse resp) {
 **功能**：处理实体集合的GET请求，支持导航查询。
 
 **处理流程图**：
-```
-HTTP GET Request
-       │
-       ▼
-┌─────────────────┐
-│   URL 解析      │
-│ /Products       │ ────► 直接查询实体集合
-│ /Categories(1)/ │ ────► 通过导航查询实体集合
-│   Products      │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│  权限检查       │
-│  格式验证       │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│ 从Storage获取   │
-│     数据        │
-└─────────────────┘
-       │
-       ▼
-┌─────────────────┐
-│   序列化为      │
-│  JSON/XML       │
-└─────────────────┘
-       │
-       ▼
-  HTTP Response
+```mermaid
+flowchart TD
+    A[HTTP GET Request] --> B[URL 解析]
+    B --> C{查询类型}
+    C -->|/Products| D[直接查询实体集合]
+    C -->|/Categories\(1\)/Products| E[通过导航查询实体集合]
+    D --> F[权限检查<br/>格式验证]
+    E --> F
+    F --> G[从Storage获取数据]
+    G --> H[序列化为<br/>JSON/XML]
+    H --> I[HTTP Response]
 ```
 
 #### EntityProcessor - 单实体处理器
@@ -210,37 +206,14 @@ public void processAction(ODataRequest request, ODataResponse response, UriInfo 
 5. **处理器注册**：注册各种业务处理器
 
 ### 步骤2：请求处理流程
-```
-Client Request
-      │
-      ▼
-┌─────────────────┐
-│  DemoServlet    │ ──► 接收HTTP请求
-└─────────────────┘
-      │
-      ▼
-┌─────────────────┐
-│ODataHttpHandler │ ──► URL解析和路由
-└─────────────────┘
-      │
-      ▼
-┌─────────────────┐
-│  Processor      │ ──► 业务逻辑处理
-│  (具体类型)      │
-└─────────────────┘
-      │
-      ▼
-┌─────────────────┐
-│    Storage      │ ──► 数据存取
-└─────────────────┘
-      │
-      ▼
-┌─────────────────┐
-│   Serializer   │ ──► 响应序列化
-└─────────────────┘
-      │
-      ▼
-   HTTP Response
+```mermaid
+flowchart TD
+    A[Client Request] --> B[DemoServlet<br/>接收HTTP请求]
+    B --> C[ODataHttpHandler<br/>URL解析和路由]
+    C --> D[Processor<br/>业务逻辑处理<br/>具体类型]
+    D --> E[Storage<br/>数据存取]
+    E --> F[Serializer<br/>响应序列化]
+    F --> G[HTTP Response]
 ```
 
 ### 步骤3：数据模型定义

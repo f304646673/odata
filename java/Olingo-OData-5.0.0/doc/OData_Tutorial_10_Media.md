@@ -31,61 +31,51 @@
 
 ### 媒体实体架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   媒体实体增强OData服务架构                        │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Media Upload  │  │  Media Download │  │   Metadata      │ │
-│  │   POST          │  │  GET /$value    │  │   GET           │ │
-│  │   (Binary)      │  │  (Stream)       │  │   (JSON)        │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Media Processing Layer                        │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │MediaEntityProc  │  │   Content       │  │   Metadata      │ │
-│  │                 │  │   Handling      │  │   Processing    │ │
-│  │createMediaEntity│  │                 │  │                 │ │
-│  │readMediaEntity  │  │ Stream I/O      │  │ Entity Props    │ │
-│  │updateMedia      │  │ MIME Detection  │  │                 │ │
-│  │deleteMediaEntity│  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Content Management                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   File System   │  │   MIME Type     │  │   Validation    │ │
-│  │   Storage       │  │   Detection     │  │   & Security    │ │
-│  │                 │  │                 │  │                 │ │
-│  │ Binary Files    │  │ Content-Type    │  │ Size Limits     │ │
-│  │ Path Management │  │ Extension Map   │  │ Format Check    │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Enhanced Storage                             │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                   Media Storage                             │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │  Metadata   │ │   Binary    │ │   Index     │           │ │
-│  │  │  Storage    │ │   Storage   │ │  Mapping    │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  │ Entity Data │ │ File System │ │ ID->Path    │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Model                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                    Media Entity                             │ │
-│  │  ┌─────────────────────────────────────────────────────────┐ │ │
-│  │  │                Advertisement                            │ │ │
-│  │  │  - ID (Key)                                             │ │ │
-│  │  │  - Name                                                 │ │ │
-│  │  │  - AirDate                                              │ │ │
-│  │  │  - [MediaContent] (Binary Stream)                      │ │ │
-│  │  │  - ContentType (MIME)                                   │ │ │
-│  │  │  - FileSize                                             │ │ │
-│  │  └─────────────────────────────────────────────────────────┘ │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "媒体实体增强OData服务架构"
+        subgraph Client["Client Layer"]
+            C1["Media Upload<br/>POST<br/>(Binary)"]
+            C2["Media Download<br/>GET /$value<br/>(Stream)"]
+            C3["Metadata<br/>GET<br/>(JSON)"]
+        end
+        
+        subgraph Processing["Media Processing Layer"]
+            P1["MediaEntityProc<br/>createMediaEntity<br/>readMediaEntity<br/>updateMedia<br/>deleteMediaEntity"]
+            P2["Content Handling<br/>Stream I/O<br/>MIME Detection"]
+            P3["Metadata Processing<br/>Entity Props"]
+        end
+        
+        subgraph Content["Content Management"]
+        subgraph Content["Content Management"]
+            CM1["File System Storage<br/>Binary Files<br/>Path Management"]
+            CM2["MIME Type Detection<br/>Content-Type<br/>Extension Map"]
+            CM3["Validation & Security<br/>Size Limits<br/>Format Check"]
+        end
+        
+        subgraph Storage["Enhanced Storage"]
+            S1["Media Storage"]
+            S2["Metadata Storage<br/>Entity Data"]
+            S3["Binary Storage<br/>File System"]
+            S4["Index Mapping<br/>ID->Path"]
+            
+            S1 --> S2
+            S1 --> S3
+            S1 --> S4
+        end
+        
+        subgraph Model["Data Model"]
+            M1["Media Entity - Advertisement"]
+            M2["ID (Key)<br/>Name<br/>AirDate<br/>[MediaContent] (Binary Stream)<br/>ContentType (MIME)<br/>FileSize"]
+            
+            M1 --> M2
+        end
+    end
+    
+    Client --> Processing
+    Processing --> Content
+    Content --> Storage
+    Storage --> Model
 ```
 
 ## EDM 媒体实体定义

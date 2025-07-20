@@ -447,13 +447,28 @@ public List<CsdlSchema> getSchemas() throws ODataException {
 ```
 
 **模式结构**：
-```
-Schema: org.apache.olingo.sample.springboot
-├── EntityTypes
-│   └── Car (Id, Brand, Model, Color, Year, Price)
-└── EntityContainer: SpringBootContainer
-    └── EntitySets
-        └── Cars -> Car
+```mermaid
+graph TD
+    SCHEMA["📋 Schema: org.apache.olingo.sample.springboot"]
+    
+    SCHEMA --> ENTITY_TYPES[/"📦 EntityTypes"/]
+    SCHEMA --> CONTAINER["🏛️ EntityContainer: SpringBootContainer"]
+    
+    ENTITY_TYPES --> CAR_ENTITY["🚗 Car Entity<br/>• Id (Primary Key)<br/>• Brand (String)<br/>• Model (String)<br/>• Color (String)<br/>• Year (Integer)<br/>• Price (Decimal)"]
+    
+    CONTAINER --> ENTITY_SETS[/"📚 EntitySets"/]
+    ENTITY_SETS --> CARS_SET["🚗 Cars EntitySet<br/>→ References Car EntityType"]
+    
+    %% 样式定义
+    classDef schemaStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef containerStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef entityStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef setStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class SCHEMA schemaStyle
+    class ENTITY_TYPES,CONTAINER,ENTITY_SETS containerStyle
+    class CAR_ENTITY entityStyle
+    class CARS_SET setStyle
 ```
 
 ### 2.3 ServiceMetadata的内部构建过程

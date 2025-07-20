@@ -25,57 +25,56 @@
 
 ### 操作处理架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    操作增强OData服务架构                           │
-├─────────────────────────────────────────────────────────────────┤
-│                       Client Layer                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP POST     │  │  Action Call    │  │  Parameters     │ │
-│  │ /Reset          │  │  Request        │  │  in Body        │ │
-│  │                 │  │                 │  │  (JSON)         │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Handler Layer                          │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  DemoServlet    │  │ODataHttpHandler │  │ ServiceMetadata │ │
-│  │                 │  │                 │  │  + Actions      │ │
-│  │  (Entry Point)  │  │ (Action Routing)│  │   Metadata      │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   Processor Layer                               │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │     CRUD        │  │ ActionProcessor │  │   Action        │ │
-│  │   Processors    │  │     (新增)      │  │  Execution      │ │
-│  │                 │  │                 │  │                 │ │
-│  │  (existing)     │  │ processAction() │  │  Business       │ │
-│  │                 │  │                 │  │   Logic         │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   EDM Provider Layer                            │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                  DemoEdmProvider                            │ │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │ │
-│  │  │ EntityTypes │ │ EntitySets  │ │ Actions     │           │ │
-│  │  │  (existing) │ │ (existing)  │ │ Definition  │           │ │
-│  │  │             │ │             │ │             │           │ │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘           │ │
-│  │  ┌─────────────┐ ┌─────────────┐                           │ │
-│  │  │ Action      │ │ Container   │                           │ │
-│  │  │ Imports     │ │ + Actions   │                           │ │
-│  │  └─────────────┘ └─────────────┘                           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Layer                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                      Storage                                │ │
-│  │  ┌─────────────┐ ┌─────────────┐                           │ │
-│  │  │   Data      │ │   Action    │                           │ │
-│  │  │  Storage    │ │  Methods    │                           │ │
-│  │  │ (existing)  │ │  (Reset等)  │                           │ │
-│  │  └─────────────┘ └─────────────┘                           │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "操作增强OData服务架构"
+        subgraph Client["Client Layer"]
+            C1["HTTP POST /Reset"]
+            C2["Action Call Request"]
+            C3["Parameters in Body (JSON)"]
+        end
+        
+        subgraph Handler["OData Handler Layer"]
+            H1["DemoServlet<br/>(Entry Point)"]
+            H2["ODataHttpHandler<br/>(Action Routing)"]
+            H3["ServiceMetadata<br/>+ Actions Metadata"]
+        end
+        
+        subgraph Processor["Processor Layer"]
+            P1["CRUD Processors<br/>(existing)"]
+            P2["ActionProcessor<br/>(新增)<br/>processAction()"]
+            P3["Action Execution<br/>Business Logic"]
+        end
+        
+        subgraph EDM["EDM Provider Layer"]
+            E1["DemoEdmProvider"]
+            E2["EntityTypes<br/>(existing)"]
+            E3["EntitySets<br/>(existing)"]
+            E4["Actions Definition"]
+            E5["Action Imports"]
+            E6["Container + Actions"]
+            
+            E1 --> E2
+            E1 --> E3
+            E1 --> E4
+            E1 --> E5
+            E1 --> E6
+        end
+        
+        subgraph Data["Data Layer"]
+            D1["Storage"]
+            D2["Data Storage<br/>(existing)"]
+            D3["Action Methods<br/>(Reset等)"]
+            
+            D1 --> D2
+            D1 --> D3
+        end
+    end
+    
+    Client --> Handler
+    Handler --> Processor
+    Processor --> EDM
+    EDM --> Data
 ```
 
 ## EDM Provider 操作定义

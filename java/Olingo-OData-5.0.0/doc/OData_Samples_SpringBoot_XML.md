@@ -15,74 +15,54 @@
 
 ### XML-Driven OData 架构图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              基于 XML 元数据的 OData 服务架构                     │
-├─────────────────────────────────────────────────────────────────┤
-│                    Spring Boot Layer                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Application   │  │   Auto Config   │  │   Embedded      │ │
-│  │   Context       │  │                 │  │   Tomcat        │ │
-│  │                 │  │ @SpringBootApp  │  │                 │ │
-│  │ Bean Management │  │ Component Scan  │  │ HTTP Server     │ │
-│  │ DI Container    │  │ Configuration   │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Spring MVC Layer                             │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   HTTP Request  │  │   Controller    │  │   HTTP Response │ │
-│  │                 │  │                 │  │                 │ │
-│  │ GET /cars.svc/  │  │ @RestController │  │ JSON/XML Data   │ │
-│  │ $metadata       │  │ @RequestMapping │  │ Service Doc     │ │
-│  │ Cars            │  │ XmlODataCtrl    │  │ Entity Data     │ │
-│  │ Manufacturers   │  │                 │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                   XML Metadata Layer                            │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   XML Metadata  │  │   Metadata      │  │   Schema-based  │ │
-│  │   File          │  │   Parser        │  │   EDM Provider  │ │
-│  │                 │  │                 │  │                 │ │
-│  │ service-        │  │ Olingo's        │  │ Parsed Schema   │ │
-│  │ metadata.xml    │  │ MetadataParser  │  │ Runtime EDM     │ │
-│  │ - EntityTypes   │  │ - XML Parse     │  │ - Entity Sets   │ │
-│  │ - ComplexTypes  │  │ - Schema Build  │  │ - Relationships │ │
-│  │ - Container     │  │ - Provider Gen  │  │ - Types         │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    OData Framework                              │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │   Service       │  │   Processors    │  │   Data Provider │ │
-│  │   Metadata      │  │                 │  │                 │ │
-│  │                 │  │ ServiceDoc Proc │  │ XML Data        │ │
-│  │ Framework Init  │  │ Entity Proc     │  │ Provider        │ │
-│  │ Handler Setup   │  │ Collection Proc │  │ In-Memory Data  │ │
-│  │ Processor Reg   │  │ Error Handling  │  │ CRUD Operations │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────┤
-│                    Data Model                                   │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │              XML-Defined Car Domain Model                   │ │
-│  │                                                             │ │
-│  │  ┌─────────────┐         ┌─────────────┐                   │ │
-│  │  │Manufacturer │ 1    *  │    Car      │                   │ │
-│  │  │  - Id       │<------->│  - Id       │                   │ │
-│  │  │  - Name     │         │  - Model    │                   │ │
-│  │  │  - Founded  │         │  - Price    │                   │ │
-│  │  │  - Address  │         │  - Year     │                   │ │
-│  │  │             │         │             │                   │ │
-│  │  └─────────────┘         └─────────────┘                   │ │
-│  │                                                             │ │
-│  │  ┌─────────────────────┐                                   │ │
-│  │  │    Address          │                                   │ │
-│  │  │    (ComplexType)    │                                   │ │
-│  │  │  - Street           │                                   │ │
-│  │  │  - City             │                                   │ │
-│  │  │  - Country          │                                   │ │
-│  │  │  - PostalCode       │                                   │ │
-│  │  └─────────────────────┘                                   │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SBL ["Spring Boot Layer"]
+        APP_CTX["Application Context<br/>Bean Management<br/>DI Container"]
+        AUTO_CFG["Auto Config<br/>@SpringBootApp<br/>Component Scan<br/>Configuration"]
+        TOMCAT["Embedded Tomcat<br/>HTTP Server"]
+        APP_CTX --- AUTO_CFG
+        AUTO_CFG --- TOMCAT
+    end
+    
+    subgraph MVC ["Spring MVC Layer"]
+        HTTP_REQ["HTTP Request<br/>GET /cars.svc/<br/>$metadata<br/>Cars<br/>Manufacturers"]
+        CTRL["Controller<br/>@RestController<br/>@RequestMapping<br/>XmlODataCtrl"]
+        HTTP_RESP["HTTP Response<br/>JSON/XML Data<br/>Service Doc<br/>Entity Data"]
+        HTTP_REQ --> CTRL
+        CTRL --> HTTP_RESP
+    end
+    
+    subgraph XML_META ["XML Metadata Layer"]
+        XML_FILE["XML Metadata File<br/>service-metadata.xml<br/>- EntityTypes<br/>- ComplexTypes<br/>- Container"]
+        META_PARSER["Metadata Parser<br/>Olingo's MetadataParser<br/>- XML Parse<br/>- Schema Build<br/>- Provider Gen"]
+        EDM_PROVIDER["Schema-based EDM Provider<br/>Parsed Schema<br/>Runtime EDM<br/>- Entity Sets<br/>- Relationships<br/>- Types"]
+        XML_FILE --> META_PARSER
+        META_PARSER --> EDM_PROVIDER
+    end
+    
+    subgraph ODATA_FW ["OData Framework"]
+        SERVICE_META["Service Metadata<br/>Framework Init<br/>Handler Setup<br/>Processor Reg"]
+        PROCESSORS["Processors<br/>ServiceDoc Proc<br/>Entity Proc<br/>Collection Proc<br/>Error Handling"]
+        DATA_PROV["Data Provider<br/>XML Data Provider<br/>In-Memory Data<br/>CRUD Operations"]
+        SERVICE_META --- PROCESSORS
+        PROCESSORS --- DATA_PROV
+    end
+    
+    subgraph DATA_MODEL ["Data Model"]
+        subgraph XML_MODEL ["XML-Defined Car Domain Model"]
+            MANU["Manufacturer<br/>- Id<br/>- Name<br/>- Founded<br/>- Address"]
+            CAR["Car<br/>- Id<br/>- Model<br/>- Price<br/>- Year"]
+            ADDR["Address<br/>(ComplexType)<br/>- Street<br/>- City<br/>- Country<br/>- PostalCode"]
+            MANU -.->|1:*| CAR
+            MANU --- ADDR
+        end
+    end
+    
+    SBL --> MVC
+    MVC --> XML_META
+    XML_META --> ODATA_FW
+    ODATA_FW --> DATA_MODEL
 ```
 
 ## 核心组件
@@ -246,66 +226,34 @@ public class XmlEdmProvider extends SchemaBasedEdmProvider {
 
 ### 3. XML 解析流程图
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                   XML 元数据解析流程                              │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐                                            │
-│  │   应用启动       │                                            │
-│  │                 │                                            │
-│  │ @SpringBootApp  │                                            │
-│  │ main() method   │                                            │
-│  └─────────┬───────┘                                            │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐                                            │
-│  │ XmlEdmProvider  │                                            │
-│  │ 构造函数         │                                            │
-│  │                 │                                            │
-│  │ new XmlEdmProv() │                                           │
-│  └─────────┬───────┘                                            │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │ 加载 XML 文件    │    │ ClassPathResource│                   │
-│  │                 │───▶│                 │                    │
-│  │ loadMetadata    │    │ service-        │                    │
-│  │ FromXml()       │    │ metadata.xml    │                    │
-│  └─────────┬───────┘    └─────────────────┘                    │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │ Olingo 元数据   │    │   XML 文件      │                    │
-│  │ 解析器          │───▶│   验证和解析     │                    │
-│  │                 │    │                 │                    │
-│  │ MetadataParser  │    │ CSDL Schema     │                    │
-│  │ .buildEdmProv() │    │ Validation      │                    │
-│  └─────────┬───────┘    └─────────────────┘                    │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐                                            │
-│  │ Schema 对象     │                                            │
-│  │ 构建完成        │                                            │
-│  │                 │                                            │
-│  │ CsdlSchema      │                                            │
-│  │ - EntityTypes   │                                            │
-│  │ - ComplexTypes  │                                            │
-│  │ - Container     │                                            │
-│  └─────────┬───────┘                                            │
-│            │                                                    │
-│            ▼                                                    │
-│  ┌─────────────────┐    ┌─────────────────┐                    │
-│  │ EDM 运行时      │    │  OData 服务     │                    │
-│  │ 对象就绪        │───▶│  就绪           │                    │
-│  │                 │    │                 │                    │
-│  │ Runtime EDM     │    │ HTTP Endpoints  │                    │
-│  │ Entity Sets     │    │ - $metadata     │                    │
-│  │ Navigation      │    │ - Service Doc   │                    │
-│  │ Types & Props   │    │ - Entity CRUD   │                    │
-│  └─────────────────┘    └─────────────────┘                    │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    START["应用启动<br/>@SpringBootApp<br/>main() method"] 
+    
+    CONSTRUCTOR["XmlEdmProvider<br/>构造函数<br/>new XmlEdmProv()"]
+    
+    LOAD_XML["加载 XML 文件<br/>loadMetadata<br/>FromXml()"]
+    
+    RESOURCE["ClassPathResource<br/>service-<br/>metadata.xml"]
+    
+    PARSER["Olingo 元数据<br/>解析器<br/>MetadataParser<br/>.buildEdmProv()"]
+    
+    VALIDATE["XML 文件<br/>验证和解析<br/>CSDL Schema<br/>Validation"]
+    
+    SCHEMA["Schema 对象<br/>构建完成<br/>CsdlSchema<br/>- EntityTypes<br/>- ComplexTypes<br/>- Container"]
+    
+    RUNTIME["EDM 运行时<br/>对象就绪"]
+    
+    SERVICE["OData 服务<br/>就绪"]
+    
+    START --> CONSTRUCTOR
+    CONSTRUCTOR --> LOAD_XML
+    LOAD_XML --> RESOURCE
+    LOAD_XML --> PARSER
+    PARSER --> VALIDATE
+    VALIDATE --> SCHEMA
+    SCHEMA --> RUNTIME
+    RUNTIME --> SERVICE
 ```
 
 ### 4. XmlODataController - XML 驱动控制器
@@ -1097,15 +1045,30 @@ spring.application.name=OData XML Spring Boot Service
 
 ### 1. 元数据文件组织
 
-```
-src/main/resources/
-├── service-metadata.xml          # 主元数据文件
-├── schemas/
-│   ├── entities.xml              # 实体类型定义
-│   ├── complex-types.xml         # 复杂类型定义
-│   └── functions.xml             # 函数和操作定义
-└── validation/
-    └── metadata-schema.xsd       # XML Schema 验证文件
+```mermaid
+graph TD
+    ROOT[/"📁 src/main/resources"/]
+    
+    ROOT --> MAIN_META["📄 service-metadata.xml<br/>📋 主元数据文件"]
+    ROOT --> SCHEMAS[/"📁 schemas"/]
+    ROOT --> VALIDATION[/"📁 validation"/]
+    
+    SCHEMAS --> ENTITIES["📄 entities.xml<br/>🏗️ 实体类型定义"]
+    SCHEMAS --> COMPLEX["📄 complex-types.xml<br/>🔧 复杂类型定义"]
+    SCHEMAS --> FUNCTIONS["📄 functions.xml<br/>⚙️ 函数和操作定义"]
+    
+    VALIDATION --> SCHEMA_XSD["📄 metadata-schema.xsd<br/>✅ XML Schema 验证文件"]
+    
+    %% 样式定义
+    classDef folderStyle fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef xmlStyle fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef mainStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef validationStyle fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    
+    class ROOT,SCHEMAS,VALIDATION folderStyle
+    class ENTITIES,COMPLEX,FUNCTIONS xmlStyle
+    class MAIN_META mainStyle
+    class SCHEMA_XSD validationStyle
 ```
 
 ### 2. 元数据版本控制
