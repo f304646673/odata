@@ -169,7 +169,7 @@ flowchart TD
     B --> C["实体查找<br/>Entity by Key"]
     C --> D["属性提取<br/>Property Value<br/>Type Check"]
     D --> E["值序列化<br/>Primitive<br/>Serializer"]
-    E --> F["HTTP响应<br/>200 OK<br/>{\"value\": \"...\"}"]
+    E --> F["HTTP响应<br/>200 OK<br/>value response"]
     
     B -.-> B1["解析实体集、键值和属性名"]
     C -.-> C1["先找到目标实体"]
