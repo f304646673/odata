@@ -29,35 +29,53 @@
 
 	<name>${project.artifactId}-Webapp</name>
 
-  <properties>
-    <javax.version>2.5</javax.version>
-    <odata.version>5.0.0</odata.version>
-    <slf4j.version>1.7.7</slf4j.version>
-    <project.source>17</project.source>
-    <compiler.plugin.version>3.11.0</compiler.plugin.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<properties>
+		<jakarta.version>5.0.0</jakarta.version>
+		<odata.version>5.0.0</odata.version>
+		<slf4j.version>1.7.7</slf4j.version>
+    	<project.source>17</project.source>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+	</properties>
 
   <build>
 		<finalName>DemoService</finalName>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler.plugin.version}</version>
-				<configuration>
-					<source>${project.source}</source>
-					<target>${project.source}</target>
-				</configuration>
-			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${project.source}</source>
+                    <target>${project.source}</target>
+                    <compilerArgs>
+                        <arg>-Xlint:-options</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>11.0.15</version>
+                <configuration>
+                    <httpConnector>
+                        <port>8080</port>
+                    </httpConnector>
+                    <webApp>
+                        <contextPath>/DemoService</contextPath>
+                    </webApp>
+                    <scanIntervalSeconds>3</scanIntervalSeconds>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>${javax.version}</version>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>${jakarta.version}</version>
 			<scope>provided</scope>
 		</dependency>
 

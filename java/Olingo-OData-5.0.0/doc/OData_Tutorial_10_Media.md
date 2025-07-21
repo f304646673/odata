@@ -47,7 +47,6 @@ graph TB
         end
         
         subgraph Content["Content Management"]
-        subgraph Content["Content Management"]
             CM1["File System Storage<br/>Binary Files<br/>Path Management"]
             CM2["MIME Type Detection<br/>Content-Type<br/>Extension Map"]
             CM3["Validation & Security<br/>Size Limits<br/>Format Check"]
@@ -66,7 +65,7 @@ graph TB
         
         subgraph Model["Data Model"]
             M1["Media Entity - Advertisement"]
-            M2["ID (Key)<br/>Name<br/>AirDate<br/>[MediaContent] (Binary Stream)<br/>ContentType (MIME)<br/>FileSize"]
+            M2["ID Key<br/>Name<br/>AirDate<br/>MediaContent Binary Stream<br/>ContentType MIME<br/>FileSize"]
             
             M1 --> M2
         end
