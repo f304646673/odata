@@ -19,7 +19,7 @@
 graph TB
     subgraph "Client Layer"
         A[HTTP GET<br/>/Products]
-        B[JSON Response<br/>{Products[]}]
+        B[JSON Response<br/>Products Array]
     end
     
     subgraph "OData Handler Layer"
