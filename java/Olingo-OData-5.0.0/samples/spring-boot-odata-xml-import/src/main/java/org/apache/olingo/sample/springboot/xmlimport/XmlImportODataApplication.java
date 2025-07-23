@@ -18,7 +18,8 @@
  */
 package org.apache.olingo.sample.springboot.xmlimport;
 
-import org.apache.olingo.sample.springboot.xmlimport.edm.XmlImportEdmProvider;
+// import org.apache.olingo.sample.springboot.xmlimport.edm.XmlImportEdmProvider;
+import org.apache.olingo.sample.springboot.xmlimport.edm.AdvancedXmlImportEdmProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,7 @@ public class XmlImportODataApplication {
     }
     
     @Bean
-    public XmlImportEdmProvider edmProvider() {
-        return new XmlImportEdmProvider();
+    public AdvancedXmlImportEdmProvider edmProvider() {
+        return new AdvancedXmlImportEdmProvider();
     }
 }

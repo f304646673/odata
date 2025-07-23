@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.sample.springboot.xmlimport.edm.XmlImportEdmProvider;
+import org.apache.olingo.sample.springboot.xmlimport.edm.AdvancedXmlImportEdmProvider;
 import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportEntityProcessor;
 import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportServiceDocumentProcessor;
 import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportMetadataProcessor;
@@ -49,7 +49,7 @@ public class XmlImportODataController {
     private XmlImportMetadataProcessor metadataProcessor;
     
     @Autowired
-    private XmlImportEdmProvider edmProvider;
+    private AdvancedXmlImportEdmProvider edmProvider;
     
     @RequestMapping(value = {"", "/", "/**"}, method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
     public void processODataRequest(HttpServletRequest request, HttpServletResponse response) {
