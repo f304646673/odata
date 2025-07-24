@@ -1,15 +1,24 @@
 package org.apache.olingo.schemamanager.analyzer.impl;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.analyzer.TypeDependencyAnalyzer;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Default implementation of TypeDependencyAnalyzer
@@ -24,6 +33,10 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
     
     @Override
     public List<TypeReference> getDirectDependencies(CsdlEntityType entityType) {
+        if (entityType == null) {
+            return new ArrayList<>();
+        }
+        
         List<TypeReference> dependencies = new ArrayList<>();
         
         // Check base type
@@ -55,6 +68,10 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
     
     @Override
     public List<TypeReference> getDirectDependencies(CsdlComplexType complexType) {
+        if (complexType == null) {
+            return new ArrayList<>();
+        }
+        
         List<TypeReference> dependencies = new ArrayList<>();
         
         // Check base type
@@ -101,6 +118,10 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
     
     @Override
     public List<TypeReference> getDependents(String fullQualifiedName) {
+        if (fullQualifiedName == null) {
+            return new ArrayList<>();
+        }
+        
         List<TypeReference> dependents = new ArrayList<>();
         
         // Check all schemas for types that depend on the given type
@@ -147,6 +168,10 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
     
     @Override
     public boolean hasDependency(String sourceType, String targetType) {
+        if (sourceType == null || targetType == null) {
+            return false;
+        }
+        
         CsdlEntityType entityType = repository.getEntityType(sourceType);
         if (entityType != null) {
             return getAllDependencies(entityType).stream()
@@ -164,6 +189,10 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
     
     @Override
     public List<String> getDependencyPath(String sourceType, String targetType) {
+        if (sourceType == null || targetType == null) {
+            return Collections.emptyList();
+        }
+        
         List<String> path = new ArrayList<>();
         Set<String> visited = new HashSet<>();
         
