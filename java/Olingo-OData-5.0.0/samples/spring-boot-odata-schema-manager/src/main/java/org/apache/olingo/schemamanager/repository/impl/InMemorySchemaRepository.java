@@ -27,6 +27,8 @@ public class InMemorySchemaRepository implements SchemaRepository {
     private final Map<String, CsdlComplexType> complexTypes = new ConcurrentHashMap<>();
     private final Map<String, CsdlEnumType> enumTypes = new ConcurrentHashMap<>();
     private final Map<String, CsdlEntityContainer> containers = new ConcurrentHashMap<>();
+    private final Map<String, CsdlAction> actions = new ConcurrentHashMap<>();
+    private final Map<String, CsdlFunction> functions = new ConcurrentHashMap<>();
     
     @Override
     public void addSchema(CsdlSchema schema, String filePath) {
@@ -73,6 +75,22 @@ public class InMemorySchemaRepository implements SchemaRepository {
         if (schema.getEntityContainer() != null) {
             String fullName = namespace + "." + schema.getEntityContainer().getName();
             containers.put(fullName, schema.getEntityContainer());
+        }
+
+        // Index Actions
+        if (schema.getActions() != null) {
+            for (CsdlAction action : schema.getActions()) {
+                String fullName = namespace + "." + action.getName();
+                actions.put(fullName, action);
+            }
+        }
+
+        // Index Functions
+        if (schema.getFunctions() != null) {
+            for (CsdlFunction function : schema.getFunctions()) {
+                String fullName = namespace + "." + function.getName();
+                functions.put(fullName, function);
+            }
         }
         
         logger.debug("Successfully indexed schema: {} with {} entity types, {} complex types, {} enum types", 
@@ -165,6 +183,8 @@ public class InMemorySchemaRepository implements SchemaRepository {
         complexTypes.clear();
         enumTypes.clear();
         containers.clear();
+        actions.clear();
+        functions.clear();
     }
 
     @Override
@@ -174,7 +194,38 @@ public class InMemorySchemaRepository implements SchemaRepository {
                 entityTypes.size(),
                 complexTypes.size(),
                 enumTypes.size(),
-                containers.size()
+                containers.size(),
+                actions.size(),
+                functions.size()
         );
+    }
+
+    public CsdlAction getAction(String fullQualifiedName) {
+        return actions.get(fullQualifiedName);
+    }
+    public CsdlFunction getFunction(String fullQualifiedName) {
+        return functions.get(fullQualifiedName);
+    }
+    @Override
+    public CsdlAction getAction(String namespace, String actionName) {
+        return getAction(namespace + "." + actionName);
+    }
+    @Override
+    public CsdlFunction getFunction(String namespace, String functionName) {
+        return getFunction(namespace + "." + functionName);
+    }
+    @Override
+    public List<CsdlAction> getActions(String namespace) {
+        return actions.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(namespace + "."))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<CsdlFunction> getFunctions(String namespace) {
+        return functions.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(namespace + "."))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
     }
 }

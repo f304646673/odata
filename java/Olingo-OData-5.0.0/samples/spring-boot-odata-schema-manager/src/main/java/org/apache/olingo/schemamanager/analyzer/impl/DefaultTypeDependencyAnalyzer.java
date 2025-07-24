@@ -6,12 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.analyzer.TypeDependencyAnalyzer;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
@@ -25,6 +29,67 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
+    /**
+     * 递归收集EntityType依赖
+     */
+    private void collectAllDependencies(CsdlEntityType entityType, Set<String> visited, List<TypeReference> allDeps) {
+        if (entityType == null) return;
+        String fqn = entityType.getName();
+        if (visited.contains(fqn)) return;
+        visited.add(fqn);
+        List<TypeReference> deps = getDirectDependencies(entityType);
+        for (TypeReference dep : deps) {
+            allDeps.add(dep);
+            String depType = dep.getFullQualifiedName();
+            if (dep.getKind() == TypeKind.ENTITY_TYPE) {
+                CsdlEntityType et = repository.getEntityType(depType);
+                collectAllDependencies(et, visited, allDeps);
+            } else if (dep.getKind() == TypeKind.COMPLEX_TYPE) {
+                CsdlComplexType ct = repository.getComplexType(depType);
+                collectAllDependencies(ct, visited, allDeps);
+            }
+        }
+    }
+
+    /**
+     * 递归收集ComplexType依赖
+     */
+    private void collectAllDependencies(CsdlComplexType complexType, Set<String> visited, List<TypeReference> allDeps) {
+        if (complexType == null) return;
+        String fqn = complexType.getName();
+        if (visited.contains(fqn)) return;
+        visited.add(fqn);
+        List<TypeReference> deps = getDirectDependencies(complexType);
+        for (TypeReference dep : deps) {
+            allDeps.add(dep);
+            String depType = dep.getFullQualifiedName();
+            if (dep.getKind() == TypeKind.ENTITY_TYPE) {
+                CsdlEntityType et = repository.getEntityType(depType);
+                collectAllDependencies(et, visited, allDeps);
+            } else if (dep.getKind() == TypeKind.COMPLEX_TYPE) {
+                CsdlComplexType ct = repository.getComplexType(depType);
+                collectAllDependencies(ct, visited, allDeps);
+            }
+        }
+    }
+    /**
+     * 提取类型名（去除Collection()包装）
+     */
+    private String extractTypeName(String type) {
+        if (type == null) return null;
+        if (type.startsWith("Collection(")) {
+            return type.substring("Collection(".length(), type.length() - 1);
+        }
+        return type;
+    }
+
+    /**
+     * 判断是否为Edm原始类型
+     */
+    private boolean isPrimitiveType(String type) {
+        if (type == null) return false;
+        return type.startsWith("Edm.");
+    }
     
     private static final Logger logger = LoggerFactory.getLogger(DefaultTypeDependencyAnalyzer.class);
     
@@ -466,6 +531,168 @@ public class DefaultTypeDependencyAnalyzer implements TypeDependencyAnalyzer {
             return TypeKind.ENUM_TYPE;
         } else {
             return TypeKind.PRIMITIVE_TYPE;
+        }
+    }
+
+    @Override
+    public List<TypeReference> getDirectDependencies(CsdlAction action) {
+        if (action == null) {
+            return new ArrayList<>();
+        }
+        
+        List<TypeReference> dependencies = new ArrayList<>();
+        
+        // Check parameters
+        if (action.getParameters() != null) {
+            for (CsdlParameter parameter : action.getParameters()) {
+                if (parameter.getType() != null) {
+                    String parameterType = extractTypeName(parameter.getType());
+                    if (!isPrimitiveType(parameterType)) {
+                        dependencies.add(new TypeReference(
+                            parameterType,
+                            determineTypeKind(parameterType),
+                            parameter.getName(),
+                            parameter.isCollection()
+                        ));
+                    }
+                }
+            }
+        }
+        
+        // Check return type
+        if (action.getReturnType() != null && action.getReturnType().getType() != null) {
+            String returnType = extractTypeName(action.getReturnType().getType());
+            if (!isPrimitiveType(returnType)) {
+                dependencies.add(new TypeReference(
+                    returnType,
+                    determineTypeKind(returnType),
+                    "returnType",
+                    action.getReturnType().isCollection()
+                ));
+            }
+        }
+        
+        return dependencies;
+    }
+
+    @Override
+    public List<TypeReference> getDirectDependencies(CsdlFunction function) {
+        if (function == null) {
+            return new ArrayList<>();
+        }
+        
+        List<TypeReference> dependencies = new ArrayList<>();
+        
+        // Check parameters
+        if (function.getParameters() != null) {
+            for (CsdlParameter parameter : function.getParameters()) {
+                if (parameter.getType() != null) {
+                    String parameterType = extractTypeName(parameter.getType());
+                    if (!isPrimitiveType(parameterType)) {
+                        dependencies.add(new TypeReference(
+                            parameterType,
+                            determineTypeKind(parameterType),
+                            parameter.getName(),
+                            parameter.isCollection()
+                        ));
+                    }
+                }
+            }
+        }
+        
+        // Check return type (Functions must have return type)
+        if (function.getReturnType() != null && function.getReturnType().getType() != null) {
+            String returnType = extractTypeName(function.getReturnType().getType());
+            if (!isPrimitiveType(returnType)) {
+                dependencies.add(new TypeReference(
+                    returnType,
+                    determineTypeKind(returnType),
+                    "returnType",
+                    function.getReturnType().isCollection()
+                ));
+            }
+        }
+        
+        return dependencies;
+    }
+
+    @Override
+    public List<TypeReference> getAllDependencies(CsdlAction action) {
+        Set<String> visited = new HashSet<>();
+        List<TypeReference> allDeps = new ArrayList<>();
+        collectAllDependencies(action, visited, allDeps);
+        return allDeps;
+    }
+
+    @Override
+    public List<TypeReference> getAllDependencies(CsdlFunction function) {
+        Set<String> visited = new HashSet<>();
+        List<TypeReference> allDeps = new ArrayList<>();
+        collectAllDependencies(function, visited, allDeps);
+        return allDeps;
+    }
+
+    private void collectAllDependencies(CsdlAction action, Set<String> visited, List<TypeReference> allDeps) {
+        if (action == null) {
+            return;
+        }
+        
+        String actionName = action.getName();
+        if (visited.contains(actionName)) {
+            return;
+        }
+        visited.add(actionName);
+        
+        List<TypeReference> directDeps = getDirectDependencies(action);
+        for (TypeReference dep : directDeps) {
+            if (!allDeps.contains(dep)) {
+                allDeps.add(dep);
+                
+                // Recursively collect dependencies of the dependent type
+                if (dep.getTypeKind() == TypeKind.ENTITY_TYPE) {
+                    CsdlEntityType entityType = repository.getEntityType(dep.getFullQualifiedName());
+                    if (entityType != null) {
+                        collectAllDependencies(entityType, visited, allDeps);
+                    }
+                } else if (dep.getTypeKind() == TypeKind.COMPLEX_TYPE) {
+                    CsdlComplexType complexType = repository.getComplexType(dep.getFullQualifiedName());
+                    if (complexType != null) {
+                        collectAllDependencies(complexType, visited, allDeps);
+                    }
+                }
+            }
+        }
+    }
+
+    private void collectAllDependencies(CsdlFunction function, Set<String> visited, List<TypeReference> allDeps) {
+        if (function == null) {
+            return;
+        }
+        
+        String functionName = function.getName();
+        if (visited.contains(functionName)) {
+            return;
+        }
+        visited.add(functionName);
+        
+        List<TypeReference> directDeps = getDirectDependencies(function);
+        for (TypeReference dep : directDeps) {
+            if (!allDeps.contains(dep)) {
+                allDeps.add(dep);
+                
+                // Recursively collect dependencies of the dependent type
+                if (dep.getTypeKind() == TypeKind.ENTITY_TYPE) {
+                    CsdlEntityType entityType = repository.getEntityType(dep.getFullQualifiedName());
+                    if (entityType != null) {
+                        collectAllDependencies(entityType, visited, allDeps);
+                    }
+                } else if (dep.getTypeKind() == TypeKind.COMPLEX_TYPE) {
+                    CsdlComplexType complexType = repository.getComplexType(dep.getFullQualifiedName());
+                    if (complexType != null) {
+                        collectAllDependencies(complexType, visited, allDeps);
+                    }
+                }
+            }
         }
     }
 }

@@ -1,5 +1,28 @@
 package org.apache.olingo.schemamanager.analyzer.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +62,48 @@ class DefaultTypeDependencyAnalyzerTest {
     private CsdlComplexType countryComplex;
     private CsdlEnumType orderStatusEnum;
 
+    @Test
+    void testActionDependencyAnalysis() {
+        // 构造一个参数依赖于EntityType和ComplexType的Action
+        org.apache.olingo.commons.api.edm.provider.CsdlAction action = new org.apache.olingo.commons.api.edm.provider.CsdlAction();
+        action.setName("DoSomething");
+        org.apache.olingo.commons.api.edm.provider.CsdlParameter param1 = new org.apache.olingo.commons.api.edm.provider.CsdlParameter();
+        param1.setName("customer");
+        param1.setType("TestService.Customer");
+        org.apache.olingo.commons.api.edm.provider.CsdlParameter param2 = new org.apache.olingo.commons.api.edm.provider.CsdlParameter();
+        param2.setName("address");
+        param2.setType("TestService.Address");
+        action.setParameters(Arrays.asList(param1, param2));
+        // 返回类型依赖于EnumType
+        action.setReturnType(new org.apache.olingo.commons.api.edm.provider.CsdlReturnType().setType("TestService.OrderStatus"));
+
+        List<TypeDependencyAnalyzer.TypeReference> deps = analyzer.getDirectDependencies(action);
+        Set<String> fqns = deps.stream().map(TypeDependencyAnalyzer.TypeReference::getFullQualifiedName).collect(Collectors.toSet());
+        assertTrue(fqns.contains("TestService.Customer"));
+        assertTrue(fqns.contains("TestService.Address"));
+        assertTrue(fqns.contains("TestService.OrderStatus"));
+    }
+
+    @Test
+    void testFunctionDependencyAnalysis() {
+        // 构造一个参数依赖于ComplexType的Function
+        org.apache.olingo.commons.api.edm.provider.CsdlFunction function = new org.apache.olingo.commons.api.edm.provider.CsdlFunction();
+        function.setName("CalculateSomething");
+        org.apache.olingo.commons.api.edm.provider.CsdlParameter param1 = new org.apache.olingo.commons.api.edm.provider.CsdlParameter();
+        param1.setName("country");
+        param1.setType("TestService.Country");
+        function.setParameters(Arrays.asList(param1));
+        // 返回类型依赖于EntityType
+        function.setReturnType(new org.apache.olingo.commons.api.edm.provider.CsdlReturnType().setType("TestService.Order"));
+
+        List<TypeDependencyAnalyzer.TypeReference> deps = analyzer.getDirectDependencies(function);
+        Set<String> fqns = deps.stream().map(TypeDependencyAnalyzer.TypeReference::getFullQualifiedName).collect(Collectors.toSet());
+        assertTrue(fqns.contains("TestService.Country"));
+        assertTrue(fqns.contains("TestService.Order"));
+    }
+
+    // ...existing code...
+
     @BeforeEach
     void setUp() throws Exception {
         analyzer = new DefaultTypeDependencyAnalyzer();
@@ -55,11 +120,56 @@ class DefaultTypeDependencyAnalyzerTest {
 
     // Simple test implementation of SchemaRepository
     private static class TestSchemaRepository implements SchemaRepository {
+        @Override
+        public CsdlAction getAction(String fullQualifiedName) {
+            return actions.get(fullQualifiedName);
+        }
+
+        @Override
+        public CsdlAction getAction(String namespace, String actionName) {
+            return actions.get(namespace + "." + actionName);
+        }
+        private final Map<String, CsdlAction> actions = new HashMap<>();
         private final Map<String, CsdlSchema> schemas = new HashMap<>();
         private final Map<String, CsdlEntityType> entityTypes = new HashMap<>();
         private final Map<String, CsdlComplexType> complexTypes = new HashMap<>();
         private final Map<String, CsdlEnumType> enumTypes = new HashMap<>();
-        
+        private final Map<String, CsdlFunction> functions = new HashMap<>();
+
+        @Override
+        public List<CsdlAction> getActions(String namespace) {
+            return actions.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(namespace + "."))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        }
+
+        public void putAction(String name, CsdlAction action) {
+            actions.put(name, action);
+        }
+
+        @Override
+        public List<CsdlFunction> getFunctions(String namespace) {
+            return functions.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(namespace + "."))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        }
+
+        @Override
+        public CsdlFunction getFunction(String fullQualifiedName) {
+            return functions.get(fullQualifiedName);
+        }
+
+        @Override
+        public CsdlFunction getFunction(String namespace, String functionName) {
+            return functions.get(namespace + "." + functionName);
+        }
+
+        public void putFunction(String name, CsdlFunction function) {
+            functions.put(name, function);
+        }
+
         @Override
         public void addSchema(CsdlSchema schema, String filePath) {
             schemas.put(schema.getNamespace(), schema);
@@ -149,8 +259,16 @@ class DefaultTypeDependencyAnalyzerTest {
         
         @Override
         public SchemaRepository.RepositoryStatistics getStatistics() {
-            return new SchemaRepository.RepositoryStatistics(schemas.size(), entityTypes.size(), 
-                complexTypes.size(), enumTypes.size(), 0);
+            // 构造器需要7个参数，测试用例只统计部分，其他填0
+            return new SchemaRepository.RepositoryStatistics(
+                schemas.size(),
+                entityTypes.size(),
+                complexTypes.size(),
+                enumTypes.size(),
+                0, // totalEntityContainers
+                actions.size(), // totalActions
+                functions.size() // totalFunctions
+            );
         }
         
         public void putEntityType(String name, CsdlEntityType type) {

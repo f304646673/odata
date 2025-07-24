@@ -1,9 +1,15 @@
 package org.apache.olingo.schemamanager.repository;
 
-import org.apache.olingo.commons.api.edm.provider.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
 /**
  * Schema仓储接口
@@ -53,6 +59,20 @@ public interface SchemaRepository {
     CsdlEnumType getEnumType(String fullQualifiedName);
     
     /**
+     * 根据完全限定名查找Action
+     * @param fullQualifiedName 完全限定名
+     * @return Action
+     */
+    CsdlAction getAction(String fullQualifiedName);
+    
+    /**
+     * 根据完全限定名查找Function
+     * @param fullQualifiedName 完全限定名
+     * @return Function
+     */
+    CsdlFunction getFunction(String fullQualifiedName);
+    
+    /**
      * 根据namespace和名称查找EntityType
      * @param namespace 命名空间
      * @param typeName 类型名称
@@ -77,6 +97,22 @@ public interface SchemaRepository {
     CsdlEnumType getEnumType(String namespace, String typeName);
     
     /**
+     * 根据namespace和名称查找Action
+     * @param namespace 命名空间
+     * @param actionName Action名称
+     * @return Action
+     */
+    CsdlAction getAction(String namespace, String actionName);
+    
+    /**
+     * 根据namespace和名称查找Function
+     * @param namespace 命名空间
+     * @param functionName Function名称
+     * @return Function
+     */
+    CsdlFunction getFunction(String namespace, String functionName);
+    
+    /**
      * 获取指定namespace下的所有EntityType
      * @param namespace 命名空间
      * @return EntityType列表
@@ -96,6 +132,20 @@ public interface SchemaRepository {
      * @return EnumType列表
      */
     List<CsdlEnumType> getEnumTypes(String namespace);
+    
+    /**
+     * 获取指定namespace下的所有Action
+     * @param namespace 命名空间
+     * @return Action列表
+     */
+    List<CsdlAction> getActions(String namespace);
+    
+    /**
+     * 获取指定namespace下的所有Function
+     * @param namespace 命名空间
+     * @return Function列表
+     */
+    List<CsdlFunction> getFunctions(String namespace);
     
     /**
      * 获取所有可用的namespace
@@ -130,14 +180,18 @@ public interface SchemaRepository {
         private final int totalComplexTypes;
         private final int totalEnumTypes;
         private final int totalEntityContainers;
+        private final int totalActions;
+        private final int totalFunctions;
         
         public RepositoryStatistics(int totalSchemas, int totalEntityTypes, int totalComplexTypes, 
-                                  int totalEnumTypes, int totalEntityContainers) {
+                                  int totalEnumTypes, int totalEntityContainers, int totalActions, int totalFunctions) {
             this.totalSchemas = totalSchemas;
             this.totalEntityTypes = totalEntityTypes;
             this.totalComplexTypes = totalComplexTypes;
             this.totalEnumTypes = totalEnumTypes;
             this.totalEntityContainers = totalEntityContainers;
+            this.totalActions = totalActions;
+            this.totalFunctions = totalFunctions;
         }
         
         // Getters
@@ -146,5 +200,7 @@ public interface SchemaRepository {
         public int getTotalComplexTypes() { return totalComplexTypes; }
         public int getTotalEnumTypes() { return totalEnumTypes; }
         public int getTotalEntityContainers() { return totalEntityContainers; }
+        public int getTotalActions() { return totalActions; }
+        public int getTotalFunctions() { return totalFunctions; }
     }
 }

@@ -1,8 +1,13 @@
 package org.apache.olingo.schemamanager.analyzer;
 
-import org.apache.olingo.commons.api.edm.provider.*;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 
 /**
  * 类型依赖分析器接口
@@ -37,6 +42,34 @@ public interface TypeDependencyAnalyzer {
      * @return 依赖的类型信息列表
      */
     List<TypeReference> getAllDependencies(CsdlComplexType complexType);
+    
+    /**
+     * 获取Action的所有直接依赖
+     * @param action Action
+     * @return 依赖的类型信息列表
+     */
+    List<TypeReference> getDirectDependencies(CsdlAction action);
+    
+    /**
+     * 获取Function的所有直接依赖
+     * @param function Function
+     * @return 依赖的类型信息列表
+     */
+    List<TypeReference> getDirectDependencies(CsdlFunction function);
+    
+    /**
+     * 获取Action的所有递归依赖（包括间接依赖）
+     * @param action Action
+     * @return 依赖的类型信息列表
+     */
+    List<TypeReference> getAllDependencies(CsdlAction action);
+    
+    /**
+     * 获取Function的所有递归依赖（包括间接依赖）
+     * @param function Function
+     * @return 依赖的类型信息列表
+     */
+    List<TypeReference> getAllDependencies(CsdlFunction function);
     
     /**
      * 获取指定类型的所有依赖者（哪些类型依赖于它）
@@ -85,6 +118,10 @@ public interface TypeDependencyAnalyzer {
      * 类型引用类
      */
     class TypeReference {
+        /**
+         * 兼容旧代码，返回类型种类
+         */
+        public TypeKind getKind() { return typeKind; }
         private final String fullQualifiedName;
         private final TypeKind typeKind;
         private final String propertyName;
@@ -111,7 +148,9 @@ public interface TypeDependencyAnalyzer {
         ENTITY_TYPE,
         COMPLEX_TYPE,
         ENUM_TYPE,
-        PRIMITIVE_TYPE
+        PRIMITIVE_TYPE,
+        ACTION,
+        FUNCTION
     }
     
     /**
