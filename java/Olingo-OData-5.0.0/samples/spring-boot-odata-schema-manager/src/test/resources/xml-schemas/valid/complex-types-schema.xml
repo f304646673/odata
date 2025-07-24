@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestService">
+      
+      <!-- ComplexType definitions -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="200"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="TestService.Country"/>
+      </ComplexType>
+
+      <ComplexType Name="Country">
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Code" Type="Edm.String" MaxLength="3"/>
+      </ComplexType>
+
+      <!-- EntityType with ComplexType properties -->
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Address" Type="TestService.Address"/>
+        <Property Name="ShippingAddresses" Type="Collection(TestService.Address)"/>
+      </EntityType>
+
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="Customers" EntityType="TestService.Customer"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

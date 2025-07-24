@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Extension">
+      
+      <EntityType Name="ExtendedEntity">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="ExtendedProperty" Type="Edm.String"/>
+        <Property Name="Address" Type="Extension.ExtendedAddress"/>
+      </EntityType>
+
+      <ComplexType Name="ExtendedAddress">
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+        <Property Name="PostalCode" Type="Edm.String"/>
+        <Property Name="Country" Type="Edm.String"/>
+      </ComplexType>
+
+      <EntityContainer Name="ExtensionContainer">
+        <EntitySet Name="ExtendedEntities" EntityType="Extension.ExtendedEntity"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

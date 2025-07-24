@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Inventory">
+      
+      <EntityType Name="InventoryItem">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="ProductId" Type="Edm.String"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="Location" Type="Inventory.WarehouseLocation"/>
+      </EntityType>
+
+      <ComplexType Name="WarehouseLocation">
+        <Property Name="WarehouseName" Type="Edm.String"/>
+        <Property Name="Section" Type="Edm.String"/>
+        <Property Name="Shelf" Type="Edm.String"/>
+      </ComplexType>
+
+      <EntityContainer Name="InventoryContainer">
+        <EntitySet Name="InventoryItems" EntityType="Inventory.InventoryItem"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

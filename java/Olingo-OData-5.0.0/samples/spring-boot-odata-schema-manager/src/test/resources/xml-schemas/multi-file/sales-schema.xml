@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Sales">
+      
+      <EntityType Name="Sale">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="SaleDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="Amount" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="Status" Type="Sales.SaleStatus"/>
+      </EntityType>
+
+      <EnumType Name="SaleStatus">
+        <Member Name="Pending" Value="0"/>
+        <Member Name="Completed" Value="1"/>
+        <Member Name="Refunded" Value="2"/>
+      </EnumType>
+
+      <EntityContainer Name="SalesContainer">
+        <EntitySet Name="Sales" EntityType="Sales.Sale"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

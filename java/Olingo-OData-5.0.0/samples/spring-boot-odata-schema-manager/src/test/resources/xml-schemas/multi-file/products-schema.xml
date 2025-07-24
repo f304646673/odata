@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Products">
+      
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="200"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="Category" Type="Products.Category"/>
+      </EntityType>
+
+      <ComplexType Name="Category">
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Description" Type="Edm.String"/>
+      </ComplexType>
+
+      <EntityContainer Name="ProductContainer">
+        <EntitySet Name="Products" EntityType="Products.Product"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

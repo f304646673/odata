@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestService">
+      
+      <!-- 复杂的依赖关系：A -> B -> C -> D -->
+      <ComplexType Name="TypeA">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="TypeBRef" Type="TestService.TypeB"/>
+      </ComplexType>
+
+      <ComplexType Name="TypeB">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="TypeCRef" Type="TestService.TypeC"/>
+        <Property Name="CollectionOfC" Type="Collection(TestService.TypeC)"/>
+      </ComplexType>
+
+      <ComplexType Name="TypeC">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="TypeDRef" Type="TestService.TypeD"/>
+      </ComplexType>
+
+      <ComplexType Name="TypeD">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="Value" Type="Edm.String"/>
+      </ComplexType>
+
+      <!-- 多重依赖：Entity -> 多个ComplexType -->
+      <EntityType Name="MultiDependencyEntity">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="TypeARef" Type="TestService.TypeA"/>
+        <Property Name="TypeBRef" Type="TestService.TypeB"/>
+        <Property Name="TypeCRef" Type="TestService.TypeC"/>
+        <Property Name="Status" Type="TestService.MultiStatus"/>
+      </EntityType>
+
+      <EnumType Name="MultiStatus">
+        <Member Name="Active" Value="0"/>
+        <Member Name="Inactive" Value="1"/>
+        <Member Name="Pending" Value="2"/>
+      </EnumType>
+
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="MultiDependencyEntities" EntityType="TestService.MultiDependencyEntity"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestService">
+      
+      <!-- 大量的EntityType定义 -->
+      <EntityType Name="Entity01">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+
+      <EntityType Name="Entity02">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+
+      <EntityType Name="Entity03">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+
+      <EntityType Name="Entity04">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+
+      <EntityType Name="Entity05">
+        <Key><PropertyRef Name="Id"/></Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+
+      <!-- 复杂类型 -->
+      <ComplexType Name="ComplexType01">
+        <Property Name="Property01" Type="Edm.String"/>
+        <Property Name="Property02" Type="Edm.Int32"/>
+        <Property Name="Property03" Type="Edm.DateTimeOffset"/>
+      </ComplexType>
+
+      <ComplexType Name="ComplexType02">
+        <Property Name="Property01" Type="Edm.String"/>
+        <Property Name="Property02" Type="TestService.ComplexType01"/>
+      </ComplexType>
+
+      <!-- 枚举类型 -->
+      <EnumType Name="Status">
+        <Member Name="Active" Value="0"/>
+        <Member Name="Inactive" Value="1"/>
+        <Member Name="Pending" Value="2"/>
+        <Member Name="Cancelled" Value="3"/>
+        <Member Name="Completed" Value="4"/>
+      </EnumType>
+
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="Entity01Set" EntityType="TestService.Entity01"/>
+        <EntitySet Name="Entity02Set" EntityType="TestService.Entity02"/>
+        <EntitySet Name="Entity03Set" EntityType="TestService.Entity03"/>
+        <EntitySet Name="Entity04Set" EntityType="TestService.Entity04"/>
+        <EntitySet Name="Entity05Set" EntityType="TestService.Entity05"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

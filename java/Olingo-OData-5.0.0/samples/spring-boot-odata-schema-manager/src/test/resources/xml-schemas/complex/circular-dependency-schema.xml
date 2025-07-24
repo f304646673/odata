@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestService">
+      
+      <!-- 循环依赖：CircularA -> CircularB -> CircularA -->
+      <ComplexType Name="CircularA">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="CircularBRef" Type="TestService.CircularB"/>
+      </ComplexType>
+
+      <ComplexType Name="CircularB">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="CircularARef" Type="TestService.CircularA"/>
+      </ComplexType>
+
+      <!-- 更复杂的循环：X -> Y -> Z -> X -->
+      <ComplexType Name="CircularX">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="CircularYRef" Type="TestService.CircularY"/>
+      </ComplexType>
+
+      <ComplexType Name="CircularY">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="CircularZRef" Type="TestService.CircularZ"/>
+      </ComplexType>
+
+      <ComplexType Name="CircularZ">
+        <Property Name="Id" Type="Edm.String"/>
+        <Property Name="CircularXRef" Type="TestService.CircularX"/>
+      </ComplexType>
+
+      <EntityType Name="CircularEntity">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>
+        <Property Name="CircularARef" Type="TestService.CircularA"/>
+        <Property Name="CircularXRef" Type="TestService.CircularX"/>
+      </EntityType>
+
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="CircularEntities" EntityType="TestService.CircularEntity"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
