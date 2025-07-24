@@ -345,154 +345,154 @@ class DefaultODataXmlLoaderTest {
 
     // // ==== 使用测试资源文件的测试方法 ====
 
-    // @Test
-    // void testLoadFromDirectory_WithTestResources_ValidSchemas() {
-    //     // 设置mock返回
-    //     CsdlSchema mockSchema = new CsdlSchema();
-    //     mockSchema.setNamespace("TestService");
-    //     ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(mockSchema, new ArrayList<>());
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class))).thenReturn(mockResult);
+    @Test
+    void testLoadFromDirectory_WithTestResources_ValidSchemas() {
+        // Set mock return
+        CsdlSchema mockSchema = new CsdlSchema();
+        mockSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(mockSchema, new ArrayList<>(), true, null);
+        when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockResult);
 
-    //     // 测试有效的Schema目录
-    //     String validSchemasPath = "src/test/resources/xml-schemas/valid";
-    //     ODataXmlLoader.LoadResult result = loader.loadFromDirectory(validSchemasPath);
+        // Test valid Schema directory
+        String validSchemasPath = "src/test/resources/xml-schemas/valid";
+        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(validSchemasPath);
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertTrue(result.getTotalFiles() > 0);
-    //     assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
-    //     assertEquals(0, result.getFailedFiles());
-    //     assertTrue(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertTrue(result.getTotalFiles() > 0);
+        assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
 
-    //     // 验证解析器被调用
-    //     verify(parser, atLeastOnce()).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        // Verify parser was called
+        verify(parser, atLeastOnce()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // @Test
-    // void testLoadFromDirectory_WithTestResources_InvalidSchemas() {
-    //     // 设置mock抛出异常
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class)))
-    //         .thenThrow(new RuntimeException("Invalid XML format"));
+    @Test
+    void testLoadFromDirectory_WithTestResources_InvalidSchemas() {
+        // Set mock to throw exception
+        when(parser.parseSchema(any(InputStream.class), anyString()))
+            .thenThrow(new RuntimeException("Invalid XML format"));
 
-    //     // 测试无效的Schema目录
-    //     String invalidSchemasPath = "src/test/resources/xml-schemas/invalid";
-    //     ODataXmlLoader.LoadResult result = loader.loadFromDirectory(invalidSchemasPath);
+        // Test invalid Schema directory
+        String invalidSchemasPath = "src/test/resources/xml-schemas/invalid";
+        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(invalidSchemasPath);
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertTrue(result.getTotalFiles() > 0);
-    //     assertEquals(0, result.getSuccessfulFiles());
-    //     assertEquals(result.getTotalFiles(), result.getFailedFiles());
-    //     assertFalse(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertTrue(result.getTotalFiles() > 0);
+        assertEquals(0, result.getSuccessfulFiles());
+        assertEquals(result.getTotalFiles(), result.getFailedFiles());
+        assertFalse(result.getErrorMessages().isEmpty());
 
-    //     // 验证没有Schema被添加到repository
-    //     verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        // Verify no Schema was added to repository
+        verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // @Test
-    // void testLoadFromDirectory_WithTestResources_MultiFileDirectory() {
-    //     // 设置mock返回不同的Schema
-    //     CsdlSchema productsSchema = new CsdlSchema();
-    //     productsSchema.setNamespace("Products");
-    //     CsdlSchema salesSchema = new CsdlSchema();
-    //     salesSchema.setNamespace("Sales");
-    //     CsdlSchema inventorySchema = new CsdlSchema();
-    //     inventorySchema.setNamespace("Inventory");
+    @Test
+    void testLoadFromDirectory_WithTestResources_MultiFileDirectory() {
+        // Set mock to return different Schemas
+        CsdlSchema productsSchema = new CsdlSchema();
+        productsSchema.setNamespace("Products");
+        CsdlSchema salesSchema = new CsdlSchema();
+        salesSchema.setNamespace("Sales");
+        CsdlSchema inventorySchema = new CsdlSchema();
+        inventorySchema.setNamespace("Inventory");
 
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class)))
-    //         .thenReturn(new ODataSchemaParser.ParseResult(productsSchema, new ArrayList<>()))
-    //         .thenReturn(new ODataSchemaParser.ParseResult(salesSchema, new ArrayList<>()))
-    //         .thenReturn(new ODataSchemaParser.ParseResult(inventorySchema, new ArrayList<>()));
+        when(parser.parseSchema(any(InputStream.class), anyString()))
+            .thenReturn(new ODataSchemaParser.ParseResult(productsSchema, new ArrayList<>(), true, null))
+            .thenReturn(new ODataSchemaParser.ParseResult(salesSchema, new ArrayList<>(), true, null))
+            .thenReturn(new ODataSchemaParser.ParseResult(inventorySchema, new ArrayList<>(), true, null));
 
-    //     // 测试多文件目录
-    //     String multiFilePath = "src/test/resources/xml-schemas/multi-file";
-    //     ODataXmlLoader.LoadResult result = loader.loadFromDirectory(multiFilePath);
+        // Test multi-file directory
+        String multiFilePath = "src/test/resources/xml-schemas/multi-file";
+        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(multiFilePath);
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertEquals(3, result.getTotalFiles()); // products, sales, inventory
-    //     assertEquals(3, result.getSuccessfulFiles());
-    //     assertEquals(0, result.getFailedFiles());
-    //     assertTrue(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertEquals(3, result.getTotalFiles()); // products, sales, inventory
+        assertEquals(3, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
 
-    //     // 验证所有Schema都被添加
-    //     verify(parser, times(3)).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, times(3)).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        // Verify all Schemas were added
+        verify(parser, times(3)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, times(3)).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // @Test
-    // void testLoadFromDirectory_WithTestResources_EmptyDirectory() {
-    //     // 测试空目录
-    //     String emptyDirPath = "src/test/resources/xml-schemas/empty-directory";
-    //     ODataXmlLoader.LoadResult result = loader.loadFromDirectory(emptyDirPath);
+    @Test
+    void testLoadFromDirectory_WithTestResources_EmptyDirectory() {
+        // Test empty directory
+        String emptyDirPath = "src/test/resources/xml-schemas/empty-directory";
+        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(emptyDirPath);
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertEquals(0, result.getTotalFiles());
-    //     assertEquals(0, result.getSuccessfulFiles());
-    //     assertEquals(0, result.getFailedFiles());
-    //     assertTrue(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertEquals(0, result.getTotalFiles());
+        assertEquals(0, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
 
-    //     // 验证没有调用解析器
-    //     verify(parser, never()).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        // Verify parser was not called
+        verify(parser, never()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // @Test
-    // void testLoadFromDirectory_WithTestResources_LargeSchema() {
-    //     // 设置mock返回大型Schema
-    //     CsdlSchema largeSchema = new CsdlSchema();
-    //     largeSchema.setNamespace("TestService");
-    //     ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(largeSchema, new ArrayList<>());
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class))).thenReturn(mockResult);
+    @Test
+    void testLoadFromDirectory_WithTestResources_LargeSchema() {
+        // Set mock to return large Schema
+        CsdlSchema largeSchema = new CsdlSchema();
+        largeSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(largeSchema, new ArrayList<>(), true, null);
+        when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockResult);
 
-    //     // 测试大型Schema文件
-    //     String performancePath = "src/test/resources/xml-schemas/performance";
-    //     long startTime = System.currentTimeMillis();
+        // Test large Schema file
+        String performancePath = "src/test/resources/xml-schemas/performance";
+        long startTime = System.currentTimeMillis();
         
-    //     ODataXmlLoader.LoadResult result = loader.loadFromDirectory(performancePath);
+        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(performancePath);
         
-    //     long endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertEquals(1, result.getTotalFiles());
-    //     assertEquals(1, result.getSuccessfulFiles());
-    //     assertEquals(0, result.getFailedFiles());
-    //     assertTrue(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertEquals(1, result.getTotalFiles());
+        assertEquals(1, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
 
-    //     // 验证性能（应该在合理时间内完成）
-    //     assertTrue(endTime - startTime < 5000, "Loading took too long: " + (endTime - startTime) + "ms");
+        // Verify performance (should complete within reasonable time)
+        assertTrue(endTime - startTime < 5000, "Loading took too long: " + (endTime - startTime) + "ms");
 
-    //     verify(parser, times(1)).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        verify(parser, times(1)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // @Test
-    // void testLoadFromFile_WithTestResources_ComplexSchema() throws IOException {
-    //     // 设置mock返回复杂Schema
-    //     CsdlSchema complexSchema = new CsdlSchema();
-    //     complexSchema.setNamespace("TestService");
-    //     ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(complexSchema, new ArrayList<>());
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class))).thenReturn(mockResult);
+    @Test
+    void testLoadFromFile_WithTestResources_ComplexSchema() throws IOException {
+        // Set mock to return complex Schema
+        CsdlSchema complexSchema = new CsdlSchema();
+        complexSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockResult = new ODataSchemaParser.ParseResult(complexSchema, new ArrayList<>(), true, null);
+        when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockResult);
 
-    //     // 测试复杂类型Schema文件
-    //     Path complexSchemaFile = Paths.get("src/test/resources/xml-schemas/valid/complex-types-schema.xml");
-    //     assertTrue(Files.exists(complexSchemaFile), "Test resource file should exist");
+        // Test complex type Schema file
+        Path complexSchemaFile = Paths.get("src/test/resources/xml-schemas/valid/complex-types-schema.xml");
+        assertTrue(Files.exists(complexSchemaFile), "Test resource file should exist");
 
-    //     ODataXmlLoader.LoadResult result = loader.loadFromFile(complexSchemaFile.toString());
+        ODataXmlLoader.LoadResult result = loader.loadSingleFile(complexSchemaFile.toString());
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertEquals(1, result.getTotalFiles());
-    //     assertEquals(1, result.getSuccessfulFiles());
-    //     assertEquals(0, result.getFailedFiles());
-    //     assertTrue(result.getErrorMessages().isEmpty());
+        // Verify results
+        assertNotNull(result);
+        assertEquals(1, result.getTotalFiles());
+        assertEquals(1, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
 
-    //     verify(parser, times(1)).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        verify(parser, times(1)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
+    }
 
     @Test
     void testLoadFromFile_WithTestResources_MalformedXml() {
