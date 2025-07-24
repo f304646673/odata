@@ -1,19 +1,5 @@
 package org.apache.olingo.schemamanager.loader.impl;
 
-import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
-import org.apache.olingo.schemamanager.loader.impl.DefaultODataXmlLoader;
-import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
-import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
-import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import org.apache.olingo.schemamanager.repository.impl.InMemorySchemaRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -25,9 +11,28 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
+import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
+import org.apache.olingo.schemamanager.repository.SchemaRepository;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.Mock;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest {
@@ -62,15 +67,17 @@ class DefaultODataXmlLoaderTest {
 
     @Test
     void testLoadFromDirectory_Success() throws IOException {
-        // 创建测试XML文件
+        // 使用测试资源文件而不是硬编码XML
+        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
+        
         File xmlFile = tempDir.resolve("test.xml").toFile();
         try (FileWriter writer = new FileWriter(xmlFile)) {
-            writer.write("<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>");
+            writer.write(xmlContent);
         }
 
         // Mock解析结果
         CsdlSchema mockSchema = new CsdlSchema();
-        mockSchema.setNamespace("TestNamespace");
+        mockSchema.setNamespace("TestService"); // 与simple-schema.xml中的namespace保持一致
         
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
             mockSchema, new ArrayList<>(), true, null
@@ -107,10 +114,12 @@ class DefaultODataXmlLoaderTest {
 
     @Test
     void testLoadFromDirectory_ParseFailure() throws IOException {
-        // 创建测试XML文件
+        // 使用测试资源中的无效XML文件内容
+        String invalidXmlContent = loadTestResourceAsString("xml-schemas/invalid/malformed-xml.xml");
+        
         File xmlFile = tempDir.resolve("invalid.xml").toFile();
         try (FileWriter writer = new FileWriter(xmlFile)) {
-            writer.write("invalid xml content");
+            writer.write(invalidXmlContent);
         }
 
         // Mock解析失败
@@ -152,19 +161,23 @@ class DefaultODataXmlLoaderTest {
         File subDir = tempDir.resolve("subdir").toFile();
         subDir.mkdir();
         
+        // 使用测试资源文件的内容
+        String simpleSchemaContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
+        String complexSchemaContent = loadTestResourceAsString("xml-schemas/valid/complex-types-schema.xml");
+        
         File xmlFile1 = tempDir.resolve("test1.xml").toFile();
         File xmlFile2 = subDir.toPath().resolve("test2.xml").toFile();
         
         try (FileWriter writer = new FileWriter(xmlFile1)) {
-            writer.write("<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>");
+            writer.write(simpleSchemaContent);
         }
         try (FileWriter writer = new FileWriter(xmlFile2)) {
-            writer.write("<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>");
+            writer.write(complexSchemaContent);
         }
 
         // Mock解析结果
         CsdlSchema mockSchema = new CsdlSchema();
-        mockSchema.setNamespace("TestNamespace");
+        mockSchema.setNamespace("TestService"); // 与资源文件中的namespace保持一致
         
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
             mockSchema, new ArrayList<>(), true, null
@@ -187,14 +200,17 @@ class DefaultODataXmlLoaderTest {
 
     @Test
     void testLoadSingleFile_Success() throws IOException {
+        // 使用测试资源文件内容
+        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
+        
         File xmlFile = tempDir.resolve("single.xml").toFile();
         try (FileWriter writer = new FileWriter(xmlFile)) {
-            writer.write("<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>");
+            writer.write(xmlContent);
         }
 
         // Mock解析结果
         CsdlSchema mockSchema = new CsdlSchema();
-        mockSchema.setNamespace("TestNamespace");
+        mockSchema.setNamespace("TestService"); // 与simple-schema.xml中的namespace保持一致
         
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
             mockSchema, new ArrayList<>(), true, null
@@ -230,13 +246,14 @@ class DefaultODataXmlLoaderTest {
     }
 
     @Test
-    void testLoadFromInputStream_Success() {
-        String xmlContent = "<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>";
+    void testLoadFromInputStream_Success() throws IOException {
+        // 使用测试资源文件内容而不是硬编码的XML
+        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         // Mock解析结果
         CsdlSchema mockSchema = new CsdlSchema();
-        mockSchema.setNamespace("TestNamespace");
+        mockSchema.setNamespace("TestService"); // 与simple-schema.xml中的namespace保持一致
         
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
             mockSchema, new ArrayList<>(), true, null
@@ -256,14 +273,15 @@ class DefaultODataXmlLoaderTest {
 
         Map<String, ODataXmlLoader.XmlFileInfo> loadedFiles = result.getLoadedFiles();
         assertTrue(loadedFiles.containsKey("test-source"));
-        assertEquals("TestNamespace", loadedFiles.get("test-source").getNamespace());
+        assertEquals("TestService", loadedFiles.get("test-source").getNamespace());
 
         verify(repository).addSchema(eq(mockSchema), eq("test-source"));
     }
 
     @Test
-    void testLoadFromInputStream_ParseFailure() {
-        String xmlContent = "invalid xml";
+    void testLoadFromInputStream_ParseFailure() throws IOException {
+        // 使用测试资源中的无效XML内容
+        String xmlContent = loadTestResourceAsString("xml-schemas/invalid/malformed-xml.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         // Mock解析失败
@@ -322,11 +340,12 @@ class DefaultODataXmlLoaderTest {
     }
 
     @Test
-    void testLoadFromInputStream_Exception() {
+    void testLoadFromInputStream_Exception() throws IOException {
         // 模拟parser抛出异常
         when(parser.parseSchema(any(), anyString())).thenThrow(new RuntimeException("Test exception"));
 
-        String xmlContent = "<?xml version=\"1.0\"?><edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\"/>";
+        // 使用测试资源文件内容
+        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         // 执行测试
@@ -525,5 +544,42 @@ class DefaultODataXmlLoaderTest {
     private boolean isTestResourceExists(String relativePath) {
         Path resourcePath = Paths.get("src/test/resources/" + relativePath);
         return Files.exists(resourcePath);
+    }
+    
+    /**
+     * 从测试资源目录加载文件内容为字符串
+     */
+    private String loadTestResourceAsString(String relativePath) throws IOException {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath)) {
+            if (inputStream == null) {
+                throw new IllegalArgumentException("Resource not found: " + relativePath);
+            }
+            // 使用Java 8兼容的方式读取InputStream
+            return readInputStreamToString(inputStream);
+        }
+    }
+    
+    /**
+     * 从测试资源目录获取InputStream
+     */
+    private InputStream loadTestResourceAsStream(String relativePath) throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Resource not found: " + relativePath);
+        }
+        return inputStream;
+    }
+    
+    /**
+     * 读取InputStream内容为字符串 (Java 8兼容)
+     */
+    private String readInputStreamToString(InputStream inputStream) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            sb.append(new String(buffer, 0, bytesRead, java.nio.charset.StandardCharsets.UTF_8));
+        }
+        return sb.toString();
     }
 }
