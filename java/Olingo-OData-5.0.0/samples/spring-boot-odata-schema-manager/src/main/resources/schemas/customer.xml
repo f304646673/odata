@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Customer.Service">
+            <EntityType Name="Customer">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="FirstName" Type="Edm.String" MaxLength="100"/>
+                <Property Name="LastName" Type="Edm.String" MaxLength="100"/>
+                <Property Name="Email" Type="Edm.String" MaxLength="255"/>
+                <Property Name="Phone" Type="Edm.String" MaxLength="20"/>
+                <Property Name="Address" Type="Edm.String"/>
+            </EntityType>
+            
+            <EntityType Name="Order">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="CustomerID" Type="Edm.Int32"/>
+                <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+                <Property Name="TotalAmount" Type="Edm.Decimal" Scale="2"/>
+                <Property Name="Status" Type="Edm.String" MaxLength="50"/>
+            </EntityType>
+            
+            <EntityContainer Name="Container">
+                <EntitySet Name="Customers" EntityType="Customer.Service.Customer"/>
+                <EntitySet Name="Orders" EntityType="Customer.Service.Order"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
