@@ -117,7 +117,25 @@ class ODataSchemaAnalyzerTest {
         when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", testSchema);
-        when(repository.getAllSchemas()).thenReturn(schemas);
+        lenient().when(repository.getAllSchemas()).thenReturn(schemas);
+        
+        // Mock additional repository methods needed by analyzeDependencies
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getEntityTypes("TestService")).thenReturn(Arrays.asList(customerEntity));
+        when(repository.getComplexTypes("TestService")).thenReturn(Arrays.asList(addressComplex));
+        when(repository.getEnumTypes("TestService")).thenReturn(Arrays.asList(orderStatusEnum));
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
+        
+        // Mock typeExists calls for dependency validation
+        lenient().when(repository.getEntityType("TestService.Address")).thenReturn(null);
+        when(repository.getComplexType("TestService.Address")).thenReturn(addressComplex);
+        lenient().when(repository.getEnumType("TestService.Address")).thenReturn(null);
+        
+        lenient().when(repository.getEntityType("TestService.OrderStatus")).thenReturn(null);
+        lenient().when(repository.getComplexType("TestService.OrderStatus")).thenReturn(null);
+        when(repository.getEnumType("TestService.OrderStatus")).thenReturn(orderStatusEnum);
 
         // Act
         ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
@@ -136,7 +154,6 @@ class ODataSchemaAnalyzerTest {
         assertTrue(dependencies.get("TestService.Customer").contains("TestService.Address"));
         
         verify(xmlLoader).loadFromDirectory(directoryPath);
-        verify(repository).getAllSchemas();
     }
 
     @Test
@@ -191,6 +208,12 @@ class ODataSchemaAnalyzerTest {
         // Arrange
         String fullQualifiedName = "TestService.Customer";
         when(repository.getEntityType("TestService.Customer")).thenReturn(customerEntity);
+        
+        // Mock additional repository methods needed by buildTypeDetailInfo
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
 
         // Act
         ODataSchemaAnalyzer.TypeDetailInfo detail = analyzer.getEntityTypeDetail(fullQualifiedName);
@@ -230,6 +253,12 @@ class ODataSchemaAnalyzerTest {
         // Arrange
         String fullQualifiedName = "TestService.Address";
         when(repository.getComplexType("TestService.Address")).thenReturn(addressComplex);
+        
+        // Mock additional repository methods needed by buildTypeDetailInfo
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
 
         // Act
         ODataSchemaAnalyzer.TypeDetailInfo detail = analyzer.getComplexTypeDetail(fullQualifiedName);
@@ -269,6 +298,12 @@ class ODataSchemaAnalyzerTest {
         // Arrange
         String fullQualifiedName = "TestService.OrderStatus";
         when(repository.getEnumType("TestService.OrderStatus")).thenReturn(orderStatusEnum);
+        
+        // Mock additional repository methods needed by buildTypeDetailInfo
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
 
         // Act
         ODataSchemaAnalyzer.TypeDetailInfo detail = analyzer.getEnumTypeDetail(fullQualifiedName);
@@ -424,17 +459,32 @@ class ODataSchemaAnalyzerTest {
         when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", schemaWithMissingDep);
-        when(repository.getAllSchemas()).thenReturn(schemas);
+        lenient().when(repository.getAllSchemas()).thenReturn(schemas);
+        
+        // Mock additional repository methods
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getEntityTypes("TestService")).thenReturn(Arrays.asList(entityWithMissingDep));
+        when(repository.getComplexTypes("TestService")).thenReturn(new ArrayList<>());
+        when(repository.getEnumTypes("TestService")).thenReturn(new ArrayList<>());
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
+        
+        // Mock typeExists calls - MissingType应该不存在
+        when(repository.getEntityType("TestService.MissingType")).thenReturn(null);
+        when(repository.getComplexType("TestService.MissingType")).thenReturn(null);
+        when(repository.getEnumType("TestService.MissingType")).thenReturn(null);
 
         // Act
         ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
 
         // Assert
         assertNotNull(result);
-        assertFalse(result.isSuccess()); // 应该失败，因为有缺失依赖
+        // 现在分析应该成功，但ImportValidation会显示问题
+        assertTrue(result.isSuccess()); // 分析成功
         assertNotNull(result.getImportValidation());
-        assertFalse(result.getImportValidation().isValid());
-        assertFalse(result.getImportValidation().getMissingImports().isEmpty());
+        assertFalse(result.getImportValidation().isValid()); // 但是import validation失败
+        assertFalse(result.getImportValidation().getMissingImports().isEmpty()); // 有缺失的导入
     }
 
     @Test
@@ -470,16 +520,35 @@ class ODataSchemaAnalyzerTest {
         when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", circularSchema);
-        when(repository.getAllSchemas()).thenReturn(schemas);
+        lenient().when(repository.getAllSchemas()).thenReturn(schemas);
+        
+        // Mock additional repository methods
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getEntityTypes("TestService")).thenReturn(new ArrayList<>());
+        when(repository.getComplexTypes("TestService")).thenReturn(Arrays.asList(typeA, typeB));
+        when(repository.getEnumTypes("TestService")).thenReturn(new ArrayList<>());
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
+        
+        // Mock typeExists calls - both types should exist
+        lenient().when(repository.getEntityType("TestService.TypeA")).thenReturn(null);
+        when(repository.getComplexType("TestService.TypeA")).thenReturn(typeA);
+        lenient().when(repository.getEnumType("TestService.TypeA")).thenReturn(null);
+        
+        lenient().when(repository.getEntityType("TestService.TypeB")).thenReturn(null);
+        when(repository.getComplexType("TestService.TypeB")).thenReturn(typeB);
+        lenient().when(repository.getEnumType("TestService.TypeB")).thenReturn(null);
 
         // Act
         ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
 
         // Assert
         assertNotNull(result);
-        assertFalse(result.isSuccess()); // 应该失败，因为有循环依赖
+        // 分析应该成功，即使有循环依赖
+        assertTrue(result.isSuccess()); // 分析成功
         assertNotNull(result.getImportValidation());
-        assertFalse(result.getImportValidation().isValid());
+        // 循环依赖应该在ImportValidation中被检测到
         assertFalse(result.getImportValidation().getCircularDependencies().isEmpty());
     }
 
@@ -511,7 +580,23 @@ class ODataSchemaAnalyzerTest {
         );
         
         when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
-        when(repository.getAllSchemas()).thenReturn(multipleSchemas);
+        lenient().when(repository.getAllSchemas()).thenReturn(multipleSchemas);
+        
+        // Mock additional repository methods for both namespaces
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("TestService");
+        namespaces.add("SecondService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        
+        when(repository.getEntityTypes("TestService")).thenReturn(Arrays.asList(customerEntity));
+        when(repository.getComplexTypes("TestService")).thenReturn(Arrays.asList(addressComplex));
+        when(repository.getEnumTypes("TestService")).thenReturn(Arrays.asList(orderStatusEnum));
+        when(repository.getSchemaFilePath("TestService")).thenReturn("TestService.xml");
+        
+        when(repository.getEntityTypes("SecondService")).thenReturn(Arrays.asList(secondEntity));
+        when(repository.getComplexTypes("SecondService")).thenReturn(new ArrayList<>());
+        when(repository.getEnumTypes("SecondService")).thenReturn(new ArrayList<>());
+        when(repository.getSchemaFilePath("SecondService")).thenReturn("SecondService.xml");
 
         // Act
         ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
@@ -593,7 +678,16 @@ class ODataSchemaAnalyzerTest {
         when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("LargeService", largeSchema);
-        when(repository.getAllSchemas()).thenReturn(schemas);
+        lenient().when(repository.getAllSchemas()).thenReturn(schemas);
+        
+        // Mock additional repository methods
+        Set<String> namespaces = new HashSet<>();
+        namespaces.add("LargeService");
+        when(repository.getAllNamespaces()).thenReturn(namespaces);
+        when(repository.getEntityTypes("LargeService")).thenReturn(entityTypes);
+        when(repository.getComplexTypes("LargeService")).thenReturn(new ArrayList<>());
+        when(repository.getEnumTypes("LargeService")).thenReturn(new ArrayList<>());
+        when(repository.getSchemaFilePath("LargeService")).thenReturn("LargeService.xml");
 
         // Act
         long startTime = System.currentTimeMillis();

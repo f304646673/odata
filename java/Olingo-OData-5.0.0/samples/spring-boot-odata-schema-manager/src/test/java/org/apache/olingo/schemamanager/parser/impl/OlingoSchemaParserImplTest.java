@@ -1,11 +1,5 @@
 package org.apache.olingo.schemamanager.parser.impl;
 
-import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -14,7 +8,16 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class OlingoSchemaParserImplTest {
 
@@ -351,7 +354,7 @@ class OlingoSchemaParserImplTest {
         }
         
         assertNotNull(complexEntity);
-        assertEquals(6, complexEntity.getProperties().size());
+        assertEquals(5, complexEntity.getProperties().size()); // 5个Property元素，不包括NavigationProperty
         
         // 验证NavigationProperty
         assertNotNull(complexEntity.getNavigationProperties());
@@ -586,9 +589,11 @@ class OlingoSchemaParserImplTest {
         // 测试解析格式错误的XML
         String resourcePath = "src/test/resources/xml-schemas/invalid/malformed-xml.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
-            assertThrows(Exception.class, () -> {
-                parser.parseSchema(fis, "malformed-xml.xml");
-            });
+            ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "malformed-xml.xml");
+            // 期望解析失败而不是抛出异常
+            assertNotNull(result);
+            assertFalse(result.isSuccess());
+            assertNotNull(result.getErrorMessage());
         }
     }
 

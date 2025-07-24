@@ -1,17 +1,33 @@
 package org.apache.olingo.schemamanager.parser.impl;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import java.io.InputStream;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * OData Schema解析器实现
@@ -23,6 +39,8 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
     private static final Logger logger = LoggerFactory.getLogger(OlingoSchemaParserImpl.class);
     private static final Pattern NAMESPACE_PATTERN = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*(?:\\.[a-zA-Z_][a-zA-Z0-9_]*)*)");
     
+    // 存储schema的Using dependencies
+    private final Map<String, Set<String>> schemaDependenciesMap = new HashMap<>();
     @Override
     public ParseResult parseSchema(InputStream inputStream, String sourceName) {
         try {
@@ -62,6 +80,7 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
         List<CsdlSchema> schemas = new ArrayList<>();
         CsdlSchema currentSchema = null;
         String currentNamespace = null;
+        Set<String> currentSchemaDependencies = new HashSet<>();
         
         while (reader.hasNext()) {
             int eventType = reader.next();
@@ -75,8 +94,19 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
                     currentNamespace = reader.getAttributeValue(null, "Namespace");
                     currentSchema = new CsdlSchema();
                     currentSchema.setNamespace(currentNamespace);
+                    currentSchemaDependencies = new HashSet<>();
                     
                     logger.debug("发现Schema定义: {}", currentNamespace);
+                }
+                // 解析Using元素
+                else if ("Using".equals(localName) && currentSchema != null) {
+                    String namespace = reader.getAttributeValue(null, "Namespace");
+                    String alias = reader.getAttributeValue(null, "Alias");
+                    if (namespace != null) {
+                        // 将Using的namespace添加到dependencies中
+                        currentSchemaDependencies.add(namespace);
+                        logger.debug("发现Using定义: namespace={}, alias={}", namespace, alias);
+                    }
                 }
                 // 解析EntityType
                 else if ("EntityType".equals(localName) && currentSchema != null) {
@@ -113,9 +143,14 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
             }
             else if (eventType == XMLStreamReader.END_ELEMENT) {
                 if ("Schema".equals(reader.getLocalName()) && currentSchema != null) {
+                    // 存储schema的dependencies
+                    if (currentSchema.getNamespace() != null) {
+                        schemaDependenciesMap.put(currentSchema.getNamespace(), new HashSet<>(currentSchemaDependencies));
+                    }
                     schemas.add(currentSchema);
                     currentSchema = null;
                     currentNamespace = null;
+                    currentSchemaDependencies = new HashSet<>();
                 }
             }
         }
@@ -310,6 +345,12 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
         
         if (schema == null) {
             return new ArrayList<>(dependencies);
+        }
+        
+        // 首先添加来自Using语句的dependencies
+        Set<String> usingDependencies = schemaDependenciesMap.get(schema.getNamespace());
+        if (usingDependencies != null) {
+            dependencies.addAll(usingDependencies);
         }
         
         // 从EntityType中提取依赖

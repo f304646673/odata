@@ -1,13 +1,29 @@
 package org.apache.olingo.schemamanager.merger.impl;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.merger.SchemaMerger;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultSchemaMergerTest {
 
@@ -338,6 +354,26 @@ class DefaultSchemaMergerTest {
 
     @Test
     void testMergeWithEntityContainers() {
+        // 最简单的测试：只测试merger是否正常
+        assertNotNull(merger);
+        
+        // 测试空列表
+        List<CsdlSchema> emptySchemas = new ArrayList<>();
+        SchemaMerger.MergeResult emptyResult = merger.mergeSchemas(emptySchemas);
+        assertNotNull(emptyResult);
+        assertFalse(emptyResult.isSuccess());
+        assertTrue(emptyResult.getErrors().contains("No schemas provided for merging"));
+        
+        // 测试单个schema
+        List<CsdlSchema> singleSchema = Arrays.asList(schema1);
+        SchemaMerger.MergeResult singleResult = merger.mergeSchemas(singleSchema);
+        assertNotNull(singleResult);
+        assertTrue(singleResult.isSuccess());
+        assertEquals(schema1, singleResult.getMergedSchema());
+    }
+
+    @Test
+    void testMergeWithEntityContainersReal() {
         // 为schemas添加EntityContainers
         CsdlEntityContainer container1 = new CsdlEntityContainer();
         container1.setName("Container1");
@@ -345,6 +381,7 @@ class DefaultSchemaMergerTest {
         CsdlEntitySet entitySet1 = new CsdlEntitySet();
         entitySet1.setName("Customers");
         entitySet1.setType("TestService1.Customer");
+        
         container1.setEntitySets(Arrays.asList(entitySet1));
         
         schema1.setEntityContainer(container1);
@@ -355,6 +392,7 @@ class DefaultSchemaMergerTest {
         CsdlEntitySet entitySet2 = new CsdlEntitySet();
         entitySet2.setName("Products");
         entitySet2.setType("TestService1.Product");
+        
         container2.setEntitySets(Arrays.asList(entitySet2));
         
         schema2.setEntityContainer(container2);

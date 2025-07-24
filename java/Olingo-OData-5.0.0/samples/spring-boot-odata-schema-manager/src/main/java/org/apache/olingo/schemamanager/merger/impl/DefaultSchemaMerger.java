@@ -1,13 +1,29 @@
 package org.apache.olingo.schemamanager.merger.impl;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.schemamanager.merger.SchemaMerger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Default implementation of SchemaMerger
@@ -32,9 +48,20 @@ public class DefaultSchemaMerger implements SchemaMerger {
         }
         
         try {
-            // Use the first schema as base
+            // Find the first non-null schema as base
             CsdlSchema mergedSchema = new CsdlSchema();
-            CsdlSchema firstSchema = schemas.get(0);
+            CsdlSchema firstSchema = null;
+            for (CsdlSchema schema : schemas) {
+                if (schema != null) {
+                    firstSchema = schema;
+                    break;
+                }
+            }
+            
+            if (firstSchema == null) {
+                errors.add("All schemas are null");
+                return new MergeResult(null, warnings, errors, false);
+            }
             
             mergedSchema.setNamespace(firstSchema.getNamespace());
             mergedSchema.setAlias(firstSchema.getAlias());
@@ -45,9 +72,19 @@ public class DefaultSchemaMerger implements SchemaMerger {
             List<CsdlEnumType> allEnumTypes = new ArrayList<>();
             List<CsdlAction> allActions = new ArrayList<>();
             List<CsdlFunction> allFunctions = new ArrayList<>();
-            CsdlEntityContainer mergedContainer = null;
+            List<CsdlEntityContainer> allContainers = new ArrayList<>();
             
             for (CsdlSchema schema : schemas) {
+                if (schema == null) {
+                    continue; // Skip null schemas
+                }
+                
+                // Check namespace consistency
+                if (schema.getNamespace() != null && !schema.getNamespace().equals(firstSchema.getNamespace())) {
+                    warnings.add("Schema with different namespace found: " + schema.getNamespace() + 
+                                 " (expected: " + firstSchema.getNamespace() + ")");
+                }
+                
                 // Merge EntityTypes
                 if (schema.getEntityTypes() != null) {
                     allEntityTypes.addAll(schema.getEntityTypes());
@@ -73,16 +110,16 @@ public class DefaultSchemaMerger implements SchemaMerger {
                     allFunctions.addAll(schema.getFunctions());
                 }
                 
-                // Merge EntityContainer (use the first non-null container)
-                if (mergedContainer == null && schema.getEntityContainer() != null) {
-                    mergedContainer = mergeEntityContainers(
-                        schemas.stream()
-                            .map(CsdlSchema::getEntityContainer)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList()),
-                        warnings
-                    );
+                // Collect EntityContainers
+                if (schema.getEntityContainer() != null) {
+                    allContainers.add(schema.getEntityContainer());
                 }
+            }
+            
+            // Merge EntityContainers
+            CsdlEntityContainer mergedContainer = null;
+            if (!allContainers.isEmpty()) {
+                mergedContainer = mergeEntityContainers(allContainers, warnings);
             }
             
             // Remove duplicates and set to merged schema
@@ -277,7 +314,19 @@ public class DefaultSchemaMerger implements SchemaMerger {
         CsdlEntityContainer first = containers.get(0);
         
         merged.setName(first.getName());
-        merged.setExtendsContainer(first.getExtendsContainer());
+        // Only set extends container if it's not null
+        if (first.getExtendsContainer() != null) {
+            merged.setExtendsContainer(first.getExtendsContainer());
+        }
+        
+        // Check if all containers have the same name, if not add warning
+        for (CsdlEntityContainer container : containers) {
+            if (!Objects.equals(container.getName(), first.getName())) {
+                warnings.add("Merging EntityContainers with different names: " + 
+                           first.getName() + " and " + container.getName() + 
+                           ", using name: " + first.getName());
+            }
+        }
         
         List<CsdlEntitySet> allEntitySets = new ArrayList<>();
         List<CsdlSingleton> allSingletons = new ArrayList<>();
@@ -286,7 +335,22 @@ public class DefaultSchemaMerger implements SchemaMerger {
         
         for (CsdlEntityContainer container : containers) {
             if (container.getEntitySets() != null) {
-                allEntitySets.addAll(container.getEntitySets());
+                // Add null checking for EntitySets
+                for (CsdlEntitySet entitySet : container.getEntitySets()) {
+                    if (entitySet != null) {
+                        if (entitySet.getName() == null) {
+                            warnings.add("Found EntitySet with null name, skipping");
+                            continue;
+                        }
+                        if (entitySet.getType() == null) {
+                            warnings.add("Found EntitySet '" + entitySet.getName() + "' with null type, skipping");
+                            continue;
+                        }
+                        allEntitySets.add(entitySet);
+                    } else {
+                        warnings.add("Found null EntitySet in container " + container.getName());
+                    }
+                }
             }
             if (container.getSingletons() != null) {
                 allSingletons.addAll(container.getSingletons());
@@ -311,7 +375,17 @@ public class DefaultSchemaMerger implements SchemaMerger {
         Map<String, CsdlEntitySet> uniqueSets = new LinkedHashMap<>();
         
         for (CsdlEntitySet entitySet : entitySets) {
+            if (entitySet == null) {
+                warnings.add("Found null EntitySet, skipping");
+                continue;
+            }
+            
             String name = entitySet.getName();
+            if (name == null) {
+                warnings.add("Found EntitySet with null name, skipping");
+                continue;
+            }
+            
             if (uniqueSets.containsKey(name)) {
                 warnings.add("Duplicate EntitySet found: " + name + ", keeping first occurrence");
             } else {
@@ -448,16 +522,46 @@ public class DefaultSchemaMerger implements SchemaMerger {
         CsdlEntityContainer container2 = schema2.getEntityContainer();
         
         if (!Objects.equals(container1.getName(), container2.getName())) {
-            conflicts.add("Different EntityContainer names: " + container1.getName() + " vs " + container2.getName());
+            warnings.add("Different EntityContainer names: " + container1.getName() + " vs " + container2.getName());
         } else {
             warnings.add("Both schemas have EntityContainer: " + container1.getName());
         }
     }
     
     private boolean areEntityTypesCompatible(CsdlEntityType type1, CsdlEntityType type2) {
-        // Simple compatibility check - can be enhanced
-        return Objects.equals(type1.getBaseType(), type2.getBaseType()) &&
-               Objects.equals(type1.isAbstract(), type2.isAbstract());
+        // Check basic compatibility
+        if (!Objects.equals(type1.getBaseType(), type2.getBaseType()) ||
+            !Objects.equals(type1.isAbstract(), type2.isAbstract())) {
+            return false;
+        }
+        
+        // Check properties compatibility
+        List<CsdlProperty> props1 = type1.getProperties() != null ? type1.getProperties() : new ArrayList<>();
+        List<CsdlProperty> props2 = type2.getProperties() != null ? type2.getProperties() : new ArrayList<>();
+        
+        // Convert to maps for easier comparison
+        Map<String, CsdlProperty> propMap1 = props1.stream()
+                .collect(Collectors.toMap(CsdlProperty::getName, p -> p));
+        Map<String, CsdlProperty> propMap2 = props2.stream()
+                .collect(Collectors.toMap(CsdlProperty::getName, p -> p));
+        
+        // If properties differ, types are incompatible
+        if (!propMap1.keySet().equals(propMap2.keySet())) {
+            return false;
+        }
+        
+        // Check each property is compatible
+        for (String propName : propMap1.keySet()) {
+            CsdlProperty prop1 = propMap1.get(propName);
+            CsdlProperty prop2 = propMap2.get(propName);
+            
+            if (!Objects.equals(prop1.getType(), prop2.getType()) ||
+                !Objects.equals(prop1.isNullable(), prop2.isNullable())) {
+                return false;
+            }
+        }
+        
+        return true;
     }
     
     private boolean areComplexTypesCompatible(CsdlComplexType type1, CsdlComplexType type2) {
