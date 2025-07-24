@@ -2,8 +2,11 @@ package org.apache.olingo.schemamanager.loader.impl;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
+import org.apache.olingo.schemamanager.loader.impl.DefaultODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
+import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
+import org.apache.olingo.schemamanager.repository.impl.InMemorySchemaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,12 +43,22 @@ class DefaultODataXmlLoaderTest {
     @TempDir
     Path tempDir;
 
-    // @BeforeEach
-    // void setUp() {
-    //     loader = new DefaultODataXmlLoader();
-    //     loader.parser = parser;
-    //     loader.repository = repository;
-    // }
+    @BeforeEach
+    void setUp() {
+        loader = new DefaultODataXmlLoader();
+        // Use reflection to set private fields for testing
+        try {
+            java.lang.reflect.Field parserField = DefaultODataXmlLoader.class.getDeclaredField("parser");
+            parserField.setAccessible(true);
+            parserField.set(loader, parser);
+            
+            java.lang.reflect.Field repositoryField = DefaultODataXmlLoader.class.getDeclaredField("repository");
+            repositoryField.setAccessible(true);
+            repositoryField.set(loader, repository);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to setup test", e);
+        }
+    }
 
     // @Test
     // void testLoadFromDirectory_Success() throws IOException {
@@ -480,36 +494,36 @@ class DefaultODataXmlLoaderTest {
     //     verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
     // }
 
-    // @Test
-    // void testLoadFromFile_WithTestResources_MalformedXml() {
-    //     // 设置mock抛出解析异常
-    //     when(parser.parseSchema(any(ByteArrayInputStream.class)))
-    //         .thenThrow(new RuntimeException("XML parsing failed"));
+    @Test
+    void testLoadFromFile_WithTestResources_MalformedXml() {
+        // Set mock to throw parsing exception
+        when(parser.parseSchema(any(InputStream.class), anyString()))
+            .thenThrow(new RuntimeException("XML parsing failed"));
 
-    //     // 测试格式错误的XML文件
-    //     String malformedXmlFile = "src/test/resources/xml-schemas/invalid/malformed-xml.xml";
-    //     ODataXmlLoader.LoadResult result = loader.loadFromFile(malformedXmlFile);
+        // Test malformed XML file
+        String malformedXmlFile = "src/test/resources/xml-schemas/invalid/malformed-xml.xml";
+        ODataXmlLoader.LoadResult result = loader.loadSingleFile(malformedXmlFile);
 
-    //     // 验证结果
-    //     assertNotNull(result);
-    //     assertEquals(1, result.getTotalFiles());
-    //     assertEquals(0, result.getSuccessfulFiles());
-    //     assertEquals(1, result.getFailedFiles());
-    //     assertFalse(result.getErrorMessages().isEmpty());
-    //     assertTrue(result.getErrorMessages().get(0).contains("XML parsing failed"));
+        // Verify results
+        assertNotNull(result);
+        assertEquals(1, result.getTotalFiles());
+        assertEquals(0, result.getSuccessfulFiles());
+        assertEquals(1, result.getFailedFiles());
+        assertFalse(result.getErrorMessages().isEmpty());
+        assertTrue(result.getErrorMessages().get(0).contains("XML parsing failed"));
 
-    //     verify(parser, times(1)).parseSchema(any(ByteArrayInputStream.class));
-    //     verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
-    // }
+        verify(parser, times(1)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
+    }
 
-    // // ==== 辅助方法 ====
+    // ==== 辅助方法 ====
 
-    // private String getTestResourcePath(String relativePath) {
-    //     return "src/test/resources/" + relativePath;
-    // }
+    private String getTestResourcePath(String relativePath) {
+        return "src/test/resources/" + relativePath;
+    }
 
-    // private boolean isTestResourceExists(String relativePath) {
-    //     Path resourcePath = Paths.get("src/test/resources/" + relativePath);
-    //     return Files.exists(resourcePath);
-    // }
+    private boolean isTestResourceExists(String relativePath) {
+        Path resourcePath = Paths.get("src/test/resources/" + relativePath);
+        return Files.exists(resourcePath);
+    }
 }

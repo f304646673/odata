@@ -537,44 +537,44 @@ class ODataSchemaAnalyzerTest {
 
     // @Test
     // void testAnalyzeDirectory_PerformanceWithLargeSchema() {
-        // Arrange
-        String directoryPath = tempDir.toString();
+    //     // Arrange
+    //     String directoryPath = tempDir.toString();
         
-        CsdlSchema largeSchema = new CsdlSchema();
-        largeSchema.setNamespace("LargeService");
+    //     CsdlSchema largeSchema = new CsdlSchema();
+    //     largeSchema.setNamespace("LargeService");
         
-        List<CsdlEntityType> entityTypes = new ArrayList<>();
-        for (int i = 1; i <= 50; i++) {
-            CsdlEntityType entityType = new CsdlEntityType();
-            entityType.setName("Entity" + i);
+    //     List<CsdlEntityType> entityTypes = new ArrayList<>();
+    //     for (int i = 1; i <= 50; i++) {
+    //         CsdlEntityType entityType = new CsdlEntityType();
+    //         entityType.setName("Entity" + i);
             
-            CsdlProperty prop = new CsdlProperty();
-            prop.setName("Id");
-            prop.setType("Edm.String");
-            entityType.setProperties(Arrays.asList(prop));
+    //         CsdlProperty prop = new CsdlProperty();
+    //         prop.setName("Id");
+    //         prop.setType("Edm.String");
+    //         entityType.setProperties(Arrays.asList(prop));
             
-            entityTypes.add(entityType);
-        }
-        largeSchema.setEntityTypes(entityTypes);
+    //         entityTypes.add(entityType);
+    //     }
+    //     largeSchema.setEntityTypes(entityTypes);
         
-        ODataXmlLoader.LoadResult loadResult = new ODataXmlLoader.LoadResult(
-            1, 0, new ArrayList<>(), Arrays.asList("large.xml")
-        );
+    //     ODataXmlLoader.LoadResult loadResult = new ODataXmlLoader.LoadResult(
+    //         1, 0, new ArrayList<>(), Arrays.asList("large.xml")
+    //     );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
-        when(repository.getAllSchemas()).thenReturn(Map.of("LargeService", largeSchema));
+    //     when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+    //     when(repository.getAllSchemas()).thenReturn(Map.of("LargeService", largeSchema));
 
-        // Act
-        long startTime = System.currentTimeMillis();
-        ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
-        long endTime = System.currentTimeMillis();
+    //     // Act
+    //     long startTime = System.currentTimeMillis();
+    //     ODataSchemaAnalyzer.AnalysisResult result = analyzer.analyzeDirectory(directoryPath);
+    //     long endTime = System.currentTimeMillis();
 
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isSuccess());
-        assertEquals(50, result.getDependencies().size());
+    //     // Assert
+    //     assertNotNull(result);
+    //     assertTrue(result.isSuccess());
+    //     assertEquals(50, result.getDependencies().size());
         
-        // 验证性能（分析应该在合理时间内完成）
-        assertTrue(endTime - startTime < 1000, "Analysis took too long: " + (endTime - startTime) + "ms");
-    }
+    //     // 验证性能（分析应该在合理时间内完成）
+    //     assertTrue(endTime - startTime < 1000, "Analysis took too long: " + (endTime - startTime) + "ms");
+    // }
 }

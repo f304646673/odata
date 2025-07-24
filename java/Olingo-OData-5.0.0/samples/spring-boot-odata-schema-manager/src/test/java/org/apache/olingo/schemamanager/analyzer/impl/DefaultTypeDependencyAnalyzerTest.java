@@ -634,8 +634,8 @@ class DefaultTypeDependencyAnalyzerTest {
     //     }
     // }
 
-    // @Test
-    // void testTestResourceDirectoriesExistence() {
+    @Test
+    void testTestResourceDirectoriesExistence() {
         // 验证测试资源目录是否存在
         String[] testResourceDirs = {
             "src/test/resources/xml-schemas",
