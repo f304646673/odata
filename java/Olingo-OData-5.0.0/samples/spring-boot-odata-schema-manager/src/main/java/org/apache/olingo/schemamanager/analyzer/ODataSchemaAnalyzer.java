@@ -1,14 +1,23 @@
 package org.apache.olingo.schemamanager.analyzer;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
 
 /**
  * OData Schema分析器
@@ -140,7 +149,7 @@ public class ODataSchemaAnalyzer {
         
         try {
             // 1. 加载所有XML文件
-            ODataXmlLoader.LoadResult loadResult = xmlLoader.loadFromDirectory(directoryPath);
+            ODataXmlLoader.LoadResult loadResult = xmlLoader.loadFromResourceDirectory(directoryPath);
             
             if (loadResult.getFailedFiles() > 0) {
                 errors.addAll(loadResult.getErrorMessages());

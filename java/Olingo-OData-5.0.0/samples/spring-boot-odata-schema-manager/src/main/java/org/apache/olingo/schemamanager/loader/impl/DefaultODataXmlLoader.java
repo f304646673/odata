@@ -30,48 +30,7 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
     private SchemaRepository repository;
     
     private final Map<String, XmlFileInfo> loadedFiles = new ConcurrentHashMap<>();
-    
-    @Override
-    public LoadResult loadFromDirectory(String directoryPath) {
-        List<String> errorMessages = new ArrayList<>();
-        Map<String, XmlFileInfo> currentLoaded = new HashMap<>();
-        
-        try {
-            File dir = new File(directoryPath);
-            if (!dir.exists() || !dir.isDirectory()) {
-                errorMessages.add("Directory not found: " + directoryPath);
-                return new LoadResult(0, 0, 1, errorMessages, currentLoaded);
-            }
-            
-            List<File> xmlFiles = findXmlFiles(dir);
-            int total = xmlFiles.size();
-            int successful = 0;
-            int failed = 0;
-            
-            for (File file : xmlFiles) {
-                try (FileInputStream fis = new FileInputStream(file)) {
-                    LoadResult singleResult = loadFromInputStream(fis, file.getAbsolutePath());
-                    if (singleResult.getSuccessfulFiles() > 0) {
-                        successful++;
-                        currentLoaded.putAll(singleResult.getLoadedFiles());
-                    } else {
-                        failed++;
-                        errorMessages.addAll(singleResult.getErrorMessages());
-                    }
-                } catch (java.io.IOException | RuntimeException e) {
-                    failed++;
-                    errorMessages.add("Error loading file " + file.getAbsolutePath() + ": " + e.getMessage());
-                }
-            }
-            
-            return new LoadResult(total, successful, failed, errorMessages, currentLoaded);
-            
-        } catch (Exception e) {
-            errorMessages.add("Directory scan error: " + e.getMessage());
-            return new LoadResult(0, 0, 1, errorMessages, currentLoaded);
-        }
-    }
-
+  
     /**
      * 从classpath resource目录递归加载所有XML文件
      * @param resourceDir 资源目录（如 "xml-schemas/valid"）
@@ -99,58 +58,16 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
                         failed++;
                         errorMessages.addAll(singleResult.getErrorMessages());
                     }
-                } catch (Exception e) {
+                } catch (IOException | RuntimeException e) {
                     failed++;
                     errorMessages.add("Error loading resource " + path + ": " + e.getMessage());
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             errorMessages.add("Resource directory scan error: " + e.getMessage());
             failed = total == 0 ? 1 : total;
         }
         return new LoadResult(total, successful, failed, errorMessages, currentLoaded);
-    }
-
-    /**
-     * 递归列出resource目录下所有xml文件的路径（相对classpath）
-     */
-    private List<String> listXmlResourcesRecursively(String resourceDir) throws IOException {
-        List<String> result = new ArrayList<>();
-        java.net.URL dirUrl = getClass().getClassLoader().getResource(resourceDir);
-        if (dirUrl == null) return result;
-        if (dirUrl.getProtocol().equals("file")) {
-            File dir = new File(dirUrl.getPath());
-            if (dir.exists() && dir.isDirectory()) {
-                listXmlFilesFromFileSystem(dir, resourceDir, result);
-            }
-        } else if (dirUrl.getProtocol().equals("jar")) {
-            String jarPath = dirUrl.getPath().substring(5, dirUrl.getPath().indexOf("!"));
-            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarPath)) {
-                java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    java.util.jar.JarEntry entry = entries.nextElement();
-                    String name = entry.getName();
-                    if (name.startsWith(resourceDir) && name.toLowerCase().endsWith(".xml") && !entry.isDirectory()) {
-                        result.add(name);
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    private void listXmlFilesFromFileSystem(File dir, String resourceDir, List<String> result) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    listXmlFilesFromFileSystem(file, resourceDir + "/" + file.getName(), result);
-                } else if (file.getName().toLowerCase().endsWith(".xml")) {
-                    String relPath = resourceDir + "/" + file.getName();
-                    result.add(relPath.replace("\\", "/"));
-                }
-            }
-        }
     }
     
     @Override
@@ -168,16 +85,6 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
                 return new LoadResult(1, 0, 1, 
                         Arrays.asList("Error closing input stream: " + e.getMessage()), new HashMap<>());
             }
-        }
-    }
-    
-    @Override
-    public LoadResult loadSingleFile(String filePath) {
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            return loadFromInputStream(fis, filePath);
-        } catch (Exception e) {
-            List<String> errorMessages = Arrays.asList("Error loading file " + filePath + ": " + e.getMessage());
-            return new LoadResult(1, 0, 1, errorMessages, new HashMap<>());
         }
     }
     
@@ -238,19 +145,46 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
         loadedFiles.clear();
         repository.clear();
     }
-    
-    private List<File> findXmlFiles(File directory) {
-        List<File> xmlFiles = new ArrayList<>();
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    xmlFiles.addAll(findXmlFiles(file));
-                } else if (file.getName().toLowerCase().endsWith(".xml")) {
-                    xmlFiles.add(file);
+
+    /**
+     * 递归列出resource目录下所有xml文件的路径（相对classpath）
+     */
+    private List<String> listXmlResourcesRecursively(String resourceDir) throws IOException {
+        List<String> result = new ArrayList<>();
+        java.net.URL dirUrl = getClass().getClassLoader().getResource(resourceDir);
+        if (dirUrl == null) return result;
+        if (dirUrl.getProtocol().equals("file")) {
+            File dir = new File(dirUrl.getPath());
+            if (dir.exists() && dir.isDirectory()) {
+                listXmlFilesFromFileSystem(dir, resourceDir, result);
+            }
+        } else if (dirUrl.getProtocol().equals("jar")) {
+            String jarPath = dirUrl.getPath().substring(5, dirUrl.getPath().indexOf("!"));
+            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarPath)) {
+                java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    java.util.jar.JarEntry entry = entries.nextElement();
+                    String name = entry.getName();
+                    if (name.startsWith(resourceDir) && name.toLowerCase().endsWith(".xml") && !entry.isDirectory()) {
+                        result.add(name);
+                    }
                 }
             }
         }
-        return xmlFiles;
+        return result;
+    }
+
+    private void listXmlFilesFromFileSystem(File dir, String resourceDir, List<String> result) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listXmlFilesFromFileSystem(file, resourceDir + "/" + file.getName(), result);
+                } else if (file.getName().toLowerCase().endsWith(".xml")) {
+                    String relPath = resourceDir + "/" + file.getName();
+                    result.add(relPath.replace("\\", "/"));
+                }
+            }
+        }
     }
 }

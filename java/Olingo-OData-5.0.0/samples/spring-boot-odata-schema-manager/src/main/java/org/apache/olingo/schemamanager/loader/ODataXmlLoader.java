@@ -9,13 +9,6 @@ import java.util.Map;
  * 负责从不同来源加载和解析OData XML文件
  */
 public interface ODataXmlLoader {
-    
-    /**
-     * 从指定目录递归加载所有OData XML文件
-     * @param directoryPath 目录路径
-     * @return 加载结果
-     */
-    LoadResult loadFromDirectory(String directoryPath);
 
     /**
      * 从指定资源目录递归加载所有OData XML文件
@@ -30,13 +23,6 @@ public interface ODataXmlLoader {
      * @return 加载结果
      */
     LoadResult loadSingleFileFromResource(String classpathDirectory);
-    
-    /**
-     * 加载单个XML文件
-     * @param filePath 文件路径
-     * @return 加载结果
-     */
-    LoadResult loadSingleFile(String filePath);
     
     /**
      * 从输入流加载XML文件

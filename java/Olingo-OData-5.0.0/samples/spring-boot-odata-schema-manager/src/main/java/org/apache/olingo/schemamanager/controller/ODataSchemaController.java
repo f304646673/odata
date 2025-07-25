@@ -1,12 +1,16 @@
 package org.apache.olingo.schemamanager.controller;
 
+import java.util.Map;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * OData Schema管理REST控制器
@@ -20,14 +24,6 @@ public class ODataSchemaController {
     
     @Autowired
     private SchemaRepository repository;
-    
-    /**
-     * 从目录加载OData XML文件
-     */
-    @PostMapping("/load")
-    public ODataXmlLoader.LoadResult loadFromDirectory(@RequestParam String directoryPath) {
-        return xmlLoader.loadFromDirectory(directoryPath);
-    }
     
     /**
      * 获取所有已加载的Schema
