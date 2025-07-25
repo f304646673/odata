@@ -18,9 +18,19 @@
  */
 package org.apache.olingo.sample.springboot.xmlimport.parser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -89,6 +99,9 @@ public class AdvancedMetadataParser {
         underlyingParser.recursivelyLoadReferences(false); // We handle this ourselves
         underlyingParser.useLocalCoreVocabularies(true);
         underlyingParser.implicitlyLoadCoreVocabularies(true);
+        
+        // 启用 annotation 解析 - 这是关键配置！
+        underlyingParser.parseAnnotations(true);
     }
     
     /**

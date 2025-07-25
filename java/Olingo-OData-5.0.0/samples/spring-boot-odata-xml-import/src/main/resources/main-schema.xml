@@ -26,37 +26,62 @@
     </edmx:Reference>
     
     <edmx:DataServices>
-        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="OData.Demo">
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" 
+                xmlns:annotation="http://docs.oasis-open.org/odata/ns/edm/annotation"
+                Namespace="OData.Demo">
             
             <!-- Entity Types -->
             <EntityType Name="Car">
+                <Annotation Term="Org.OData.Core.V1.Description" String="A car entity representing a vehicle with detailed information including model, price, and manufacturer."/>
                 <Key>
                     <PropertyRef Name="Id"/>
                 </Key>
-                <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="Model" Type="Edm.String" MaxLength="60"/>
-                <Property Name="ModelYear" Type="Edm.Int32"/>
-                <Property Name="Price" Type="Edm.Decimal" Precision="19" Scale="4"/>
-                <Property Name="Currency" Type="Edm.String" MaxLength="3"/>
-                <NavigationProperty Name="Manufacturer" Type="OData.Demo.Manufacturer"/>
+                <Property Name="Id" Type="Edm.Int32" Nullable="false">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Unique identifier for the car"/>
+                </Property>
+                <Property Name="Model" Type="Edm.String" MaxLength="60">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Car model name"/>
+                </Property>
+                <Property Name="ModelYear" Type="Edm.Int32">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Year when the car model was manufactured"/>
+                </Property>
+                <Property Name="Price" Type="Edm.Decimal" Precision="19" Scale="4">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Price of the car in the specified currency"/>
+                </Property>
+                <Property Name="Currency" Type="Edm.String" MaxLength="3">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Currency code (ISO 4217) for the price"/>
+                </Property>
+                <NavigationProperty Name="Manufacturer" Type="OData.Demo.Manufacturer">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="The manufacturer that produces this car"/>
+                </NavigationProperty>
             </EntityType>
-            
+
             <EntityType Name="Manufacturer">
+                <Annotation Term="Org.OData.Core.V1.Description" String="A manufacturer entity representing a car manufacturer company with address and produced cars."/>
                 <Key>
                     <PropertyRef Name="Id"/>
                 </Key>
-                <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="Name" Type="Edm.String" MaxLength="60"/>
-                <Property Name="Address" Type="OData.Demo.Common.Address"/>
-                <NavigationProperty Name="Cars" Type="Collection(OData.Demo.Car)"/>
-            </EntityType>
-            
-            <!-- Entity Container -->
+                <Property Name="Id" Type="Edm.Int32" Nullable="false">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Unique identifier for the manufacturer"/>
+                </Property>
+                <Property Name="Name" Type="Edm.String" MaxLength="60">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Name of the manufacturer company"/>
+                </Property>
+                <Property Name="Address" Type="OData.Demo.Common.Address">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Business address of the manufacturer"/>
+                </Property>
+                <NavigationProperty Name="Cars" Type="Collection(OData.Demo.Car)">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Collection of cars produced by this manufacturer"/>
+                </NavigationProperty>
+            </EntityType>            <!-- Entity Container -->
             <EntityContainer Name="Container">
+                <Annotation Term="Org.OData.Core.V1.Description" String="Main container for the OData Demo service providing cars and manufacturers data"/>
                 <EntitySet Name="Cars" EntityType="OData.Demo.Car" IncludeInServiceDocument="true">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Collection of all cars available in the system"/>
                     <NavigationPropertyBinding Path="Manufacturer" Target="Manufacturers"/>
                 </EntitySet>
                 <EntitySet Name="Manufacturers" EntityType="OData.Demo.Manufacturer" IncludeInServiceDocument="true">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Collection of all car manufacturers in the system"/>
                     <NavigationPropertyBinding Path="Cars" Target="Cars"/>
                 </EntitySet>
             </EntityContainer>

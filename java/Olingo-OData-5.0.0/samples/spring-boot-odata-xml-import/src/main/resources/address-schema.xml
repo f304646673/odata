@@ -21,14 +21,25 @@
 -->
 <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
     <edmx:DataServices>
-        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="OData.Demo.Common">
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" 
+                xmlns:annotation="http://docs.oasis-open.org/odata/ns/edm/annotation"
+                Namespace="OData.Demo.Common">
             
             <!-- Complex Types -->
             <ComplexType Name="Address">
-                <Property Name="Street" Type="Edm.String" MaxLength="60"/>
-                <Property Name="City" Type="Edm.String" MaxLength="60"/>
-                <Property Name="ZipCode" Type="Edm.String" MaxLength="10"/>
-                <Property Name="Country" Type="Edm.String" MaxLength="60"/>
+                <Annotation Term="Org.OData.Core.V1.Description" String="A complex type representing a physical address with street, city, postal code and country information"/>
+                <Property Name="Street" Type="Edm.String" MaxLength="60">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Street address including house number"/>
+                </Property>
+                <Property Name="City" Type="Edm.String" MaxLength="60">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="City name"/>
+                </Property>
+                <Property Name="ZipCode" Type="Edm.String" MaxLength="10">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Postal/ZIP code"/>
+                </Property>
+                <Property Name="Country" Type="Edm.String" MaxLength="60">
+                    <Annotation Term="Org.OData.Core.V1.Description" String="Country name"/>
+                </Property>
             </ComplexType>
             
         </Schema>

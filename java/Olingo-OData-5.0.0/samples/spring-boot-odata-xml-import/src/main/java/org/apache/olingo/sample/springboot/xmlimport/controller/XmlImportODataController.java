@@ -20,13 +20,13 @@ package org.apache.olingo.sample.springboot.xmlimport.controller;
 
 import java.util.ArrayList;
 
+import org.apache.olingo.sample.springboot.xmlimport.edm.AdvancedXmlImportEdmProvider;
+import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportEntityProcessor;
+import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportMetadataProcessor;
+import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportServiceDocumentProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.sample.springboot.xmlimport.edm.AdvancedXmlImportEdmProvider;
-import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportEntityProcessor;
-import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportServiceDocumentProcessor;
-import org.apache.olingo.sample.springboot.xmlimport.processor.XmlImportMetadataProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "XmlImportODataApplication",
+            "request": "launch",
+            "mainClass": "org.apache.olingo.sample.springboot.xmlimport.XmlImportODataApplication",
+            "projectName": "odata-spring-boot-xml-import-sample"
+        },
+        {
+            "type": "java",
             "name": "Debug CarsServlet",
             "request": "attach",
             "hostName": "localhost",
