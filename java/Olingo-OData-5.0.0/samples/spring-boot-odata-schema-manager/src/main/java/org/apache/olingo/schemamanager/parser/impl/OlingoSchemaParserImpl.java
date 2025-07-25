@@ -2,7 +2,6 @@ package org.apache.olingo.schemamanager.parser.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,19 +56,32 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
             List<CsdlSchema> schemas = parseWithOlingo(reader, sourceName);
             
             if (schemas.isEmpty()) {
-                return new ParseResult(null, Collections.emptyList(), false, "未找到有效的Schema定义");
+                return ParseResult.failure("未找到有效的Schema定义");
             }
             
-            // 取第一个Schema（通常一个文件只包含一个Schema）
-            CsdlSchema schema = schemas.get(0);
-            List<String> dependencies = extractDependencies(schema);
+            // 验证 namespace 唯一性
+            Set<String> namespaces = new HashSet<>();
+            for (CsdlSchema schema : schemas) {
+                if (schema.getNamespace() != null) {
+                    if (!namespaces.add(schema.getNamespace())) {
+                        return ParseResult.failure("发现重复的namespace: " + schema.getNamespace());
+                    }
+                }
+            }
             
-            logger.debug("成功解析Schema: {} (namespace: {})", sourceName, schema.getNamespace());
-            return new ParseResult(schema, dependencies, true, null);
+            // 创建 SchemaWithDependencies 列表
+            List<SchemaWithDependencies> schemaWithDependencies = new ArrayList<>();
+            for (CsdlSchema schema : schemas) {
+                List<String> dependencies = extractDependencies(schema);
+                schemaWithDependencies.add(new SchemaWithDependencies(schema, dependencies));
+            }
+            
+            logger.debug("成功解析Schema文件: {}, 包含{}个Schema", sourceName, schemas.size());
+            return ParseResult.success(schemaWithDependencies);
             
         } catch (Exception e) {
             logger.error("解析Schema失败: {}", sourceName, e);
-            return new ParseResult(null, Collections.emptyList(), false, e.getMessage());
+            return ParseResult.failure("解析Schema失败: " + e.getMessage());
         }
     }
     
@@ -491,6 +503,70 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
                 errors.add("EnumType必须有名称");
             } else if (!enumTypeNames.add(enumType.getName())) {
                 errors.add("重复的EnumType名称: " + enumType.getName());
+            }
+        }
+        
+        return new ValidationResult(errors.isEmpty(), errors, warnings);
+    }
+    
+    /**
+     * 验证多个Schema的一致性
+     */
+    public ValidationResult validateSchemas(List<CsdlSchema> schemas) {
+        List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        
+        if (schemas == null || schemas.isEmpty()) {
+            errors.add("Schema列表不能为空");
+            return new ValidationResult(false, errors, warnings);
+        }
+        
+        // 验证每个Schema
+        for (CsdlSchema schema : schemas) {
+            ValidationResult result = validateSchema(schema);
+            if (!result.isValid()) {
+                errors.addAll(result.getErrors());
+                warnings.addAll(result.getWarnings());
+            }
+        }
+        
+        // 验证namespace唯一性
+        Set<String> namespaces = new HashSet<>();
+        for (CsdlSchema schema : schemas) {
+            if (schema.getNamespace() != null) {
+                if (!namespaces.add(schema.getNamespace())) {
+                    errors.add("发现重复的namespace: " + schema.getNamespace());
+                }
+            }
+        }
+        
+        // 验证类型名称在全局的唯一性
+        Set<String> globalTypeNames = new HashSet<>();
+        for (CsdlSchema schema : schemas) {
+            String namespace = schema.getNamespace();
+            
+            // 检查EntityType
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                String fullTypeName = namespace + "." + entityType.getName();
+                if (!globalTypeNames.add(fullTypeName)) {
+                    errors.add("全局重复的类型名称: " + fullTypeName);
+                }
+            }
+            
+            // 检查ComplexType
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                String fullTypeName = namespace + "." + complexType.getName();
+                if (!globalTypeNames.add(fullTypeName)) {
+                    errors.add("全局重复的类型名称: " + fullTypeName);
+                }
+            }
+            
+            // 检查EnumType
+            for (CsdlEnumType enumType : schema.getEnumTypes()) {
+                String fullTypeName = namespace + "." + enumType.getName();
+                if (!globalTypeNames.add(fullTypeName)) {
+                    errors.add("全局重复的类型名称: " + fullTypeName);
+                }
             }
         }
         

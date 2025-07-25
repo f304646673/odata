@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <!-- 第一个Schema: 公司管理 -->
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Company.Management">
+      <EntityType Name="Employee">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="200"/>
+        <Property Name="DepartmentID" Type="Edm.Int32"/>
+      </EntityType>
+      
+      <EntityType Name="Project">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="200" Nullable="false"/>
+        <Property Name="StartDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="EndDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+      
+      <EntityContainer Name="ManagementContainer">
+        <EntitySet Name="Employees" EntityType="Company.Management.Employee"/>
+        <EntitySet Name="Projects" EntityType="Company.Management.Project"/>
+      </EntityContainer>
+    </Schema>
+    
+    <!-- 第二个Schema: 人力资源 -->
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Company.HR">
+      <Using Namespace="Company.Management" Alias="Mgmt"/>
+      
+      <EntityType Name="Department">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="ManagerID" Type="Edm.Int32"/>
+        <NavigationProperty Name="Manager" Type="Company.Management.Employee"/>
+        <NavigationProperty Name="Employees" Type="Collection(Company.Management.Employee)"/>
+      </EntityType>
+      
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="200"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <EnumType Name="EmploymentStatus">
+        <Member Name="FullTime" Value="0"/>
+        <Member Name="PartTime" Value="1"/>
+        <Member Name="Contractor" Value="2"/>
+        <Member Name="Intern" Value="3"/>
+      </EnumType>
+      
+      <EntityContainer Name="HRContainer">
+        <EntitySet Name="Departments" EntityType="Company.HR.Department"/>
+      </EntityContainer>
+    </Schema>
+    
+    <!-- 第三个Schema: 财务 -->
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Company.Finance">
+      <Using Namespace="Company.Management" Alias="Mgmt"/>
+      <Using Namespace="Company.HR" Alias="HR"/>
+      
+      <EntityType Name="Salary">
+        <Key>
+          <PropertyRef Name="EmployeeID"/>
+          <PropertyRef Name="EffectiveDate"/>
+        </Key>
+        <Property Name="EmployeeID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="EffectiveDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+        <Property Name="Amount" Type="Edm.Decimal" Precision="10" Scale="2" Nullable="false"/>
+        <Property Name="Currency" Type="Edm.String" MaxLength="3" Nullable="false"/>
+        <NavigationProperty Name="Employee" Type="Company.Management.Employee"/>
+      </EntityType>
+      
+      <EntityType Name="Budget">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Year" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="DepartmentID" Type="Edm.Int32"/>
+        <Property Name="AllocatedAmount" Type="Edm.Decimal" Precision="12" Scale="2"/>
+        <NavigationProperty Name="Department" Type="Company.HR.Department"/>
+      </EntityType>
+      
+      <EntityContainer Name="FinanceContainer">
+        <EntitySet Name="Salaries" EntityType="Company.Finance.Salary"/>
+        <EntitySet Name="Budgets" EntityType="Company.Finance.Budget"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

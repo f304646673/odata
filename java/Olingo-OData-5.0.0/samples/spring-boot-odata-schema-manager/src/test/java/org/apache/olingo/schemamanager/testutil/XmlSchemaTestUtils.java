@@ -9,9 +9,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
+import org.apache.olingo.schemamanager.parser.ODataSchemaParser.ParseResult;
+import org.apache.olingo.schemamanager.parser.ODataSchemaParser.SchemaWithDependencies;
 
 /**
  * 测试工具类，用于从XML文件加载Schema
@@ -19,14 +23,14 @@ import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
 public class XmlSchemaTestUtils {
     
     private static final String TEST_RESOURCES_BASE = "src/test/resources/xml-schemas";
-    private static final Map<String, CsdlSchema> schemaCache = new HashMap<>();
+    private static final Map<String, ParseResult> schemaCache = new HashMap<>();
     
     /**
-     * 从XML文件加载Schema
+     * 从XML文件加载Schema（支持多个Schema）
      * @param relativePath 相对于test/resources/xml-schemas的路径
-     * @return CsdlSchema对象
+     * @return ParseResult对象，包含所有Schema
      */
-    public static CsdlSchema loadSchemaFromXml(String relativePath) {
+    public static ParseResult loadSchemasFromXml(String relativePath) {
         if (schemaCache.containsKey(relativePath)) {
             return schemaCache.get(relativePath);
         }
@@ -36,11 +40,11 @@ public class XmlSchemaTestUtils {
             OlingoSchemaParserImpl parser = new OlingoSchemaParserImpl();
             
             try (InputStream inputStream = new FileInputStream(xmlPath.toFile())) {
-                OlingoSchemaParserImpl.ParseResult result = parser.parseSchema(inputStream, xmlPath.getFileName().toString());
+                ParseResult result = parser.parseSchema(inputStream, xmlPath.getFileName().toString());
                 
-                if (result.isSuccess() && result.getSchema() != null) {
-                    schemaCache.put(relativePath, result.getSchema());
-                    return result.getSchema();
+                if (result.isSuccess()) {
+                    schemaCache.put(relativePath, result);
+                    return result;
                 } else {
                     throw new RuntimeException("Failed to parse schema from " + relativePath + ": " + result.getErrorMessage());
                 }
@@ -51,10 +55,35 @@ public class XmlSchemaTestUtils {
     }
     
     /**
+     * 从XML文件加载单个Schema（向后兼容）
+     * @param relativePath 相对于test/resources/xml-schemas的路径
+     * @return CsdlSchema对象（如果有多个Schema，返回第一个）
+     */
+    @Deprecated
+    public static CsdlSchema loadSchemaFromXml(String relativePath) {
+        ParseResult result = loadSchemasFromXml(relativePath);
+        return result.getSchema(); // 使用向后兼容方法
+    }
+    
+    /**
      * 从多个XML文件加载多个Schema
+     * @param relativePaths 相对路径数组
+     * @return Schema映射，键为文件路径，值为ParseResult对象
+     */
+    public static Map<String, ParseResult> loadMultipleSchemasFromXml(String... relativePaths) {
+        Map<String, ParseResult> schemas = new HashMap<>();
+        for (String path : relativePaths) {
+            schemas.put(path, loadSchemasFromXml(path));
+        }
+        return schemas;
+    }
+    
+    /**
+     * 从多个XML文件加载多个Schema（向后兼容）
      * @param relativePaths 相对路径数组
      * @return Schema映射，键为文件路径，值为Schema对象
      */
+    @Deprecated
     public static Map<String, CsdlSchema> loadSchemasFromXml(String... relativePaths) {
         Map<String, CsdlSchema> schemas = new HashMap<>();
         for (String path : relativePaths) {
@@ -96,6 +125,52 @@ public class XmlSchemaTestUtils {
      */
     public static CsdlSchema loadSimpleSchema() {
         return loadSchemaFromXml("loader/valid/simple-schema.xml");
+    }
+    
+    /**
+     * 加载多Schema的XML文件（用于多Schema测试）
+     */
+    public static ParseResult loadMultiSchemaXml() {
+        return loadSchemasFromXml("loader/multi-schema/multi-schema.xml");
+    }
+    
+    /**
+     * 加载具有重复namespace的多Schema XML（用于错误测试）
+     */
+    public static ParseResult loadDuplicateNamespaceSchemaXml() {
+        try {
+            Path xmlPath = Paths.get(TEST_RESOURCES_BASE, "loader/multi-schema/duplicate-namespace-schema.xml");
+            OlingoSchemaParserImpl parser = new OlingoSchemaParserImpl();
+            
+            try (InputStream inputStream = new FileInputStream(xmlPath.toFile())) {
+                ParseResult result = parser.parseSchema(inputStream, xmlPath.getFileName().toString());
+                return result; // 直接返回结果，不管成功还是失败
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load schema from loader/multi-schema/duplicate-namespace-schema.xml", e);
+        }
+    }
+    
+    /**
+     * 验证XML文件是否包含多个Schema
+     */
+    public static boolean hasMultipleSchemas(String relativePath) {
+        ParseResult result = loadSchemasFromXml(relativePath);
+        return result.hasMultipleSchemas();
+    }
+    
+    /**
+     * 获取XML文件中的所有Schema的namespace
+     */
+    public static List<String> getSchemaNamespaces(String relativePath) {
+        ParseResult result = loadSchemasFromXml(relativePath);
+        List<String> namespaces = new ArrayList<>();
+        for (SchemaWithDependencies schemaWithDeps : result.getSchemas()) {
+            if (schemaWithDeps.getNamespace() != null) {
+                namespaces.add(schemaWithDeps.getNamespace());
+            }
+        }
+        return namespaces;
     }
     
     /**
