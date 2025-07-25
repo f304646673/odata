@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema Namespace="Sub1NS" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <EntityType Name="Sub1Entity">
+    <Key><PropertyRef Name="ID"/></Key>
+    <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+    <Property Name="Value" Type="Edm.String"/>
+  </EntityType>
+</Schema>

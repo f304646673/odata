@@ -53,7 +53,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
             mockSchema, new ArrayList<>(), true, null
         );
         when(parser.parseSchema(any(), anyString())).thenReturn(mockParseResult);
-        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/valid/simple-schema.xml");
+        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("loader/valid/simple-schema.xml");
         assertNotNull(result);
         assertEquals(1, result.getTotalFiles());
         assertEquals(1, result.getSuccessfulFiles());
@@ -65,7 +65,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
     @Test
     void testLoadSingleFileFromResource_ResourceNotFound() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            loader.loadSingleFileFromResource("xml-schemas/not-exist.xml");
+            loader.loadSingleFileFromResource("loader/not-exist.xml");
         });
         assertTrue(ex.getMessage().contains("Resource not found"));
         verify(repository, never()).addSchema(any(), anyString());
@@ -78,7 +78,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
         );
         when(parser.parseSchema(any(), anyString())).thenReturn(failResult);
         
-        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/invalid/malformed-xml.xml");
+        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("loader/invalid/malformed-xml.xml");
         assertNotNull(result);
         assertEquals(1, result.getTotalFiles());
         assertEquals(0, result.getSuccessfulFiles());
@@ -91,7 +91,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
     @Test
     void testLoadSingleFileFromResource_ParserThrowsException() {
         when(parser.parseSchema(any(), anyString())).thenThrow(new RuntimeException("Mock parser exception"));
-        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/valid/simple-schema.xml");
+        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("loader/valid/simple-schema.xml");
         assertNotNull(result);
         assertEquals(1, result.getTotalFiles());
         assertEquals(0, result.getSuccessfulFiles());

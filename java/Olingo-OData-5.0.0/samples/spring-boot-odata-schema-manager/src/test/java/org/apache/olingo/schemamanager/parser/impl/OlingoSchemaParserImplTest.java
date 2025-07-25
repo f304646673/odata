@@ -474,7 +474,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_SimpleSchema() throws IOException {
         // 测试解析简单的Schema
-        String resourcePath = "src/test/resources/xml-schemas/valid/simple-schema.xml";
+        String resourcePath = "src/test/resources/loader/valid/simple-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "simple-schema.xml");
 
@@ -499,7 +499,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_ComplexTypesSchema() throws IOException {
         // 测试解析包含ComplexType的Schema
-        String resourcePath = "src/test/resources/xml-schemas/valid/complex-types-schema.xml";
+        String resourcePath = "src/test/resources/loader/valid/complex-types-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "complex-types-schema.xml");
 
@@ -540,7 +540,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_FullSchema() throws IOException {
         // 测试解析完整的Schema（包含EntityType、ComplexType、EnumType、NavigationProperty）
-        String resourcePath = "src/test/resources/xml-schemas/valid/full-schema.xml";
+        String resourcePath = "src/test/resources/loader/valid/full-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "full-schema.xml");
 
@@ -587,7 +587,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_MalformedXml() throws IOException {
         // 测试解析格式错误的XML
-        String resourcePath = "src/test/resources/xml-schemas/invalid/malformed-xml.xml";
+        String resourcePath = "src/test/resources/loader/invalid/malformed-xml.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "malformed-xml.xml");
             // 期望解析失败而不是抛出异常
@@ -600,7 +600,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_LargeSchema() throws IOException {
         // 测试解析大型Schema的性能
-        String resourcePath = "src/test/resources/xml-schemas/performance/large-schema.xml";
+        String resourcePath = "src/test/resources/loader/performance/large-schema.xml";
         
         long startTime = System.currentTimeMillis();
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
@@ -634,7 +634,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_CircularDependencySchema() throws IOException {
         // 测试解析包含循环依赖的Schema
-        String resourcePath = "src/test/resources/xml-schemas/complex/circular-dependency-schema.xml";
+        String resourcePath = "src/test/resources/loader/complex/circular-dependency-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "circular-dependency-schema.xml");
 
@@ -671,7 +671,7 @@ class OlingoSchemaParserImplTest {
     @Test
     void testParseSchema_FromTestResources_MultiDependencySchema() throws IOException {
         // 测试解析复杂依赖关系的Schema
-        String resourcePath = "src/test/resources/xml-schemas/complex/multi-dependency-schema.xml";
+        String resourcePath = "src/test/resources/loader/complex/multi-dependency-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "multi-dependency-schema.xml");
 
@@ -713,14 +713,14 @@ class OlingoSchemaParserImplTest {
     void testTestResourcesAvailability() {
         // 验证所有测试资源文件都可用
         String[] testResourcePaths = {
-            "src/test/resources/xml-schemas/valid/simple-schema.xml",
-            "src/test/resources/xml-schemas/valid/complex-types-schema.xml",
-            "src/test/resources/xml-schemas/valid/full-schema.xml",
-            "src/test/resources/xml-schemas/invalid/malformed-xml.xml",
-            "src/test/resources/xml-schemas/invalid/invalid-types.xml",
-            "src/test/resources/xml-schemas/complex/multi-dependency-schema.xml",
-            "src/test/resources/xml-schemas/complex/circular-dependency-schema.xml",
-            "src/test/resources/xml-schemas/performance/large-schema.xml"
+            "src/test/resources/loader/valid/simple-schema.xml",
+            "src/test/resources/loader/valid/complex-types-schema.xml",
+            "src/test/resources/loader/valid/full-schema.xml",
+            "src/test/resources/loader/invalid/malformed-xml.xml",
+            "src/test/resources/loader/invalid/invalid-types.xml",
+            "src/test/resources/loader/complex/multi-dependency-schema.xml",
+            "src/test/resources/loader/complex/circular-dependency-schema.xml",
+            "src/test/resources/loader/performance/large-schema.xml"
         };
 
         for (String resourcePath : testResourcePaths) {

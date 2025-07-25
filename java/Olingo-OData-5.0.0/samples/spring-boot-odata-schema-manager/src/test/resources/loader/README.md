@@ -38,51 +38,51 @@
 ```java
 // 获取资源文件路径
 String resourcePath = getClass().getClassLoader()
-    .getResource("xml-schemas/valid/simple-schema.xml")
+    .getResource("loader/valid/simple-schema.xml")
     .getPath();
 
 // 或者使用相对路径
-Path testResourcePath = Paths.get("src/test/resources/xml-schemas/valid");
+Path testResourcePath = Paths.get("src/test/resources/loader/valid");
 ```
 
 ### 目录扫描测试
 ```java
 // 测试多文件目录扫描
-String multiFileDir = "src/test/resources/xml-schemas/multi-file";
+String multiFileDir = "src/test/resources/loader/multi-file";
 
 // 测试空目录处理
-String emptyDir = "src/test/resources/xml-schemas/empty-directory";
+String emptyDir = "src/test/resources/loader/empty-directory";
 ```
 
 ### 错误处理测试
 ```java
 // 测试格式错误的XML文件
-String malformedXml = "src/test/resources/xml-schemas/invalid/malformed-xml.xml";
+String malformedXml = "src/test/resources/loader/invalid/malformed-xml.xml";
 
 // 测试非XML文件
-String notXmlFile = "src/test/resources/xml-schemas/invalid/not-xml.txt";
+String notXmlFile = "src/test/resources/loader/invalid/not-xml.txt";
 ```
 
 ### 依赖分析测试
 ```java
 // 测试复杂依赖关系
-String complexDeps = "src/test/resources/xml-schemas/complex/multi-dependency-schema.xml";
+String complexDeps = "src/test/resources/loader/complex/multi-dependency-schema.xml";
 
 // 测试循环依赖检测
-String circularDeps = "src/test/resources/xml-schemas/complex/circular-dependency-schema.xml";
+String circularDeps = "src/test/resources/loader/complex/circular-dependency-schema.xml";
 ```
 
 ### 性能测试
 ```java
 // 测试大型Schema处理性能
-String largeSchema = "src/test/resources/xml-schemas/performance/large-schema.xml";
+String largeSchema = "src/test/resources/loader/performance/large-schema.xml";
 ```
 
 ### Schema合并测试
 ```java
 // 测试Schema合并功能
-String baseSchema = "src/test/resources/xml-schemas/merge-test/base-schema.xml";
-String extensionSchema = "src/test/resources/xml-schemas/merge-test/extension-schema.xml";
+String baseSchema = "src/test/resources/loader/merge-test/base-schema.xml";
+String extensionSchema = "src/test/resources/loader/merge-test/extension-schema.xml";
 ```
 
 ## 注意事项

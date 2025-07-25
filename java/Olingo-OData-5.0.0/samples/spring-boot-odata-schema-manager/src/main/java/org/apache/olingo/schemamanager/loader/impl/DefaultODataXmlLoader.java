@@ -33,7 +33,7 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
   
     /**
      * 从classpath resource目录递归加载所有XML文件
-     * @param resourceDir 资源目录（如 "xml-schemas/valid"）
+     * @param resourceDir 资源目录（如 "loader/valid"）
      * @return 加载结果
      */
     public LoadResult loadFromResourceDirectory(String resourceDir) {

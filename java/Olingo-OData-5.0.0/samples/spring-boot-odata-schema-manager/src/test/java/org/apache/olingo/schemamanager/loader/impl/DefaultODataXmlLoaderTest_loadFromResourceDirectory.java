@@ -55,7 +55,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
             mockSchema, new ArrayList<>(), true, null
         );
         when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockParseResult);
-        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/valid");
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("loader/valid");
         assertNotNull(result);
         assertTrue(result.getTotalFiles() > 0);
         assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
@@ -67,7 +67,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
 
     @Test
     void testLoadFromResourceDirectory_EmptyDirectory() {
-        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/empty-directory");
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("loader/empty-directory");
         assertNotNull(result);
         assertEquals(0, result.getTotalFiles());
         assertEquals(0, result.getSuccessfulFiles());
@@ -79,7 +79,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
 
     @Test
     void testLoadFromResourceDirectory_DirectoryNotExist() {
-        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/not-exist");
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("loader/not-exist");
         assertNotNull(result);
         assertEquals(0, result.getTotalFiles());
         assertEquals(0, result.getSuccessfulFiles());
@@ -100,7 +100,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         when(parser.parseSchema(any(InputStream.class), anyString()))
             .thenReturn(results.get(0))
             .thenReturn(results.get(1));
-        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/mixed");
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("loader/mixed");
         assertNotNull(result);
         assertEquals(2, result.getTotalFiles());
         assertEquals(1, result.getSuccessfulFiles());
@@ -118,7 +118,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
             mockSchema, new ArrayList<>(), true, null
         );
         when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockParseResult);
-        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/with-subdir");
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("loader/with-subdir");
         assertNotNull(result);
         assertEquals(5, result.getTotalFiles());
         assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());

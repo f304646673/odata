@@ -49,7 +49,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
     
     @Test
     void testLoadFromInputStream_Success() throws IOException {
-        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
+        String xmlContent = loadTestResourceAsString("loader/valid/simple-schema.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
         CsdlSchema mockSchema = new CsdlSchema();
         mockSchema.setNamespace("TestService");
@@ -71,7 +71,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
 
     @Test
     void testLoadFromInputStream_ParseFailure() throws IOException {
-        String xmlContent = loadTestResourceAsString("xml-schemas/invalid/malformed-xml.xml");
+        String xmlContent = loadTestResourceAsString("loader/invalid/malformed-xml.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
             null, new ArrayList<>(), false, "Parse error"
