@@ -30,6 +30,27 @@
                 xmlns:annotation="http://docs.oasis-open.org/odata/ns/edm/annotation"
                 Namespace="OData.Demo">
             
+            <Term Name="IsVirtual" Type="Edm.Boolean" DefaultValue="false" AppliesTo="EntityType">
+                <Annotation Term="Core.Description"
+                            String="Indicating this entityType is virtual or not,true means this entityType can't be instantiated."/>
+            </Term>
+            <Term Name="LifecycleStatusStrategy" Type="Edm.String" AppliesTo="EntityType">
+                <Annotation Term="Core.Description"
+                            String="This allows any sub entityType of BuiltInModel.Plt0MrvObject to override the lifecycleStatusStrategy inherited from parent entityType,this value must be any valid BuiltInModel.Plt0LifecycleStatusStrategy instance ncid."/>
+            </Term>
+            <Term Name="RevisionNumberRule" Type="Edm.String" AppliesTo="EntityType">
+                <Annotation Term="Core.Description"
+                            String="This allows any sub entityType of BuiltInModel.Plt0MrvObject to override the revisionNumberRule inherited from parent entityType,this value must be any valid BuiltInModel.Plt0BusinessObjectRevisionNumberRule instance ncid."/>
+            </Term>
+            <Term Name="AutoGenerateCode" Type="Edm.Boolean" AppliesTo="Property">
+                <Annotation Term="Core.Description"
+                            String="If this values is true and the applied property type is Edm.String,then the value of the applied property will be auto generated."/>
+            </Term>
+            <Term Name="ReadOnly" Type="Edm.Boolean" AppliesTo="EntityType Property">
+                <Annotation Term="Core.Description"
+                            String="Marking this property value or this entityType instance that it can only be instantiated once."/>
+            </Term>
+
             <!-- Entity Types -->
             <EntityType Name="Car">
                 <Annotation Term="Org.OData.Core.V1.Description" String="A car entity representing a vehicle with detailed information including model, price, and manufacturer."/>
