@@ -2,6 +2,8 @@ package org.apache.olingo.schemamanager.analyzer.impl;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +39,7 @@ class DefaultTypeDependencyAnalyzerTest_actionFunctionDependencies {
     
     @BeforeEach
     void setUp() throws Exception {
-        analyzer = new DefaultTypeDependencyAnalyzer();
-        
-        // Use reflection to inject repository
-        java.lang.reflect.Field repositoryField = DefaultTypeDependencyAnalyzer.class.getDeclaredField("repository");
-        repositoryField.setAccessible(true);
-        repositoryField.set(analyzer, repository);
+        analyzer = new DefaultTypeDependencyAnalyzer(repository);
         
         // Create test schema with actions and functions
         testSchema = createActionFunctionSchema();

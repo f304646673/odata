@@ -1,4 +1,9 @@
 package org.apache.olingo.schemamanager.controller;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
@@ -76,7 +81,7 @@ class ODataSchemaControllerTest {
     // @Test
     // void testGetAllSchemas_Success() throws Exception {
     //     // Arrange
-    //     Map<String, CsdlSchema> schemas = Map.of("TestService", testSchema);
+    //     Map<String, CsdlSchema> schemas = { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService", testSchema); return map; }();
     //     when(repository.getAllSchemas()).thenReturn(schemas);
 
     //     // Act & Assert
@@ -89,7 +94,7 @@ class ODataSchemaControllerTest {
     // @Test
     // void testGetAllSchemas_DirectCall() {
     //     // Arrange
-    //     Map<String, CsdlSchema> expectedSchemas = Map.of("TestService", testSchema);
+    //     Map<String, CsdlSchema> expectedSchemas = { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService", testSchema); return map; }();
     //     when(repository.getAllSchemas()).thenReturn(expectedSchemas);
 
     //     // Act

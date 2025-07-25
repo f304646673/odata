@@ -1,4 +1,9 @@
 package org.apache.olingo.schemamanager.loader.impl;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 
 import java.util.ArrayList;
 

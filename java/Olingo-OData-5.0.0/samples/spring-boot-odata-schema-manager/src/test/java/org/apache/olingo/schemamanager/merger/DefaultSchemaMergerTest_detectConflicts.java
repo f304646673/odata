@@ -3,6 +3,10 @@ package org.apache.olingo.schemamanager.merger;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;

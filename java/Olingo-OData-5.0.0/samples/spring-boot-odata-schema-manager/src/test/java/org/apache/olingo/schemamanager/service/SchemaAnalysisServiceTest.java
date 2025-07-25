@@ -1,4 +1,6 @@
 package org.apache.olingo.schemamanager.service;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.olingo.schemamanager.analyzer.ODataSchemaAnalyzer;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,8 +46,8 @@ class SchemaAnalysisServiceTest {
         
     //     successResult = new ODataSchemaAnalyzer.AnalysisResult(
     //         true, new ArrayList<>(), new ArrayList<>(), 
-    //         Map.of("TestService.Customer", Set.of("TestService.Address")),
-    //         Map.of("TestService.Customer", "customer.xml"),
+    //         { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService.Customer", Set.of("TestService.Address"); return map; }()),
+    //         { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService.Customer", "customer.xml"); return map; }(),
     //         validImport
     //     );
 
@@ -115,7 +120,7 @@ class SchemaAnalysisServiceTest {
     //     String directoryPath = "/invalid/path";
         
     //     when(analyzer.analyzeDirectory(directoryPath)).thenReturn(failureResult);
-    //     when(analyzer.getStatistics()).thenReturn(Map.of("Total Schemas", 0));
+    //     when(analyzer.getStatistics()).thenReturn({ Map<String, CsdlSchema> map = new HashMap<>(); map.put("Total Schemas", 0); return map; }());
     //     when(analyzer.searchTypes("")).thenReturn(new ArrayList<>());
     //     when(analyzer.searchTypes("Type")).thenReturn(new ArrayList<>());
     //     when(analyzer.searchTypes("Entity")).thenReturn(new ArrayList<>());
@@ -292,7 +297,7 @@ class SchemaAnalysisServiceTest {
     //     List<ODataSchemaAnalyzer.TypeDetailInfo> multipleTypes = Arrays.asList(sampleTypeInfo, secondTypeInfo);
         
     //     when(analyzer.analyzeDirectory(directoryPath)).thenReturn(successResult);
-    //     when(analyzer.getStatistics()).thenReturn(Map.of("Total Types", 2));
+    //     when(analyzer.getStatistics()).thenReturn({ Map<String, CsdlSchema> map = new HashMap<>(); map.put("Total Types", 2); return map; }());
     //     when(analyzer.searchTypes("")).thenReturn(multipleTypes);
     //     when(analyzer.searchTypes("Type")).thenReturn(multipleTypes);
     //     when(analyzer.searchTypes("Entity")).thenReturn(multipleTypes);
@@ -355,13 +360,13 @@ class SchemaAnalysisServiceTest {
     //     List<String> warnings = Arrays.asList("Warning: deprecated type usage");
     //     ODataSchemaAnalyzer.AnalysisResult partialResult = new ODataSchemaAnalyzer.AnalysisResult(
     //         true, new ArrayList<>(), warnings, 
-    //         Map.of("TestService.Customer", Set.of("TestService.Address")),
-    //         Map.of("TestService.Customer", "customer.xml"),
+    //         { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService.Customer", Set.of("TestService.Address"); return map; }()),
+    //         { Map<String, CsdlSchema> map = new HashMap<>(); map.put("TestService.Customer", "customer.xml"); return map; }(),
     //         successResult.getImportValidation()
     //     );
         
     //     when(analyzer.analyzeDirectory(directoryPath)).thenReturn(partialResult);
-    //     when(analyzer.getStatistics()).thenReturn(Map.of("Warnings", 1));
+    //     when(analyzer.getStatistics()).thenReturn({ Map<String, CsdlSchema> map = new HashMap<>(); map.put("Warnings", 1); return map; }());
     //     when(analyzer.searchTypes("")).thenReturn(new ArrayList<>());
     //     when(analyzer.searchTypes("Type")).thenReturn(new ArrayList<>());
     //     when(analyzer.searchTypes("Entity")).thenReturn(new ArrayList<>());

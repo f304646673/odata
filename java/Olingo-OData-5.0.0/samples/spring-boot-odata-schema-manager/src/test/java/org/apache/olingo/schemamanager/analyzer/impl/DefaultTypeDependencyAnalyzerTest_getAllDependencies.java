@@ -1,6 +1,10 @@
 package org.apache.olingo.schemamanager.analyzer.impl;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
@@ -29,12 +33,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies {
     
     @BeforeEach
     void setUp() throws Exception {
-        analyzer = new DefaultTypeDependencyAnalyzer();
-        
-        // Use reflection to inject repository
-        java.lang.reflect.Field repositoryField = DefaultTypeDependencyAnalyzer.class.getDeclaredField("repository");
-        repositoryField.setAccessible(true);
-        repositoryField.set(analyzer, repository);
+        analyzer = new DefaultTypeDependencyAnalyzer(repository);
         
         // Create test schema with deep dependency chain
         testSchema = createDeepDependencySchema();

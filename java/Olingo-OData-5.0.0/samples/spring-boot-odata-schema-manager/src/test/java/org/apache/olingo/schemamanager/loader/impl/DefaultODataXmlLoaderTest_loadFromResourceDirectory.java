@@ -2,6 +2,11 @@ package org.apache.olingo.schemamanager.loader.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
