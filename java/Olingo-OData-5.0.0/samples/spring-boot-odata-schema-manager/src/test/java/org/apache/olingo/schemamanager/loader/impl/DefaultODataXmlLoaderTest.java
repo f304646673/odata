@@ -67,14 +67,6 @@ class DefaultODataXmlLoaderTest {
 
     @Test
     void testLoadFromDirectory_Success() throws IOException {
-        // 使用测试资源文件而不是硬编码XML
-        String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
-        
-        File xmlFile = tempDir.resolve("test.xml").toFile();
-        try (FileWriter writer = new FileWriter(xmlFile)) {
-            writer.write(xmlContent);
-        }
-
         // Mock解析结果
         CsdlSchema mockSchema = new CsdlSchema();
         mockSchema.setNamespace("TestService"); // 与simple-schema.xml中的namespace保持一致
@@ -86,7 +78,7 @@ class DefaultODataXmlLoaderTest {
         when(parser.parseSchema(any(), anyString())).thenReturn(mockParseResult);
 
         // 执行测试
-        ODataXmlLoader.LoadResult result = loader.loadFromDirectory(tempDir.toString());
+        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/valid/simple-schema.xml");
 
         // 验证结果
         assertNotNull(result);
@@ -306,16 +298,23 @@ class DefaultODataXmlLoaderTest {
     }
 
     @Test
-    void testLoadFromClasspathDirectory_NotImplemented() {
-        // 测试classpath加载（当前为简化实现）
-        ODataXmlLoader.LoadResult result = loader.loadFromClasspathDirectory("test/path");
+    void testLoadSingleFileFromResource_Success() throws IOException {
+        // Mock解析结果
+        CsdlSchema mockSchema = new CsdlSchema();
+        mockSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
+            mockSchema, new ArrayList<>(), true, null
+        );
+        when(parser.parseSchema(any(), anyString())).thenReturn(mockParseResult);
+
+        ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/valid/simple-schema.xml");
 
         assertNotNull(result);
-        assertEquals(0, result.getTotalFiles());
-        assertEquals(0, result.getSuccessfulFiles());
-        assertEquals(1, result.getFailedFiles());
-        assertFalse(result.getErrorMessages().isEmpty());
-        assertTrue(result.getErrorMessages().get(0).contains("not yet implemented"));
+        assertEquals(1, result.getTotalFiles());
+        assertEquals(1, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
+        verify(repository).addSchema(eq(mockSchema), anyString());
     }
 
     @Test

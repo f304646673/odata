@@ -22,7 +22,7 @@ public interface ODataXmlLoader {
      * @param classpathDirectory classpath目录路径
      * @return 加载结果
      */
-    LoadResult loadFromClasspathDirectory(String classpathDirectory);
+    LoadResult loadSingleFileFromResource(String classpathDirectory);
     
     /**
      * 加载单个XML文件

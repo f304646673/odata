@@ -1,16 +1,20 @@
 package org.apache.olingo.schemamanager.loader.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认的OData XML加载器实现
@@ -68,10 +72,20 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
     }
     
     @Override
-    public LoadResult loadFromClasspathDirectory(String classpathDirectory) {
-        // 简化实现 - 可以后续扩展
-        List<String> errorMessages = Arrays.asList("Classpath directory loading not yet implemented");
-        return new LoadResult(0, 0, 1, errorMessages, new HashMap<>());
+    public LoadResult loadSingleFileFromResource(String relativePath) {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath);
+        if (inputStream == null) {
+            throw new IllegalArgumentException("Resource not found: " + relativePath);
+        }
+        try {
+            return loadFromInputStream(inputStream, relativePath);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
     
     @Override
