@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace" Alias="TN">
+      
+      <!-- Simple EntityType -->
+      <EntityType Name="User">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+      </EntityType>
+      
+      <!-- Simple ComplexType -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <!-- Simple EntityContainer -->
+      <EntityContainer Name="Container">
+        <EntitySet Name="Users" EntityType="TN.User"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

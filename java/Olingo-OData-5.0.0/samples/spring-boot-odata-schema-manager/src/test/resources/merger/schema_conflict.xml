@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace" Alias="TM">
+      
+      <!-- Conflicting Entity Type with same name but different structure -->
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="FirstName" Type="Edm.String" MaxLength="50"/>
+        <Property Name="LastName" Type="Edm.String" MaxLength="50"/>
+        <Property Name="ContactInfo" Type="TestNamespace.ContactInfo"/>
+      </EntityType>
+      
+      <!-- Conflicting Complex Type -->
+      <ComplexType Name="Address">
+        <Property Name="FullAddress" Type="Edm.String" MaxLength="200"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <!-- Conflicting Enum Type -->
+      <EnumType Name="OrderStatus">
+        <Member Name="New" Value="0"/>
+        <Member Name="InProgress" Value="1"/>
+        <Member Name="Complete" Value="2"/>
+        <Member Name="Cancelled" Value="3"/>
+      </EnumType>
+      
+      <!-- Conflicting Function with same name and parameters -->
+      <Function Name="GetCustomerByEmail">
+        <Parameter Name="email" Type="Edm.String"/>
+        <ReturnType Type="Collection(TestNamespace.Customer)"/>
+      </Function>
+      
+      <!-- Conflicting Action -->
+      <Action Name="UpdateCustomer">
+        <Parameter Name="customerId" Type="Edm.Int32"/>
+        <Parameter Name="data" Type="TestNamespace.Customer"/>
+      </Action>
+      
+      <!-- Conflicting Term -->
+      <Term Name="DisplayName" Type="Edm.Int32"/>
+      
+      <!-- Conflicting Type Definition -->
+      <TypeDefinition Name="CustomerId" UnderlyingType="Edm.String"/>
+      
+      <!-- Conflicting Entity Container -->
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="Customers" EntityType="TestNamespace.Customer"/>
+        <EntitySet Name="CustomerProfiles" EntityType="TestNamespace.Customer"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

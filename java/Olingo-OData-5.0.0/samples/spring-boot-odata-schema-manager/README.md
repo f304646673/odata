@@ -91,7 +91,7 @@ LoadResult result = xmlLoader.loadFromResourceDirectory("/path/to/xml/files");
 Map<String, CsdlSchema> schemas = repository.getAllSchemas();
 
 // 3. 合并Schema
-Map<String, CsdlSchema> mergedSchemas = schemaMerger.mergeByNamespace(schemas);
+// Map<String, CsdlSchema> mergedSchemas = schemaMerger.mergeByNamespace(schemas);
 
 // 4. 分析依赖
 CsdlEntityType entityType = repository.getEntityType("Namespace.EntityTypeName");

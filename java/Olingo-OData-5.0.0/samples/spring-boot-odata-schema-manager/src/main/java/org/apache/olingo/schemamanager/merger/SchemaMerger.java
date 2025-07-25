@@ -2,124 +2,86 @@ package org.apache.olingo.schemamanager.merger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
 /**
  * Schema merger interface
- * Responsible for merging Schema information with the same namespace
+ * Responsible for merging schemas grouped by namespace
  * Supports comprehensive schema element merging including EntityTypes, ComplexTypes, 
  * EnumTypes, Actions, Functions, Terms, TypeDefinitions, and EntityContainers
  */
 public interface SchemaMerger {
     
     /**
-     * Merge multiple schemas with the same namespace
-     * @param schemas List of schemas to merge
-     * @return Merge result with detailed information
+     * Merge multiple schemas, grouping by namespace and merging schemas with the same namespace
+     * Uses default conflict resolution (THROW_ERROR)
+     * @param schemas List of schemas to merge (can have different namespaces)
+     * @return Merge result with detailed information containing one merged schema per namespace
      */
     MergeResult mergeSchemas(List<CsdlSchema> schemas);
     
     /**
-     * Merge multiple schemas with the same namespace using specified conflict resolution
-     * @param schemas List of schemas to merge
+     * Merge multiple schemas, grouping by namespace and merging schemas with the same namespace
+     * @param schemas List of schemas to merge (can have different namespaces)
      * @param resolution Conflict resolution strategy
-     * @return Merge result with detailed information
+     * @return Merge result with detailed information containing one merged schema per namespace
      */
     MergeResult mergeSchemas(List<CsdlSchema> schemas, ConflictResolution resolution);
     
-    /**
-     * Merge all schemas grouped by namespace
-     * @param schemaMap Schema mapping (filePath -> schema)
-     * @return Merged schemas grouped by namespace
-     */
-    Map<String, CsdlSchema> mergeByNamespace(Map<String, CsdlSchema> schemaMap);
     
     /**
-     * Merge all schemas grouped by namespace with specified conflict resolution
-     * @param schemaMap Schema mapping (filePath -> schema)
-     * @param resolution Conflict resolution strategy
-     * @return Merged schemas grouped by namespace
-     */
-    Map<String, CsdlSchema> mergeByNamespace(Map<String, CsdlSchema> schemaMap, ConflictResolution resolution);
-    
-    /**
-     * Check compatibility between two schemas
-     * @param existingSchema Existing schema
-     * @param newSchema New schema to merge
-     * @return Compatibility check result
-     */
-    CompatibilityResult checkCompatibility(CsdlSchema existingSchema, CsdlSchema newSchema);
-    
-    /**
-     * Resolve conflicts between schemas
-     * @param conflictingSchemas List of conflicting schemas
-     * @param resolution Conflict resolution strategy
-     * @return Resolved schema
-     */
-    CsdlSchema resolveConflicts(List<CsdlSchema> conflictingSchemas, ConflictResolution resolution);
-    
-    
-    /**
-     * Merge result class containing detailed merge information
+     * Merge result class containing detailed merge information for multiple namespaces
      */
     class MergeResult {
-        private final CsdlSchema mergedSchema;
+        private final List<CsdlSchema> mergedSchemas;
         private final List<String> warnings;
         private final List<String> errors;
         private final List<ConflictInfo> conflicts;
         private final boolean success;
         
-        public MergeResult(CsdlSchema mergedSchema, List<String> warnings, List<String> errors, 
+        public MergeResult(List<CsdlSchema> mergedSchemas, List<String> warnings, List<String> errors, 
                           List<ConflictInfo> conflicts, boolean success) {
-            this.mergedSchema = mergedSchema;
-            this.warnings = warnings;
-            this.errors = errors;
-            this.conflicts = conflicts;
+            this.mergedSchemas = mergedSchemas != null ? new ArrayList<>(mergedSchemas) : new ArrayList<>();
+            this.warnings = warnings != null ? warnings : new ArrayList<>();
+            this.errors = errors != null ? errors : new ArrayList<>();
+            this.conflicts = conflicts != null ? conflicts : new ArrayList<>();
             this.success = success;
         }
         
-        // Backward compatibility constructor
-        public MergeResult(CsdlSchema mergedSchema, List<String> warnings, List<String> errors, boolean success) {
-            this(mergedSchema, warnings, errors, new ArrayList<>(), success);
-        }
-        
         // Getters
-        public CsdlSchema getMergedSchema() { return mergedSchema; }
+        public List<CsdlSchema> getMergedSchemas() { return new ArrayList<>(mergedSchemas); }
         public List<String> getWarnings() { return warnings; }
         public List<String> getErrors() { return errors; }
         public List<ConflictInfo> getConflicts() { return conflicts; }
         public boolean isSuccess() { return success; }
-    }
-    
-    /**
-     * Compatibility check result class
-     */
-    class CompatibilityResult {
-        private final boolean compatible;
-        private final List<String> conflicts;
-        private final List<String> warnings;
-        private final List<ConflictInfo> detailedConflicts;
         
-        public CompatibilityResult(boolean compatible, List<String> conflicts, List<String> warnings, 
-                                 List<ConflictInfo> detailedConflicts) {
-            this.compatible = compatible;
-            this.conflicts = conflicts;
-            this.warnings = warnings;
-            this.detailedConflicts = detailedConflicts;
+        /**
+         * Get merged schema for a specific namespace
+         * @param namespace The namespace to search for
+         * @return The merged schema for the namespace, or null if not found
+         */
+        public CsdlSchema getSchemaByNamespace(String namespace) {
+            for (CsdlSchema schema : mergedSchemas) {
+                if ((namespace == null && schema.getNamespace() == null) ||
+                    (namespace != null && namespace.equals(schema.getNamespace()))) {
+                    return schema;
+                }
+            }
+            return null;
         }
         
-        // Backward compatibility constructor
-        public CompatibilityResult(boolean compatible, List<String> conflicts, List<String> warnings) {
-            this(compatible, conflicts, warnings, new ArrayList<>());
+        /**
+         * Get all namespaces in the merge result
+         * @return List of namespaces
+         */
+        public List<String> getNamespaces() {
+            List<String> namespaces = new ArrayList<>();
+            for (CsdlSchema schema : mergedSchemas) {
+                namespaces.add(schema.getNamespace());
+            }
+            return namespaces;
         }
-        
-        // Getters
-        public boolean isCompatible() { return compatible; }
-        public List<String> getConflicts() { return conflicts; }
-        public List<String> getWarnings() { return warnings; }
-        public List<ConflictInfo> getDetailedConflicts() { return detailedConflicts; }
     }
     
     /**
@@ -131,26 +93,31 @@ public interface SchemaMerger {
         private final String description;
         private final Object existingElement;
         private final Object conflictingElement;
+        private final String namespace;
         
         public ConflictInfo(ConflictType type, String elementName, String description, 
-                           Object existingElement, Object conflictingElement) {
+                           Object existingElement, Object conflictingElement, String namespace) {
             this.type = type;
             this.elementName = elementName;
             this.description = description;
             this.existingElement = existingElement;
             this.conflictingElement = conflictingElement;
+            this.namespace = namespace;
+        }
+        
+        // Backward compatibility constructor
+        public ConflictInfo(ConflictType type, String elementName, String description, 
+                           Object existingElement, Object conflictingElement) {
+            this(type, elementName, description, existingElement, conflictingElement, null);
         }
         
         // Getters
-        public ConflictType getConflictType() { return type; }
         public ConflictType getType() { return type; }
         public String getElementName() { return elementName; }
         public String getDescription() { return description; }
-        public String getMessage() { return description; }
         public Object getExistingElement() { return existingElement; }
-        public Object getFirstElement() { return existingElement; }
         public Object getConflictingElement() { return conflictingElement; }
-        public Object getSecondElement() { return conflictingElement; }
+        public String getNamespace() { return namespace; }
     }
     
     /**
