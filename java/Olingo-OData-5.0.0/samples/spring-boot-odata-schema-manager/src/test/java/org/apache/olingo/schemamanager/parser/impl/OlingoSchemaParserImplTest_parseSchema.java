@@ -1,10 +1,4 @@
 package org.apache.olingo.schemamanager.parser.impl;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Arrays;
-
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -44,10 +38,11 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "simple-schema.xml");
             
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
             assertNull(result.getErrorMessage());
-            assertEquals("TestService", result.getSchema().getNamespace());
-            assertNotNull(result.getDependencies());
+            assertEquals("TestService", result.getSchemas().get(0).getSchema().getNamespace());
+            assertNotNull(result.getSchemas().get(0).getDependencies());
         }
     }
 
@@ -60,10 +55,11 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "full-schema.xml");
             
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
             assertNull(result.getErrorMessage());
             
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema.getNamespace());
             assertFalse(schema.getEntityTypes().isEmpty());
             assertNotNull(schema.getEntityContainer());
@@ -79,10 +75,11 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "complex-types-schema.xml");
             
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
             assertNull(result.getErrorMessage());
             
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertFalse(schema.getComplexTypes().isEmpty());
         }
     }
@@ -96,9 +93,10 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "multi-dependency-schema.xml");
             
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
             assertNull(result.getErrorMessage());
-            assertNotNull(result.getDependencies());
+            assertNotNull(result.getSchemas().get(0).getDependencies());
         }
     }
 
@@ -111,9 +109,9 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "malformed-xml.xml");
             
             assertFalse(result.isSuccess());
-            assertNull(result.getSchema());
+            assertEquals(0, result.getSchemaCount());
             assertNotNull(result.getErrorMessage());
-            assertTrue(result.getDependencies().isEmpty());
+            assertTrue(result.getSchemas().isEmpty());
         }
     }
 
@@ -138,7 +136,7 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "empty.xml");
             
             assertFalse(result.isSuccess());
-            assertNull(result.getSchema());
+            assertEquals(0, result.getSchemaCount());
             assertNotNull(result.getErrorMessage());
         }
     }
@@ -151,7 +149,7 @@ class OlingoSchemaParserImplTest_parseSchema {
             ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "invalid.xml");
             
             assertFalse(result.isSuccess());
-            assertNull(result.getSchema());
+            assertEquals(0, result.getSchemaCount());
             assertNotNull(result.getErrorMessage());
         }
     }
@@ -166,7 +164,8 @@ class OlingoSchemaParserImplTest_parseSchema {
             
             // 应该能正常解析，即使sourceName为null
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
         }
     }
 
@@ -180,7 +179,8 @@ class OlingoSchemaParserImplTest_parseSchema {
             
             // 解析本身应该成功，循环依赖检测在后续步骤
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
         }
     }
 
@@ -195,7 +195,8 @@ class OlingoSchemaParserImplTest_parseSchema {
             long endTime = System.currentTimeMillis();
             
             assertTrue(result.isSuccess());
-            assertNotNull(result.getSchema());
+            assertTrue(result.getSchemaCount() > 0);
+            assertNotNull(result.getSchemas().get(0).getSchema());
             
             // 简单的性能断言（应该在合理时间内完成）
             assertTrue(endTime - startTime < 5000, "Parse should complete within 5 seconds");

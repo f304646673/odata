@@ -58,7 +58,15 @@ public class XmlSchemaTestUtils {
     @Deprecated
     public static CsdlSchema loadSchemaFromXml(String relativePath) {
         ParseResult result = loadSchemasFromXml(relativePath);
-        return result.getFirstSchema(); // 使用新的向后兼容方法
+        if (!result.isSuccess()) {
+            throw new RuntimeException("Failed to load schema from: " + relativePath + ". Error: " + result.getErrorMessage());
+        }
+        
+        if (result.getSchemaCount() == 0) {
+            throw new RuntimeException("No schemas found in: " + relativePath);
+        }
+        
+        return result.getSchemas().get(0).getSchema(); // 使用新的API
     }
     
     /**

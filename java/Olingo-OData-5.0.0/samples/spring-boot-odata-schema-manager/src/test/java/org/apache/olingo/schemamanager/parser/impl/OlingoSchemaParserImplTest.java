@@ -6,11 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -125,9 +120,10 @@ class OlingoSchemaParserImplTest {
 
         assertNotNull(result);
         assertTrue(result.isSuccess());
+        assertTrue(result.getSchemaCount() > 0);
         assertNull(result.getErrorMessage());
         
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         assertNotNull(schema);
         assertEquals("TestService", schema.getNamespace());
         
@@ -161,12 +157,12 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertTrue(result.isSuccess());
         
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         assertNotNull(schema);
         assertEquals("MainService", schema.getNamespace());
         
         // 验证依赖关系
-        List<String> dependencies = result.getDependencies();
+        List<String> dependencies = result.getSchemas().get(0).getDependencies();
         assertNotNull(dependencies);
         assertTrue(dependencies.contains("ExternalService"));
     }
@@ -181,11 +177,11 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertTrue(result.isSuccess());
         
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         assertNotNull(schema);
         assertEquals("EmptyService", schema.getNamespace());
         
-        // 验证空集合
+        // Verify empty collections
         assertTrue(schema.getEntityTypes() == null || schema.getEntityTypes().isEmpty());
         assertTrue(schema.getComplexTypes() == null || schema.getComplexTypes().isEmpty());
         assertTrue(schema.getEnumTypes() == null || schema.getEnumTypes().isEmpty());
@@ -201,7 +197,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertNotNull(result.getErrorMessage());
-        assertNull(result.getSchema());
+        assertEquals(0, result.getSchemaCount());
     }
 
     @Test
@@ -211,7 +207,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertNotNull(result.getErrorMessage());
-        assertNull(result.getSchema());
+        assertEquals(0, result.getSchemaCount());
     }
 
     @Test
@@ -223,7 +219,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertNotNull(result.getErrorMessage());
-        assertNull(result.getSchema());
+        assertEquals(0, result.getSchemaCount());
     }
 
     @Test
@@ -236,7 +232,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertNotNull(result.getErrorMessage());
-        assertNull(result.getSchema());
+        assertEquals(0, result.getSchemaCount());
     }
 
     @Test
@@ -245,7 +241,7 @@ class OlingoSchemaParserImplTest {
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "test-schema.xml");
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         
         List<String> dependencies = parser.extractDependencies(schema);
         
@@ -260,7 +256,7 @@ class OlingoSchemaParserImplTest {
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "test-schema.xml");
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         
         List<String> dependencies = parser.extractDependencies(schema);
         
@@ -282,7 +278,7 @@ class OlingoSchemaParserImplTest {
         InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
 
         ODataSchemaParser.ParseResult result = parser.parseSchema(inputStream, "test-schema.xml");
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         
         ODataSchemaParser.ValidationResult validationResult = parser.validateSchema(schema);
         
@@ -342,7 +338,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertTrue(result.isSuccess());
         
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         assertNotNull(schema);
         assertEquals("ComplexService", schema.getNamespace());
         
@@ -381,7 +377,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
             
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
             assertNotNull(schema.getEntityTypes());
@@ -400,7 +396,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertNotNull(result.getErrorMessage());
-        assertNull(result.getSchema());
+        assertEquals(0, result.getSchemaCount());
     }
 
     @Test
@@ -435,7 +431,7 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertTrue(result.isSuccess());
         
-        CsdlSchema schema = result.getSchema();
+        CsdlSchema schema = result.getSchemas().get(0).getSchema();
         assertNotNull(schema);
         assertEquals("LargeService", schema.getNamespace());
         assertEquals(50, schema.getEntityTypes().size());
@@ -468,17 +464,17 @@ class OlingoSchemaParserImplTest {
         assertNotNull(result);
         assertTrue(result.isSuccess());
         
-        List<String> dependencies = result.getDependencies();
+        List<String> dependencies = result.getSchemas().get(0).getDependencies();
         assertNotNull(dependencies);
         assertTrue(dependencies.contains("Service2"));
         assertTrue(dependencies.contains("Service3"));
     }
 
-    // ==== 使用测试资源文件的测试方法 ====
+    // Test methods using test resource files
 
     @Test
     void testParseSchema_FromTestResources_SimpleSchema() throws IOException {
-        // 测试解析简单的Schema
+        // Test parsing simple Schema
         String resourcePath = "src/test/resources/xml-schemas/loader/valid/simple-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "simple-schema.xml");
@@ -486,7 +482,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 
@@ -511,7 +507,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 
@@ -544,7 +540,7 @@ class OlingoSchemaParserImplTest {
 
     @Test
     void testParseSchema_FromTestResources_FullSchema() throws IOException {
-        // 测试解析完整的Schema（包含EntityType、ComplexType、EnumType、NavigationProperty）
+        // Test parsing complete Schema (including EntityType, ComplexType, EnumType, NavigationProperty)
         String resourcePath = "src/test/resources/xml-schemas/loader/valid/full-schema.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "full-schema.xml");
@@ -552,7 +548,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 
@@ -595,7 +591,7 @@ class OlingoSchemaParserImplTest {
         String resourcePath = "src/test/resources/xml-schemas/loader/invalid/malformed-xml.xml";
         try (FileInputStream fis = new FileInputStream(resourcePath)) {
             ODataSchemaParser.ParseResult result = parser.parseSchema(fis, "malformed-xml.xml");
-            // 期望解析失败而不是抛出异常
+            // Expect parsing to fail rather than throw exception
             assertNotNull(result);
             assertFalse(result.isSuccess());
             assertNotNull(result.getErrorMessage());
@@ -614,7 +610,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 
@@ -646,15 +642,15 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 
-            // 验证循环依赖的ComplexTypes
+            // Verify circular dependency ComplexTypes
             assertNotNull(schema.getComplexTypes());
             assertTrue(schema.getComplexTypes().size() >= 5); // CircularA, CircularB, CircularX, CircularY, CircularZ
 
-            // 验证CircularA和CircularB的相互引用
+            // Verify mutual reference between CircularA and CircularB
             boolean foundCircularA = schema.getComplexTypes().stream()
                 .anyMatch(ct -> "CircularA".equals(ct.getName()));
             assertTrue(foundCircularA);
@@ -683,7 +679,7 @@ class OlingoSchemaParserImplTest {
             assertNotNull(result);
             assertTrue(result.isSuccess());
 
-            CsdlSchema schema = result.getSchema();
+            CsdlSchema schema = result.getSchemas().get(0).getSchema();
             assertNotNull(schema);
             assertEquals("TestService", schema.getNamespace());
 

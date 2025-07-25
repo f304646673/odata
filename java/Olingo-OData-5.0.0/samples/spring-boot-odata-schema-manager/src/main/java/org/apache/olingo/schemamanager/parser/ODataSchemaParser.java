@@ -91,36 +91,6 @@ public interface ODataSchemaParser {
                 .findFirst()
                 .orElse(null);
         }
-        
-        // 向后兼容方法
-        /**
-         * @deprecated 请使用 getSchemas() 来处理多个Schema
-         */
-        @Deprecated
-        public CsdlSchema getSchema() {
-            return getFirstSchema();
-        }
-        
-        /**
-         * @deprecated 请使用 getSchemas() 来处理多个Schema的依赖
-         */
-        @Deprecated
-        public List<String> getDependencies() {
-            if (schemas.isEmpty()) {
-                return new ArrayList<>();
-            }
-            return new ArrayList<>(schemas.get(0).getDependencies());
-        }
-        
-        /**
-         * 获取第一个Schema（向后兼容）
-         */
-        public CsdlSchema getFirstSchema() {
-            if (schemas.isEmpty()) {
-                return null;
-            }
-            return schemas.get(0).getSchema();
-        }
     }
     
     /**
