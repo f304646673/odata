@@ -6,30 +6,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest_loadFromDirectory {
     @Mock
     private ODataSchemaParser parser;
+
     @Mock
     private SchemaRepository repository;
+
     private DefaultODataXmlLoader loader;
+
     @TempDir
     Path tempDir;
+
     @BeforeEach
     void setUp() throws Exception {
         loader = new DefaultODataXmlLoader();
@@ -40,6 +52,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         repositoryField.setAccessible(true);
         repositoryField.set(loader, repository);
     }
+
     @Test
     void testLoadFromDirectory_Success() throws IOException {
         CsdlSchema mockSchema = new CsdlSchema();
@@ -56,6 +69,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         assertTrue(result.getErrorMessages().isEmpty());
         verify(repository).addSchema(eq(mockSchema), anyString());
     }
+
     @Test
     void testLoadFromDirectory_NonExistentDirectory() {
         ODataXmlLoader.LoadResult result = loader.loadFromDirectory("/non/existent/directory");
@@ -66,6 +80,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         assertFalse(result.getErrorMessages().isEmpty());
         assertTrue(result.getErrorMessages().get(0).contains("Directory not found"));
     }
+
     @Test
     void testLoadFromDirectory_ParseFailure() throws IOException {
         String invalidXmlContent = loadTestResourceAsString("xml-schemas/invalid/malformed-xml.xml");
@@ -85,6 +100,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         assertFalse(result.getErrorMessages().isEmpty());
         verify(repository, never()).addSchema(any(), anyString());
     }
+
     @Test
     void testLoadFromDirectory_EmptyDirectory() {
         ODataXmlLoader.LoadResult result = loader.loadFromDirectory(tempDir.toString());
@@ -94,6 +110,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         assertEquals(0, result.getFailedFiles());
         assertTrue(result.getErrorMessages().isEmpty());
     }
+
     @Test
     void testLoadFromDirectory_RecursiveLoading() throws IOException {
         File subDir = tempDir.resolve("subdir").toFile();
@@ -121,6 +138,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
         assertEquals(0, result.getFailedFiles());
         verify(repository, times(2)).addSchema(eq(mockSchema), anyString());
     }
+
     // ==== 辅助方法 ====
     private String loadTestResourceAsString(String relativePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath)) {
@@ -130,6 +148,7 @@ class DefaultODataXmlLoaderTest_loadFromDirectory {
             return readInputStreamToString(inputStream);
         }
     }
+    
     private String readInputStreamToString(InputStream inputStream) throws IOException {
         StringBuilder sb = new StringBuilder();
         byte[] buffer = new byte[1024];

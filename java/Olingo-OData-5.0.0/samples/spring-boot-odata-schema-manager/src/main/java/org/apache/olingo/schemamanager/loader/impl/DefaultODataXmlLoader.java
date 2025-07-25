@@ -2,6 +2,7 @@ package org.apache.olingo.schemamanager.loader.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
                         failed++;
                         errorMessages.addAll(singleResult.getErrorMessages());
                     }
-                } catch (Exception e) {
+                } catch (java.io.IOException | RuntimeException e) {
                     failed++;
                     errorMessages.add("Error loading file " + file.getAbsolutePath() + ": " + e.getMessage());
                 }
@@ -68,6 +69,87 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
         } catch (Exception e) {
             errorMessages.add("Directory scan error: " + e.getMessage());
             return new LoadResult(0, 0, 1, errorMessages, currentLoaded);
+        }
+    }
+
+    /**
+     * 从classpath resource目录递归加载所有XML文件
+     * @param resourceDir 资源目录（如 "xml-schemas/valid"）
+     * @return 加载结果
+     */
+    public LoadResult loadFromResourceDirectory(String resourceDir) {
+        List<String> errorMessages = new ArrayList<>();
+        Map<String, XmlFileInfo> currentLoaded = new HashMap<>();
+        int total = 0, successful = 0, failed = 0;
+        try {
+            List<String> xmlResourcePaths = listXmlResourcesRecursively(resourceDir);
+            total = xmlResourcePaths.size();
+            for (String path : xmlResourcePaths) {
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream(path)) {
+                    if (is == null) {
+                        failed++;
+                        errorMessages.add("Resource not found: " + path);
+                        continue;
+                    }
+                    LoadResult singleResult = loadFromInputStream(is, path);
+                    if (singleResult.getSuccessfulFiles() > 0) {
+                        successful++;
+                        currentLoaded.putAll(singleResult.getLoadedFiles());
+                    } else {
+                        failed++;
+                        errorMessages.addAll(singleResult.getErrorMessages());
+                    }
+                } catch (Exception e) {
+                    failed++;
+                    errorMessages.add("Error loading resource " + path + ": " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            errorMessages.add("Resource directory scan error: " + e.getMessage());
+            failed = total == 0 ? 1 : total;
+        }
+        return new LoadResult(total, successful, failed, errorMessages, currentLoaded);
+    }
+
+    /**
+     * 递归列出resource目录下所有xml文件的路径（相对classpath）
+     */
+    private List<String> listXmlResourcesRecursively(String resourceDir) throws IOException {
+        List<String> result = new ArrayList<>();
+        java.net.URL dirUrl = getClass().getClassLoader().getResource(resourceDir);
+        if (dirUrl == null) return result;
+        if (dirUrl.getProtocol().equals("file")) {
+            File dir = new File(dirUrl.getPath());
+            if (dir.exists() && dir.isDirectory()) {
+                listXmlFilesFromFileSystem(dir, resourceDir, result);
+            }
+        } else if (dirUrl.getProtocol().equals("jar")) {
+            String jarPath = dirUrl.getPath().substring(5, dirUrl.getPath().indexOf("!"));
+            try (java.util.jar.JarFile jar = new java.util.jar.JarFile(jarPath)) {
+                java.util.Enumeration<java.util.jar.JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    java.util.jar.JarEntry entry = entries.nextElement();
+                    String name = entry.getName();
+                    if (name.startsWith(resourceDir) && name.toLowerCase().endsWith(".xml") && !entry.isDirectory()) {
+                        result.add(name);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private void listXmlFilesFromFileSystem(File dir, String resourceDir, List<String> result) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    listXmlFilesFromFileSystem(file, resourceDir + "/" + file.getName(), result);
+                } else if (file.getName().toLowerCase().endsWith(".xml")) {
+                    String relPath = resourceDir + "/" + file.getName();
+                    result.add(relPath.replace("\\", "/"));
+                }
+            }
         }
     }
     
@@ -82,8 +164,9 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
         } finally {
             try {
                 inputStream.close();
-            } catch (Exception e) {
-                // ignore
+            } catch (java.io.IOException | RuntimeException e) {
+                return new LoadResult(1, 0, 1, 
+                        Arrays.asList("Error closing input stream: " + e.getMessage()), new HashMap<>());
             }
         }
     }

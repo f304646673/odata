@@ -1,28 +1,39 @@
 package org.apache.olingo.schemamanager.loader.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
+
     @Mock
     private ODataSchemaParser parser;
+
     @Mock
     private SchemaRepository repository;
+
     private DefaultODataXmlLoader loader;
+
     @BeforeEach
     void setUp() throws Exception {
         loader = new DefaultODataXmlLoader();
@@ -33,6 +44,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
         repositoryField.setAccessible(true);
         repositoryField.set(loader, repository);
     }
+    
     @Test
     void testLoadSingleFileFromResource_Success() {
         CsdlSchema mockSchema = new CsdlSchema();
@@ -65,6 +77,7 @@ class DefaultODataXmlLoaderTest_loadSingleFileFromResource {
             null, new ArrayList<>(), false, "Parse error!"
         );
         when(parser.parseSchema(any(), anyString())).thenReturn(failResult);
+        
         ODataXmlLoader.LoadResult result = loader.loadSingleFileFromResource("xml-schemas/invalid/malformed-xml.xml");
         assertNotNull(result);
         assertEquals(1, result.getTotalFiles());

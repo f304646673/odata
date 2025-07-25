@@ -16,6 +16,13 @@ public interface ODataXmlLoader {
      * @return 加载结果
      */
     LoadResult loadFromDirectory(String directoryPath);
+
+    /**
+     * 从指定资源目录递归加载所有OData XML文件
+     * @param resourceDir 资源目录路径
+     * @return 加载结果
+     */
+    LoadResult loadFromResourceDirectory(String resourceDir);
     
     /**
      * 从classpath目录递归加载XML文件

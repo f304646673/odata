@@ -6,29 +6,41 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest_loadSingleFile {
     @Mock
     private ODataSchemaParser parser;
+
     @Mock
     private SchemaRepository repository;
+
     private DefaultODataXmlLoader loader;
+
     @TempDir
     Path tempDir;
+
     @BeforeEach
     void setUp() throws Exception {
         loader = new DefaultODataXmlLoader();
@@ -39,6 +51,7 @@ class DefaultODataXmlLoaderTest_loadSingleFile {
         repositoryField.setAccessible(true);
         repositoryField.set(loader, repository);
     }
+
     @Test
     void testLoadSingleFile_Success() throws IOException {
         String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
@@ -60,6 +73,7 @@ class DefaultODataXmlLoaderTest_loadSingleFile {
         assertTrue(result.getErrorMessages().isEmpty());
         verify(repository).addSchema(eq(mockSchema), anyString());
     }
+
     @Test
     void testLoadSingleFile_FileNotFound() {
         ODataXmlLoader.LoadResult result = loader.loadSingleFile("/non/existent/file.xml");
@@ -70,6 +84,7 @@ class DefaultODataXmlLoaderTest_loadSingleFile {
         assertFalse(result.getErrorMessages().isEmpty());
         verify(repository, never()).addSchema(any(), anyString());
     }
+
     private String loadTestResourceAsString(String relativePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath)) {
             if (inputStream == null) {
@@ -78,6 +93,7 @@ class DefaultODataXmlLoaderTest_loadSingleFile {
             return readInputStreamToString(inputStream);
         }
     }
+    
     private String readInputStreamToString(InputStream inputStream) throws IOException {
         StringBuilder sb = new StringBuilder();
         byte[] buffer = new byte[1024];

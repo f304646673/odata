@@ -5,26 +5,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Map;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest_loadFromInputStream {
     @Mock
     private ODataSchemaParser parser;
+
     @Mock
     private SchemaRepository repository;
+
     private DefaultODataXmlLoader loader;
+
     @BeforeEach
     void setUp() throws Exception {
         loader = new DefaultODataXmlLoader();
@@ -35,6 +46,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
         repositoryField.setAccessible(true);
         repositoryField.set(loader, repository);
     }
+    
     @Test
     void testLoadFromInputStream_Success() throws IOException {
         String xmlContent = loadTestResourceAsString("xml-schemas/valid/simple-schema.xml");
@@ -56,6 +68,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
         assertEquals("TestService", loadedFiles.get("test-source").getNamespace());
         verify(repository).addSchema(eq(mockSchema), eq("test-source"));
     }
+
     @Test
     void testLoadFromInputStream_ParseFailure() throws IOException {
         String xmlContent = loadTestResourceAsString("xml-schemas/invalid/malformed-xml.xml");
@@ -73,6 +86,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
         assertTrue(result.getErrorMessages().get(0).contains("Parse error"));
         verify(repository, never()).addSchema(any(), anyString());
     }
+
     private String loadTestResourceAsString(String relativePath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(relativePath)) {
             if (inputStream == null) {
@@ -81,6 +95,7 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
             return readInputStreamToString(inputStream);
         }
     }
+    
     private String readInputStreamToString(InputStream inputStream) throws IOException {
         StringBuilder sb = new StringBuilder();
         byte[] buffer = new byte[1024];

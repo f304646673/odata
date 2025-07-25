@@ -1,0 +1,114 @@
+package org.apache.olingo.schemamanager.loader.impl;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
+import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
+import org.apache.olingo.schemamanager.repository.SchemaRepository;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
+    @Mock
+    private ODataSchemaParser parser;
+    @Mock
+    private SchemaRepository repository;
+    private DefaultODataXmlLoader loader;
+    @BeforeEach
+    void setUp() throws Exception {
+        loader = new DefaultODataXmlLoader();
+        java.lang.reflect.Field parserField = DefaultODataXmlLoader.class.getDeclaredField("parser");
+        parserField.setAccessible(true);
+        parserField.set(loader, parser);
+        java.lang.reflect.Field repositoryField = DefaultODataXmlLoader.class.getDeclaredField("repository");
+        repositoryField.setAccessible(true);
+        repositoryField.set(loader, repository);
+    }
+    @Test
+    void testLoadFromResourceDirectory_Success() {
+        // 假设xml-schemas/valid下有多个xml文件
+        CsdlSchema mockSchema = new CsdlSchema();
+        mockSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
+            mockSchema, new ArrayList<>(), true, null
+        );
+        when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockParseResult);
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/valid");
+        assertNotNull(result);
+        assertTrue(result.getTotalFiles() > 0);
+        assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
+        verify(parser, atLeastOnce()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
+    }
+    @Test
+    void testLoadFromResourceDirectory_EmptyDirectory() {
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/empty-directory");
+        assertNotNull(result);
+        assertEquals(0, result.getTotalFiles());
+        assertEquals(0, result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
+        verify(parser, never()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
+    }
+    @Test
+    void testLoadFromResourceDirectory_DirectoryNotExist() {
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/not-exist");
+        assertNotNull(result);
+        assertEquals(0, result.getTotalFiles());
+        assertEquals(0, result.getSuccessfulFiles());
+        assertTrue(result.getFailedFiles() == 0 || result.getFailedFiles() == 1);
+        assertTrue(result.getErrorMessages().isEmpty() || result.getErrorMessages().get(0).contains("Resource directory scan error"));
+        verify(parser, never()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
+    }
+    @Test
+    void testLoadFromResourceDirectory_WithInvalidXml() {
+        // 有效和无效xml混合
+        List<ODataSchemaParser.ParseResult> results = new ArrayList<>();
+        CsdlSchema validSchema = new CsdlSchema();
+        validSchema.setNamespace("Valid");
+        results.add(new ODataSchemaParser.ParseResult(validSchema, new ArrayList<>(), true, null));
+        results.add(new ODataSchemaParser.ParseResult(null, new ArrayList<>(), false, "Parse error!"));
+        when(parser.parseSchema(any(InputStream.class), anyString()))
+            .thenReturn(results.get(0))
+            .thenReturn(results.get(1));
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/mixed");
+        assertNotNull(result);
+        assertEquals(2, result.getTotalFiles());
+        assertEquals(1, result.getSuccessfulFiles());
+        assertEquals(1, result.getFailedFiles());
+        assertFalse(result.getErrorMessages().isEmpty());
+        verify(parser, times(2)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
+    }
+    @Test
+    void testLoadFromResourceDirectory_WithSubDirectory() {
+        // 假设xml-schemas/with-subdir下有主目录和子目录xml
+        CsdlSchema mockSchema = new CsdlSchema();
+        mockSchema.setNamespace("TestService");
+        ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
+            mockSchema, new ArrayList<>(), true, null
+        );
+        when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockParseResult);
+        ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/with-subdir");
+        assertNotNull(result);
+        assertTrue(result.getTotalFiles() > 1);
+        assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
+        assertEquals(0, result.getFailedFiles());
+        assertTrue(result.getErrorMessages().isEmpty());
+        verify(parser, atLeastOnce()).parseSchema(any(InputStream.class), anyString());
+        verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
+    }
+}
