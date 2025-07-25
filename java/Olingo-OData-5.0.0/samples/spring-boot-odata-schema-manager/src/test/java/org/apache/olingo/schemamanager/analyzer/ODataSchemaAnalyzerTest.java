@@ -114,7 +114,7 @@ class ODataSchemaAnalyzerTest {
             2, 2, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", testSchema);
         lenient().when(repository.getAllSchemas()).thenReturn(schemas);
@@ -153,7 +153,7 @@ class ODataSchemaAnalyzerTest {
         assertTrue(dependencies.containsKey("TestService.Customer"));
         assertTrue(dependencies.get("TestService.Customer").contains("TestService.Address"));
         
-        verify(xmlLoader).loadFromDirectory(directoryPath);
+        verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     }
 
     @Test
@@ -166,7 +166,7 @@ class ODataSchemaAnalyzerTest {
             3, 1, 2, errors, new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", testSchema);
         lenient().when(repository.getAllSchemas()).thenReturn(schemas);
@@ -180,7 +180,7 @@ class ODataSchemaAnalyzerTest {
         assertFalse(result.getErrors().isEmpty());
         assertTrue(result.getErrors().containsAll(errors));
         
-        verify(xmlLoader).loadFromDirectory(directoryPath);
+        verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     }
 
     @Test
@@ -188,7 +188,7 @@ class ODataSchemaAnalyzerTest {
         // Arrange
         String directoryPath = "/invalid/path";
         
-        when(xmlLoader.loadFromDirectory(directoryPath))
+        when(xmlLoader.loadFromResourceDirectory(directoryPath))
             .thenThrow(new RuntimeException("Directory not found"));
 
         // Act
@@ -200,7 +200,7 @@ class ODataSchemaAnalyzerTest {
         assertFalse(result.getErrors().isEmpty());
         assertTrue(result.getErrors().get(0).contains("Directory not found"));
         
-        verify(xmlLoader).loadFromDirectory(directoryPath);
+        verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     }
 
     @Test
@@ -456,7 +456,7 @@ class ODataSchemaAnalyzerTest {
             1, 1, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", schemaWithMissingDep);
         lenient().when(repository.getAllSchemas()).thenReturn(schemas);
@@ -517,7 +517,7 @@ class ODataSchemaAnalyzerTest {
             1, 1, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("TestService", circularSchema);
         lenient().when(repository.getAllSchemas()).thenReturn(schemas);
@@ -579,7 +579,7 @@ class ODataSchemaAnalyzerTest {
             2, 2, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         lenient().when(repository.getAllSchemas()).thenReturn(multipleSchemas);
         
         // Mock additional repository methods for both namespaces
@@ -619,7 +619,7 @@ class ODataSchemaAnalyzerTest {
             0, 0, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         lenient().when(repository.getAllSchemas()).thenReturn(new HashMap<>());
 
         // Act
@@ -675,7 +675,7 @@ class ODataSchemaAnalyzerTest {
             1, 1, 0, new ArrayList<>(), new HashMap<>()
         );
         
-        when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+        when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
         Map<String, CsdlSchema> schemas = new HashMap<>();
         schemas.put("LargeService", largeSchema);
         lenient().when(repository.getAllSchemas()).thenReturn(schemas);

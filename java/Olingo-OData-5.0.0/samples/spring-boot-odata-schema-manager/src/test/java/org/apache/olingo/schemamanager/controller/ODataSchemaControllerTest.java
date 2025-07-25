@@ -3,22 +3,11 @@ package org.apache.olingo.schemamanager.controller;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class ODataSchemaControllerTest {
@@ -55,14 +44,14 @@ class ODataSchemaControllerTest {
     //         2, 2, 0, new ArrayList<>(), new HashMap<>()
     //     );
         
-    //     when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+    //     when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
 
     //     // Act & Assert
     //     mockMvc.perform(post("/api/odata/schema/load")
     //             .param("directoryPath", directoryPath))
     //             .andExpect(status().isOk());
 
-    //     verify(xmlLoader).loadFromDirectory(directoryPath);
+    //     verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     // }
 
     // @Test
@@ -73,15 +62,15 @@ class ODataSchemaControllerTest {
     //         2, 2, 0, new ArrayList<>(), new HashMap<>()
     //     );
         
-    //     when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(expectedResult);
+    //     when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(expectedResult);
 
     //     // Act
-    //     ODataXmlLoader.LoadResult result = controller.loadFromDirectory(directoryPath);
+    //     ODataXmlLoader.LoadResult result = controller.loadFromResourceDirectory(directoryPath);
 
     //     // Assert
     //     assertNotNull(result);
     //     assertEquals(expectedResult, result);
-    //     verify(xmlLoader).loadFromDirectory(directoryPath);
+    //     verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     // }
 
     // @Test
@@ -268,7 +257,7 @@ class ODataSchemaControllerTest {
     //         2, 0, 2, errors, new HashMap<>()
     //     );
         
-    //     when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+    //     when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
 
     //     // Act
     //     ODataXmlLoader.LoadResult result = controller.loadFromDirectory(directoryPath);
@@ -279,7 +268,7 @@ class ODataSchemaControllerTest {
     //     assertEquals(0, result.getSuccessfulFiles());
     //     assertEquals(2, result.getFailedFiles());
     //     assertEquals(errors, result.getErrorMessages());
-    //     verify(xmlLoader).loadFromDirectory(directoryPath);
+    //     verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     // }
 
     // @Test
@@ -290,7 +279,7 @@ class ODataSchemaControllerTest {
     //         0, 0, 0, new ArrayList<>(), new HashMap<>()
     //     );
         
-    //     when(xmlLoader.loadFromDirectory(directoryPath)).thenReturn(loadResult);
+    //     when(xmlLoader.loadFromResourceDirectory(directoryPath)).thenReturn(loadResult);
 
     //     // Act
     //     ODataXmlLoader.LoadResult result = controller.loadFromDirectory(directoryPath);
@@ -301,7 +290,7 @@ class ODataSchemaControllerTest {
     //     assertEquals(0, result.getSuccessfulFiles());
     //     assertEquals(0, result.getFailedFiles());
     //     assertTrue(result.getErrorMessages().isEmpty());
-    //     verify(xmlLoader).loadFromDirectory(directoryPath);
+    //     verify(xmlLoader).loadFromResourceDirectory(directoryPath);
     // }
 
     // @Test

@@ -117,7 +117,7 @@ GET /api/odata/schema/statistics
 @Autowired TypeDependencyAnalyzer analyzer;
 
 // 加载并分析
-LoadResult result = loader.loadFromDirectory("/schemas");
+LoadResult result = loader.loadFromResourceDirectory("/schemas");
 List<CircularDependency> circular = analyzer.detectCircularDependencies();
 ```
 

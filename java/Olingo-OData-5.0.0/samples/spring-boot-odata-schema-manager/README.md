@@ -85,7 +85,7 @@ private SchemaMerger schemaMerger;
 private TypeDependencyAnalyzer dependencyAnalyzer;
 
 // 1. 加载XML文件
-LoadResult result = xmlLoader.loadFromDirectory("/path/to/xml/files");
+LoadResult result = xmlLoader.loadFromResourceDirectory("/path/to/xml/files");
 
 // 2. 获取所有Schema
 Map<String, CsdlSchema> schemas = repository.getAllSchemas();

@@ -3,26 +3,38 @@ package org.apache.olingo.schemamanager.loader.impl;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.loader.ODataXmlLoader;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.apache.olingo.schemamanager.repository.SchemaRepository;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
     @Mock
     private ODataSchemaParser parser;
+
     @Mock
     private SchemaRepository repository;
+
     private DefaultODataXmlLoader loader;
+    
     @BeforeEach
     void setUp() throws Exception {
         loader = new DefaultODataXmlLoader();
@@ -33,6 +45,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         repositoryField.setAccessible(true);
         repositoryField.set(loader, repository);
     }
+
     @Test
     void testLoadFromResourceDirectory_Success() {
         // 假设xml-schemas/valid下有多个xml文件
@@ -51,6 +64,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         verify(parser, atLeastOnce()).parseSchema(any(InputStream.class), anyString());
         verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
     }
+
     @Test
     void testLoadFromResourceDirectory_EmptyDirectory() {
         ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/empty-directory");
@@ -62,6 +76,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         verify(parser, never()).parseSchema(any(InputStream.class), anyString());
         verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
     }
+
     @Test
     void testLoadFromResourceDirectory_DirectoryNotExist() {
         ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/not-exist");
@@ -73,6 +88,7 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         verify(parser, never()).parseSchema(any(InputStream.class), anyString());
         verify(repository, never()).addSchema(any(CsdlSchema.class), anyString());
     }
+
     @Test
     void testLoadFromResourceDirectory_WithInvalidXml() {
         // 有效和无效xml混合
@@ -93,9 +109,9 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         verify(parser, times(2)).parseSchema(any(InputStream.class), anyString());
         verify(repository, times(1)).addSchema(any(CsdlSchema.class), anyString());
     }
+
     @Test
     void testLoadFromResourceDirectory_WithSubDirectory() {
-        // 假设xml-schemas/with-subdir下有主目录和子目录xml
         CsdlSchema mockSchema = new CsdlSchema();
         mockSchema.setNamespace("TestService");
         ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
@@ -104,11 +120,11 @@ class DefaultODataXmlLoaderTest_loadFromResourceDirectory {
         when(parser.parseSchema(any(InputStream.class), anyString())).thenReturn(mockParseResult);
         ODataXmlLoader.LoadResult result = loader.loadFromResourceDirectory("xml-schemas/with-subdir");
         assertNotNull(result);
-        assertTrue(result.getTotalFiles() > 1);
+        assertEquals(5, result.getTotalFiles());
         assertEquals(result.getTotalFiles(), result.getSuccessfulFiles());
         assertEquals(0, result.getFailedFiles());
         assertTrue(result.getErrorMessages().isEmpty());
-        verify(parser, atLeastOnce()).parseSchema(any(InputStream.class), anyString());
-        verify(repository, atLeastOnce()).addSchema(any(CsdlSchema.class), anyString());
+        verify(parser, times(5)).parseSchema(any(InputStream.class), anyString());
+        verify(repository, times(5)).addSchema(any(CsdlSchema.class), anyString());
     }
 }
