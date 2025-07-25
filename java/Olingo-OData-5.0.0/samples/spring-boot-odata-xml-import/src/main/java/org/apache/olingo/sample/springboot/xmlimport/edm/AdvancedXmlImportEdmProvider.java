@@ -26,8 +26,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.sample.springboot.xmlimport.parser.AdvancedMetadataParser;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 

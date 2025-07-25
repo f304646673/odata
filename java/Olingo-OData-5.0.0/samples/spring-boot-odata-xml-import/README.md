@@ -23,7 +23,7 @@ src/main/
 │   ├── controller/
 │   │   └── XmlImportODataController.java   # OData request handler
 │   ├── edm/
-│   │   └── XmlImportEdmProvider.java       # EDM provider with auto-import
+│   │   └── AdvancedXmlImportEdmProvider.java       # EDM provider with auto-import
 │   ├── processor/
 │   │   └── XmlImportEntityProcessor.java   # Entity request processor
 │   └── data/
@@ -75,7 +75,7 @@ src/main/
 
 ### 2. Automatic Import Process
 
-The `XmlImportEdmProvider` class:
+The `AdvancedXmlImportEdmProvider` class:
 
 1. **Starts with main file**: Loads `main-schema.xml` as the entry point
 2. **Parses references**: Uses DOM4J to extract `edmx:Reference` elements
@@ -85,7 +85,7 @@ The `XmlImportEdmProvider` class:
 
 ### 3. Key Components
 
-- **XmlImportEdmProvider**: Core logic for automatic XML import resolution
+- **AdvancedXmlImportEdmProvider**: Core logic for automatic XML import resolution
 - **XmlImportEntityProcessor**: Handles entity and entity collection requests
 - **XmlImportDataProvider**: Provides sample data with complex Address types
 - **XmlImportODataController**: Spring MVC controller for OData requests
@@ -118,7 +118,7 @@ DEBUG - Found reference in main-schema.xml: address-schema.xml
 INFO  - Loading XML file: address-schema.xml
 DEBUG - Added schema from address-schema.xml: OData.Demo.Common
 DEBUG - Added schema from main-schema.xml: OData.Demo
-INFO  - Created XmlImportEdmProvider with loaded files: [address-schema.xml, main-schema.xml]
+INFO  - Created AdvancedXmlImportEdmProvider with loaded files: [address-schema.xml, main-schema.xml]
 ```
 
 ## Advanced Features
