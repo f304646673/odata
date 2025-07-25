@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema Namespace="TestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <!-- Circular dependency: CircularA -> CircularB -> CircularA -->
+  <ComplexType Name="CircularA">
+    <Property Name="Id" Type="Edm.String"/>
+    <Property Name="CircularBRef" Type="TestService.CircularB"/>
+  </ComplexType>
+  
+  <ComplexType Name="CircularB">
+    <Property Name="Id" Type="Edm.String"/>
+    <Property Name="CircularARef" Type="TestService.CircularA"/>
+  </ComplexType>
+</Schema>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema Namespace="TestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <!-- Action with dependencies -->
+  <Action Name="DoSomething">
+    <Parameter Name="customer" Type="TestService.Customer"/>
+    <Parameter Name="address" Type="TestService.Address"/>
+    <ReturnType Type="TestService.OrderStatus"/>
+  </Action>
+  
+  <!-- Function with dependencies -->
+  <Function Name="CalculateSomething">
+    <Parameter Name="country" Type="TestService.Country"/>
+    <ReturnType Type="TestService.Order"/>
+  </Function>
+  
+  <!-- Supporting types -->
+  <EntityType Name="Customer">
+    <Key><PropertyRef Name="Id"/></Key>
+    <Property Name="Id" Type="Edm.String" Nullable="false"/>
+  </EntityType>
+  
+  <EntityType Name="Order">
+    <Key><PropertyRef Name="Id"/></Key>
+    <Property Name="Id" Type="Edm.String" Nullable="false"/>
+  </EntityType>
+  
+  <ComplexType Name="Address">
+    <Property Name="Street" Type="Edm.String"/>
+  </ComplexType>
+  
+  <ComplexType Name="Country">
+    <Property Name="Name" Type="Edm.String"/>
+  </ComplexType>
+  
+  <EnumType Name="OrderStatus">
+    <Member Name="Pending" Value="0"/>
+  </EnumType>
+</Schema>

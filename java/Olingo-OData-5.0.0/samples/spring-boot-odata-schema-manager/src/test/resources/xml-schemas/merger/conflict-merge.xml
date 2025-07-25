@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Merger.Conflict" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Conflicting Entity Types with different definitions -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ProductKey"/>
+        </Key>
+        <Property Name="ProductKey" Type="Edm.String" Nullable="false"/>
+        <Property Name="ProductName" Type="Edm.String" MaxLength="200"/>
+        <Property Name="UnitPrice" Type="Edm.Double"/>
+        <Property Name="InStock" Type="Edm.Boolean"/>
+      </EntityType>
+
+      <EntityType Name="Category">
+        <Key>
+          <PropertyRef Name="CategoryKey"/>
+        </Key>
+        <Property Name="CategoryKey" Type="Edm.String" Nullable="false"/>
+        <Property Name="CategoryName" Type="Edm.String" MaxLength="100"/>
+        <Property Name="ParentID" Type="Edm.String"/>
+      </EntityType>
+
+      <!-- Conflicting Complex Types -->
+      <ComplexType Name="Address">
+        <Property Name="StreetAddress" Type="Edm.String" MaxLength="300"/>
+        <Property Name="CityName" Type="Edm.String" MaxLength="150"/>
+        <Property Name="ZipCode" Type="Edm.String" MaxLength="15"/>
+        <Property Name="CountryCode" Type="Edm.String" MaxLength="3"/>
+        <Property Name="Region" Type="Edm.String" MaxLength="100"/>
+      </ComplexType>
+
+      <!-- Conflicting Functions -->
+      <Function Name="GetProductsByCategory">
+        <Parameter Name="categoryName" Type="Edm.String"/>
+        <ReturnType Type="Collection(TestService.Merger.Conflict.Product)"/>
+      </Function>
+
+      <!-- Conflicting Actions -->
+      <Action Name="UpdateProduct">
+        <Parameter Name="productKey" Type="Edm.String"/>
+        <Parameter Name="productData" Type="TestService.Merger.Conflict.Product"/>
+      </Action>
+
+      <!-- Entity Container with conflicting definitions -->
+      <EntityContainer Name="ConflictContainer">
+        <EntitySet Name="Products" EntityType="TestService.Merger.Conflict.Product"/>
+        <EntitySet Name="Categories" EntityType="TestService.Merger.Conflict.Category"/>
+        <FunctionImport Name="GetProducts" Function="TestService.Merger.Conflict.GetProductsByCategory"/>
+        <ActionImport Name="UpdateProduct" Action="TestService.Merger.Conflict.UpdateProduct"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

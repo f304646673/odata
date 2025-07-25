@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Parser.Basic" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Simple Entity Type for basic parsing tests -->
+      <EntityType Name="SimpleEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <Property Name="IsActive" Type="Edm.Boolean" Nullable="false"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+
+      <!-- Simple Complex Type -->
+      <ComplexType Name="SimpleAddress">
+        <Property Name="Street" Type="Edm.String" MaxLength="200"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+      </ComplexType>
+
+      <!-- Simple Enumeration -->
+      <EnumType Name="SimpleStatus">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+        <Member Name="Pending" Value="3"/>
+      </EnumType>
+
+      <!-- Simple Function -->
+      <Function Name="GetEntityByName">
+        <Parameter Name="name" Type="Edm.String"/>
+        <ReturnType Type="TestService.Parser.Basic.SimpleEntity"/>
+      </Function>
+
+      <!-- Simple Action -->
+      <Action Name="UpdateEntity">
+        <Parameter Name="entityId" Type="Edm.Int32"/>
+        <Parameter Name="newName" Type="Edm.String"/>
+      </Action>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="BasicContainer">
+        <EntitySet Name="SimpleEntities" EntityType="TestService.Parser.Basic.SimpleEntity"/>
+        <FunctionImport Name="GetEntityByName" Function="TestService.Parser.Basic.GetEntityByName"/>
+        <ActionImport Name="UpdateEntity" Action="TestService.Parser.Basic.UpdateEntity"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -804,14 +804,14 @@ class DefaultSchemaMergerTest {
         // 这个测试演示了如何在实际场景中使用测试资源
         // 验证测试资源文件的存在和可访问性
         String[] mergeTestFiles = {
-            "src/test/resources/loader/merge-test/base-schema.xml",
-            "src/test/resources/loader/merge-test/extension-schema.xml"
+            "src/test/resources/xml-schemas/loader/merge-test/base-schema.xml",
+            "src/test/resources/xml-schemas/loader/merge-test/extension-schema.xml"
         };
 
         String[] multiFileResources = {
-            "src/test/resources/loader/multi-file/products-schema.xml",
-            "src/test/resources/loader/multi-file/sales-schema.xml",
-            "src/test/resources/loader/multi-file/inventory-schema.xml"
+            "src/test/resources/xml-schemas/loader/multi-file/products-schema.xml",
+            "src/test/resources/xml-schemas/loader/multi-file/sales-schema.xml",
+            "src/test/resources/xml-schemas/loader/multi-file/inventory-schema.xml"
         };
 
         // 验证merge-test资源存在

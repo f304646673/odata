@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Repository.Basic" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Entity Types for repository testing -->
+      <EntityType Name="RepositoryEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Type" Type="Edm.String" MaxLength="50"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="LastModified" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+
+      <EntityType Name="RelatedEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Title" Type="Edm.String" MaxLength="200"/>
+        <Property Name="ParentID" Type="Edm.Int32"/>
+        <NavigationProperty Name="Parent" Type="TestService.Repository.Basic.RepositoryEntity"/>
+      </EntityType>
+
+      <!-- Complex Types -->
+      <ComplexType Name="RepositoryMetadata">
+        <Property Name="Version" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Author" Type="Edm.String" MaxLength="100"/>
+        <Property Name="LastUpdated" Type="Edm.DateTimeOffset"/>
+        <Property Name="Tags" Type="Collection(Edm.String)"/>
+      </ComplexType>
+
+      <!-- Enumerations -->
+      <EnumType Name="RepositoryStatus">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Archived" Value="2"/>
+        <Member Name="Deleted" Value="3"/>
+        <Member Name="Draft" Value="4"/>
+      </EnumType>
+
+      <!-- Functions -->
+      <Function Name="FindByType">
+        <Parameter Name="entityType" Type="Edm.String"/>
+        <ReturnType Type="Collection(TestService.Repository.Basic.RepositoryEntity)"/>
+      </Function>
+
+      <Function Name="GetMetadata">
+        <Parameter Name="entityId" Type="Edm.Int32"/>
+        <ReturnType Type="TestService.Repository.Basic.RepositoryMetadata"/>
+      </Function>
+
+      <!-- Actions -->
+      <Action Name="ArchiveEntity">
+        <Parameter Name="entityId" Type="Edm.Int32"/>
+        <ReturnType Type="Edm.Boolean"/>
+      </Action>
+
+      <Action Name="BulkUpdate">
+        <Parameter Name="entities" Type="Collection(TestService.Repository.Basic.RepositoryEntity)"/>
+        <ReturnType Type="Edm.Int32"/>
+      </Action>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="RepositoryContainer">
+        <EntitySet Name="RepositoryEntities" EntityType="TestService.Repository.Basic.RepositoryEntity"/>
+        <EntitySet Name="RelatedEntities" EntityType="TestService.Repository.Basic.RelatedEntity"/>
+        
+        <FunctionImport Name="FindByType" Function="TestService.Repository.Basic.FindByType" EntitySet="RepositoryEntities"/>
+        <FunctionImport Name="GetMetadata" Function="TestService.Repository.Basic.GetMetadata"/>
+        <ActionImport Name="ArchiveEntity" Action="TestService.Repository.Basic.ArchiveEntity"/>
+        <ActionImport Name="BulkUpdate" Action="TestService.Repository.Basic.BulkUpdate"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

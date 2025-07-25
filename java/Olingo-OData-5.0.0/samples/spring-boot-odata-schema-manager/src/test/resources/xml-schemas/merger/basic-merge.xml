@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Merger.Basic" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Entity Types for merging -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="CategoryID" Type="Edm.Int32"/>
+        <NavigationProperty Name="Category" Type="TestService.Merger.Basic.Category"/>
+      </EntityType>
+
+      <EntityType Name="Category">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+        <NavigationProperty Name="Products" Type="Collection(TestService.Merger.Basic.Product)"/>
+      </EntityType>
+
+      <!-- Complex Types -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="200"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="BasicContainer">
+        <EntitySet Name="Products" EntityType="TestService.Merger.Basic.Product"/>
+        <EntitySet Name="Categories" EntityType="TestService.Merger.Basic.Category"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

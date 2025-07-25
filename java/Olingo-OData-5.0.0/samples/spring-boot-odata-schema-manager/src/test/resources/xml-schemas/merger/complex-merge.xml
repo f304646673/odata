@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Merger.Complex" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Complex Entity Hierarchy -->
+      <EntityType Name="BaseProduct" Abstract="true">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="ModifiedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+
+      <EntityType Name="PhysicalProduct" BaseType="TestService.Merger.Complex.BaseProduct">
+        <Property Name="Weight" Type="Edm.Decimal" Precision="10" Scale="3"/>
+        <Property Name="Dimensions" Type="TestService.Merger.Complex.PhysicalDimensions"/>
+        <Property Name="ShippingCost" Type="Edm.Decimal" Precision="10" Scale="2"/>
+      </EntityType>
+
+      <EntityType Name="DigitalProduct" BaseType="TestService.Merger.Complex.BaseProduct">
+        <Property Name="FileSize" Type="Edm.Int64"/>
+        <Property Name="DownloadUrl" Type="Edm.String" MaxLength="500"/>
+        <Property Name="LicenseType" Type="TestService.Merger.Complex.LicenseType"/>
+      </EntityType>
+
+      <!-- Complex Types with nested structures -->
+      <ComplexType Name="PhysicalDimensions">
+        <Property Name="Length" Type="Edm.Decimal" Precision="8" Scale="3"/>
+        <Property Name="Width" Type="Edm.Decimal" Precision="8" Scale="3"/>
+        <Property Name="Height" Type="Edm.Decimal" Precision="8" Scale="3"/>
+        <Property Name="Unit" Type="TestService.Merger.Complex.MeasurementUnit"/>
+      </ComplexType>
+
+      <ComplexType Name="ContactInfo">
+        <Property Name="Email" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Phone" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Address" Type="TestService.Merger.Complex.DetailedAddress"/>
+        <Property Name="PreferredContactMethod" Type="TestService.Merger.Complex.ContactMethod"/>
+      </ComplexType>
+
+      <ComplexType Name="DetailedAddress">
+        <Property Name="Street1" Type="Edm.String" MaxLength="200"/>
+        <Property Name="Street2" Type="Edm.String" MaxLength="200"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="State" Type="Edm.String" MaxLength="50"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Coordinates" Type="TestService.Merger.Complex.GeographicCoordinates"/>
+      </ComplexType>
+
+      <ComplexType Name="GeographicCoordinates">
+        <Property Name="Latitude" Type="Edm.Double"/>
+        <Property Name="Longitude" Type="Edm.Double"/>
+        <Property Name="Altitude" Type="Edm.Double"/>
+      </ComplexType>
+
+      <!-- Enumerations -->
+      <EnumType Name="LicenseType">
+        <Member Name="Personal" Value="1"/>
+        <Member Name="Commercial" Value="2"/>
+        <Member Name="Enterprise" Value="3"/>
+        <Member Name="OpenSource" Value="4"/>
+      </EnumType>
+
+      <EnumType Name="MeasurementUnit">
+        <Member Name="Millimeters" Value="1"/>
+        <Member Name="Centimeters" Value="2"/>
+        <Member Name="Inches" Value="3"/>
+        <Member Name="Feet" Value="4"/>
+      </EnumType>
+
+      <EnumType Name="ContactMethod">
+        <Member Name="Email" Value="1"/>
+        <Member Name="Phone" Value="2"/>
+        <Member Name="SMS" Value="3"/>
+        <Member Name="Mail" Value="4"/>
+      </EnumType>
+
+      <!-- Complex Functions and Actions -->
+      <Function Name="CalculateShippingCost">
+        <Parameter Name="product" Type="TestService.Merger.Complex.PhysicalProduct"/>
+        <Parameter Name="destination" Type="TestService.Merger.Complex.DetailedAddress"/>
+        <Parameter Name="shippingMethod" Type="Edm.String"/>
+        <ReturnType Type="Edm.Decimal"/>
+      </Function>
+
+      <Function Name="SearchProducts" IsComposable="true">
+        <Parameter Name="searchTerm" Type="Edm.String"/>
+        <Parameter Name="category" Type="Edm.String"/>
+        <Parameter Name="priceRange" Type="TestService.Merger.Complex.PriceRange"/>
+        <ReturnType Type="Collection(TestService.Merger.Complex.BaseProduct)"/>
+      </Function>
+
+      <ComplexType Name="PriceRange">
+        <Property Name="MinPrice" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="MaxPrice" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="Currency" Type="Edm.String" MaxLength="3"/>
+      </ComplexType>
+
+      <Action Name="ProcessOrder">
+        <Parameter Name="products" Type="Collection(TestService.Merger.Complex.BaseProduct)"/>
+        <Parameter Name="customer" Type="TestService.Merger.Complex.CustomerInfo"/>
+        <Parameter Name="shippingAddress" Type="TestService.Merger.Complex.DetailedAddress"/>
+        <ReturnType Type="TestService.Merger.Complex.OrderResult"/>
+      </Action>
+
+      <ComplexType Name="CustomerInfo">
+        <Property Name="CustomerID" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Contact" Type="TestService.Merger.Complex.ContactInfo"/>
+        <Property Name="PreferredLanguage" Type="Edm.String" MaxLength="10"/>
+      </ComplexType>
+
+      <ComplexType Name="OrderResult">
+        <Property Name="OrderID" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Status" Type="Edm.String" MaxLength="20"/>
+        <Property Name="TotalAmount" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="EstimatedDelivery" Type="Edm.DateTimeOffset"/>
+      </ComplexType>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="ComplexContainer">
+        <EntitySet Name="PhysicalProducts" EntityType="TestService.Merger.Complex.PhysicalProduct"/>
+        <EntitySet Name="DigitalProducts" EntityType="TestService.Merger.Complex.DigitalProduct"/>
+        <EntitySet Name="AllProducts" EntityType="TestService.Merger.Complex.BaseProduct"/>
+        
+        <FunctionImport Name="CalculateShipping" 
+                       Function="TestService.Merger.Complex.CalculateShippingCost"/>
+        <FunctionImport Name="SearchProducts" 
+                       Function="TestService.Merger.Complex.SearchProducts" 
+                       EntitySet="AllProducts"/>
+        <ActionImport Name="ProcessOrder" 
+                     Action="TestService.Merger.Complex.ProcessOrder"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

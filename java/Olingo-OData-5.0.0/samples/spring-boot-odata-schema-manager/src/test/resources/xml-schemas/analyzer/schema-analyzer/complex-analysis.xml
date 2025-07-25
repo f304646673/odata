@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Schema Namespace="ComplexService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <!-- Complex schema with multiple entity types and relationships -->
+  <EntityType Name="Customer">
+    <Key><PropertyRef Name="ID"/></Key>
+    <Property Name="ID" Type="Edm.String" Nullable="false"/>
+    <Property Name="Name" Type="Edm.String"/>
+    <Property Name="Address" Type="ComplexService.Address"/>
+    <NavigationProperty Name="Orders" Type="Collection(ComplexService.Order)"/>
+  </EntityType>
+  
+  <EntityType Name="Order">
+    <Key><PropertyRef Name="ID"/></Key>
+    <Property Name="ID" Type="Edm.String" Nullable="false"/>
+    <Property Name="Date" Type="Edm.DateTimeOffset"/>
+    <Property Name="Status" Type="ComplexService.OrderStatus"/>
+    <NavigationProperty Name="Customer" Type="ComplexService.Customer"/>
+    <NavigationProperty Name="Items" Type="Collection(ComplexService.OrderItem)"/>
+  </EntityType>
+  
+  <EntityType Name="OrderItem">
+    <Key><PropertyRef Name="ID"/></Key>
+    <Property Name="ID" Type="Edm.String" Nullable="false"/>
+    <Property Name="Quantity" Type="Edm.Int32"/>
+    <Property Name="UnitPrice" Type="Edm.Decimal"/>
+    <NavigationProperty Name="Order" Type="ComplexService.Order"/>
+    <NavigationProperty Name="Product" Type="ComplexService.Product"/>
+  </EntityType>
+  
+  <EntityType Name="Product">
+    <Key><PropertyRef Name="ID"/></Key>
+    <Property Name="ID" Type="Edm.String" Nullable="false"/>
+    <Property Name="Name" Type="Edm.String"/>
+    <Property Name="Category" Type="ComplexService.Category"/>
+  </EntityType>
+  
+  <ComplexType Name="Address">
+    <Property Name="Street" Type="Edm.String"/>
+    <Property Name="City" Type="Edm.String"/>
+    <Property Name="PostalCode" Type="Edm.String"/>
+    <Property Name="Country" Type="ComplexService.Country"/>
+  </ComplexType>
+  
+  <ComplexType Name="Country">
+    <Property Name="Code" Type="Edm.String"/>
+    <Property Name="Name" Type="Edm.String"/>
+  </ComplexType>
+  
+  <ComplexType Name="Category">
+    <Property Name="ID" Type="Edm.String"/>
+    <Property Name="Name" Type="Edm.String"/>
+  </ComplexType>
+  
+  <EnumType Name="OrderStatus">
+    <Member Name="Pending" Value="0"/>
+    <Member Name="Processing" Value="1"/>
+    <Member Name="Shipped" Value="2"/>
+    <Member Name="Delivered" Value="3"/>
+    <Member Name="Cancelled" Value="4"/>
+  </EnumType>
+  
+  <EntityContainer Name="DefaultContainer">
+    <EntitySet Name="Customers" EntityType="ComplexService.Customer"/>
+    <EntitySet Name="Orders" EntityType="ComplexService.Order"/>
+    <EntitySet Name="OrderItems" EntityType="ComplexService.OrderItem"/>
+    <EntitySet Name="Products" EntityType="ComplexService.Product"/>
+  </EntityContainer>
+</Schema>

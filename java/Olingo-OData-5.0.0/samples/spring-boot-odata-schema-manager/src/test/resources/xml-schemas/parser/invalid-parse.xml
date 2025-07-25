@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <!-- Invalid XML structure for error testing -->
+    <Schema Namespace="TestService.Parser.Invalid" 
+            xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- Missing Key definition (invalid) -->
+      <EntityType Name="InvalidEntity">
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+
+      <!-- Invalid property type -->
+      <EntityType Name="EntityWithInvalidProperty">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="BadProperty" Type="Edm.InvalidType"/>
+      </EntityType>
+
+      <!-- Circular reference (invalid) -->
+      <ComplexType Name="CircularA">
+        <Property Name="B" Type="TestService.Parser.Invalid.CircularB"/>
+      </ComplexType>
+
+      <ComplexType Name="CircularB">
+        <Property Name="A" Type="TestService.Parser.Invalid.CircularA"/>
+      </ComplexType>
+
+      <!-- Function with invalid parameter -->
+      <Function Name="InvalidFunction">
+        <Parameter Name="invalidParam" Type="NonExistentType"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
