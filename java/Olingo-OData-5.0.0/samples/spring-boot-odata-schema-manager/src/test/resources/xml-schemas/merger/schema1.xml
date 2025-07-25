@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace" Alias="TN">
+      
+      <!-- EntityTypes -->
+      <EntityType Name="User">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="200"/>
+        <NavigationProperty Name="Orders" Type="Collection(TN.Order)"/>
+      </EntityType>
+      
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="OrderId"/>
+        </Key>
+        <Property Name="OrderId" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="UserId" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Amount" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <NavigationProperty Name="User" Type="TN.User"/>
+      </EntityType>
+      
+      <!-- ComplexTypes -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="ZipCode" Type="Edm.String" MaxLength="10"/>
+      </ComplexType>
+      
+      <!-- EnumTypes -->
+      <EnumType Name="Status">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+        <Member Name="Suspended" Value="3"/>
+      </EnumType>
+      
+      <!-- Functions -->
+      <Function Name="GetUserByEmail">
+        <Parameter Name="email" Type="Edm.String" MaxLength="200"/>
+        <ReturnType Type="TN.User"/>
+      </Function>
+      
+      <!-- Actions -->
+      <Action Name="ActivateUser">
+        <Parameter Name="userId" Type="Edm.Int32"/>
+      </Action>
+      
+      <!-- Terms -->
+      <Term Name="Description" Type="Edm.String">
+        <Annotation Term="Core.Description" String="A descriptive term"/>
+      </Term>
+      
+      <!-- TypeDefinitions -->
+      <TypeDefinition Name="UserIdType" UnderlyingType="Edm.Int32"/>
+      
+      <!-- EntityContainer -->
+      <EntityContainer Name="Container">
+        <EntitySet Name="Users" EntityType="TN.User"/>
+        <EntitySet Name="Orders" EntityType="TN.Order"/>
+        <Singleton Name="CurrentUser" Type="TN.User"/>
+        <FunctionImport Name="GetUserByEmail" Function="TN.GetUserByEmail"/>
+        <ActionImport Name="ActivateUser" Action="TN.ActivateUser"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

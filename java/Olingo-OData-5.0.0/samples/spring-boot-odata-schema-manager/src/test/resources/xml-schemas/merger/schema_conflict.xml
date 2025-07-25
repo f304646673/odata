@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace" Alias="TN">
+      
+      <!-- Conflicting EntityType - incompatible property types -->
+      <EntityType Name="User">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.String" Nullable="false"/>  <!-- Type changed to String -->
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>   <!-- MaxLength changed -->
+        <Property Name="Email" Type="Edm.String" MaxLength="200"/>
+        <NavigationProperty Name="Orders" Type="Collection(TN.Order)"/>
+      </EntityType>
+      
+      <!-- Conflicting ComplexType - different properties -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="200"/> <!-- MaxLength changed -->
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>  <!-- New property -->
+      </ComplexType>
+      
+      <!-- Conflicting EnumType - different values -->
+      <EnumType Name="Status">
+        <Member Name="Active" Value="0"/>     <!-- Value changed -->
+        <Member Name="Inactive" Value="1"/>   <!-- Value changed -->
+        <Member Name="Deleted" Value="2"/>    <!-- Different member -->
+      </EnumType>
+      
+      <!-- Conflicting Function - different return type -->
+      <Function Name="GetUserByEmail">
+        <Parameter Name="email" Type="Edm.String" MaxLength="200"/>
+        <ReturnType Type="Collection(TN.User)"/>  <!-- Return type changed to collection -->
+      </Function>
+      
+      <!-- Conflicting Action - different parameters -->
+      <Action Name="ActivateUser">
+        <Parameter Name="userId" Type="Edm.String"/>  <!-- Parameter type changed -->
+        <Parameter Name="reason" Type="Edm.String"/>  <!-- Additional parameter -->
+      </Action>
+      
+      <!-- Conflicting Term - different type -->
+      <Term Name="Description" Type="Edm.Int32">
+        <Annotation Term="Core.Description" String="A numeric term"/>
+      </Term>
+      
+      <!-- Conflicting TypeDefinition - different underlying type -->
+      <TypeDefinition Name="UserIdType" UnderlyingType="Edm.String"/>
+      
+      <!-- EntityContainer with conflicting elements -->
+      <EntityContainer Name="Container">
+        <EntitySet Name="Users" EntityType="TN.User"/>
+        <EntitySet Name="Orders" EntityType="TN.Order"/>
+        <Singleton Name="CurrentUser" Type="TN.User"/>
+        <FunctionImport Name="GetUserByEmail" Function="TN.GetUserByEmail"/>
+        <ActionImport Name="ActivateUser" Action="TN.ActivateUser"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

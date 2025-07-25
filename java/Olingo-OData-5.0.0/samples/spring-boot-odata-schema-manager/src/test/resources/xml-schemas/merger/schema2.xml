@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace" Alias="TN">
+      
+      <!-- Same EntityType - compatible -->
+      <EntityType Name="User">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="200"/>
+        <NavigationProperty Name="Orders" Type="Collection(TN.Order)"/>
+      </EntityType>
+      
+      <!-- New EntityType -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ProductId"/>
+        </Key>
+        <Property Name="ProductId" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
+      </EntityType>
+      
+      <!-- Same ComplexType - compatible -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="ZipCode" Type="Edm.String" MaxLength="10"/>
+      </ComplexType>
+      
+      <!-- New ComplexType -->
+      <ComplexType Name="ContactInfo">
+        <Property Name="Phone" Type="Edm.String" MaxLength="15"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="200"/>
+      </ComplexType>
+      
+      <!-- Same EnumType - compatible -->
+      <EnumType Name="Status">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+        <Member Name="Suspended" Value="3"/>
+      </EnumType>
+      
+      <!-- New EnumType -->
+      <EnumType Name="Category">
+        <Member Name="Electronics" Value="1"/>
+        <Member Name="Clothing" Value="2"/>
+        <Member Name="Books" Value="3"/>
+      </EnumType>
+      
+      <!-- Same Function - compatible -->
+      <Function Name="GetUserByEmail">
+        <Parameter Name="email" Type="Edm.String" MaxLength="200"/>
+        <ReturnType Type="TN.User"/>
+      </Function>
+      
+      <!-- New Function -->
+      <Function Name="GetProductsByCategory">
+        <Parameter Name="category" Type="TN.Category"/>
+        <ReturnType Type="Collection(TN.Product)"/>
+      </Function>
+      
+      <!-- Same Action - compatible -->
+      <Action Name="ActivateUser">
+        <Parameter Name="userId" Type="Edm.Int32"/>
+      </Action>
+      
+      <!-- New Action -->
+      <Action Name="UpdateProductPrice">
+        <Parameter Name="productId" Type="Edm.Int32"/>
+        <Parameter Name="newPrice" Type="Edm.Decimal"/>
+      </Action>
+      
+      <!-- Same Term - compatible -->
+      <Term Name="Description" Type="Edm.String">
+        <Annotation Term="Core.Description" String="A descriptive term"/>
+      </Term>
+      
+      <!-- New Term -->
+      <Term Name="Category" Type="Edm.String">
+        <Annotation Term="Core.Description" String="Category classification"/>
+      </Term>
+      
+      <!-- Same TypeDefinition - compatible -->
+      <TypeDefinition Name="UserIdType" UnderlyingType="Edm.Int32"/>
+      
+      <!-- New TypeDefinition -->
+      <TypeDefinition Name="ProductIdType" UnderlyingType="Edm.Int32"/>
+      
+      <!-- EntityContainer with additional elements -->
+      <EntityContainer Name="Container">
+        <EntitySet Name="Users" EntityType="TN.User"/>
+        <EntitySet Name="Orders" EntityType="TN.Order"/>
+        <EntitySet Name="Products" EntityType="TN.Product"/>
+        <Singleton Name="CurrentUser" Type="TN.User"/>
+        <FunctionImport Name="GetUserByEmail" Function="TN.GetUserByEmail"/>
+        <FunctionImport Name="GetProductsByCategory" Function="TN.GetProductsByCategory"/>
+        <ActionImport Name="ActivateUser" Action="TN.ActivateUser"/>
+        <ActionImport Name="UpdateProductPrice" Action="TN.UpdateProductPrice"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

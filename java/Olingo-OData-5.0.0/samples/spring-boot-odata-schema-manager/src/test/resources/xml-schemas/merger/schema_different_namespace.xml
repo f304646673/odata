@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="DifferentNamespace" Alias="DN">
+      
+      <!-- EntityType in different namespace -->
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerId"/>
+        </Key>
+        <Property Name="CustomerId" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="CompanyName" Type="Edm.String" MaxLength="100"/>
+        <Property Name="ContactName" Type="Edm.String" MaxLength="100"/>
+      </EntityType>
+      
+      <!-- ComplexType in different namespace -->
+      <ComplexType Name="BillingAddress">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="10"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <!-- EnumType in different namespace -->
+      <EnumType Name="CustomerType">
+        <Member Name="Individual" Value="1"/>
+        <Member Name="Corporate" Value="2"/>
+      </EnumType>
+      
+      <!-- Function in different namespace -->
+      <Function Name="GetCustomersByType">
+        <Parameter Name="customerType" Type="DN.CustomerType"/>
+        <ReturnType Type="Collection(DN.Customer)"/>
+      </Function>
+      
+      <!-- Action in different namespace -->
+      <Action Name="CreateCustomer">
+        <Parameter Name="companyName" Type="Edm.String"/>
+        <Parameter Name="contactName" Type="Edm.String"/>
+        <ReturnType Type="DN.Customer"/>
+      </Action>
+      
+      <!-- Term in different namespace -->
+      <Term Name="CustomerRating" Type="Edm.Int32">
+        <Annotation Term="Core.Description" String="Customer rating from 1 to 5"/>
+      </Term>
+      
+      <!-- TypeDefinition in different namespace -->
+      <TypeDefinition Name="CustomerIdType" UnderlyingType="Edm.Int32"/>
+      
+      <!-- EntityContainer in different namespace -->
+      <EntityContainer Name="CustomerContainer">
+        <EntitySet Name="Customers" EntityType="DN.Customer"/>
+        <Singleton Name="DefaultCustomer" Type="DN.Customer"/>
+        <FunctionImport Name="GetCustomersByType" Function="DN.GetCustomersByType"/>
+        <ActionImport Name="CreateCustomer" Action="DN.CreateCustomer"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
