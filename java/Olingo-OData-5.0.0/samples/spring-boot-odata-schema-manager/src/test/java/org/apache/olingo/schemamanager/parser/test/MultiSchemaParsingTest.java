@@ -1,17 +1,20 @@
 package org.apache.olingo.schemamanager.parser.test;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser.ParseResult;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser.SchemaWithDependencies;
 import org.apache.olingo.schemamanager.testutil.XmlSchemaTestUtils;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
-
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * 多Schema XML解析测试
@@ -141,22 +144,6 @@ public class MultiSchemaParsingTest {
                   "错误信息应该包含'重复'或'Duplicate'，实际信息: " + result.getErrorMessage());
         assertTrue(result.getErrorMessage().contains("Company.Test"), 
                   "错误信息应该包含重复的namespace，实际信息: " + result.getErrorMessage());
-    }
-
-    @Test
-    void testBackwardCompatibility() {
-        // 测试向后兼容性
-        ParseResult result = XmlSchemaTestUtils.loadMultiSchemaXml();
-        
-        // 使用旧的API应该返回第一个Schema
-        CsdlSchema firstSchema = result.getSchema();
-        assertNotNull(firstSchema, "向后兼容方法应该返回第一个Schema");
-        assertEquals("Company.Management", firstSchema.getNamespace(), "应该返回第一个Schema");
-        
-        // 使用旧的Dependencies API
-        List<String> firstDependencies = result.getDependencies();
-        assertNotNull(firstDependencies, "向后兼容方法应该返回第一个Schema的依赖");
-        assertTrue(firstDependencies.isEmpty(), "第一个Schema没有依赖");
     }
 
     @Test

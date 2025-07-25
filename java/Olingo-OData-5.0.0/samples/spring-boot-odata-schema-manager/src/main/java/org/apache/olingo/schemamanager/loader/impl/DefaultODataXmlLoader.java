@@ -1,7 +1,6 @@
 package org.apache.olingo.schemamanager.loader.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -101,25 +100,28 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
                     parseResult.getErrorMessage() : "Unknown parse error";
                 errorMessages.add(error);
                 
-                XmlFileInfo fileInfo = new XmlFileInfo(sourceName, null, new ArrayList<>(), false, error);
+                XmlFileInfo fileInfo = ODataXmlLoader.XmlFileInfo.failure(sourceName, error);
                 currentLoaded.put(sourceName, fileInfo);
                 loadedFiles.put(sourceName, fileInfo);
                 
                 return new LoadResult(1, 0, 1, errorMessages, currentLoaded);
             }
             
-            // 添加到repository
-            repository.addSchema(parseResult.getSchema(), sourceName);
+            // 将所有Schema添加到repository
+            for (ODataSchemaParser.SchemaWithDependencies schemaWithDeps : parseResult.getSchemas()) {
+                repository.addSchema(schemaWithDeps.getSchema(), sourceName);
+            }
             
-            // 创建文件信息
-            XmlFileInfo fileInfo = new XmlFileInfo(
-                sourceName, 
-                parseResult.getSchema().getNamespace(),
-                parseResult.getDependencies(),
-                true, 
-                null
-            );
+            // 创建文件信息 - 支持多个Schema
+            List<ODataXmlLoader.SchemaInfo> schemaInfos = new ArrayList<>();
+            for (ODataSchemaParser.SchemaWithDependencies schemaWithDeps : parseResult.getSchemas()) {
+                schemaInfos.add(new ODataXmlLoader.SchemaInfo(
+                    schemaWithDeps.getNamespace(),
+                    schemaWithDeps.getDependencies()
+                ));
+            }
             
+            XmlFileInfo fileInfo = ODataXmlLoader.XmlFileInfo.success(sourceName, schemaInfos);
             currentLoaded.put(sourceName, fileInfo);
             loadedFiles.put(sourceName, fileInfo);
             
@@ -127,7 +129,7 @@ public class DefaultODataXmlLoader implements ODataXmlLoader {
                 
         } catch (Exception e) {
             errorMessages.add("Parse error: " + e.getMessage());
-            XmlFileInfo fileInfo = new XmlFileInfo(sourceName, null, new ArrayList<>(), false, e.getMessage());
+            XmlFileInfo fileInfo = ODataXmlLoader.XmlFileInfo.failure(sourceName, e.getMessage());
             currentLoaded.put(sourceName, fileInfo);
             loadedFiles.put(sourceName, fileInfo);
             

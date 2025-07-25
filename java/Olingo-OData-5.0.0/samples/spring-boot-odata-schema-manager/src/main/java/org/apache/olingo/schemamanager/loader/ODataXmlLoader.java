@@ -1,6 +1,7 @@
 package org.apache.olingo.schemamanager.loader;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,29 +45,98 @@ public interface ODataXmlLoader {
     void clear();
     
     /**
-     * XML文件信息类
+     * XML文件信息类 - 支持多个Schema
      */
-    class XmlFileInfo {
+    static class XmlFileInfo {
         private final String filePath;
-        private final String namespace;
-        private final List<String> dependencies;
+        private final List<SchemaInfo> schemas;
         private final boolean loadSuccess;
         private final String errorMessage;
         
+        // 构造函数 - 单个Schema（向后兼容）
         public XmlFileInfo(String filePath, String namespace, List<String> dependencies, boolean loadSuccess, String errorMessage) {
             this.filePath = filePath;
-            this.namespace = namespace;
-            this.dependencies = dependencies;
+            this.schemas = new ArrayList<>();
+            if (namespace != null && loadSuccess) {
+                this.schemas.add(new SchemaInfo(namespace, dependencies));
+            }
             this.loadSuccess = loadSuccess;
             this.errorMessage = errorMessage;
         }
         
+        // 构造函数 - 多个Schema
+        public XmlFileInfo(String filePath, List<SchemaInfo> schemas, boolean loadSuccess, String errorMessage) {
+            this.filePath = filePath;
+            this.schemas = schemas != null ? new ArrayList<>(schemas) : new ArrayList<>();
+            this.loadSuccess = loadSuccess;
+            this.errorMessage = errorMessage;
+        }
+        
+        // 静态工厂方法
+        public static XmlFileInfo success(String filePath, List<SchemaInfo> schemas) {
+            return new XmlFileInfo(filePath, schemas, true, null);
+        }
+        
+        public static XmlFileInfo failure(String filePath, String errorMessage) {
+            return new XmlFileInfo(filePath, new ArrayList<>(), false, errorMessage);
+        }
+        
         // Getters
         public String getFilePath() { return filePath; }
-        public String getNamespace() { return namespace; }
-        public List<String> getDependencies() { return dependencies; }
+        public List<SchemaInfo> getSchemas() { return new ArrayList<>(schemas); }
         public boolean isLoadSuccess() { return loadSuccess; }
         public String getErrorMessage() { return errorMessage; }
+        
+        // 向后兼容方法
+        @Deprecated
+        public String getNamespace() { 
+            return schemas.isEmpty() ? null : schemas.get(0).getNamespace(); 
+        }
+        
+        @Deprecated
+        public List<String> getDependencies() { 
+            return schemas.isEmpty() ? new ArrayList<>() : schemas.get(0).getDependencies(); 
+        }
+        
+        // 便利方法
+        public boolean hasMultipleSchemas() {
+            return schemas.size() > 1;
+        }
+        
+        public int getSchemaCount() {
+            return schemas.size();
+        }
+        
+        public SchemaInfo getSchemaByNamespace(String namespace) {
+            return schemas.stream()
+                .filter(s -> namespace.equals(s.getNamespace()))
+                .findFirst()
+                .orElse(null);
+        }
+        
+        public List<String> getAllNamespaces() {
+            List<String> namespaces = new ArrayList<>();
+            for (SchemaInfo schema : schemas) {
+                namespaces.add(schema.getNamespace());
+            }
+            return namespaces;
+        }
+    }
+    
+    /**
+     * Schema信息类
+     */
+    static class SchemaInfo {
+        private final String namespace;
+        private final List<String> dependencies;
+        
+        public SchemaInfo(String namespace, List<String> dependencies) {
+            this.namespace = namespace;
+            this.dependencies = dependencies != null ? new ArrayList<>(dependencies) : new ArrayList<>();
+        }
+        
+        public String getNamespace() { return namespace; }
+        public List<String> getDependencies() { return new ArrayList<>(dependencies); }
     }
     
     /**

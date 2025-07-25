@@ -1,21 +1,17 @@
 package org.apache.olingo.schemamanager.testutil;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Arrays;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser.ParseResult;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser.SchemaWithDependencies;
+import org.apache.olingo.schemamanager.parser.impl.OlingoSchemaParserImpl;
 
 /**
  * 测试工具类，用于从XML文件加载Schema
@@ -62,7 +58,7 @@ public class XmlSchemaTestUtils {
     @Deprecated
     public static CsdlSchema loadSchemaFromXml(String relativePath) {
         ParseResult result = loadSchemasFromXml(relativePath);
-        return result.getSchema(); // 使用向后兼容方法
+        return result.getFirstSchema(); // 使用新的向后兼容方法
     }
     
     /**

@@ -1,9 +1,4 @@
 package org.apache.olingo.schemamanager.loader.impl;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Arrays;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,9 +52,12 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
         CsdlSchema mockSchema = new CsdlSchema();
         mockSchema.setNamespace("TestService");
-        ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
-            mockSchema, new ArrayList<>(), true, null
-        );
+        
+        // 使用新的ParseResult设计
+        java.util.List<ODataSchemaParser.SchemaWithDependencies> schemaList = new ArrayList<>();
+        schemaList.add(new ODataSchemaParser.SchemaWithDependencies(mockSchema, new ArrayList<>()));
+        ODataSchemaParser.ParseResult mockParseResult = ODataSchemaParser.ParseResult.success(schemaList);
+        
         when(parser.parseSchema(any(), anyString())).thenReturn(mockParseResult);
         ODataXmlLoader.LoadResult result = loader.loadFromInputStream(inputStream, "test-source");
         assertNotNull(result);
@@ -69,7 +67,13 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
         assertTrue(result.getErrorMessages().isEmpty());
         Map<String, ODataXmlLoader.XmlFileInfo> loadedFiles = result.getLoadedFiles();
         assertTrue(loadedFiles.containsKey("test-source"));
-        assertEquals("TestService", loadedFiles.get("test-source").getNamespace());
+        
+        // 验证新的XmlFileInfo结构
+        ODataXmlLoader.XmlFileInfo fileInfo = loadedFiles.get("test-source");
+        assertEquals("TestService", fileInfo.getNamespace()); // 向后兼容方法
+        assertEquals(1, fileInfo.getSchemaCount());
+        assertFalse(fileInfo.hasMultipleSchemas());
+        
         verify(repository).addSchema(eq(mockSchema), eq("test-source"));
     }
 
@@ -77,9 +81,10 @@ class DefaultODataXmlLoaderTest_loadFromInputStream {
     void testLoadFromInputStream_ParseFailure() throws IOException {
         String xmlContent = loadTestResourceAsString("loader/invalid/malformed-xml.xml");
         ByteArrayInputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes());
-        ODataSchemaParser.ParseResult mockParseResult = new ODataSchemaParser.ParseResult(
-            null, new ArrayList<>(), false, "Parse error"
-        );
+        
+        // 使用新的ParseResult设计
+        ODataSchemaParser.ParseResult mockParseResult = ODataSchemaParser.ParseResult.failure("Parse error");
+        
         when(parser.parseSchema(any(), anyString())).thenReturn(mockParseResult);
         ODataXmlLoader.LoadResult result = loader.loadFromInputStream(inputStream, "test-source");
         assertNotNull(result);
