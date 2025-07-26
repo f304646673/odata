@@ -13,15 +13,19 @@ import java.util.regex.Pattern;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schemamanager.parser.ODataSchemaParser;
 import org.slf4j.Logger;
@@ -142,6 +146,22 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
                     if (enumType != null) {
                         currentSchema.getEnumTypes().add(enumType);
                         logger.debug("解析EnumType: {}", enumType.getName());
+                    }
+                }
+                // 解析Action
+                else if ("Action".equals(localName) && currentSchema != null) {
+                    CsdlAction action = parseAction(reader);
+                    if (action != null) {
+                        currentSchema.getActions().add(action);
+                        logger.debug("解析Action: {}", action.getName());
+                    }
+                }
+                // 解析Function
+                else if ("Function".equals(localName) && currentSchema != null) {
+                    CsdlFunction function = parseFunction(reader);
+                    if (function != null) {
+                        currentSchema.getFunctions().add(function);
+                        logger.debug("解析Function: {}", function.getName());
                     }
                 }
                 // 解析EntityContainer
@@ -571,5 +591,133 @@ public class OlingoSchemaParserImpl implements ODataSchemaParser {
         }
         
         return new ValidationResult(errors.isEmpty(), errors, warnings);
+    }
+    
+    private CsdlAction parseAction(XMLStreamReader reader) throws Exception {
+        CsdlAction action = new CsdlAction();
+        action.setName(reader.getAttributeValue(null, "Name"));
+        
+        String isBound = reader.getAttributeValue(null, "IsBound");
+        if ("true".equals(isBound)) {
+            action.setBound(true);
+        }
+        
+        List<CsdlParameter> parameters = new ArrayList<>();
+        CsdlReturnType returnType = null;
+        
+        while (reader.hasNext()) {
+            int eventType = reader.next();
+            
+            if (eventType == XMLStreamReader.START_ELEMENT) {
+                String localName = reader.getLocalName();
+                
+                if ("Parameter".equals(localName)) {
+                    CsdlParameter parameter = parseParameter(reader);
+                    if (parameter != null) {
+                        parameters.add(parameter);
+                    }
+                } else if ("ReturnType".equals(localName)) {
+                    returnType = parseReturnType(reader);
+                }
+            } else if (eventType == XMLStreamReader.END_ELEMENT) {
+                if ("Action".equals(reader.getLocalName())) {
+                    break;
+                }
+            }
+        }
+        
+        action.setParameters(parameters);
+        action.setReturnType(returnType);
+        
+        return action;
+    }
+    
+    private CsdlFunction parseFunction(XMLStreamReader reader) throws Exception {
+        CsdlFunction function = new CsdlFunction();
+        function.setName(reader.getAttributeValue(null, "Name"));
+        
+        String isBound = reader.getAttributeValue(null, "IsBound");
+        if ("true".equals(isBound)) {
+            function.setBound(true);
+        }
+        
+        String isComposable = reader.getAttributeValue(null, "IsComposable");
+        if ("true".equals(isComposable)) {
+            function.setComposable(true);
+        }
+        
+        List<CsdlParameter> parameters = new ArrayList<>();
+        CsdlReturnType returnType = null;
+        
+        while (reader.hasNext()) {
+            int eventType = reader.next();
+            
+            if (eventType == XMLStreamReader.START_ELEMENT) {
+                String localName = reader.getLocalName();
+                
+                if ("Parameter".equals(localName)) {
+                    CsdlParameter parameter = parseParameter(reader);
+                    if (parameter != null) {
+                        parameters.add(parameter);
+                    }
+                } else if ("ReturnType".equals(localName)) {
+                    returnType = parseReturnType(reader);
+                }
+            } else if (eventType == XMLStreamReader.END_ELEMENT) {
+                if ("Function".equals(reader.getLocalName())) {
+                    break;
+                }
+            }
+        }
+        
+        function.setParameters(parameters);
+        function.setReturnType(returnType);
+        
+        return function;
+    }
+    
+    private CsdlParameter parseParameter(XMLStreamReader reader) throws Exception {
+        CsdlParameter parameter = new CsdlParameter();
+        parameter.setName(reader.getAttributeValue(null, "Name"));
+        parameter.setType(reader.getAttributeValue(null, "Type"));
+        
+        String nullable = reader.getAttributeValue(null, "Nullable");
+        if ("false".equals(nullable)) {
+            parameter.setNullable(false);
+        } else {
+            parameter.setNullable(true); // default is true
+        }
+        
+        // Skip to end of Parameter element
+        while (reader.hasNext()) {
+            int eventType = reader.next();
+            if (eventType == XMLStreamReader.END_ELEMENT && "Parameter".equals(reader.getLocalName())) {
+                break;
+            }
+        }
+        
+        return parameter;
+    }
+    
+    private CsdlReturnType parseReturnType(XMLStreamReader reader) throws Exception {
+        CsdlReturnType returnType = new CsdlReturnType();
+        returnType.setType(reader.getAttributeValue(null, "Type"));
+        
+        String nullable = reader.getAttributeValue(null, "Nullable");
+        if ("false".equals(nullable)) {
+            returnType.setNullable(false);
+        } else {
+            returnType.setNullable(true); // default is true
+        }
+        
+        // Skip to end of ReturnType element
+        while (reader.hasNext()) {
+            int eventType = reader.next();
+            if (eventType == XMLStreamReader.END_ELEMENT && "ReturnType".equals(reader.getLocalName())) {
+                break;
+            }
+        }
+        
+        return returnType;
     }
 }

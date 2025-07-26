@@ -68,7 +68,6 @@ public class DefaultSchemaMerger implements SchemaMerger {
                 String namespace = entry.getKey();
                 List<CsdlSchema> namespacedSchemas = entry.getValue();
                 
-                
                 if (namespacedSchemas.size() == 1) {
                     // Single schema, no merging needed
                     mergedSchemas.add(namespacedSchemas.get(0));
@@ -115,6 +114,7 @@ public class DefaultSchemaMerger implements SchemaMerger {
                                    List<String> warnings, List<String> errors, List<ConflictInfo> conflicts, String namespace) {
         CsdlSchema result = new CsdlSchema();
         result.setNamespace(schemas.get(0).getNamespace());
+        // 相同namespace的Schema在不同文件中出现时，alias可能不同, 取第一个Schema的alias
         result.setAlias(schemas.get(0).getAlias());
         
         // Merge all schema elements

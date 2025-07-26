@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
   <edmx:DataServices>
-    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Different.Model" Alias="DM">
-      
-      <!-- Entity Types -->
-      <EntityType Name="Customer">
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestNamespace">
+      <EntityType Name="Product">
         <Key>
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
         <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
       </EntityType>
-      
-      <!-- Entity Container -->
-      <EntityContainer Name="DifferentContainer">
-        <EntitySet Name="Customers" EntityType="Different.Model.Customer"/>
-      </EntityContainer>
-      
     </Schema>
   </edmx:DataServices>
 </edmx:Edmx>
