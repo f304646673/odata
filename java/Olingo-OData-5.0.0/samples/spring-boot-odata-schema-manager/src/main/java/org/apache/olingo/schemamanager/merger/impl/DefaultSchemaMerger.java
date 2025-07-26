@@ -39,7 +39,6 @@ public class DefaultSchemaMerger implements SchemaMerger {
     
     @Override
     public MergeResult mergeSchemas(List<CsdlSchema> schemas, ConflictResolution resolution) {
-        System.out.println("DEBUG: Starting merge with " + schemas.size() + " schemas");
         List<String> warnings = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         List<ConflictInfo> conflicts = new ArrayList<>();
@@ -59,13 +58,8 @@ public class DefaultSchemaMerger implements SchemaMerger {
         }
         
         try {
-            System.out.println("DEBUG: Starting schema grouping by namespace");
             // Group schemas by namespace
             Map<String, List<CsdlSchema>> schemasByNamespace = groupSchemasByNamespace(schemas);
-            System.out.println("DEBUG: Grouped schemas into " + schemasByNamespace.size() + " namespaces");
-            for (Map.Entry<String, List<CsdlSchema>> entry : schemasByNamespace.entrySet()) {
-                System.out.println("DEBUG: Namespace '" + entry.getKey() + "' has " + entry.getValue().size() + " schemas");
-            }
             
             List<CsdlSchema> mergedSchemas = new ArrayList<>();
             
@@ -74,15 +68,12 @@ public class DefaultSchemaMerger implements SchemaMerger {
                 String namespace = entry.getKey();
                 List<CsdlSchema> namespacedSchemas = entry.getValue();
                 
-                System.out.println("DEBUG: Processing namespace '" + namespace + "' with " + namespacedSchemas.size() + " schemas");
                 
                 if (namespacedSchemas.size() == 1) {
                     // Single schema, no merging needed
-                    System.out.println("DEBUG: Single schema, no merging needed for namespace '" + namespace + "'");
                     mergedSchemas.add(namespacedSchemas.get(0));
                 } else {
                     // Multiple schemas with same namespace, need to merge
-                    System.out.println("DEBUG: Multiple schemas detected for namespace '" + namespace + "', starting merge");
                     CsdlSchema mergedSchema = performMerge(namespacedSchemas, resolution, warnings, errors, conflicts, namespace);
                     if (mergedSchema != null) {
                         mergedSchemas.add(mergedSchema);
@@ -101,14 +92,6 @@ public class DefaultSchemaMerger implements SchemaMerger {
             boolean success = errors.isEmpty();
             return new MergeResult(mergedSchemas, warnings, errors, conflicts, success);
         } catch (Exception e) {
-            // Print detailed error information for debugging
-            System.err.println("=== MERGE ERROR DETAILS ===");
-            System.err.println("Exception type: " + e.getClass().getName());
-            System.err.println("Message: " + e.getMessage());
-            System.err.println("Cause: " + (e.getCause() != null ? e.getCause().getMessage() : "null"));
-            System.err.println("Stack trace:");
-            e.printStackTrace();
-            System.err.println("=== END ERROR DETAILS ===");
             errors.add("Merge failed: " + e.getMessage());
             return new MergeResult(new ArrayList<>(), warnings, errors, conflicts, false);
         }
@@ -130,19 +113,14 @@ public class DefaultSchemaMerger implements SchemaMerger {
     
     private CsdlSchema performMerge(List<CsdlSchema> schemas, ConflictResolution resolution, 
                                    List<String> warnings, List<String> errors, List<ConflictInfo> conflicts, String namespace) {
-        System.out.println("DEBUG: performMerge started for namespace '" + namespace + "' with " + schemas.size() + " schemas");
         CsdlSchema result = new CsdlSchema();
         result.setNamespace(schemas.get(0).getNamespace());
         result.setAlias(schemas.get(0).getAlias());
         
         // Merge all schema elements
-        System.out.println("DEBUG: Starting mergeEntityTypes");
         mergeEntityTypes(schemas, result, resolution, warnings, errors, conflicts, namespace);
-        System.out.println("DEBUG: Starting mergeComplexTypes");
         mergeComplexTypes(schemas, result, resolution, warnings, errors, conflicts, namespace);
-        System.out.println("DEBUG: Starting mergeEnumTypes");
         mergeEnumTypes(schemas, result, resolution, warnings, errors, conflicts, namespace);
-        System.out.println("DEBUG: Starting mergeActions");
         mergeActions(schemas, result, resolution, warnings, errors, conflicts, namespace);
         mergeFunctions(schemas, result, resolution, warnings, errors, conflicts, namespace);
         mergeTerms(schemas, result, resolution, warnings, errors, conflicts, namespace);
@@ -154,29 +132,22 @@ public class DefaultSchemaMerger implements SchemaMerger {
     
     private void mergeEntityTypes(List<CsdlSchema> schemas, CsdlSchema result, ConflictResolution resolution,
                                  List<String> warnings, List<String> errors, List<ConflictInfo> conflicts, String namespace) {
-        System.out.println("DEBUG: mergeEntityTypes started");
         Map<String, CsdlEntityType> entityTypes = new HashMap<>();
         
         for (int i = 0; i < schemas.size(); i++) {
             CsdlSchema schema = schemas.get(i);
-            System.out.println("DEBUG: Processing schema " + i + " with namespace '" + schema.getNamespace() + "'");
             if (schema.getEntityTypes() != null) {
-                System.out.println("DEBUG: Schema " + i + " has " + schema.getEntityTypes().size() + " entity types");
                 for (int j = 0; j < schema.getEntityTypes().size(); j++) {
                     CsdlEntityType entityType = schema.getEntityTypes().get(j);
                     String name = entityType.getName();
-                    System.out.println("DEBUG: Processing entity type '" + name + "' from schema " + i);
                     if (entityTypes.containsKey(name)) {
-                        System.out.println("DEBUG: Conflict detected for entity type '" + name + "', calling handleEntityTypeConflict");
                         handleEntityTypeConflict(name, entityTypes.get(name), entityType, resolution,
                                                warnings, errors, conflicts, entityTypes, namespace);
                     } else {
-                        System.out.println("DEBUG: Adding new entity type '" + name + "'");
                         entityTypes.put(name, entityType);
                     }
                 }
             } else {
-                System.out.println("DEBUG: Schema " + i + " has no entity types");
             }
         }
         
@@ -218,39 +189,6 @@ public class DefaultSchemaMerger implements SchemaMerger {
     
     private boolean areEntityTypesCompatible(CsdlEntityType type1, CsdlEntityType type2) {
         try {
-            System.out.println("DEBUG: Checking compatibility between EntityTypes");
-            System.out.println("DEBUG: Type1 - Name: " + type1.getName());
-            try {
-                String baseType1 = type1.getBaseType();
-                System.out.println("DEBUG: Type1 - BaseType: " + baseType1);
-            } catch (Exception e) {
-                System.out.println("DEBUG: Error getting Type1 BaseType: " + e.getMessage());
-                e.printStackTrace();
-            }
-            try {
-                FullQualifiedName baseTypeFQN1 = type1.getBaseTypeFQN();
-                System.out.println("DEBUG: Type1 - BaseTypeFQN: " + baseTypeFQN1);
-            } catch (Exception e) {
-                System.out.println("DEBUG: Error getting Type1 BaseTypeFQN: " + e.getMessage());
-                e.printStackTrace();
-            }
-            
-            System.out.println("DEBUG: Type2 - Name: " + type2.getName());
-            try {
-                String baseType2 = type2.getBaseType();
-                System.out.println("DEBUG: Type2 - BaseType: " + baseType2);
-            } catch (Exception e) {
-                System.out.println("DEBUG: Error getting Type2 BaseType: " + e.getMessage());
-                e.printStackTrace();
-            }
-            try {
-                FullQualifiedName baseTypeFQN2 = type2.getBaseTypeFQN();
-                System.out.println("DEBUG: Type2 - BaseTypeFQN: " + baseTypeFQN2);
-            } catch (Exception e) {
-                System.out.println("DEBUG: Error getting Type2 BaseTypeFQN: " + e.getMessage());
-                e.printStackTrace();
-            }
-            
             // Check if base types match
             String baseType1 = null;
             String baseType2 = null;
@@ -258,34 +196,22 @@ public class DefaultSchemaMerger implements SchemaMerger {
                 baseType1 = type1.getBaseType();
                 baseType2 = type2.getBaseType();
             } catch (Exception e) {
-                System.err.println("Error getting base types: " + e.getMessage());
-                e.printStackTrace();
                 // If we can't get base types, consider them unequal
                 return false;
             }
-            
             if (!objectsEqual(baseType1, baseType2)) {
-                System.out.println("DEBUG: Base types are different: '" + baseType1 + "' vs '" + baseType2 + "'");
                 return false;
             }
-            
             // Check if abstract flags match
             if (type1.isAbstract() != type2.isAbstract()) {
-                System.out.println("DEBUG: Abstract flags are different");
                 return false;
             }
-            
             // Check if open types match
             if (type1.isOpenType() != type2.isOpenType()) {
-                System.out.println("DEBUG: Open type flags are different");
                 return false;
             }
-            
-            System.out.println("DEBUG: EntityTypes are compatible");
             return true;
         } catch (Exception e) {
-            System.err.println("ERROR in areEntityTypesCompatible: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
@@ -780,17 +706,8 @@ public class DefaultSchemaMerger implements SchemaMerger {
             if (obj1 == null || obj2 == null) {
                 return false;
             }
-            System.out.println("DEBUG: Comparing objects: " + obj1.getClass().getSimpleName() + " vs " + obj2.getClass().getSimpleName());
-            if (obj1 instanceof org.apache.olingo.commons.api.edm.FullQualifiedName) {
-                System.out.println("DEBUG: obj1 is FullQualifiedName: " + obj1);
-            }
-            if (obj2 instanceof org.apache.olingo.commons.api.edm.FullQualifiedName) {
-                System.out.println("DEBUG: obj2 is FullQualifiedName: " + obj2);
-            }
             return obj1.equals(obj2);
         } catch (Exception e) {
-            System.err.println("ERROR in objectsEqual: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
