@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.schemamanager.merger.SchemaMerger;
 import org.apache.olingo.schemamanager.merger.SchemaMerger.ConflictResolution;
 import org.apache.olingo.schemamanager.merger.SchemaMerger.MergeResult;
@@ -52,10 +53,10 @@ public class DefaultSchemaMergerEntityTypeTest {
         assertEquals(1, mergedSchema.getEntityTypes().size(), "Should have one entity type");
         
         // Check that first schema's properties are preserved
-        assertEquals("Product", mergedSchema.getEntityTypes().get(0).getName());
-        assertEquals(3, mergedSchema.getEntityTypes().get(0).getProperties().size(), "Should have 3 properties from first schema");
+        assertTrue(entityTypesEqual(mergedSchema.getEntityTypes().get(0), schema1.getEntityTypes().get(0)), 
+                   "Merged entity type should match first schema's entity type");
     }
-    
+
     @Test
     @DisplayName("EntityType KEEP_LAST - Should keep last definition")
     void testEntityType_KeepLast() throws Exception {
@@ -165,5 +166,17 @@ public class DefaultSchemaMergerEntityTypeTest {
         assertNotNull(mergedSchema.getEntityTypes(), "Merged schema should have entity types");
         assertEquals(1, mergedSchema.getEntityTypes().size(), "Should have one entity type");
         assertEquals("Product", mergedSchema.getEntityTypes().get(0).getName());
+    }
+
+    // check if two entity types are equal
+    private boolean entityTypesEqual(CsdlEntityType type1, CsdlEntityType type2) {
+        return type1.getName().equals(type2.getName())
+               && type1.getProperties().equals(type2.getProperties())
+               && type1.getKey().equals(type2.getKey())
+               && type1.getNavigationProperties().equals(type2.getNavigationProperties())
+               && type1.getAnnotations().equals(type2.getAnnotations())
+               && (type1.getBaseType() == null ? type2.getBaseType() == null : type1.getBaseType().equals(type2.getBaseType()))
+               && type1.isAbstract() == type2.isAbstract()
+               && type1.isOpenType() == type2.isOpenType();
     }
 }
