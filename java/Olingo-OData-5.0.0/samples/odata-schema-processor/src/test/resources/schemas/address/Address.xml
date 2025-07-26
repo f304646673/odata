@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Microsoft.OData.Core.Test.Address">
+      <Using Namespace="Microsoft.OData.Core.Test.Common" Alias="Common"/>
+      
+      <EntityType Name="Address">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+        <Property Name="Country" Type="Edm.String"/>
+        <NavigationProperty Name="Residents" Type="Collection(Microsoft.OData.Core.Test.Common.Person)"/>
+      </EntityType>
+      
+      <ComplexType Name="GeoLocation">
+        <Property Name="Latitude" Type="Edm.Double"/>
+        <Property Name="Longitude" Type="Edm.Double"/>
+      </ComplexType>
+      
+      <EntityContainer Name="AddressContainer">
+        <EntitySet Name="Addresses" EntityType="Microsoft.OData.Core.Test.Address.Address"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
