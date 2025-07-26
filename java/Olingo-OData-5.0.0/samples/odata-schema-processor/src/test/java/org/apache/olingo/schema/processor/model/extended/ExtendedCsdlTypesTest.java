@@ -1,7 +1,7 @@
 package org.apache.olingo.schema.processor.model.extended;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * 扩展CSDL类型的综合测试
@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ExtendedCsdlTypesTest {
     
     @Test
-    void testExtendedCsdlComplexTypeBasics() {
+    public void testExtendedCsdlComplexTypeBasics() {
         ExtendedCsdlComplexType complexType = new ExtendedCsdlComplexType();
         
         // 测试基本功能
@@ -27,7 +27,7 @@ public class ExtendedCsdlTypesTest {
     }
     
     @Test 
-    void testExtendedCsdlActionBasics() {
+    public void testExtendedCsdlActionBasics() {
         ExtendedCsdlAction action = new ExtendedCsdlAction();
         
         // 测试基本功能
@@ -44,7 +44,7 @@ public class ExtendedCsdlTypesTest {
     }
     
     @Test
-    void testExtendedCsdlParameterBasics() {
+    public void testExtendedCsdlParameterBasics() {
         ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
         
         // 测试基本功能
@@ -57,7 +57,7 @@ public class ExtendedCsdlTypesTest {
     }
     
     @Test
-    void testFluentInterfaces() {
+    public void testFluentInterfaces() {
         // 测试ExtendedCsdlComplexType的流式接口
         ExtendedCsdlComplexType complexType = new ExtendedCsdlComplexType()
             .setName("TestType")
@@ -76,7 +76,7 @@ public class ExtendedCsdlTypesTest {
     }
     
     @Test
-    void testDependencyManagement() {
+    public void testDependencyManagement() {
         ExtendedCsdlFunction function = new ExtendedCsdlFunction();
         
         // 测试空状态
@@ -98,7 +98,7 @@ public class ExtendedCsdlTypesTest {
     }
     
     @Test
-    void testNullAndEmptyHandling() {
+    public void testNullAndEmptyHandling() {
         ExtendedCsdlEntitySet entitySet = new ExtendedCsdlEntitySet();
         
         // 测试null和空字符串处理
