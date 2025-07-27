@@ -1,27 +1,37 @@
 package org.apache.olingo.schema.processor.test;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schema.processor.analyzer.DependencyAnalyzer;
 import org.apache.olingo.schema.processor.analyzer.impl.EnhancedDependencyAnalyzer;
-import org.apache.olingo.schema.processor.merger.AdvancedSchemaMerger;
 import org.apache.olingo.schema.processor.exporter.ContainerExporter;
 import org.apache.olingo.schema.processor.exporter.impl.EnhancedContainerExporter;
+import org.apache.olingo.schema.processor.merger.AdvancedSchemaMerger;
 import org.apache.olingo.schema.processor.repository.SchemaRepository;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  * Enhanced functionality tests for advanced OData 4.0 schema processing
@@ -101,6 +111,9 @@ public class AdvancedODataProcessingTest {
         orderSet.setType("com.example.schema2.Order");
         
         testContainer.setEntitySets(Arrays.asList(customerSet, orderSet));
+        
+        // 将容器设置到一个Schema中（通常是主Schema）
+        testSchema1.setEntityContainer(testContainer);
     }
 
     private CsdlProperty createProperty(String name, String type, boolean nullable) {
@@ -158,13 +171,7 @@ public class AdvancedODataProcessingTest {
 
     @Test
     public void testEnhancedDependencyAnalysis() {
-        // Mock schema repository responses
-        when(schemaRepository.getSchema("com.example.schema1")).thenReturn(testSchema1);
-        when(schemaRepository.getSchema("com.example.schema2")).thenReturn(testSchema2);
-        when(schemaRepository.getAllNamespaces()).thenReturn(
-            new HashSet<>(Arrays.asList("com.example.schema1", "com.example.schema2")));
-
-        // Test recursive dependency analysis
+        // Test recursive dependency analysis - no mocking needed
         Set<String> recursiveDeps = enhancedDependencyAnalyzer.getRecursiveDependencies("com.example.schema1");
         
         assertNotNull("Recursive dependencies should not be null", recursiveDeps);
@@ -173,10 +180,7 @@ public class AdvancedODataProcessingTest {
 
     @Test
     public void testContainerExportToXml() throws IOException {
-        // Mock dependencies
-        when(schemaRepository.getSchema(anyString())).thenReturn(testSchema1);
-        when(dependencyAnalyzer.getRecursiveDependencies(anyString())).thenReturn(new HashSet<>());
-        
+        // No mocking needed - use actual implementation
         Path tempDir = Files.createTempDirectory("odata-test");
         String outputPath = tempDir.resolve("container.xml").toString();
         
@@ -201,10 +205,7 @@ public class AdvancedODataProcessingTest {
 
     @Test
     public void testContainerExportToJson() throws IOException {
-        // Mock dependencies
-        when(schemaRepository.getSchema(anyString())).thenReturn(testSchema1);
-        when(dependencyAnalyzer.getRecursiveDependencies(anyString())).thenReturn(new HashSet<>());
-        
+        // No mocking needed - use actual implementation
         Path tempDir = Files.createTempDirectory("odata-test");
         String outputPath = tempDir.resolve("container.json").toString();
         
@@ -228,10 +229,7 @@ public class AdvancedODataProcessingTest {
 
     @Test
     public void testMergedContainerExport() throws IOException {
-        // Mock dependencies
-        when(schemaRepository.getSchema(anyString())).thenReturn(testSchema1);
-        when(dependencyAnalyzer.getRecursiveDependencies(anyString())).thenReturn(new HashSet<>());
-        
+        // No mocking needed - use actual implementation
         List<CsdlSchema> schemas = Arrays.asList(testSchema1, testSchema2);
         Path tempDir = Files.createTempDirectory("odata-test");
         String outputPath = tempDir.resolve("merged-container.xml").toString();

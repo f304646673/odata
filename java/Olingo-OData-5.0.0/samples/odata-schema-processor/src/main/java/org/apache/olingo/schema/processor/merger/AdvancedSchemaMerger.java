@@ -1,11 +1,32 @@
 package org.apache.olingo.schema.processor.merger;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 高级Schema合并器
@@ -314,36 +335,18 @@ public class AdvancedSchemaMerger {
         }
         
         if (!annotationsByTarget.isEmpty()) {
-            mergedSchema.setAnnotationGroups(new ArrayList<>(annotationsByTarget.values()));
+            mergedSchema.setAnnotationsGroup(new ArrayList<>(annotationsByTarget.values()));
         }
     }
     
     /**
-     * 合并References
+     * 注意：CsdlSchema不直接支持References，此处为占位符
+     * 实际应用中应考虑从XML或其他来源管理References
      */
     private void mergeReferences(CsdlSchema mergedSchema, List<CsdlSchema> schemas,
                                 List<String> errors, List<String> warnings) {
-        Map<String, CsdlReference> references = new HashMap<>();
-        
-        for (CsdlSchema schema : schemas) {
-            if (schema.getReferences() != null) {
-                for (CsdlReference reference : schema.getReferences()) {
-                    String uri = reference.getUri();
-                    if (references.containsKey(uri)) {
-                        // 检查Reference是否相同
-                        if (!areReferencesEquivalent(references.get(uri), reference)) {
-                            warnings.add(String.format("Different Reference definitions for URI '%s' found, using the first one", uri));
-                        }
-                    } else {
-                        references.put(uri, reference);
-                    }
-                }
-            }
-        }
-        
-        if (!references.isEmpty()) {
-            mergedSchema.setReferences(new ArrayList<>(references.values()));
-        }
+        // 暂不支持References合并，因为CsdlSchema没有这个功能
+        logger.warn("References merging is not supported in current Olingo version");
     }
     
     // 辅助方法用于检查元素等价性
@@ -524,12 +527,13 @@ public class AdvancedSchemaMerger {
                Objects.equals(np1.isCollection(), np2.isCollection()) &&
                Objects.equals(np1.isNullable(), np2.isNullable()) &&
                Objects.equals(np1.getPartner(), np2.getPartner()) &&
-               Objects.equals(np1.containsTarget(), np2.containsTarget());
+               Objects.equals(np1.isContainsTarget(), np2.isContainsTarget());
     }
     
-    private boolean areReferencesEquivalent(CsdlReference r1, CsdlReference r2) {
-        return Objects.equals(r1.getUri(), r2.getUri());
-    }
+    // 注意：由于CsdlSchema不支持References，此方法暂时保留为占位符
+    // private boolean areReferencesEquivalent(CsdlReference r1, CsdlReference r2) {
+    //     return Objects.equals(r1.getUri(), r2.getUri());
+    // }
     
     private String getActionKey(CsdlAction action) {
         // Action重载基于参数类型

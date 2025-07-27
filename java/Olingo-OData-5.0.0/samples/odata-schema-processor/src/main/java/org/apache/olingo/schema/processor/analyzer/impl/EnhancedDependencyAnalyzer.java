@@ -95,6 +95,9 @@ public class EnhancedDependencyAnalyzer implements DependencyAnalyzer {
         Set<String> visited = new HashSet<>();
         Queue<String> toProcess = new LinkedList<>();
         
+        // 包含自身
+        allDependencies.add(fullyQualifiedName);
+        
         toProcess.add(fullyQualifiedName);
         visited.add(fullyQualifiedName);
         
