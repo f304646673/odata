@@ -19,6 +19,17 @@ public class SchemaReferenceValidatorTest {
     private SchemaReferenceValidator validator;
     private Path testDir;
     
+    /**
+     * 获取资源路径
+     */
+    private Path getResourcePath(String resourceName) {
+        try {
+            return Paths.get(getClass().getClassLoader().getResource(resourceName).toURI());
+        } catch (Exception e) {
+            throw new RuntimeException("无法找到资源: " + resourceName, e);
+        }
+    }
+    
     @Before
     public void setUp() throws IOException {
         validator = new SchemaReferenceValidator();
@@ -216,7 +227,7 @@ public class SchemaReferenceValidatorTest {
     @Test
     public void testValidateRealBusinessEntitiesXml() throws Exception {
         // 测试真实的 BusinessEntities.xml 文件，该文件使用了 Core.Types.BaseEntity 但没有声明相应的 edmx:Reference
-        Path businessEntitiesPath = Paths.get("examples/schemas/business/BusinessEntities.xml");
+        Path businessEntitiesPath = getResourcePath("examples/schemas/business/BusinessEntities.xml");
         
         SchemaReferenceValidator.ValidationResult result = validator.validateSchemaReferences(businessEntitiesPath);
         

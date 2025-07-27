@@ -45,6 +45,17 @@ public class SimpleSchemaAggregatorExample {
     private final Set<Path> processedFiles = new HashSet<>();
     
     /**
+     * 获取资源路径
+     */
+    private Path getResourcePath(String resourceName) {
+        try {
+            return Paths.get(getClass().getClassLoader().getResource(resourceName).toURI());
+        } catch (Exception e) {
+            throw new RuntimeException("无法找到资源: " + resourceName, e);
+        }
+    }
+    
+    /**
      * 主要示例方法
      */
     public void demonstrateMultiLayerSchemaAggregation() {
@@ -55,18 +66,20 @@ public class SimpleSchemaAggregatorExample {
             createExampleXmlStructure();
             
             // 第2步：递归扫描并聚合所有Schema
-            Path rootSchemaFolder = Paths.get("examples/schemas");
+            Path rootSchemaFolder = getResourcePath("examples/schemas");
             aggregateSchemasFromFolder(rootSchemaFolder);
             
             // 第3步：加载容器XML并分析依赖
-            Path containerFile = Paths.get("examples/containers/MainContainer.xml");
+            Path containerFile = getResourcePath("examples/containers/MainContainer.xml");
             CsdlEntityContainer container = loadContainer(containerFile);
             
             // 第4步：构建完整的聚合XML
             String aggregatedXml = buildAggregatedSchemaXml(container);
             
-            // 第5步：输出结果
-            saveAggregatedXml(aggregatedXml, "examples/output/AggregatedSchema.xml");
+            // 第5步：输出结果到target目录
+            Path outputPath = Paths.get("target/examples/output");
+            Files.createDirectories(outputPath);
+            saveAggregatedXml(aggregatedXml, outputPath.resolve("AggregatedSchema.xml").toString());
             
             // 第6步：展示依赖分析结果
             displaySchemaAnalysis();
@@ -537,11 +550,11 @@ public class SimpleSchemaAggregatorExample {
         logger.info("创建示例XML文件结构...");
         
         // 创建目录结构
-        Files.createDirectories(Paths.get("examples/schemas/core"));
-        Files.createDirectories(Paths.get("examples/schemas/business"));
-        Files.createDirectories(Paths.get("examples/schemas/common"));
-        Files.createDirectories(Paths.get("examples/containers"));
-        Files.createDirectories(Paths.get("examples/output"));
+        Files.createDirectories(Paths.get("target/examples/schemas/core"));
+        Files.createDirectories(Paths.get("target/examples/schemas/business"));
+        Files.createDirectories(Paths.get("target/examples/schemas/common"));
+        Files.createDirectories(Paths.get("target/examples/containers"));
+        Files.createDirectories(Paths.get("target/examples/output"));
         
         // 创建示例Schema文件
         createCoreSchema();
@@ -575,7 +588,7 @@ public class SimpleSchemaAggregatorExample {
             "  </edmx:DataServices>\n" +
             "</edmx:Edmx>";
         
-        Files.write(Paths.get("examples/schemas/core/CoreTypes.xml"), coreSchema.getBytes());
+        Files.write(Paths.get("target/examples/schemas/core/CoreTypes.xml"), coreSchema.getBytes());
     }
     
     /**
@@ -599,7 +612,7 @@ public class SimpleSchemaAggregatorExample {
             "  </edmx:DataServices>\n" +
             "</edmx:Edmx>";
         
-        Files.write(Paths.get("examples/schemas/business/BusinessEntities.xml"), businessSchema.getBytes());
+        Files.write(Paths.get("target/examples/schemas/business/BusinessEntities.xml"), businessSchema.getBytes());
     }
     
     /**
@@ -618,7 +631,7 @@ public class SimpleSchemaAggregatorExample {
             "  </edmx:DataServices>\n" +
             "</edmx:Edmx>";
         
-        Files.write(Paths.get("examples/schemas/common/Products.xml"), commonSchema.getBytes());
+        Files.write(Paths.get("target/examples/schemas/common/Products.xml"), commonSchema.getBytes());
     }
     
     /**
