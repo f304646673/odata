@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 /**
@@ -210,5 +211,40 @@ public class SchemaReferenceValidatorTest {
         assertTrue("应该缺失Contact.Types", missingRefs.contains("Contact.Types"));
         assertFalse("Core.Types应该不缺失", missingRefs.contains("Core.Types"));
         assertFalse("Core.Types不应该缺失", missingRefs.contains("Core.Types"));
+    }
+    
+    @Test
+    public void testValidateRealBusinessEntitiesXml() throws Exception {
+        // 测试真实的 BusinessEntities.xml 文件，该文件使用了 Core.Types.BaseEntity 但没有声明相应的 edmx:Reference
+        Path businessEntitiesPath = Paths.get("examples/schemas/business/BusinessEntities.xml");
+        
+        SchemaReferenceValidator.ValidationResult result = validator.validateSchemaReferences(businessEntitiesPath);
+        
+        // 验证结果应该是无效的，因为缺少对 Core.Types 命名空间的引用
+        assertFalse("BusinessEntities.xml should be invalid due to missing reference to Core.Types", 
+                   result.isValid());
+        
+        // 检查错误信息中包含 Core.Types 命名空间
+        assertTrue("Should contain error about missing Core.Types namespace", 
+                  result.getErrors().stream().anyMatch(error -> error.contains("Core.Types")));
+        
+        // 检查被引用的命名空间包含 Core.Types
+        assertTrue("Referenced namespaces should contain Core.Types", 
+                  result.getReferencedNamespaces().contains("Core.Types"));
+        
+        // 检查缺失的引用包含 Core.Types
+        Set<String> missingReferences = result.getMissingReferences();
+        assertTrue("Missing references should contain Core.Types", 
+                  missingReferences.contains("Core.Types"));
+        
+        System.out.println("=== Real BusinessEntities.xml Validation Results ===");
+        System.out.println("Is Valid: " + result.isValid());
+        System.out.println("Errors: " + result.getErrors());
+        System.out.println("Referenced Namespaces: " + result.getReferencedNamespaces());
+        System.out.println("Missing References: " + missingReferences);
+        
+        // 确认这确实检测到了用户指出的问题
+        assertTrue("Should detect the issue mentioned by user: missing Core.Types reference", 
+                  result.getErrors().stream().anyMatch(error -> error.contains("Core.Types")));
     }
 }
