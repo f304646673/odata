@@ -10,14 +10,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlAction;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlAnnotation;
 import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlComplexType;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlEntityContainer;
 import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlEntityType;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlEnumType;
 import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlFunction;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlTerm;
 import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlTypeDefinition;
 import org.apache.olingo.schema.processor.parser.ODataXmlParser;
 import org.apache.olingo.server.core.MetadataParser;
@@ -164,7 +172,7 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
     /**
      * 使用Olingo原生解析器解析XML
      */
-    private List<CsdlSchema> parseWithOlingoNative(InputStream inputStream, String sourceName) throws Exception {
+    protected List<CsdlSchema> parseWithOlingoNative(InputStream inputStream, String sourceName) throws Exception {
         try {
             // 使用Olingo的MetadataParser来解析XML
             MetadataParser parser = new MetadataParser();
@@ -216,6 +224,7 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
             List<CsdlEntityType> extendedEntityTypes = new ArrayList<>();
             for (CsdlEntityType entityType : originalSchema.getEntityTypes()) {
                 ExtendedCsdlEntityType extendedEntityType = createExtendedEntityType(entityType);
+                extendedEntityType.setNamespace(originalSchema.getNamespace()); // 设置namespace
                 extendedEntityTypes.add(extendedEntityType);
             }
             extendedSchema.setEntityTypes(extendedEntityTypes);
@@ -226,19 +235,26 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
             List<CsdlComplexType> extendedComplexTypes = new ArrayList<>();
             for (CsdlComplexType complexType : originalSchema.getComplexTypes()) {
                 ExtendedCsdlComplexType extendedComplexType = createExtendedComplexType(complexType);
+                extendedComplexType.setNamespace(originalSchema.getNamespace()); // 设置namespace
                 extendedComplexTypes.add(extendedComplexType);
             }
             extendedSchema.setComplexTypes(extendedComplexTypes);
         }
         
-        // 直接复制EntityContainer（没有扩展类）
+        // 转换EntityContainer为扩展模型
         if (originalSchema.getEntityContainer() != null) {
-            extendedSchema.setEntityContainer(originalSchema.getEntityContainer());
+            ExtendedCsdlEntityContainer extendedEntityContainer = createExtendedEntityContainer(originalSchema.getEntityContainer());
+            extendedSchema.setEntityContainer(extendedEntityContainer);
         }
         
-        // 直接复制EnumTypes（没有扩展类）
+        // 转换EnumTypes为扩展模型
         if (originalSchema.getEnumTypes() != null) {
-            extendedSchema.setEnumTypes(new ArrayList<>(originalSchema.getEnumTypes()));
+            List<CsdlEnumType> extendedEnumTypes = new ArrayList<>();
+            for (CsdlEnumType enumType : originalSchema.getEnumTypes()) {
+                ExtendedCsdlEnumType extendedEnumType = createExtendedEnumType(enumType);
+                extendedEnumTypes.add(extendedEnumType);
+            }
+            extendedSchema.setEnumTypes(extendedEnumTypes);
         }
         
         // 转换TypeDefinitions为扩展模型
@@ -260,13 +276,24 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
             extendedSchema.setFunctions(new ArrayList<>(originalSchema.getFunctions()));
         }
         
-        // 复制Terms和Annotations（如果有）
+        // 转换Terms为扩展模型
         if (originalSchema.getTerms() != null) {
-            extendedSchema.setTerms(new ArrayList<>(originalSchema.getTerms()));
+            List<CsdlTerm> extendedTerms = new ArrayList<>();
+            for (CsdlTerm term : originalSchema.getTerms()) {
+                ExtendedCsdlTerm extendedTerm = createExtendedTerm(term);
+                extendedTerms.add(extendedTerm);
+            }
+            extendedSchema.setTerms(extendedTerms);
         }
         
+        // 转换Annotations为扩展模型
         if (originalSchema.getAnnotations() != null) {
-            extendedSchema.setAnnotations(new ArrayList<>(originalSchema.getAnnotations()));
+            List<CsdlAnnotation> extendedAnnotations = new ArrayList<>();
+            for (CsdlAnnotation annotation : originalSchema.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = createExtendedAnnotation(annotation);
+                extendedAnnotations.add(extendedAnnotation);
+            }
+            extendedSchema.setAnnotations(extendedAnnotations);
         }
         
         logger.debug("Created extended schema for namespace: {}", originalSchema.getNamespace());
@@ -284,7 +311,11 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         extended.setName(originalEntityType.getName());
         extended.setAbstract(originalEntityType.isAbstract());
         extended.setOpenType(originalEntityType.isOpenType());
-        extended.setBaseType(originalEntityType.getBaseType());
+        
+        // 安全地设置BaseType
+        if (originalEntityType.getBaseType() != null) {
+            extended.setBaseType(originalEntityType.getBaseType());
+        }
         
         // 复制属性
         if (originalEntityType.getProperties() != null) {
@@ -324,7 +355,9 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         extended.setName(originalComplexType.getName());
         extended.setAbstract(originalComplexType.isAbstract());
         extended.setOpenType(originalComplexType.isOpenType());
-        extended.setBaseType(originalComplexType.getBaseType());
+        if (originalComplexType.getBaseType() != null) {
+            extended.setBaseType(originalComplexType.getBaseType());
+        }
         
         // 复制属性
         if (originalComplexType.getProperties() != null) {
@@ -357,7 +390,9 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         
         // 复制基本属性
         extended.setName(originalTypeDef.getName());
-        extended.setUnderlyingType(originalTypeDef.getUnderlyingType());
+        if (originalTypeDef.getUnderlyingType() != null) {
+            extended.setUnderlyingType(originalTypeDef.getUnderlyingType());
+        }
         extended.setMaxLength(originalTypeDef.getMaxLength());
         extended.setPrecision(originalTypeDef.getPrecision());
         extended.setScale(originalTypeDef.getScale());
@@ -370,6 +405,135 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         }
         
         logger.debug("Created extended type definition: {}", originalTypeDef.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展EntityContainer
+     */
+    private ExtendedCsdlEntityContainer createExtendedEntityContainer(CsdlEntityContainer originalEntityContainer) {
+        ExtendedCsdlEntityContainer extended = new ExtendedCsdlEntityContainer();
+        
+        // 复制基本属性
+        extended.setName(originalEntityContainer.getName());
+        // EntityContainer 没有 extends 属性
+        
+        // 复制EntitySets
+        if (originalEntityContainer.getEntitySets() != null) {
+            extended.setEntitySets(new ArrayList<>(originalEntityContainer.getEntitySets()));
+        }
+        
+        // 复制Singletons
+        if (originalEntityContainer.getSingletons() != null) {
+            extended.setSingletons(new ArrayList<>(originalEntityContainer.getSingletons()));
+        }
+        
+        // 复制ActionImports
+        if (originalEntityContainer.getActionImports() != null) {
+            extended.setActionImports(new ArrayList<>(originalEntityContainer.getActionImports()));
+        }
+        
+        // 复制FunctionImports
+        if (originalEntityContainer.getFunctionImports() != null) {
+            extended.setFunctionImports(new ArrayList<>(originalEntityContainer.getFunctionImports()));
+        }
+        
+        // 复制注解
+        if (originalEntityContainer.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalEntityContainer.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended entity container: {}", originalEntityContainer.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展EnumType
+     */
+    private ExtendedCsdlEnumType createExtendedEnumType(CsdlEnumType originalEnumType) {
+        ExtendedCsdlEnumType extended = new ExtendedCsdlEnumType();
+        
+        // 复制基本属性
+        extended.setName(originalEnumType.getName());
+        if (originalEnumType.getUnderlyingType() != null) {
+            extended.setUnderlyingType(originalEnumType.getUnderlyingType());
+        }
+        extended.setFlags(originalEnumType.isFlags());
+        
+        // 复制成员
+        if (originalEnumType.getMembers() != null) {
+            extended.setMembers(new ArrayList<>(originalEnumType.getMembers()));
+        }
+        
+        // 复制注解
+        if (originalEnumType.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalEnumType.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended enum type: {}", originalEnumType.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展Term
+     */
+    private ExtendedCsdlTerm createExtendedTerm(CsdlTerm originalTerm) {
+        ExtendedCsdlTerm extended = new ExtendedCsdlTerm();
+        
+        // 复制基本属性
+        extended.setName(originalTerm.getName());
+        if (originalTerm.getType() != null) {
+            extended.setType(originalTerm.getType());
+        }
+        extended.setBaseTerm(originalTerm.getBaseTerm());
+        extended.setMaxLength(originalTerm.getMaxLength());
+        extended.setPrecision(originalTerm.getPrecision());
+        extended.setScale(originalTerm.getScale());
+        extended.setAppliesTo(originalTerm.getAppliesTo());
+        extended.setDefaultValue(originalTerm.getDefaultValue());
+        
+        // 复制注解
+        if (originalTerm.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalTerm.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended term: {}", originalTerm.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展Annotation
+     */
+    private ExtendedCsdlAnnotation createExtendedAnnotation(CsdlAnnotation originalAnnotation) {
+        ExtendedCsdlAnnotation extended = new ExtendedCsdlAnnotation();
+        
+        // 复制基本属性
+        extended.setTerm(originalAnnotation.getTerm());
+        extended.setQualifier(originalAnnotation.getQualifier());
+        extended.setExpression(originalAnnotation.getExpression());
+        
+        // 复制注解（如果Annotation支持嵌套注解）
+        if (originalAnnotation.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalAnnotation.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended annotation for term: {}", originalAnnotation.getTerm());
         
         return extended;
     }
