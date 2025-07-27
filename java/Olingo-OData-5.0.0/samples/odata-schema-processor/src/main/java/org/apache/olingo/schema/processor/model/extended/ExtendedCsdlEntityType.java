@@ -1,129 +1,187 @@
 package org.apache.olingo.schema.processor.model.extended;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
 
 /**
- * 扩展的CsdlEntityType，增加依赖关系追踪功能
+ * 扩展的CsdlEntityType，增加基于全局依赖管理器的树状依赖关系追踪功能
  */
 public class ExtendedCsdlEntityType extends CsdlEntityType {
     
-    private final Set<String> dependencies = new HashSet<>();
-    private String fullyQualifiedName;
-    
-    /**
-     * 获取依赖的类型全限定名集合
-     * @return 依赖的类型全限定名集合
-     */
-    public Set<String> getDependencies() {
-        return new HashSet<>(dependencies);
-    }
-    
-    /**
-     * 添加依赖
-     * @param fullyQualifiedTypeName 依赖的类型全限定名
-     */
-    public void addDependency(String fullyQualifiedTypeName) {
-        if (fullyQualifiedTypeName != null && !fullyQualifiedTypeName.trim().isEmpty()) {
-            dependencies.add(fullyQualifiedTypeName);
+    // 使用基类来管理依赖关系
+    private final ExtendedCsdlElement extendedElement = new ExtendedCsdlElement() {
+        @Override
+        protected CsdlDependencyNode.DependencyType getDependencyType() {
+            return CsdlDependencyNode.DependencyType.ENTITY_TYPE;
         }
+        
+        @Override
+        protected String getName() {
+            return ExtendedCsdlEntityType.this.getName();
+        }
+        
+        @Override
+        public void analyzeDependencies() {
+            ExtendedCsdlEntityType.this.analyzeDependencies();
+        }
+    };
+    
+    // === 委托给基类的依赖跟踪方法 ===
+    
+    public void addTreeDependency(String targetNamespace, String targetElement, 
+                                 CsdlDependencyNode.DependencyType dependencyType, String propertyName) {
+        extendedElement.addTreeDependency(targetNamespace, targetElement, dependencyType, propertyName);
+    }
+    
+    public boolean removeTreeDependency(String targetNamespace, String targetElement, 
+                                       CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.removeTreeDependency(targetNamespace, targetElement, dependencyType);
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getDirectDependencies() {
+        return extendedElement.getDirectDependencies();
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getDirectDependents() {
+        return extendedElement.getDirectDependents();
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getAllTreeDependencies() {
+        return extendedElement.getAllTreeDependencies();
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getAllTreeDependents() {
+        return extendedElement.getAllTreeDependents();
+    }
+    
+    public java.util.List<CsdlDependencyNode> getDependencyPath(String targetNamespace, String targetElement, 
+                                                               CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.getDependencyPath(targetNamespace, targetElement, dependencyType);
+    }
+    
+    public boolean hasCircularDependency() {
+        return extendedElement.hasCircularDependency();
+    }
+    
+    public CsdlDependencyNode getSelfNode() {
+        return extendedElement.getSelfNode();
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getDependenciesByType(CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.getDependenciesByType(dependencyType);
+    }
+    
+    public java.util.Set<CsdlDependencyNode> getDependenciesByNamespace(String namespace) {
+        return extendedElement.getDependenciesByNamespace(namespace);
+    }
+    
+    public void clearTreeDependencies() {
+        extendedElement.clearTreeDependencies();
+    }
+    
+    // === 简单依赖跟踪方法（向后兼容） ===
+    
+    public void addDependency(String namespace) {
+        extendedElement.addDependency(namespace);
+    }
+    
+    public boolean removeDependency(String namespace) {
+        return extendedElement.removeDependency(namespace);
+    }
+    
+    public java.util.Set<String> getDependencies() {
+        return extendedElement.getDependencies();
+    }
+    
+    public boolean hasDependency(String namespace) {
+        return extendedElement.hasDependency(namespace);
+    }
+    
+    public void clearDependencies() {
+        extendedElement.clearDependencies();
+    }
+    
+    public int getDependencyCount() {
+        return extendedElement.getDependencyCount();
     }
     
     /**
-     * 分析并设置所有依赖
+     * 分析并设置依赖关系
      */
     public void analyzeDependencies() {
-        dependencies.clear();
+        // 清除旧的依赖
+        clearDependencies();
+        clearTreeDependencies();
+        
+        // 初始化自身节点
+        getSelfNode();
         
         // 分析BaseType依赖
-        String baseTypeValue = getBaseType();
-        if (baseTypeValue != null) {
-            String dependency = extractTypeNamespace(baseTypeValue);
-            if (dependency != null) {
-                addDependency(dependency);
+        try {
+            String baseType = getBaseType();
+            if (baseType != null) {
+                String baseTypeNamespace = extendedElement.extractNamespace(baseType);
+                String baseTypeElement = extendedElement.extractElementName(baseType);
+                if (baseTypeNamespace != null && baseTypeElement != null) {
+                    addTreeDependency(baseTypeNamespace, baseTypeElement, 
+                                    CsdlDependencyNode.DependencyType.ENTITY_TYPE, "baseType");
+                }
             }
+        } catch (Exception e) {
+            // 忽略错误
         }
         
-        // 分析Property依赖
-        if (getProperties() != null) {
-            for (CsdlProperty property : getProperties()) {
-                if (property instanceof ExtendedCsdlProperty) {
-                    ExtendedCsdlProperty extProperty = (ExtendedCsdlProperty) property;
-                    extProperty.analyzeDependencies();
-                    dependencies.addAll(extProperty.getDependencies());
-                } else {
-                    String type = property.getType();
-                    if (type != null) {
-                        String dependency = extractTypeNamespace(type);
-                        if (dependency != null) {
-                            addDependency(dependency);
+        // 分析属性类型依赖
+        try {
+            if (getProperties() != null) {
+                for (CsdlProperty property : getProperties()) {
+                    String propertyType = property.getType();
+                    if (propertyType != null) {
+                        String propertyTypeNamespace = extendedElement.extractNamespace(propertyType);
+                        String propertyTypeElement = extendedElement.extractElementName(propertyType);
+                        if (propertyTypeNamespace != null && propertyTypeElement != null) {
+                            // 根据类型判断依赖类型
+                            CsdlDependencyNode.DependencyType depType = 
+                                propertyType.contains("EntityType") ? CsdlDependencyNode.DependencyType.ENTITY_TYPE :
+                                propertyType.contains("ComplexType") ? CsdlDependencyNode.DependencyType.COMPLEX_TYPE :
+                                CsdlDependencyNode.DependencyType.TYPE_REFERENCE;
+                            addTreeDependency(propertyTypeNamespace, propertyTypeElement, 
+                                            depType, "property." + property.getName());
                         }
                     }
                 }
             }
+        } catch (Exception e) {
+            // 忽略错误
         }
         
-        // 分析NavigationProperty依赖
-        if (getNavigationProperties() != null) {
-            for (CsdlNavigationProperty navProperty : getNavigationProperties()) {
-                if (navProperty instanceof ExtendedCsdlNavigationProperty) {
-                    ExtendedCsdlNavigationProperty extNavProperty = (ExtendedCsdlNavigationProperty) navProperty;
-                    extNavProperty.analyzeDependencies();
-                    dependencies.addAll(extNavProperty.getDependencies());
-                } else {
-                    String type = navProperty.getType();
-                    if (type != null) {
-                        String dependency = extractTypeNamespace(type);
-                        if (dependency != null) {
-                            addDependency(dependency);
+        // 分析导航属性依赖
+        try {
+            if (getNavigationProperties() != null) {
+                for (org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty navProp : getNavigationProperties()) {
+                    String navPropType = navProp.getType();
+                    if (navPropType != null) {
+                        String navPropTypeNamespace = extendedElement.extractNamespace(navPropType);
+                        String navPropTypeElement = extendedElement.extractElementName(navPropType);
+                        if (navPropTypeNamespace != null && navPropTypeElement != null) {
+                            addTreeDependency(navPropTypeNamespace, navPropTypeElement, 
+                                            CsdlDependencyNode.DependencyType.ENTITY_TYPE, "navigationProperty." + navProp.getName());
                         }
                     }
                 }
             }
+        } catch (Exception e) {
+            // 忽略错误
         }
-    }
-    
-    /**
-     * 从类型名中提取namespace
-     * @param typeName 类型名
-     * @return namespace，如果是基础类型返回null
-     */
-    private String extractTypeNamespace(String typeName) {
-        if (typeName == null || typeName.trim().isEmpty()) {
-            return null;
-        }
-        
-        // 处理Collection类型
-        String actualType = typeName;
-        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
-            actualType = typeName.substring(11, typeName.length() - 1);
-        }
-        
-        // 跳过EDM基础类型
-        if (actualType.startsWith("Edm.")) {
-            return null;
-        }
-        
-        // 提取namespace
-        int lastDotIndex = actualType.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return actualType.substring(0, lastDotIndex);
-        }
-        
-        return null;
     }
     
     public String getFullyQualifiedName() {
-        return fullyQualifiedName;
+        return extendedElement.getFullyQualifiedName();
     }
     
     public void setFullyQualifiedName(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
+        extendedElement.setFullyQualifiedName(fullyQualifiedName);
     }
     
     @Override
@@ -140,43 +198,8 @@ public class ExtendedCsdlEntityType extends CsdlEntityType {
     }
     
     @Override
-    public ExtendedCsdlEntityType setProperties(List<CsdlProperty> properties) {
+    public ExtendedCsdlEntityType setProperties(java.util.List<CsdlProperty> properties) {
         super.setProperties(properties);
-        analyzeDependencies();
-        return this;
-    }
-    
-    @Override
-    public ExtendedCsdlEntityType setNavigationProperties(List<CsdlNavigationProperty> navigationProperties) {
-        super.setNavigationProperties(navigationProperties);
-        analyzeDependencies();
-        return this;
-    }
-    
-    /**
-     * 添加扩展属性
-     * @param property 扩展属性
-     * @return this
-     */
-    public ExtendedCsdlEntityType addProperty(ExtendedCsdlProperty property) {
-        if (getProperties() == null) {
-            setProperties(new ArrayList<>());
-        }
-        getProperties().add(property);
-        analyzeDependencies();
-        return this;
-    }
-    
-    /**
-     * 添加扩展导航属性
-     * @param navigationProperty 扩展导航属性
-     * @return this
-     */
-    public ExtendedCsdlEntityType addNavigationProperty(ExtendedCsdlNavigationProperty navigationProperty) {
-        if (getNavigationProperties() == null) {
-            setNavigationProperties(new ArrayList<>());
-        }
-        getNavigationProperties().add(navigationProperty);
         analyzeDependencies();
         return this;
     }

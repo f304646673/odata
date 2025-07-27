@@ -1,154 +1,154 @@
 package org.apache.olingo.schema.processor.model.extended;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
+import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
 
 /**
- * 扩展的CsdlActionImport，增加详细依赖关系追踪功能
+ * 扩展的CsdlActionImport，增加基于全局依赖管理器的树状依赖关系追踪功能
  */
 public class ExtendedCsdlActionImport extends CsdlActionImport {
     
-    // 保留旧的简单依赖跟踪（向后兼容）
-    private final Set<String> dependencies = new HashSet<>();
-    
-    // 新的详细依赖跟踪
-    private final Set<DetailedDependency> detailedDependencies = new HashSet<>();
-    private final List<String> dependencyChains = new ArrayList<>();
-    
-    private String fullyQualifiedName;
-    
-    /**
-     * 详细依赖信息内部类
-     */
-    public static class DetailedDependency {
-        private final String sourceElement;
-        private final String targetNamespace;
-        private final String targetElement;
-        private final String dependencyType;
-        private final String propertyName;
-        
-        public DetailedDependency(String sourceElement, String targetNamespace, 
-                                String targetElement, String dependencyType, String propertyName) {
-            this.sourceElement = sourceElement;
-            this.targetNamespace = targetNamespace;
-            this.targetElement = targetElement;
-            this.dependencyType = dependencyType;
-            this.propertyName = propertyName;
+    // 使用基类来管理依赖关系
+    private final ExtendedCsdlElement extendedElement = new ExtendedCsdlElement() {
+        @Override
+        protected CsdlDependencyNode.DependencyType getDependencyType() {
+            return CsdlDependencyNode.DependencyType.ACTION_REFERENCE;
         }
-        
-        public String getSourceElement() { return sourceElement; }
-        public String getTargetNamespace() { return targetNamespace; }
-        public String getTargetElement() { return targetElement; }
-        public String getDependencyType() { return dependencyType; }
-        public String getPropertyName() { return propertyName; }
-        public String getFullTargetName() { return targetNamespace + "." + targetElement; }
         
         @Override
-        public String toString() {
-            return String.format("%s -[%s:%s]-> %s.%s", 
-                sourceElement, dependencyType, propertyName, targetNamespace, targetElement);
+        protected String getName() {
+            return ExtendedCsdlActionImport.this.getName();
         }
-    }
-    
-    // === 新的详细依赖跟踪方法 ===
-    
-    /**
-     * 添加详细依赖信息
-     */
-    public void addDetailedDependency(String targetNamespace, String targetElement, 
-                                    String dependencyType, String propertyName) {
-        DetailedDependency dependency = new DetailedDependency(
-            this.fullyQualifiedName != null ? this.fullyQualifiedName : this.getName(),
-            targetNamespace, targetElement, dependencyType, propertyName
-        );
-        detailedDependencies.add(dependency);
         
-        // 同时更新简单依赖（向后兼容）
-        addDependency(targetNamespace);
-    }
-    
-    /**
-     * 获取所有详细依赖信息
-     */
-    public Set<DetailedDependency> getDetailedDependencies() {
-        return new HashSet<>(detailedDependencies);
-    }
-    
-    /**
-     * 获取指定类型的依赖
-     */
-    public Set<DetailedDependency> getDependenciesByType(String dependencyType) {
-        Set<DetailedDependency> result = new HashSet<>();
-        for (DetailedDependency dep : detailedDependencies) {
-            if (dependencyType.equals(dep.getDependencyType())) {
-                result.add(dep);
-            }
+        @Override
+        public void analyzeDependencies() {
+            ExtendedCsdlActionImport.this.analyzeDependencies();
         }
-        return result;
+    };
+    
+    
+    // === 委托给基类的依赖跟踪方法 ===
+    
+    /**
+     * 添加依赖关系到树状结构
+     * @param targetNamespace 目标命名空间
+     * @param targetElement 目标元素
+     * @param dependencyType 依赖类型
+     * @param propertyName 产生依赖的属性名
+     */
+    public void addTreeDependency(String targetNamespace, String targetElement, 
+                                 CsdlDependencyNode.DependencyType dependencyType, String propertyName) {
+        extendedElement.addTreeDependency(targetNamespace, targetElement, dependencyType, propertyName);
     }
     
     /**
-     * 获取指定命名空间的详细依赖
+     * 移除依赖关系
+     * @param targetNamespace 目标命名空间
+     * @param targetElement 目标元素
+     * @param dependencyType 依赖类型
+     * @return 是否成功移除
      */
-    public Set<DetailedDependency> getDetailedDependenciesByNamespace(String namespace) {
-        Set<DetailedDependency> result = new HashSet<>();
-        for (DetailedDependency dep : detailedDependencies) {
-            if (namespace.equals(dep.getTargetNamespace())) {
-                result.add(dep);
-            }
-        }
-        return result;
+    public boolean removeTreeDependency(String targetNamespace, String targetElement, 
+                                       CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.removeTreeDependency(targetNamespace, targetElement, dependencyType);
     }
     
     /**
-     * 构建依赖链字符串
+     * 获取所有直接依赖的节点
+     * @return 直接依赖的节点集合
      */
-    public List<String> getDependencyChainStrings() {
-        return new ArrayList<>(dependencyChains);
+    public Set<CsdlDependencyNode> getDirectDependencies() {
+        return extendedElement.getDirectDependencies();
     }
     
     /**
-     * 添加依赖链
+     * 获取所有直接被依赖的节点
+     * @return 直接被依赖的节点集合
      */
-    public void addDependencyChain(String chainString) {
-        if (chainString != null && !chainString.trim().isEmpty()) {
-            dependencyChains.add(chainString);
-        }
+    public Set<CsdlDependencyNode> getDirectDependents() {
+        return extendedElement.getDirectDependents();
     }
     
     /**
-     * 清除所有详细依赖信息
+     * 递归获取所有依赖的节点（深度优先）
+     * @return 所有直接和间接依赖的节点
      */
-    public void clearDetailedDependencies() {
-        detailedDependencies.clear();
-        dependencyChains.clear();
+    public Set<CsdlDependencyNode> getAllTreeDependencies() {
+        return extendedElement.getAllTreeDependencies();
     }
     
     /**
-     * 获取所有被依赖的元素全名
+     * 递归获取所有被依赖的节点（深度优先）
+     * @return 所有直接和间接依赖当前节点的节点
      */
-    public Set<String> getAllDependentElementNames() {
-        Set<String> result = new HashSet<>();
-        for (DetailedDependency dep : detailedDependencies) {
-            result.add(dep.getFullTargetName());
-        }
-        return result;
+    public Set<CsdlDependencyNode> getAllTreeDependents() {
+        return extendedElement.getAllTreeDependents();
     }
     
-    // === 原有的简单依赖跟踪方法（向后兼容） ===
+    /**
+     * 获取到特定目标的依赖路径
+     * @param targetNamespace 目标命名空间
+     * @param targetElement 目标元素
+     * @param dependencyType 依赖类型
+     * @return 依赖路径，如果不存在则返回null
+     */
+    public List<CsdlDependencyNode> getDependencyPath(String targetNamespace, String targetElement, 
+                                                     CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.getDependencyPath(targetNamespace, targetElement, dependencyType);
+    }
+    
+    /**
+     * 检查是否存在循环依赖
+     * @return 如果存在循环依赖则返回true
+     */
+    public boolean hasCircularDependency() {
+        return extendedElement.hasCircularDependency();
+    }
+    
+    /**
+     * 获取当前ActionImport对应的依赖节点
+     * @return 依赖节点
+     */
+    public CsdlDependencyNode getSelfNode() {
+        return extendedElement.getSelfNode();
+    }
+    
+    /**
+     * 获取指定类型的依赖节点
+     * @param dependencyType 依赖类型
+     * @return 匹配的依赖节点集合
+     */
+    public Set<CsdlDependencyNode> getDependenciesByType(CsdlDependencyNode.DependencyType dependencyType) {
+        return extendedElement.getDependenciesByType(dependencyType);
+    }
+    
+    /**
+     * 获取指定命名空间的依赖节点
+     * @param namespace 命名空间
+     * @return 匹配的依赖节点集合
+     */
+    public Set<CsdlDependencyNode> getDependenciesByNamespace(String namespace) {
+        return extendedElement.getDependenciesByNamespace(namespace);
+    }
+    
+    /**
+     * 清除所有树状依赖信息
+     */
+    public void clearTreeDependencies() {
+        extendedElement.clearTreeDependencies();
+    }
+    
+    // === 委托给基类的简单依赖跟踪方法（向后兼容） ===
     
     /**
      * 添加依赖
      * @param namespace 依赖的命名空间
      */
     public void addDependency(String namespace) {
-        if (namespace != null && !namespace.trim().isEmpty()) {
-            dependencies.add(namespace);
-        }
+        extendedElement.addDependency(namespace);
     }
     
     /**
@@ -157,7 +157,7 @@ public class ExtendedCsdlActionImport extends CsdlActionImport {
      * @return 是否成功移除
      */
     public boolean removeDependency(String namespace) {
-        return dependencies.remove(namespace);
+        return extendedElement.removeDependency(namespace);
     }
     
     /**
@@ -165,7 +165,7 @@ public class ExtendedCsdlActionImport extends CsdlActionImport {
      * @return 依赖的命名空间集合
      */
     public Set<String> getDependencies() {
-        return new HashSet<>(dependencies);
+        return extendedElement.getDependencies();
     }
     
     /**
@@ -174,14 +174,14 @@ public class ExtendedCsdlActionImport extends CsdlActionImport {
      * @return 是否存在该依赖
      */
     public boolean hasDependency(String namespace) {
-        return dependencies.contains(namespace);
+        return extendedElement.hasDependency(namespace);
     }
     
     /**
      * 清除所有依赖
      */
     public void clearDependencies() {
-        dependencies.clear();
+        extendedElement.clearDependencies();
     }
     
     /**
@@ -189,26 +189,29 @@ public class ExtendedCsdlActionImport extends CsdlActionImport {
      * @return 依赖数量
      */
     public int getDependencyCount() {
-        return dependencies.size();
+        return extendedElement.getDependencyCount();
     }
     
     /**
-     * 分析并设置依赖关系（增强版）
+     * 分析并设置依赖关系（增强版，使用全局依赖管理器）
      */
     public void analyzeDependencies() {
         // 清除旧的依赖
-        dependencies.clear();
-        detailedDependencies.clear();
-        dependencyChains.clear();
+        clearDependencies();
+        clearTreeDependencies();
+        
+        // 初始化自身节点
+        getSelfNode();
         
         // 分析Action依赖
         try {
             String actionName = getAction();
             if (actionName != null) {
-                String actionNamespace = extractNamespace(actionName);
-                String actionElement = extractElementName(actionName);
+                String actionNamespace = extendedElement.extractNamespace(actionName);
+                String actionElement = extendedElement.extractElementName(actionName);
                 if (actionNamespace != null && actionElement != null) {
-                    addDetailedDependency(actionNamespace, actionElement, "ACTION_REFERENCE", "action");
+                    addTreeDependency(actionNamespace, actionElement, 
+                                    CsdlDependencyNode.DependencyType.ACTION_REFERENCE, "action");
                 }
             }
         } catch (Exception e) {
@@ -219,80 +222,24 @@ public class ExtendedCsdlActionImport extends CsdlActionImport {
         try {
             String entitySetName = getEntitySet();
             if (entitySetName != null) {
-                String entitySetNamespace = extractNamespace(entitySetName);
-                String entitySetElement = extractElementName(entitySetName);
+                String entitySetNamespace = extendedElement.extractNamespace(entitySetName);
+                String entitySetElement = extendedElement.extractElementName(entitySetName);
                 if (entitySetNamespace != null && entitySetElement != null) {
-                    addDetailedDependency(entitySetNamespace, entitySetElement, "ENTITY_SET", "entitySet");
+                    addTreeDependency(entitySetNamespace, entitySetElement, 
+                                    CsdlDependencyNode.DependencyType.ENTITY_SET, "entitySet");
                 }
             }
         } catch (Exception e) {
             // 忽略错误，可能是因为EntitySet未正确设置
         }
-        
-        // 构建依赖链
-        buildDependencyChains();
-    }
-    
-    /**
-     * 构建依赖链字符串表示
-     */
-    private void buildDependencyChains() {
-        String rootElement = this.fullyQualifiedName != null ? this.fullyQualifiedName : this.getName();
-        
-        for (DetailedDependency dep : detailedDependencies) {
-            String chainString = String.format("%s -> %s (%s:%s)", 
-                rootElement, dep.getFullTargetName(), dep.getDependencyType(), dep.getPropertyName());
-            addDependencyChain(chainString);
-        }
-    }
-    
-    /**
-     * 提取元素名称
-     * @param fullName 完全限定名
-     * @return 元素名称
-     */
-    private String extractElementName(String fullName) {
-        if (fullName == null || !fullName.contains(".")) {
-            return fullName;
-        }
-        int lastDotIndex = fullName.lastIndexOf(".");
-        return fullName.substring(lastDotIndex + 1);
-    }
-    
-    /**
-     * 从类型名中提取namespace
-     */
-    private String extractNamespace(String typeName) {
-        if (typeName == null || typeName.trim().isEmpty()) {
-            return null;
-        }
-        
-        // 处理Collection类型
-        String actualType = typeName;
-        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
-            actualType = typeName.substring(11, typeName.length() - 1);
-        }
-        
-        // 跳过EDM基础类型
-        if (actualType.startsWith("Edm.")) {
-            return null;
-        }
-        
-        // 提取namespace
-        int lastDotIndex = actualType.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return actualType.substring(0, lastDotIndex);
-        }
-        
-        return null;
     }
     
     public String getFullyQualifiedName() {
-        return fullyQualifiedName;
+        return extendedElement.getFullyQualifiedName();
     }
     
     public void setFullyQualifiedName(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
+        extendedElement.setFullyQualifiedName(fullyQualifiedName);
     }
     
     @Override
