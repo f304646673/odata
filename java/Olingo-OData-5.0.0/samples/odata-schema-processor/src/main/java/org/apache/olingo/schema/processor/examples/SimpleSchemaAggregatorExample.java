@@ -22,6 +22,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schema.processor.validation.SchemaReferenceValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,6 +110,9 @@ public class SimpleSchemaAggregatorExample {
         try {
             logger.info("处理Schema文件: " + xmlFile);
             
+            // 首先验证Schema的引用
+            validateSchemaReferences(xmlFile);
+            
             CsdlSchema schema = parseSchemaFromXml(xmlFile);
             if (schema != null) {
                 String namespace = schema.getNamespace();
@@ -128,6 +132,33 @@ public class SimpleSchemaAggregatorExample {
             
         } catch (Exception e) {
             logger.error("处理Schema文件失败: " + xmlFile, e);
+        }
+    }
+    
+    /**
+     * 验证Schema引用
+     */
+    private void validateSchemaReferences(Path xmlFile) {
+        try {
+            SchemaReferenceValidator validator = new SchemaReferenceValidator();
+            SchemaReferenceValidator.ValidationResult result = validator.validateSchemaReferences(xmlFile);
+            
+            if (!result.isValid()) {
+                logger.warn("Schema文件 {} 存在引用问题:", xmlFile.getFileName());
+                for (String error : result.getErrors()) {
+                    logger.warn("  - {}", error);
+                }
+                
+                if (!result.getMissingReferences().isEmpty()) {
+                    logger.info("缺失的引用: {}", result.getMissingReferences());
+                    logger.info("建议在文件开头添加相应的edmx:Reference声明");
+                }
+            } else {
+                logger.debug("Schema文件 {} 引用验证通过", xmlFile.getFileName());
+            }
+            
+        } catch (Exception e) {
+            logger.error("验证Schema引用时发生错误: " + xmlFile, e);
         }
     }
     

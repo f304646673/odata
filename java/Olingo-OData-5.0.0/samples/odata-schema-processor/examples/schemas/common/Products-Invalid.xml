@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Common.Products">
+      <EntityType Name="Product" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="Price" Type="Edm.Decimal" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
