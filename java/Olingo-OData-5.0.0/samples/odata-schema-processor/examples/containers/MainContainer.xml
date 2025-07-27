@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Main.Container">
+      <EntityContainer Name="MainContainer">
+        <EntitySet Name="Customers" EntityType="Business.Entities.Customer"/>
+        <EntitySet Name="Orders" EntityType="Business.Entities.Order"/>
+        <EntitySet Name="Products" EntityType="Common.Products.Product"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

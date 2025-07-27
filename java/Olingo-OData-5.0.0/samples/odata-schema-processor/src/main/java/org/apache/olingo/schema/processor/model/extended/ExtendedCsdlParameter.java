@@ -85,7 +85,12 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
      * 获取元素的完全限定名（如果适用）
      */
     public FullQualifiedName getElementFullyQualifiedName() {
-        return new FullQualifiedName(getNamespace(), getName());
+        String namespace = getNamespace();
+        String name = getName();
+        if (parentName != null && name != null) {
+            name = parentName + "." + name;
+        }
+        return new FullQualifiedName(namespace, name);
     }
     
     /**
@@ -99,12 +104,12 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
      * 获取元素相关的属性名（如果适用）
      */
     public String getElementPropertyName() {
-        return getName(); // Parameter本身就是属性
+        return "type"; // Parameter的依赖属性是type
     }
     
     @Override
     public String toString() {
-        return String.format("ExtendedCsdlParameter{name='%s', type='%s', nullable=%s}", 
-                getName(), getType(), isNullable());
+        return String.format("ExtendedCsdlParameter{name='%s', type='%s', nullable=%s, parentName='%s'}", 
+                getName(), getType(), isNullable(), getParentName());
     }
 }

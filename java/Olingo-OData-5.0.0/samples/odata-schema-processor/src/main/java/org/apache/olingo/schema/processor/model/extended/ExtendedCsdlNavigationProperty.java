@@ -104,7 +104,7 @@ public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty {
     }
     
     public ExtendedCsdlNavigationProperty setPartner(String partner) {
-        // CsdlNavigationProperty可能没有setPartner方法，这里只是为了演示扩展功能
+        super.setPartner(partner);
         return this;
     }
 }

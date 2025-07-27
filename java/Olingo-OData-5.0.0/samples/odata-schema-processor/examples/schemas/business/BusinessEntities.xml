@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Business.Entities">
+      <EntityType Name="Customer" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="CustomerCode" Type="Edm.String" MaxLength="20" Nullable="false"/>
+      </EntityType>
+      
+      <EntityType Name="Order" BaseType="Core.Types.BaseEntity">
+        <Property Name="OrderNumber" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="TotalAmount" Type="Edm.Decimal" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

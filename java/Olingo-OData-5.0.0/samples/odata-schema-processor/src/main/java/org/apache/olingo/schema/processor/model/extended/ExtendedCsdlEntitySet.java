@@ -3,6 +3,7 @@ package org.apache.olingo.schema.processor.model.extended;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 
 /**
@@ -71,8 +72,9 @@ public class ExtendedCsdlEntitySet extends CsdlEntitySet {
         dependencies.clear();
         
         // 分析EntityType依赖
-        if (getType() != null) {
-            String typeNamespace = extractNamespace(getType());
+        FullQualifiedName typeFQN = getTypeFQN();
+        if (typeFQN != null) {
+            String typeNamespace = extractNamespace(typeFQN.getFullQualifiedNameAsString());
             if (typeNamespace != null) {
                 addDependency(typeNamespace);
             }

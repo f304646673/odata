@@ -3,6 +3,7 @@ package org.apache.olingo.schema.processor.model.extended;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
 /**
@@ -71,8 +72,9 @@ public class ExtendedCsdlFunctionImport extends CsdlFunctionImport {
         dependencies.clear();
         
         // 分析Function依赖
-        if (getFunction() != null) {
-            String functionNamespace = extractNamespace(getFunction());
+        FullQualifiedName functionFQN = getFunctionFQN();
+        if (functionFQN != null) {
+            String functionNamespace = extractNamespace(functionFQN.getFullQualifiedNameAsString());
             if (functionNamespace != null) {
                 addDependency(functionNamespace);
             }

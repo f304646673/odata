@@ -97,18 +97,15 @@ public class ExtendedCsdlProperty extends CsdlProperty {
         return this;
     }
     
-    public ExtendedCsdlProperty setNullable(Boolean nullable) {
-        // CsdlProperty的setNullable方法可能返回void，这里只是为了演示扩展功能
-        if (nullable != null) {
-            // 可以通过反射或其他方式设置nullable属性
-        }
+    @Override
+    public ExtendedCsdlProperty setNullable(boolean nullable) {
+        super.setNullable(nullable);
         return this;
     }
     
+    @Override
     public ExtendedCsdlProperty setMaxLength(Integer maxLength) {
-        if (maxLength != null) {
-            // 使用反射或其他方式设置maxLength，因为CsdlProperty可能没有公开的setter
-        }
+        super.setMaxLength(maxLength);
         return this;
     }
 }
