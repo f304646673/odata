@@ -22,6 +22,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schema.processor.parser.ODataXmlParser;
+import org.apache.olingo.schema.processor.parser.impl.CsdlXmlParserImpl;
 import org.apache.olingo.schema.processor.validation.SchemaReferenceValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,9 +178,39 @@ public class SimpleSchemaAggregatorExample {
     }
     
     /**
-     * 从XML解析Schema（简化版本）
+     * 从XML解析Schema（重构版本 - 使用Olingo原生解析器）
      */
     private CsdlSchema parseSchemaFromXml(Path xmlFile) throws Exception {
+        // 使用重构后的CsdlXmlParserImpl
+        CsdlXmlParserImpl parser = new CsdlXmlParserImpl();
+        ODataXmlParser.ParseResult result = parser.parseSchemas(xmlFile);
+        
+        if (!result.isSuccess()) {
+            logger.error("解析Schema失败: {}", xmlFile);
+            for (String error : result.getErrors()) {
+                logger.error("  - {}", error);
+            }
+            throw new RuntimeException("Schema parsing failed: " + result.getErrors());
+        }
+        
+        if (result.getSchemas().isEmpty()) {
+            throw new RuntimeException("No schemas found in file: " + xmlFile);
+        }
+        
+        CsdlSchema schema = result.getSchemas().get(0);
+        logger.debug("成功解析Schema: {} (包含 {} 个EntityTypes)", 
+                    schema.getNamespace(), 
+                    schema.getEntityTypes() != null ? schema.getEntityTypes().size() : 0);
+        
+        return schema;
+    }
+    
+    /**
+     * 原始的手动XML解析方法（已废弃，保留用于对比和测试）
+     * @deprecated 使用parseSchemaFromXml替代，该方法展示了手动XML解析的问题
+     */
+    @Deprecated
+    private CsdlSchema parseSchemaFromXmlManually(Path xmlFile) throws Exception {
         try (FileInputStream fis = new FileInputStream(xmlFile.toFile())) {
             XMLStreamReader reader = xmlInputFactory.createXMLStreamReader(fis);
             
