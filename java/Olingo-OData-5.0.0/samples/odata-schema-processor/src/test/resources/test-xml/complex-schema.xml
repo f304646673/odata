@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Complex">
+      <EntityType Name="Order">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="CustomerID" Type="Edm.String"/>
+      </EntityType>
+      <EntityType Name="Customer">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+        <Property Name="Country" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="PhoneNumber">
+        <Property Name="Number" Type="Edm.String"/>
+        <Property Name="Type" Type="Test.Complex.PhoneType"/>
+      </ComplexType>
+      <EnumType Name="PhoneType">
+        <Member Name="Home" Value="0"/>
+        <Member Name="Work" Value="1"/>
+        <Member Name="Mobile" Value="2"/>
+      </EnumType>
+      <EnumType Name="OrderStatus">
+        <Member Name="Pending" Value="0"/>
+        <Member Name="Shipped" Value="1"/>
+        <Member Name="Delivered" Value="2"/>
+      </EnumType>
+      <TypeDefinition Name="CustomerID" UnderlyingType="Edm.String"/>
+      <TypeDefinition Name="OrderID" UnderlyingType="Edm.Int32"/>
+      <EntityContainer Name="Service">
+        <EntitySet Name="Orders" EntityType="Test.Complex.Order"/>
+        <EntitySet Name="Customers" EntityType="Test.Complex.Customer"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

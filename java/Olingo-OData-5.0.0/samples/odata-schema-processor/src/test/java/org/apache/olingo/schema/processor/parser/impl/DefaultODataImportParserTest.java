@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.olingo.schema.processor.parser.ODataImportParser;
+import org.apache.olingo.schema.processor.test.util.TestResourceLoader;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -105,16 +106,8 @@ public class DefaultODataImportParserTest {
     
     @Test
     public void testExtractExternalReferences() throws Exception {
-        String xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">" +
-            "<edmx:DataServices>" +
-            "<Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" Namespace=\"Test.Schema\">" +
-            "<EntityType Name=\"TestEntity\" BaseType=\"Core.Types.BaseEntity\">" +
-            "<Property Name=\"ID\" Type=\"Edm.String\" Nullable=\"false\"/>" +
-            "</EntityType>" +
-            "</Schema>" +
-            "</edmx:DataServices>" +
-            "</edmx:Edmx>";
+        // Load XML from resources instead of hardcoded string
+        String xmlContent = TestResourceLoader.loadXmlContent("external-references.xml");
         
         Set<String> declaredNamespaces = new HashSet<>();
         declaredNamespaces.add("Test.Schema");

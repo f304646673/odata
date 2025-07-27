@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.ToString">
+      <EntityType Name="TestEntity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <ComplexType Name="TestComplex">
+        <Property Name="Prop" Type="Edm.String"/>
+      </ComplexType>
+      <EnumType Name="TestEnum">
+        <Member Name="Value" Value="0"/>
+      </EnumType>
+      <TypeDefinition Name="TestTypeDef" UnderlyingType="Edm.String"/>
+      <Term Name="TestTerm" Type="Edm.String"/>
+      <EntityContainer Name="TestContainer">
+        <EntitySet Name="TestSet" EntityType="Test.ToString.TestEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

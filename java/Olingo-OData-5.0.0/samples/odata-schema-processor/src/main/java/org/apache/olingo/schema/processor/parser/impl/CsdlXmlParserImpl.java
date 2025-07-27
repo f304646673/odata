@@ -135,6 +135,27 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         }
     }
     
+    /**
+     * 从resources目录解析XML文件
+     * 
+     * @param resourcePath 资源路径（例如："/test-xml/valid-multiple-types.xml"）
+     * @return 解析结果
+     */
+    public ParseResult parseFromResource(String resourcePath) {
+        try (InputStream inputStream = getClass().getResourceAsStream(resourcePath)) {
+            if (inputStream == null) {
+                List<String> errors = new ArrayList<>();
+                errors.add("Resource not found: " + resourcePath);
+                return new ParseResult(false, new ArrayList<>(), errors, new ArrayList<>(), resourcePath);
+            }
+            return parseSchemas(inputStream, resourcePath);
+        } catch (Exception e) {
+            List<String> errors = new ArrayList<>();
+            errors.add("Failed to parse resource " + resourcePath + ": " + e.getMessage());
+            return new ParseResult(false, new ArrayList<>(), errors, new ArrayList<>(), resourcePath);
+        }
+    }
+    
     @Override
     public ValidationResult validateXmlFormat(String xmlContent) {
         List<String> errors = new ArrayList<>();
@@ -578,7 +599,12 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         
         // 复制基础属性
         extendedEntityType.setName(baseEntityType.getName());
-        extendedEntityType.setBaseType(baseEntityType.getBaseType());
+        
+        // 只有当BaseType不为null时才设置
+        if (baseEntityType.getBaseType() != null) {
+            extendedEntityType.setBaseType(baseEntityType.getBaseType());
+        }
+        
         extendedEntityType.setAbstract(baseEntityType.isAbstract());
         extendedEntityType.setOpenType(baseEntityType.isOpenType());
         extendedEntityType.setHasStream(baseEntityType.hasStream());
@@ -615,7 +641,12 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
         
         // 复制基础属性
         extendedComplexType.setName(baseComplexType.getName());
-        extendedComplexType.setBaseType(baseComplexType.getBaseType());
+        
+        // 只有当BaseType不为null时才设置
+        if (baseComplexType.getBaseType() != null) {
+            extendedComplexType.setBaseType(baseComplexType.getBaseType());
+        }
+        
         extendedComplexType.setAbstract(baseComplexType.isAbstract());
         extendedComplexType.setOpenType(baseComplexType.isOpenType());
         
