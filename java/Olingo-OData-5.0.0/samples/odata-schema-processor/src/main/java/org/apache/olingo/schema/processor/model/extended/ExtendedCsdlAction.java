@@ -1,145 +1,94 @@
 package org.apache.olingo.schema.processor.model.extended;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
 
 /**
- * 扩展的CsdlAction，增加依赖关系追踪功能
+ * 扩展的CsdlAction，支持依赖关系跟踪
  */
-public class ExtendedCsdlAction extends CsdlAction {
+public class ExtendedCsdlAction extends CsdlAction implements ExtendedCsdlElement {
     
-    private final Set<String> dependencies = new HashSet<>();
-    private String fullyQualifiedName;
+    private final String elementId;
+    private String namespace;
     
     /**
-     * 添加依赖
-     * @param namespace 依赖的命名空间
+     * 构造函数
      */
-    public void addDependency(String namespace) {
-        if (namespace != null && !namespace.trim().isEmpty()) {
-            dependencies.add(namespace);
-        }
+    public ExtendedCsdlAction() {
+        this.elementId = null;
     }
     
     /**
-     * 移除依赖
-     * @param namespace 要移除的命名空间
-     * @return 是否成功移除
+     * 构造函数，使用指定的elementId
+     * @param elementId 元素唯一标识
      */
-    public boolean removeDependency(String namespace) {
-        return dependencies.remove(namespace);
-    }
-    
-    /**
-     * 获取所有依赖
-     * @return 依赖的命名空间集合
-     */
-    public Set<String> getDependencies() {
-        return new HashSet<>(dependencies);
-    }
-    
-    /**
-     * 检查是否有特定依赖
-     * @param namespace 要检查的命名空间
-     * @return 是否存在该依赖
-     */
-    public boolean hasDependency(String namespace) {
-        return dependencies.contains(namespace);
-    }
-    
-    /**
-     * 清除所有依赖
-     */
-    public void clearDependencies() {
-        dependencies.clear();
-    }
-    
-    /**
-     * 获取依赖数量
-     * @return 依赖数量
-     */
-    public int getDependencyCount() {
-        return dependencies.size();
-    }
-    
-    /**
-     * 分析并设置依赖关系
-     */
-    public void analyzeDependencies() {
-        dependencies.clear();
-        
-        // 分析参数类型依赖
-        if (getParameters() != null) {
-            getParameters().forEach(parameter -> {
-                String typeNamespace = extractNamespace(parameter.getType());
-                if (typeNamespace != null) {
-                    addDependency(typeNamespace);
-                }
-            });
-        }
-        
-        // 分析返回类型依赖
-        if (getReturnType() != null && getReturnType().getType() != null) {
-            String returnTypeNamespace = extractNamespace(getReturnType().getType());
-            if (returnTypeNamespace != null) {
-                addDependency(returnTypeNamespace);
-            }
-        }
-    }
-    
-    /**
-     * 从类型名中提取namespace
-     */
-    private String extractNamespace(String typeName) {
-        if (typeName == null || typeName.trim().isEmpty()) {
-            return null;
-        }
-        
-        // 处理Collection类型
-        String actualType = typeName;
-        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
-            actualType = typeName.substring(11, typeName.length() - 1);
-        }
-        
-        // 跳过EDM基础类型
-        if (actualType.startsWith("Edm.")) {
-            return null;
-        }
-        
-        // 提取namespace
-        int lastDotIndex = actualType.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return actualType.substring(0, lastDotIndex);
-        }
-        
-        return null;
-    }
-    
-    public String getFullyQualifiedName() {
-        return fullyQualifiedName;
-    }
-    
-    public void setFullyQualifiedName(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
+    public ExtendedCsdlAction(String elementId) {
+        this.elementId = elementId;
     }
     
     @Override
-    public ExtendedCsdlAction setName(String name) {
-        super.setName(name);
+    public String getElementId() {
+        if (elementId != null) {
+            return elementId;
+        }
+        if (getName() != null) {
+            return getName();
+        }
+        return "Action_" + hashCode();
+    }
+    
+    /**
+     * Override setNamespace to return the correct type for fluent interface
+     */
+    @Override
+    public ExtendedCsdlAction setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
+
+    /**
+     * Get namespace
+     */
+    @Override
+    public String getNamespace() {
+        return this.namespace;
+    }
+    
+    /**
+     * Override registerElement to return the correct type for fluent interface
+     */
+    @Override
+    public ExtendedCsdlAction registerElement() {
+        // Call the interface default method but return this instance
+        ExtendedCsdlElement.super.registerElement();
         return this;
     }
     
-    @Override
-    public ExtendedCsdlAction setBound(boolean isBound) {
-        super.setBound(isBound);
-        return this;
+    /**
+     * 获取元素的完全限定名（如果适用）
+     */
+    public FullQualifiedName getElementFullyQualifiedName() {
+        return new FullQualifiedName(getNamespace(), getName());
+    }
+    
+    /**
+     * 获取元素的依赖类型
+     */
+    public CsdlDependencyNode.DependencyType getElementDependencyType() {
+        return CsdlDependencyNode.DependencyType.ACTION;
+    }
+    
+    /**
+     * 获取元素相关的属性名（如果适用）
+     */
+    public String getElementPropertyName() {
+        return null; // Action通常不关联特定属性
     }
     
     @Override
-    public ExtendedCsdlAction setEntitySetPath(String entitySetPath) {
-        super.setEntitySetPath(entitySetPath);
-        return this;
+    public String toString() {
+        return String.format("ExtendedCsdlAction{name='%s', bound=%s}", 
+                getName(), isBound());
     }
 }

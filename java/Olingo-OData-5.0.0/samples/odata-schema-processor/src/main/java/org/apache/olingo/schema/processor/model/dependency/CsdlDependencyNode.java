@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlNamed;
  */
 public class CsdlDependencyNode extends CsdlAbstractEdmItem implements CsdlNamed, CsdlAnnotatable {
     
+    private String elementId;  // 元素唯一标识
     private String name;
     private FullQualifiedName fullyQualifiedName;
     private DependencyType dependencyType;
@@ -37,21 +38,32 @@ public class CsdlDependencyNode extends CsdlAbstractEdmItem implements CsdlNamed
         BASE_TYPE,          // 基类型
         ENTITY_SET,         // EntitySet引用
         ENTITY_TYPE,        // EntityType引用
+        COMPLEX_TYPE,       // ComplexType引用
+        ACTION,             // Action定义
+        ACTION_IMPORT,      // ActionImport引用
         ACTION_REFERENCE,   // Action引用
+        FUNCTION,           // Function定义
+        FUNCTION_IMPORT,    // FunctionImport引用
         FUNCTION_REFERENCE, // Function引用
+        NAVIGATION_PROPERTY,// NavigationProperty
         NAVIGATION_TARGET,  // 导航目标
+        PARAMETER,          // Parameter
         PARAMETER_TYPE,     // 参数类型
-        RETURN_TYPE         // 返回类型
+        PROPERTY,           // Property
+        RETURN_TYPE,        // 返回类型
+        SINGLETON,          // Singleton
+        TYPE_DEFINITION     // TypeDefinition
     }
     
     /**
      * 构造函数
      */
-    public CsdlDependencyNode(String name, FullQualifiedName fullyQualifiedName, 
+    public CsdlDependencyNode(String elementId, FullQualifiedName fullyQualifiedName, 
                              DependencyType dependencyType, String propertyName) {
+        this.elementId = elementId;
         this.fullyQualifiedName = fullyQualifiedName;
         this.name = (fullyQualifiedName != null && fullyQualifiedName.getName() != null) ? 
-                    fullyQualifiedName.getName() : name;
+                    fullyQualifiedName.getName() : elementId;
         this.dependencyType = dependencyType;
         this.propertyName = propertyName;
     }
@@ -60,7 +72,7 @@ public class CsdlDependencyNode extends CsdlAbstractEdmItem implements CsdlNamed
      * 简化构造函数
      */
     public CsdlDependencyNode(FullQualifiedName fullyQualifiedName, DependencyType dependencyType) {
-        this(null, fullyQualifiedName, dependencyType, null);
+        this(fullyQualifiedName != null ? fullyQualifiedName.toString() : null, fullyQualifiedName, dependencyType, null);
     }
     
     /**
@@ -244,6 +256,15 @@ public class CsdlDependencyNode extends CsdlAbstractEdmItem implements CsdlNamed
     }
     
     // === Getters and Setters ===
+    
+    public String getElementId() {
+        return elementId;
+    }
+    
+    public CsdlDependencyNode setElementId(String elementId) {
+        this.elementId = elementId;
+        return this;
+    }
     
     @Override
     public String getName() {

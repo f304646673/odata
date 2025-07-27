@@ -274,12 +274,12 @@ public class CsdlDependencyTree {
         leafNodes.clear();
         
         for (CsdlDependencyNode node : getAllNodes()) {
-            // 根节点：没有依赖其他节点的节点
-            if (node.getDependencies().isEmpty()) {
+            // 根节点：没有被其他节点依赖的节点（没有入边）
+            if (node.getDependents().isEmpty()) {
                 rootNodes.add(node);
             }
-            // 叶子节点：没有被其他节点依赖的节点
-            if (node.getDependents().isEmpty()) {
+            // 叶子节点：没有依赖其他节点的节点（没有出边）
+            if (node.getDependencies().isEmpty()) {
                 leafNodes.add(node);
             }
         }

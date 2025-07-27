@@ -282,6 +282,14 @@ public class GlobalDependencyManager {
         return globalDependencyTree;
     }
     
+    /**
+     * 获取所有已注册的元素
+     * @return 所有已注册元素的集合
+     */
+    public Set<CsdlDependencyNode> getAllElements() {
+        return new HashSet<>(registeredNodes.values());
+    }
+    
     // === 私有辅助方法 ===
     
     private void updateTypeIndex(CsdlDependencyNode.DependencyType type, CsdlDependencyNode node) {
