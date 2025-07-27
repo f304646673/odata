@@ -9,19 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
-import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlAction;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlComplexType;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlEntityType;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlFunction;
+import org.apache.olingo.schema.processor.model.extended.ExtendedCsdlTypeDefinition;
+import org.apache.olingo.schema.processor.parser.ODataXmlParser;
 import org.apache.olingo.server.core.MetadataParser;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
-import org.apache.olingo.schema.processor.parser.ODataXmlParser;
-import org.apache.olingo.schema.processor.model.extended.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +45,12 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
     private static final Logger logger = LoggerFactory.getLogger(CsdlXmlParserImpl.class);
     
     private final MetadataParser metadataParser;
-    private final SchemaBasedEdmProvider edmProvider;
     
     /**
      * 构造函数 - 初始化Olingo原生解析器
      */
     public CsdlXmlParserImpl() {
         this.metadataParser = new MetadataParser();
-        this.edmProvider = new SchemaBasedEdmProvider();
         
         // 配置MetadataParser
         this.metadataParser.useLocalCoreVocabularies(true);
@@ -168,17 +166,31 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
      */
     private List<CsdlSchema> parseWithOlingoNative(InputStream inputStream, String sourceName) throws Exception {
         try {
+            // 使用Olingo的MetadataParser来解析XML
+            MetadataParser parser = new MetadataParser();
+            
+            // 配置解析器以支持annotations和扩展元素
+            parser.parseAnnotations(true);
+            parser.useLocalCoreVocabularies(true);
+            parser.implicitlyLoadCoreVocabularies(true);
+            parser.recursivelyLoadReferences(false); // 我们单独处理引用
+            
             // 创建InputStreamReader确保正确的字符编码
             InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
             
-            // 目前的Olingo版本API可能不同，我们使用简化的实现
-            // 在生产环境中，应该查阅具体的Olingo版本文档
-            List<CsdlSchema> schemas = new ArrayList<>();
+            // 使用Olingo解析器构建EdmProvider
+            SchemaBasedEdmProvider provider = parser.buildEdmProvider(reader);
             
-            // 这里应该使用实际的Olingo MetadataParser API
-            // 由于API签名问题，暂时返回空列表
-            // 实际使用时需要根据具体Olingo版本调整
-            logger.debug("Using simplified Olingo native parsing for {}", sourceName);
+            // 从EdmProvider中提取Schemas
+            List<CsdlSchema> schemas = new ArrayList<>();
+            for (CsdlSchema schema : provider.getSchemas()) {
+                // 创建扩展Schema并复制内容
+                CsdlSchema extendedSchema = createExtendedSchema(schema);
+                schemas.add(extendedSchema);
+            }
+            
+            logger.debug("Successfully parsed {} schemas using Olingo native parser from {}", 
+                        schemas.size(), sourceName);
             
             return schemas;
             
@@ -186,6 +198,180 @@ public class CsdlXmlParserImpl implements ODataXmlParser {
             logger.error("Failed to parse with Olingo native parser from {}: {}", sourceName, e.getMessage());
             throw new RuntimeException("Olingo native parsing failed: " + e.getMessage(), e);
         }
+    }
+    
+    /**
+     * 创建扩展Schema，包含所有扩展模型元素
+     */
+    private CsdlSchema createExtendedSchema(CsdlSchema originalSchema) {
+        // 创建新的Schema实例
+        CsdlSchema extendedSchema = new CsdlSchema();
+        
+        // 复制基本属性
+        extendedSchema.setNamespace(originalSchema.getNamespace());
+        extendedSchema.setAlias(originalSchema.getAlias());
+        
+        // 转换EntityTypes为扩展模型
+        if (originalSchema.getEntityTypes() != null) {
+            List<CsdlEntityType> extendedEntityTypes = new ArrayList<>();
+            for (CsdlEntityType entityType : originalSchema.getEntityTypes()) {
+                ExtendedCsdlEntityType extendedEntityType = createExtendedEntityType(entityType);
+                extendedEntityTypes.add(extendedEntityType);
+            }
+            extendedSchema.setEntityTypes(extendedEntityTypes);
+        }
+        
+        // 转换ComplexTypes为扩展模型
+        if (originalSchema.getComplexTypes() != null) {
+            List<CsdlComplexType> extendedComplexTypes = new ArrayList<>();
+            for (CsdlComplexType complexType : originalSchema.getComplexTypes()) {
+                ExtendedCsdlComplexType extendedComplexType = createExtendedComplexType(complexType);
+                extendedComplexTypes.add(extendedComplexType);
+            }
+            extendedSchema.setComplexTypes(extendedComplexTypes);
+        }
+        
+        // 直接复制EntityContainer（没有扩展类）
+        if (originalSchema.getEntityContainer() != null) {
+            extendedSchema.setEntityContainer(originalSchema.getEntityContainer());
+        }
+        
+        // 直接复制EnumTypes（没有扩展类）
+        if (originalSchema.getEnumTypes() != null) {
+            extendedSchema.setEnumTypes(new ArrayList<>(originalSchema.getEnumTypes()));
+        }
+        
+        // 转换TypeDefinitions为扩展模型
+        if (originalSchema.getTypeDefinitions() != null) {
+            List<org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition> extendedTypeDefinitions = new ArrayList<>();
+            for (org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition typeDef : originalSchema.getTypeDefinitions()) {
+                ExtendedCsdlTypeDefinition extendedTypeDef = createExtendedTypeDefinition(typeDef);
+                extendedTypeDefinitions.add(extendedTypeDef);
+            }
+            extendedSchema.setTypeDefinitions(extendedTypeDefinitions);
+        }
+        
+        // 复制Actions和Functions（如果有）
+        if (originalSchema.getActions() != null) {
+            extendedSchema.setActions(new ArrayList<>(originalSchema.getActions()));
+        }
+        
+        if (originalSchema.getFunctions() != null) {
+            extendedSchema.setFunctions(new ArrayList<>(originalSchema.getFunctions()));
+        }
+        
+        // 复制Terms和Annotations（如果有）
+        if (originalSchema.getTerms() != null) {
+            extendedSchema.setTerms(new ArrayList<>(originalSchema.getTerms()));
+        }
+        
+        if (originalSchema.getAnnotations() != null) {
+            extendedSchema.setAnnotations(new ArrayList<>(originalSchema.getAnnotations()));
+        }
+        
+        logger.debug("Created extended schema for namespace: {}", originalSchema.getNamespace());
+        
+        return extendedSchema;
+    }
+    
+    /**
+     * 创建扩展EntityType
+     */
+    private ExtendedCsdlEntityType createExtendedEntityType(CsdlEntityType originalEntityType) {
+        ExtendedCsdlEntityType extended = new ExtendedCsdlEntityType();
+        
+        // 复制基本属性
+        extended.setName(originalEntityType.getName());
+        extended.setAbstract(originalEntityType.isAbstract());
+        extended.setOpenType(originalEntityType.isOpenType());
+        extended.setBaseType(originalEntityType.getBaseType());
+        
+        // 复制属性
+        if (originalEntityType.getProperties() != null) {
+            extended.setProperties(new ArrayList<>(originalEntityType.getProperties()));
+        }
+        
+        // 复制导航属性
+        if (originalEntityType.getNavigationProperties() != null) {
+            extended.setNavigationProperties(new ArrayList<>(originalEntityType.getNavigationProperties()));
+        }
+        
+        // 复制键
+        if (originalEntityType.getKey() != null) {
+            extended.setKey(originalEntityType.getKey());
+        }
+        
+        // 复制注解
+        if (originalEntityType.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalEntityType.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended entity type: {}", originalEntityType.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展ComplexType
+     */
+    private ExtendedCsdlComplexType createExtendedComplexType(CsdlComplexType originalComplexType) {
+        ExtendedCsdlComplexType extended = new ExtendedCsdlComplexType();
+        
+        // 复制基本属性
+        extended.setName(originalComplexType.getName());
+        extended.setAbstract(originalComplexType.isAbstract());
+        extended.setOpenType(originalComplexType.isOpenType());
+        extended.setBaseType(originalComplexType.getBaseType());
+        
+        // 复制属性
+        if (originalComplexType.getProperties() != null) {
+            extended.setProperties(new ArrayList<>(originalComplexType.getProperties()));
+        }
+        
+        // 复制导航属性
+        if (originalComplexType.getNavigationProperties() != null) {
+            extended.setNavigationProperties(new ArrayList<>(originalComplexType.getNavigationProperties()));
+        }
+        
+        // 复制注解
+        if (originalComplexType.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalComplexType.getAnnotations()));
+        }
+        
+        // 注册扩展元素
+        extended.registerElement();
+        
+        logger.debug("Created extended complex type: {}", originalComplexType.getName());
+        
+        return extended;
+    }
+    
+    /**
+     * 创建扩展TypeDefinition
+     */
+    private ExtendedCsdlTypeDefinition createExtendedTypeDefinition(org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition originalTypeDef) {
+        ExtendedCsdlTypeDefinition extended = new ExtendedCsdlTypeDefinition();
+        
+        // 复制基本属性
+        extended.setName(originalTypeDef.getName());
+        extended.setUnderlyingType(originalTypeDef.getUnderlyingType());
+        extended.setMaxLength(originalTypeDef.getMaxLength());
+        extended.setPrecision(originalTypeDef.getPrecision());
+        extended.setScale(originalTypeDef.getScale());
+        extended.setSrid(originalTypeDef.getSrid());
+        extended.setUnicode(originalTypeDef.isUnicode());
+        
+        // 复制注解
+        if (originalTypeDef.getAnnotations() != null) {
+            extended.setAnnotations(new ArrayList<>(originalTypeDef.getAnnotations()));
+        }
+        
+        logger.debug("Created extended type definition: {}", originalTypeDef.getName());
+        
+        return extended;
     }
     
     /**

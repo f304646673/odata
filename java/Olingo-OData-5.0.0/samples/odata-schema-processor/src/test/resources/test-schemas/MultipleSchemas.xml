@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Core.Types">
+      <EntityType Name="BaseEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+    </Schema>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Business.Entities">
+      <EntityType Name="Customer" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Email" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityContainer Name="MultiSchemaContainer">
+        <EntitySet Name="Customers" EntityType="Business.Entities.Customer"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

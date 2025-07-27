@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Business.Entities">
+      <EntityType Name="Customer" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Email" Type="Core.Types.EmailAddress"/>
+        <Property Name="Address" Type="Core.Types.AddressInfo"/>
+      </EntityType>
+      
+      <EntityType Name="Order" BaseType="Core.Types.BaseEntity">
+        <Property Name="OrderNumber" Type="Edm.String"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="TotalAmount" Type="Edm.Decimal"/>
+        <NavigationProperty Name="Customer" Type="Business.Entities.Customer"/>
+      </EntityType>
+      
+      <ComplexType Name="OrderItem">
+        <Property Name="ProductName" Type="Edm.String"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="UnitPrice" Type="Edm.Decimal"/>
+      </ComplexType>
+      
+      <EntityContainer Name="BusinessContainer">
+        <EntitySet Name="Customers" EntityType="Business.Entities.Customer"/>
+        <EntitySet Name="Orders" EntityType="Business.Entities.Order"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
