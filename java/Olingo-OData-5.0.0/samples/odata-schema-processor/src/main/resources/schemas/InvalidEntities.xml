@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <!-- 故意不包含 edmx:Reference，用于演示验证错误 -->
+  <edmx:DataServices>
+    <Schema Namespace="Invalid.Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- 错误的实体 - 使用了未引用的基类型 -->
+      <EntityType Name="InvalidProduct" BaseType="Core.Types.BaseEntity">
+        <Property Name="ProductName" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2" Nullable="false"/>
+        <!-- 使用了未引用的复杂类型 -->
+        <Property Name="SupplierAddress" Type="Core.Types.Address" Nullable="true"/>
+      </EntityType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

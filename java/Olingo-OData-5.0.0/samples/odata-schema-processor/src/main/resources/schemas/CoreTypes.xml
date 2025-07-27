@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Core.Types" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- 基础实体类型 -->
+      <EntityType Name="BaseEntity" Abstract="true">
+        <Key>
+          <PropertyRef Name="Id"/>
+        </Key>
+        <Property Name="Id" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+        <Property Name="ModifiedDate" Type="Edm.DateTimeOffset" Nullable="true"/>
+        <Property Name="Version" Type="Edm.Int32" Nullable="false" DefaultValue="1"/>
+      </EntityType>
+      
+      <!-- 可审计实体类型 -->
+      <EntityType Name="AuditableEntity" BaseType="Core.Types.BaseEntity" Abstract="true">
+        <Property Name="CreatedBy" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="ModifiedBy" Type="Edm.String" MaxLength="100" Nullable="true"/>
+      </EntityType>
+      
+      <!-- 地址复杂类型 -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="200" Nullable="false"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="State" Type="Edm.String" MaxLength="50" Nullable="true"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20" Nullable="true"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="100" Nullable="false"/>
+      </ComplexType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

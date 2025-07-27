@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="CoreTypes.xml">
+    <edmx:Include Namespace="Core.Types"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Business.Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      
+      <!-- 客户实体 -->
+      <EntityType Name="Customer" BaseType="Core.Types.AuditableEntity">
+        <Property Name="CustomerCode" Type="Edm.String" MaxLength="20" Nullable="false"/>
+        <Property Name="CompanyName" Type="Edm.String" MaxLength="200" Nullable="false"/>
+        <Property Name="ContactName" Type="Edm.String" MaxLength="100" Nullable="true"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="100" Nullable="true"/>
+        <Property Name="Phone" Type="Edm.String" MaxLength="20" Nullable="true"/>
+        <Property Name="BillingAddress" Type="Core.Types.Address" Nullable="true"/>
+        <Property Name="ShippingAddress" Type="Core.Types.Address" Nullable="true"/>
+        <NavigationProperty Name="Orders" Type="Collection(Business.Entities.Order)" Partner="Customer"/>
+      </EntityType>
+      
+      <!-- 订单实体 -->
+      <EntityType Name="Order" BaseType="Core.Types.AuditableEntity">
+        <Property Name="OrderNumber" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+        <Property Name="RequiredDate" Type="Edm.DateTimeOffset" Nullable="true"/>
+        <Property Name="ShippedDate" Type="Edm.DateTimeOffset" Nullable="true"/>
+        <Property Name="Status" Type="Business.Entities.OrderStatus" Nullable="false"/>
+        <Property Name="TotalAmount" Type="Edm.Decimal" Precision="15" Scale="2" Nullable="false"/>
+        <NavigationProperty Name="Customer" Type="Business.Entities.Customer" Nullable="false" Partner="Orders"/>
+        <NavigationProperty Name="OrderItems" Type="Collection(Business.Entities.OrderItem)" Partner="Order"/>
+      </EntityType>
+      
+      <!-- 订单项实体 -->
+      <EntityType Name="OrderItem" BaseType="Core.Types.BaseEntity">
+        <Property Name="LineNumber" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="ProductCode" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="ProductName" Type="Edm.String" MaxLength="200" Nullable="false"/>
+        <Property Name="Quantity" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="UnitPrice" Type="Edm.Decimal" Precision="15" Scale="2" Nullable="false"/>
+        <Property Name="Discount" Type="Edm.Decimal" Precision="5" Scale="4" Nullable="false" DefaultValue="0"/>
+        <NavigationProperty Name="Order" Type="Business.Entities.Order" Nullable="false" Partner="OrderItems"/>
+      </EntityType>
+      
+      <!-- 订单状态枚举 -->
+      <EnumType Name="OrderStatus">
+        <Member Name="Pending" Value="0"/>
+        <Member Name="Processing" Value="1"/>
+        <Member Name="Shipped" Value="2"/>
+        <Member Name="Delivered" Value="3"/>
+        <Member Name="Cancelled" Value="4"/>
+      </EnumType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
