@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.UndefinedTypes" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 引用未定义的BaseType -->
+      <EntityType Name="DerivedProduct" BaseType="Test.UndefinedTypes.BaseProduct">
+        <Property Name="SpecialFeature" Type="Edm.String" MaxLength="100"/>
+      </EntityType>
+      
+      <!-- 引用未定义的Property Type -->
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="OrderID"/>
+        </Key>
+        <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Status" Type="Test.UndefinedTypes.OrderStatus"/>
+        <Property Name="ShippingAddress" Type="Test.UndefinedTypes.Address"/>
+      </EntityType>
+      
+      <!-- ComplexType引用未定义类型 -->
+      <ComplexType Name="CustomerInfo">
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PreferredPayment" Type="Test.UndefinedTypes.PaymentMethod"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,4 @@
+This is not a valid XML file.
+It contains invalid characters and structure.
+<unclosed-tag>
+<another-tag without-closing

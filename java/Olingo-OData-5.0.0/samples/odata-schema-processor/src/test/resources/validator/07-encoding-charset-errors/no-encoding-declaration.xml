@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.NoEncoding" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- XML声明中缺少编码信息，可能导致编码推断错误 -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- 包含特殊字符但没有编码声明 -->
+        <Property Name="Descripción" Type="Edm.String"/>
+        <Property Name="Naïve" Type="Edm.String"/>
+        <Property Name="Résumé" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

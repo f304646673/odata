@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Core.Types">
+      
+      <!-- Base Entity Type -->
+      <EntityType Name="BaseEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="CreatedAt" Type="Edm.DateTimeOffset" Nullable="false"/>
+        <Property Name="ModifiedAt" Type="Edm.DateTimeOffset" Nullable="true"/>
+      </EntityType>
+      
+      <!-- Address Complex Type -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" Nullable="false"/>
+        <Property Name="City" Type="Edm.String" Nullable="false"/>
+        <Property Name="PostalCode" Type="Edm.String" Nullable="true"/>
+        <Property Name="Country" Type="Edm.String" Nullable="false"/>
+      </ComplexType>
+      
+      <!-- Status Enum Type -->
+      <EnumType Name="Status">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+        <Member Name="Pending" Value="3"/>
+      </EnumType>
+      
+      <!-- Entity Container -->
+      <EntityContainer Name="CoreContainer">
+        <EntitySet Name="BaseEntities" EntityType="Core.Types.BaseEntity"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

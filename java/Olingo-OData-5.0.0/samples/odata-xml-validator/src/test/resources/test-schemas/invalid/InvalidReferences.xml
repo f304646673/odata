@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Invalid.References">
+      
+      <!-- EntityType with invalid base type reference -->
+      <EntityType Name="DerivedEntity" BaseType="NonExistent.Namespace.BaseEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="InvalidTypeProperty" Type="Unknown.Type" Nullable="true"/>
+      </EntityType>
+      
+      <!-- ComplexType with invalid property type -->
+      <ComplexType Name="InvalidComplexType">
+        <Property Name="ValidProperty" Type="Edm.String" Nullable="false"/>
+        <Property Name="InvalidProperty" Type="Missing.Namespace.SomeType" Nullable="true"/>
+      </ComplexType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

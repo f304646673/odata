@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.UnsupportedFeatures" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 使用了不支持的OData 4.0特性或扩展 -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+        
+        <!-- 假设的不支持特性：自定义扩展属性 -->
+        <Property Name="CustomExtension" Type="Custom.ExtendedType" CustomAttribute="NotSupported"/>
+      </EntityType>
+      
+      <!-- 使用了可能不支持的OData版本特性 -->
+      <EntityType Name="AdvancedEntity" OpenType="true">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- 假设某些高级特性不被支持 -->
+        <Property Name="StreamProperty" Type="Edm.Stream"/>
+      </EntityType>
+      
+      <!-- 使用了可能不被完全支持的复杂继承结构 -->
+      <EntityType Name="MultipleInheritance" BaseType="Test.UnsupportedFeatures.Product">
+        <!-- 这可能在某些情况下不被支持 -->
+        <Property Name="AdditionalFeature" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

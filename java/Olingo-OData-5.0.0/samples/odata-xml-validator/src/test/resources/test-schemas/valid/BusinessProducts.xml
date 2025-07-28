@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:Reference Uri="CoreTypes.xml">
+    <edmx:Include Namespace="Core.Types"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Business.Products">
+      
+      <!-- Product Entity Type extending BaseEntity -->
+      <EntityType Name="Product" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String" Nullable="false"/>
+        <Property Name="Description" Type="Edm.String" Nullable="true"/>
+        <Property Name="Price" Type="Edm.Decimal" Nullable="false"/>
+        <Property Name="Status" Type="Core.Types.Status" Nullable="false"/>
+        <Property Name="ShippingAddress" Type="Core.Types.Address" Nullable="true"/>
+      </EntityType>
+      
+      <!-- Category Entity Type -->
+      <EntityType Name="Category" BaseType="Core.Types.BaseEntity">
+        <Property Name="Name" Type="Edm.String" Nullable="false"/>
+        <Property Name="Description" Type="Edm.String" Nullable="true"/>
+        <NavigationProperty Name="Products" Type="Collection(Business.Products.Product)" Partner="Category"/>
+      </EntityType>
+      
+      <!-- Add navigation property to Product -->
+      <EntityType Name="Product" BaseType="Core.Types.BaseEntity">
+        <NavigationProperty Name="Category" Type="Business.Products.Category" Partner="Products"/>
+      </EntityType>
+      
+      <!-- Product Details Complex Type -->
+      <ComplexType Name="ProductDetails">
+        <Property Name="Weight" Type="Edm.Double" Nullable="true"/>
+        <Property Name="Dimensions" Type="Edm.String" Nullable="true"/>
+        <Property Name="Color" Type="Edm.String" Nullable="true"/>
+      </ComplexType>
+      
+      <!-- Entity Container -->
+      <EntityContainer Name="ProductsContainer">
+        <EntitySet Name="Products" EntityType="Business.Products.Product"/>
+        <EntitySet Name="Categories" EntityType="Business.Products.Category"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

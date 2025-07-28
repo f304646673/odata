@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 缺少edmx:Edmx根元素 -->
+<Schema Namespace="Test.MissingEdmx" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+  <EntityType Name="Product">
+    <Key>
+      <PropertyRef Name="ID"/>
+    </Key>
+    <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+    <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+  </EntityType>
+</Schema>

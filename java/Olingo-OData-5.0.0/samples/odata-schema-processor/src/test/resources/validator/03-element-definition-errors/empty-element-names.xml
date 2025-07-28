@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.EmptyNames" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- EntityType名称为空 -->
+      <EntityType Name="">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      
+      <!-- ComplexType名称为空 -->
+      <ComplexType Name="">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <!-- EnumType名称为空 -->
+      <EnumType Name="">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

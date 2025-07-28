@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidTargets" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+      </EntityType>
+      
+      <!-- Target指向不存在的实体 -->
+      <Annotations Target="Test.InvalidTargets.NonExistentEntity">
+        <Annotation Term="Core.Description" String="This target does not exist"/>
+      </Annotations>
+      
+      <!-- Target指向不存在的属性 -->
+      <Annotations Target="Test.InvalidTargets.Product/NonExistentProperty">
+        <Annotation Term="Core.Description" String="This property does not exist"/>
+      </Annotations>
+      
+      <!-- Target格式完全错误 -->
+      <Annotations Target="Invalid/Target/Format!">
+        <Annotation Term="Core.Description" String="Invalid target format"/>
+      </Annotations>
+      
+      <!-- Target指向错误的命名空间 -->
+      <Annotations Target="Wrong.Namespace.Product">
+        <Annotation Term="Core.Description" String="Wrong namespace"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
