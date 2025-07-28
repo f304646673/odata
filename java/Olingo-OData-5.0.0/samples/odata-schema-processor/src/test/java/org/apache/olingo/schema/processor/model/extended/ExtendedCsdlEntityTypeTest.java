@@ -8,14 +8,14 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for ExtendedCsdlEntityType
@@ -25,7 +25,7 @@ public class ExtendedCsdlEntityTypeTest {
     private ExtendedCsdlEntityType entityType;
     private ExtendedCsdlEntityType entityTypeWithName;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         entityType = new ExtendedCsdlEntityType();
         entityTypeWithName = new ExtendedCsdlEntityType("Customer");
@@ -50,7 +50,7 @@ public class ExtendedCsdlEntityTypeTest {
         String name = "TestEntity";
         String baseType = "TestNamespace.BaseEntity";
         ExtendedCsdlEntityType et = new ExtendedCsdlEntityType(name);
-        et.setName(name); // 需要单独设置名称
+        et.setName(name); // 需要单独设置名
         et.setBaseType(baseType);
         assertEquals(name, et.getName());
         assertEquals(baseType, et.getBaseType());
@@ -315,6 +315,6 @@ public class ExtendedCsdlEntityTypeTest {
         String result = entityType.toString();
         assertNotNull(result);
         assertTrue(result.contains("TestEntity"));
-        assertTrue(result.contains("properties=2")); // 应该显示属性数量
+        assertTrue(result.contains("properties=2")); // 应该显示属性数
     }
 }

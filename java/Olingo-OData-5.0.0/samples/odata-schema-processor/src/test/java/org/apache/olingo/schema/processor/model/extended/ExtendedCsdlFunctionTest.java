@@ -6,24 +6,24 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * 测试 ExtendedCsdlFunction 类
+ * 测试 ExtendedCsdlFunction
  */
 public class ExtendedCsdlFunctionTest {
 
     private ExtendedCsdlFunction function;
     private ExtendedCsdlFunction functionWithId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         function = new ExtendedCsdlFunction();
         functionWithId = new ExtendedCsdlFunction("testFunction");
@@ -121,7 +121,7 @@ public class ExtendedCsdlFunctionTest {
 
     @Test
     public void testSetAndGetBound() {
-        assertFalse(function.isBound()); // 默认值
+        assertFalse(function.isBound()); // 默认
         
         function.setBound(true);
         assertTrue(function.isBound());
@@ -132,7 +132,7 @@ public class ExtendedCsdlFunctionTest {
 
     @Test
     public void testSetAndGetComposable() {
-        assertFalse(function.isComposable()); // 默认值
+        assertFalse(function.isComposable()); // 默认
         
         function.setComposable(true);
         assertTrue(function.isComposable());
@@ -263,12 +263,12 @@ public class ExtendedCsdlFunctionTest {
 
     @Test
     public void testElementIdConsistency() {
-        // 测试elementId在不同情况下的一致性
+        // 测试elementId在不同情况下的一致
         
-        // 1. 有提供的elementId时
+        // 1. 有提供的elementId
         assertEquals("testFunction", functionWithId.getElementId());
         
-        // 2. 没有elementId但有name时
+        // 2. 没有elementId但有name
         function.setName("MyFunction");
         assertEquals("MyFunction", function.getElementId());
         

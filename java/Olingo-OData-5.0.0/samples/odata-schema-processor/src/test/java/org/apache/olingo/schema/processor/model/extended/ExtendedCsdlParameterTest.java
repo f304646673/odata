@@ -2,23 +2,23 @@ package org.apache.olingo.schema.processor.model.extended;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * 测试 ExtendedCsdlParameter 类
+ * 测试 ExtendedCsdlParameter
  */
 public class ExtendedCsdlParameterTest {
 
     private ExtendedCsdlParameter parameter;
     private ExtendedCsdlParameter parameterWithId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parameter = new ExtendedCsdlParameter();
         parameterWithId = new ExtendedCsdlParameter("testParameter");
@@ -153,7 +153,7 @@ public class ExtendedCsdlParameterTest {
 
     @Test
     public void testSetAndGetMaxLength() {
-        assertNull(parameter.getMaxLength()); // 默认值
+        assertNull(parameter.getMaxLength()); // 默认
         
         parameter.setMaxLength(100);
         assertEquals(Integer.valueOf(100), parameter.getMaxLength());
@@ -161,7 +161,7 @@ public class ExtendedCsdlParameterTest {
 
     @Test
     public void testSetAndGetPrecision() {
-        assertNull(parameter.getPrecision()); // 默认值
+        assertNull(parameter.getPrecision()); // 默认
         
         parameter.setPrecision(10);
         assertEquals(Integer.valueOf(10), parameter.getPrecision());
@@ -169,7 +169,7 @@ public class ExtendedCsdlParameterTest {
 
     @Test
     public void testSetAndGetScale() {
-        assertNull(parameter.getScale()); // 默认值
+        assertNull(parameter.getScale()); // 默认
         
         parameter.setScale(2);
         assertEquals(Integer.valueOf(2), parameter.getScale());
@@ -247,12 +247,12 @@ public class ExtendedCsdlParameterTest {
 
     @Test
     public void testElementIdConsistency() {
-        // 测试elementId在不同情况下的一致性
+        // 测试elementId在不同情况下的一致
         
-        // 1. 有提供的elementId时
+        // 1. 有提供的elementId
         assertEquals("testParameter", parameterWithId.getElementId());
         
-        // 2. 没有elementId但有name时
+        // 2. 没有elementId但有name
         parameter.setName("MyParameter");
         assertEquals("MyParameter", parameter.getElementId());
         

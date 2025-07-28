@@ -1,75 +1,81 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for schema structure errors using XmlFileComplianceValidator
  */
-@RunWith(Parameterized.class)
 public class SchemaStructureErrorsTest {
-    
-    private final XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public SchemaStructureErrorsTest(Path testFilePath) {
-        this.validator = new OlingoXmlFileComplianceValidator();
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+
+    private XmlFileComplianceValidator validator;
+    private static final String SCHEMA_STRUCTURE_ERRORS_DIR = "src/test/resources/validator/02-schema-structure-errors";
+
+    @BeforeEach
     public void setUp() {
-        // Additional setup if needed
+        validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path errorFilesDir = Paths.get("src/test/resources/validator/02-schema-structure-errors");
-        
-        if (Files.exists(errorFilesDir)) {
-            try (Stream<Path> files = Files.list(errorFilesDir)) {
-                files.filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testSchemaStructureError() {
+    public void testConflictingNamespace1() {
+        testSchemaStructureError("conflicting-namespace/conflicting-namespace-1.xml");
+    }
+
+    @Test
+    public void testConflictingNamespace2() {
+        testSchemaStructureError("conflicting-namespace/conflicting-namespace-2.xml");
+    }
+
+    @Test
+    public void testInvalidNamespaceFormat() {
+        testSchemaStructureError("invalid-namespace-format.xml");
+    }
+
+    @Test
+    public void testMissingEdmxRoot() {
+        testSchemaStructureError("missing-edmx-root.xml");
+    }
+
+    @Test
+    public void testMissingNamespace() {
+        testSchemaStructureError("missing-namespace.xml");
+    }
+
+    @Test
+    public void testMissingSchemaElement() {
+        testSchemaStructureError("missing-schema-element.xml");
+    }
+
+    /**
+     * Helper method to test a specific schema structure error file
+     */
+    private void testSchemaStructureError(String fileName) {
+        Path testFilePath = Paths.get(SCHEMA_STRUCTURE_ERRORS_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
-        assertNotNull("Result should not be null", result);
-        assertFalse("Schema structure error file should not be compliant: " + testFilePath.getFileName(), 
-                   result.isCompliant());
-        assertTrue("Schema structure error file should have errors: " + testFilePath.getFileName(), 
-                  result.getErrorCount() > 0);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Validated: " + testFilePath.getFileName() + 
-                          " - Compliant: " + result.isCompliant() + 
-                          " - Errors: " + result.getErrorCount() + 
-                          " - Warnings: " + result.getWarningCount());
-        
-        if (result.hasErrors()) {
+        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
+                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount());
+        if (!result.getErrors().isEmpty()) {
             System.out.println("  Errors: " + result.getErrors());
         }
+
+        // Schema structure error files should NOT be compliant
+        assertFalse(result.isCompliant(), "Schema structure error file should not be compliant: " + fileName);
+        assertTrue(result.hasErrors(), "Schema structure error file should have errors: " + fileName);
     }
 }

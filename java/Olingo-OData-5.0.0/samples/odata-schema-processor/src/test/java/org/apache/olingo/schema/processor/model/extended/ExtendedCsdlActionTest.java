@@ -6,14 +6,14 @@ import java.util.Collections;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for ExtendedCsdlAction
@@ -23,7 +23,7 @@ public class ExtendedCsdlActionTest {
     private ExtendedCsdlAction action;
     private ExtendedCsdlAction actionWithId;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         action = new ExtendedCsdlAction();
         actionWithId = new ExtendedCsdlAction("testActionId");

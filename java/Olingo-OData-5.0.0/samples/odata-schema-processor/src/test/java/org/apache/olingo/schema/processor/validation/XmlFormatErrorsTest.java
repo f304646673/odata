@@ -1,75 +1,71 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for XML format errors using XmlFileComplianceValidator
  */
-@RunWith(Parameterized.class)
 public class XmlFormatErrorsTest {
-    
-    private final XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public XmlFormatErrorsTest(Path testFilePath) {
-        this.validator = new OlingoXmlFileComplianceValidator();
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+
+    private XmlFileComplianceValidator validator;
+    private static final String XML_FORMAT_ERRORS_DIR = "src/test/resources/validator/01-xml-format-errors";
+
+    @BeforeEach
     public void setUp() {
-        // Additional setup if needed
+        validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path errorFilesDir = Paths.get("src/test/resources/validator/01-xml-format-errors");
-        
-        if (Files.exists(errorFilesDir)) {
-            try (Stream<Path> files = Files.list(errorFilesDir)) {
-                files.filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testXmlFormatError() {
+    public void testEncodingMismatch() {
+        testXmlFormatError("encoding-mismatch.xml");
+    }
+
+    @Test
+    public void testInvalidCharacters() {
+        testXmlFormatError("invalid-characters.xml");
+    }
+
+    @Test
+    public void testMissingRootElement() {
+        testXmlFormatError("missing-root-element.xml");
+    }
+
+    @Test
+    public void testUnclosedTags() {
+        testXmlFormatError("unclosed-tags.xml");
+    }
+
+    /**
+     * Helper method to test a specific XML format error file
+     */
+    private void testXmlFormatError(String fileName) {
+        Path testFilePath = Paths.get(XML_FORMAT_ERRORS_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
-        assertNotNull("Result should not be null", result);
-        assertFalse("XML format error file should not be compliant: " + testFilePath.getFileName(), 
-                   result.isCompliant());
-        assertTrue("XML format error file should have errors: " + testFilePath.getFileName(), 
-                  result.getErrorCount() > 0);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Validated: " + testFilePath.getFileName() + 
-                          " - Compliant: " + result.isCompliant() + 
-                          " - Errors: " + result.getErrorCount() + 
-                          " - Warnings: " + result.getWarningCount());
-        
-        if (result.hasErrors()) {
+        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
+                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount());
+        if (!result.getErrors().isEmpty()) {
             System.out.println("  Errors: " + result.getErrors());
         }
+
+        // XML format error files should NOT be compliant
+        assertFalse(result.isCompliant(), "XML format error file should not be compliant: " + fileName);
+        assertTrue(result.hasErrors(), "XML format error file should have errors: " + fileName);
     }
 }

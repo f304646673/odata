@@ -1,11 +1,11 @@
 package org.apache.olingo.schema.processor.model.extended;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for ExtendedCsdlProperty class
@@ -14,7 +14,7 @@ public class ExtendedCsdlPropertyTest {
     
     private ExtendedCsdlProperty property;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         property = new ExtendedCsdlProperty();
     }

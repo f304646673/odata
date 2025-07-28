@@ -1,10 +1,10 @@
 package org.apache.olingo.schema.processor.model.extended;
 
 import org.apache.olingo.schema.processor.model.dependency.GlobalDependencyManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * 扩展CSDL类型的综合测试
@@ -13,13 +13,13 @@ public class ExtendedCsdlTypesTest {
     
     private GlobalDependencyManager manager;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         manager = GlobalDependencyManager.getInstance();
         manager.clear();
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
         manager.clear();
     }
@@ -30,7 +30,7 @@ public class ExtendedCsdlTypesTest {
         complexType.setName("Address");
         complexType.setNamespace("com.example");
         
-        // 注册到全局管理器
+        // 注册到全局管理
         complexType.registerElement();
         
         // 测试基本功能
@@ -62,7 +62,7 @@ public class ExtendedCsdlTypesTest {
         action.setName("CreateEmployee");
         action.setNamespace("com.example");
         
-        // 注册到全局管理器
+        // 注册到全局管理
         action.registerElement();
         
         // 测试基本功能
@@ -92,7 +92,7 @@ public class ExtendedCsdlTypesTest {
         parameter.setNamespace("com.example");
         parameter.setParentName("CreateEmployee");
         
-        // 注册到全局管理器
+        // 注册到全局管理
         parameter.registerElement();
         
         // 测试基本功能
@@ -184,7 +184,7 @@ public class ExtendedCsdlTypesTest {
         parameter.setNamespace("com.example");
         parameter.registerElement();
         
-        // 建立依赖链
+        // 建立依赖
         function.addDependency("action1");
         action.addDependency("complexType1");
         complexType.addDependency("parameter1");

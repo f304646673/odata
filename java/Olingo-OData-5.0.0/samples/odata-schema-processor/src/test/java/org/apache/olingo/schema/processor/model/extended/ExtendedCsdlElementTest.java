@@ -2,13 +2,13 @@ package org.apache.olingo.schema.processor.model.extended;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * 测试 ExtendedCsdlElement 接口
@@ -54,7 +54,7 @@ public class ExtendedCsdlElementTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         element = new TestExtendedCsdlElement(
             "testElement",
@@ -99,7 +99,7 @@ public class ExtendedCsdlElementTest {
 
     @Test
     public void testElementWithDifferentDependencyTypes() {
-        // 测试不同的依赖类型
+        // 测试不同的依赖类
         ExtendedCsdlElement complexType = new TestExtendedCsdlElement(
             "complexElement",
             new FullQualifiedName("com.example", "ComplexType"),
@@ -194,7 +194,7 @@ public class ExtendedCsdlElementTest {
 
     @Test
     public void testAllDependencyTypes() {
-        // 测试所有依赖类型都可以正确设置和获取
+        // 测试所有依赖类型都可以正确设置和获
         CsdlDependencyNode.DependencyType[] types = CsdlDependencyNode.DependencyType.values();
         
         for (CsdlDependencyNode.DependencyType type : types) {

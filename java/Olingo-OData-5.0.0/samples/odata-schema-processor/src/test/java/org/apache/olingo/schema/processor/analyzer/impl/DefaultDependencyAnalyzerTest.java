@@ -1,12 +1,12 @@
 package org.apache.olingo.schema.processor.analyzer.impl;
 
 import org.apache.olingo.schema.processor.analyzer.DependencyAnalyzer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Default dependency analyzer test class
@@ -15,7 +15,7 @@ public class DefaultDependencyAnalyzerTest {
     
     private DefaultDependencyAnalyzer analyzer;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         analyzer = new DefaultDependencyAnalyzer();
     }

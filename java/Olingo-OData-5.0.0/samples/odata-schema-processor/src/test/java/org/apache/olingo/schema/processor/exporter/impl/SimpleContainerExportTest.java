@@ -1,9 +1,9 @@
 package org.apache.olingo.schema.processor.exporter.impl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple test for container exporter functionality
@@ -12,7 +12,7 @@ public class SimpleContainerExportTest {
 
     private DefaultContainerExporter exporter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         exporter = new DefaultContainerExporter();
     }

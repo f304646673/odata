@@ -1,86 +1,71 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test class for encoding and charset error files using XmlFileComplianceValidator.
- * Tests files from src/test/resources/validator/07-encoding-charset-errors/
+ * Test class for encoding and charset errors using XmlFileComplianceValidator
  */
-@RunWith(Parameterized.class)
 public class EncodingCharsetErrorsTest {
-    
+
     private XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public EncodingCharsetErrorsTest(Path testFilePath) {
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+    private static final String ENCODING_CHARSET_ERRORS_DIR = "src/test/resources/validator/07-encoding-charset-errors";
+
+    @BeforeEach
     public void setUp() {
         validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path errorFilesDir = Paths.get("src/test/resources/validator/07-encoding-charset-errors");
-        
-        if (Files.exists(errorFilesDir) && Files.isDirectory(errorFilesDir)) {
-            try (Stream<Path> files = Files.walk(errorFilesDir)) {
-                files.filter(Files::isRegularFile)
-                     .filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        // Ensure we have at least one test file
-        if (testFiles.isEmpty()) {
-            throw new RuntimeException("No encoding charset error test files found in " + errorFilesDir);
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testEncodingCharsetError() {
+    public void testUtf8EncodingError() {
+        testEncodingCharsetError("utf8-encoding-error.xml");
+    }
+
+    @Test
+    public void testUtf16EncodingError() {
+        testEncodingCharsetError("utf16-encoding-error.xml");
+    }
+
+    @Test
+    public void testInvalidCharacterEncoding() {
+        testEncodingCharsetError("invalid-character-encoding.xml");
+    }
+
+    @Test
+    public void testBomMismatch() {
+        testEncodingCharsetError("bom-mismatch.xml");
+    }
+
+    /**
+     * Helper method to test a specific encoding/charset error file
+     */
+    private void testEncodingCharsetError(String fileName) {
+        Path testFilePath = Paths.get(ENCODING_CHARSET_ERRORS_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        assertTrue("Test file should not be empty: " + testFilePath, xmlFile.length() > 0);
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
-        assertNotNull("Result should not be null", result);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Testing encoding charset error file: " + testFilePath.getFileName());
-        System.out.println("  Compliant: " + result.isCompliant());
-        System.out.println("  Errors: " + result.getErrorCount());
-        System.out.println("  Warnings: " + result.getWarningCount());
-        
-        if (result.hasErrors()) {
-            System.out.println("  Error details: " + result.getErrors());
+        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
+                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount());
+        if (!result.getErrors().isEmpty()) {
+            System.out.println("  Errors: " + result.getErrors());
         }
-        
-        // For encoding charset error files, we expect them to have errors or be non-compliant
-        if (result.isCompliant() && result.getErrorCount() == 0) {
-            System.out.println("INFO: Encoding charset error file was actually valid: " + testFilePath.getFileName());
-        }
-        
-        // At minimum, the validation should complete without throwing exceptions
-        assertNotNull("Validation should complete successfully", result);
+
+        // Encoding/charset error files should NOT be compliant
+        assertFalse(result.isCompliant(), "Encoding charset error file should not be compliant: " + fileName);
+        assertTrue(result.hasErrors(), "Encoding charset error file should have errors: " + fileName);
     }
 }

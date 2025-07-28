@@ -1,86 +1,76 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test class for OData compliance error files using XmlFileComplianceValidator.
- * Tests files from src/test/resources/validator/06-odata-compliance-errors/
+ * Test class for OData compliance errors using XmlFileComplianceValidator
  */
-@RunWith(Parameterized.class)
 public class ODataComplianceErrorsTest {
-    
+
     private XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public ODataComplianceErrorsTest(Path testFilePath) {
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+    private static final String ODATA_COMPLIANCE_ERRORS_DIR = "src/test/resources/validator/06-odata-compliance-errors";
+
+    @BeforeEach
     public void setUp() {
         validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path errorFilesDir = Paths.get("src/test/resources/validator/06-odata-compliance-errors");
-        
-        if (Files.exists(errorFilesDir) && Files.isDirectory(errorFilesDir)) {
-            try (Stream<Path> files = Files.walk(errorFilesDir)) {
-                files.filter(Files::isRegularFile)
-                     .filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        // Ensure we have at least one test file
-        if (testFiles.isEmpty()) {
-            throw new RuntimeException("No OData compliance error test files found in " + errorFilesDir);
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testODataComplianceError() {
+    public void testInvalidEntityTypeInheritance() {
+        testODataComplianceError("invalid-entity-type-inheritance.xml");
+    }
+
+    @Test
+    public void testInvalidNavigationProperty() {
+        testODataComplianceError("invalid-navigation-property.xml");
+    }
+
+    @Test
+    public void testInvalidPropertyType() {
+        testODataComplianceError("invalid-property-type.xml");
+    }
+
+    @Test
+    public void testMissingKeyProperty() {
+        testODataComplianceError("missing-key-property.xml");
+    }
+
+    @Test
+    public void testInvalidComplexTypeReference() {
+        testODataComplianceError("invalid-complex-type-reference.xml");
+    }
+
+    /**
+     * Helper method to test a specific OData compliance error file
+     */
+    private void testODataComplianceError(String fileName) {
+        Path testFilePath = Paths.get(ODATA_COMPLIANCE_ERRORS_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        assertTrue("Test file should not be empty: " + testFilePath, xmlFile.length() > 0);
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
-        assertNotNull("Result should not be null", result);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Testing OData compliance error file: " + testFilePath.getFileName());
-        System.out.println("  Compliant: " + result.isCompliant());
-        System.out.println("  Errors: " + result.getErrorCount());
-        System.out.println("  Warnings: " + result.getWarningCount());
-        
-        if (result.hasErrors()) {
-            System.out.println("  Error details: " + result.getErrors());
+        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
+                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount());
+        if (!result.getErrors().isEmpty()) {
+            System.out.println("  Errors: " + result.getErrors());
         }
-        
-        // For OData compliance error files, we expect them to have errors or be non-compliant
-        if (result.isCompliant() && result.getErrorCount() == 0) {
-            System.out.println("INFO: OData compliance error file was actually valid: " + testFilePath.getFileName());
-        }
-        
-        // At minimum, the validation should complete without throwing exceptions
-        assertNotNull("Validation should complete successfully", result);
+
+        // OData compliance error files should NOT be compliant
+        assertFalse(result.isCompliant(), "OData compliance error file should not be compliant: " + fileName);
+        assertTrue(result.hasErrors(), "OData compliance error file should have errors: " + fileName);
     }
 }

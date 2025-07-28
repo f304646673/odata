@@ -1,9 +1,6 @@
 package org.apache.olingo.schema.processor.loader;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
@@ -31,11 +28,11 @@ public class ODataValidator {
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
     
     // 内置类型
-    private static final Set<String> PRIMITIVE_TYPES = Set.of(
-        "Edm.String", "Edm.Int32", "Edm.Int64", "Edm.Boolean", "Edm.DateTime", 
-        "Edm.DateTimeOffset", "Edm.Decimal", "Edm.Double", "Edm.Guid", 
-        "Edm.Binary", "Edm.Byte", "Edm.Int16", "Edm.Single", "Edm.Time"
-    );
+    private static final Set<String> PRIMITIVE_TYPES = new HashSet<>(Arrays.asList(
+            "Edm.String", "Edm.Int32", "Edm.Int64", "Edm.Boolean", "Edm.DateTime",
+            "Edm.DateTimeOffset", "Edm.Decimal", "Edm.Double", "Edm.Guid",
+            "Edm.Binary", "Edm.Byte", "Edm.Int16", "Edm.Single", "Edm.Time"
+    ));
     
     /**
      * 验证结果

@@ -1,9 +1,9 @@
 package org.apache.olingo.schema.processor.repository.impl;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DefaultXmlFileRepository test class
@@ -12,7 +12,7 @@ public class DefaultXmlFileRepositoryTest {
     
     private DefaultXmlFileRepository repository;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         repository = new DefaultXmlFileRepository();
     }

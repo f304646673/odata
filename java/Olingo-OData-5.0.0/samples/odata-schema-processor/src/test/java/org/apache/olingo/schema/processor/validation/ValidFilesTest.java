@@ -1,88 +1,99 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for valid XML files using XmlFileComplianceValidator.
- * Tests files from src/test/resources/validator/valid-files/
+ * Tests files from src/test/resources/validator/00-valid-schemas/
  */
-@RunWith(Parameterized.class)
 public class ValidFilesTest {
-    
+
     private XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public ValidFilesTest(Path testFilePath) {
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+    private static final String VALID_SCHEMAS_DIR = "src/test/resources/validator/00-valid-schemas";
+
+    @BeforeEach
     public void setUp() {
         validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path validFilesDir = Paths.get("src/test/resources/validator/valid-files");
-        
-        if (Files.exists(validFilesDir) && Files.isDirectory(validFilesDir)) {
-            try (Stream<Path> files = Files.walk(validFilesDir)) {
-                files.filter(Files::isRegularFile)
-                     .filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        // Ensure we have at least one test file
-        if (testFiles.isEmpty()) {
-            throw new RuntimeException("No valid XML test files found in " + validFilesDir);
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testValidFile() {
+    public void testCompleteValidSchema() {
+        testValidXmlFile("complete-valid-schema.xml");
+    }
+
+    @Test
+    public void testComplexTypeSchema() {
+        testValidXmlFile("complex-type-schema.xml");
+    }
+
+    @Test
+    public void testMinimalValidSchema() {
+        testValidXmlFile("minimal-valid-schema.xml");
+    }
+
+    @Test
+    public void testCrossNamespaceReference() {
+        testValidXmlFile("cross-namespace-reference/common/CommonTypes.xml");
+        testValidXmlFile("cross-namespace-reference/business/BusinessEntities.xml");
+    }
+
+    @Test
+    public void testCircularReference() {
+        testValidXmlFile("circular-reference/a/A.xml");
+        testValidXmlFile("circular-reference/b/B.xml");
+    }
+
+    @Test
+    public void testAnnotationInclude() {
+        testValidXmlFile("annotation-include/Annotations.xml");
+        testValidXmlFile("annotation-include/MainWithAnnotations.xml");
+    }
+
+    @Test
+    public void testCrossFileInheritance() {
+        testValidXmlFile("cross-file-inheritance/Base.xml");
+        testValidXmlFile("cross-file-inheritance/Derived.xml");
+    }
+
+    @Test
+    public void testSharedTypeReference() {
+        testValidXmlFile("shared-type-reference/shared/SharedTypes.xml");
+        testValidXmlFile("shared-type-reference/Main.xml");
+    }
+
+    /**
+     * Helper method to test a specific valid XML file
+     */
+    private void testValidXmlFile(String fileName) {
+        Path testFilePath = Paths.get(VALID_SCHEMAS_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        assertTrue("Test file should not be empty: " + testFilePath, xmlFile.length() > 0);
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
-        assertNotNull("Result should not be null", result);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Testing valid file: " + testFilePath.getFileName());
+        System.out.println("Testing valid file: " + fileName);
         System.out.println("  Compliant: " + result.isCompliant());
         System.out.println("  Errors: " + result.getErrorCount());
         System.out.println("  Warnings: " + result.getWarningCount());
-        
+
         if (result.hasErrors()) {
             System.out.println("  Error details: " + result.getErrors());
         }
-        
+
         // For valid files, we expect them to be compliant
-        // However, during development, we might encounter issues, so let's be flexible
-        if (!result.isCompliant()) {
-            System.out.println("WARNING: Valid file failed validation: " + testFilePath.getFileName());
-            System.out.println("Errors: " + result.getErrors());
-        }
-        
-        // At minimum, the validation should complete without throwing exceptions
-        assertTrue("Validation should complete successfully", result != null);
+        assertTrue(result.isCompliant(), "Valid file should be compliant: " + fileName);
+        assertTrue(!result.hasErrors(), "Valid file should have no errors: " + fileName);
     }
 }

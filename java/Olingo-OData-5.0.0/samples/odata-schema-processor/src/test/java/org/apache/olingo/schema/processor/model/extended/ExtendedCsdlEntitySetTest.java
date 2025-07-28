@@ -5,22 +5,22 @@ import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * 测试 ExtendedCsdlEntitySet 类
+ * 测试 ExtendedCsdlEntitySet
  */
 public class ExtendedCsdlEntitySetTest {
 
     private ExtendedCsdlEntitySet entitySet;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         entitySet = new ExtendedCsdlEntitySet();
     }
@@ -167,7 +167,7 @@ public class ExtendedCsdlEntitySetTest {
     public void testAnalyzeDependenciesWithEdmType() {
         ((ExtendedCsdlEntitySet)entitySet).setType("Edm.String");
         
-        // EDM类型不应该添加依赖
+        // EDM类型不应该添加依
         assertEquals(0, entitySet.getDependencyCount());
     }
 
@@ -236,7 +236,7 @@ public class ExtendedCsdlEntitySetTest {
         assertEquals("com.example.FluentType", entitySet.getType());
         assertTrue(entitySet.isIncludeInServiceDocument());
         
-        // 验证依赖分析被自动触发
+        // 验证依赖分析被自动触
         assertTrue(entitySet.hasDependency("com.example"));
     }
 
@@ -263,7 +263,7 @@ public class ExtendedCsdlEntitySetTest {
 
     @Test
     public void testComplexDependencyAnalysis() {
-        // 设置复杂的依赖场景
+        // 设置复杂的依赖场
         ((ExtendedCsdlEntitySet)entitySet).setType("com.example.orders.OrderType");
         
         CsdlNavigationPropertyBinding binding1 = new CsdlNavigationPropertyBinding();
@@ -277,7 +277,7 @@ public class ExtendedCsdlEntitySetTest {
         entitySet.setNavigationPropertyBindings(Arrays.asList(binding1, binding2));
         entitySet.analyzeDependencies();
         
-        // 应该有三个不同namespace的依赖
+        // 应该有三个不同namespace的依
         assertEquals(3, entitySet.getDependencyCount());
         assertTrue(entitySet.hasDependency("com.example.orders"));
         assertTrue(entitySet.hasDependency("com.example.customers"));
@@ -286,7 +286,7 @@ public class ExtendedCsdlEntitySetTest {
 
     @Test
     public void testDependencyAnalysisAfterTypeChange() {
-        // 先设置一个类型
+        // 先设置一个类
         ((ExtendedCsdlEntitySet)entitySet).setType("com.example.Type1");
         assertEquals(1, entitySet.getDependencyCount());
         assertTrue(entitySet.hasDependency("com.example"));

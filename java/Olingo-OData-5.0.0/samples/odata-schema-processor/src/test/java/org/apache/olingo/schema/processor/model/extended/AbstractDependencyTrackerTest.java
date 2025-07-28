@@ -2,16 +2,16 @@ package org.apache.olingo.schema.processor.model.extended;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * 测试 AbstractDependencyTracker 抽象类
+ * 测试 AbstractDependencyTracker
  */
 public class AbstractDependencyTrackerTest {
 
@@ -22,7 +22,7 @@ public class AbstractDependencyTrackerTest {
         // 为了测试抽象类，提供一个空的具体实现
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dependencyTracker = new TestAbstractDependencyTracker();
     }
@@ -111,10 +111,10 @@ public class AbstractDependencyTrackerTest {
             dependencies.add("com.example.Type2");
             fail("应该抛出UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
-            // 期望的行为
+            // 期望的行
         }
         
-        // 确保原始集合没有被修改
+        // 确保原始集合没有被修
         assertEquals(1, dependencyTracker.getDirectDependencies().size());
         assertTrue(dependencyTracker.getDirectDependencies().contains("com.example.Type1"));
     }
@@ -139,7 +139,7 @@ public class AbstractDependencyTrackerTest {
             recursive.add("com.example.Type2");
             fail("应该抛出UnsupportedOperationException");
         } catch (UnsupportedOperationException e) {
-            // 期望的行为
+            // 期望的行
         }
     }
 

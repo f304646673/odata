@@ -1,11 +1,11 @@
 package org.apache.olingo.schema.processor.loader;
 
-import static org.junit.Assert.*;
-
 import java.lang.reflect.Method;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for ODataValidator.extractNamespace() private method
@@ -15,7 +15,7 @@ public class ODataValidatorExtractNamespaceTest {
     private ODataValidator validator;
     private Method extractNamespaceMethod;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         validator = new ODataValidator();
         // Access private method via reflection
@@ -27,42 +27,42 @@ public class ODataValidatorExtractNamespaceTest {
     public void testExtractNamespaceWithFullyQualifiedName() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, "TestNamespace.EntityType");
         
-        assertEquals("Should extract namespace correctly", "TestNamespace", result);
+        assertEquals("TestNamespace", result, "Should extract namespace correctly");
     }
     
     @Test
     public void testExtractNamespaceWithNestedNamespace() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, "Company.Department.EntityType");
         
-        assertEquals("Should extract nested namespace correctly", "Company.Department", result);
+        assertEquals("Company.Department", result, "Should extract nested namespace correctly");
     }
     
     @Test
     public void testExtractNamespaceWithSimpleName() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, "EntityType");
         
-        assertNull("Should return null for simple name", result);
+        assertNull(result, "Should return null for simple name");
     }
     
     @Test
     public void testExtractNamespaceWithNullInput() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, (String) null);
         
-        assertNull("Should return null for null input", result);
+        assertNull(result, "Should return null for null input");
     }
     
     @Test
     public void testExtractNamespaceWithEmptyInput() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, "");
         
-        assertNull("Should return null for empty input", result);
+        assertNull(result, "Should return null for empty input");
     }
     
     @Test
     public void testExtractNamespaceWithWhitespaceInput() throws Exception {
         String result = (String) extractNamespaceMethod.invoke(validator, "   ");
         
-        assertNull("Should return null for whitespace input", result);
+        assertNull(result, "Should return null for whitespace input");
     }
     
     @Test
@@ -70,6 +70,6 @@ public class ODataValidatorExtractNamespaceTest {
         String result = (String) extractNamespaceMethod.invoke(validator, ".EntityType");
         
         // The actual implementation returns null, not empty string for ".EntityType"
-        assertNull("Should return null for dot at start", result);
+        assertNull(result, "Should return null for dot at start");
     }
 }

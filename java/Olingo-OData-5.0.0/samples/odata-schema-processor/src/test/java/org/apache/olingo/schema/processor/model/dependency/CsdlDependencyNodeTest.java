@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * CsdlDependencyNode的单元测试
@@ -23,7 +23,7 @@ public class CsdlDependencyNodeTest {
     private CsdlDependencyNode targetNode2;
     private CsdlDependencyNode targetNode3;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         sourceNode = new CsdlDependencyNode(
             new FullQualifiedName("test.namespace", "SourceEntity"),

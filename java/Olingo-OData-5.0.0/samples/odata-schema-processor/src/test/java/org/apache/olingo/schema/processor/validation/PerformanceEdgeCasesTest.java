@@ -1,91 +1,79 @@
 package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test class for performance edge case files using XmlFileComplianceValidator.
- * Tests files from src/test/resources/validator/09-performance-edge-cases/
+ * Test class for performance edge cases using XmlFileComplianceValidator
  */
-@RunWith(Parameterized.class)
 public class PerformanceEdgeCasesTest {
-    
+
     private XmlFileComplianceValidator validator;
-    private final Path testFilePath;
-    
-    public PerformanceEdgeCasesTest(Path testFilePath) {
-        this.testFilePath = testFilePath;
-    }
-    
-    @Before
+    private static final String PERFORMANCE_EDGE_CASES_DIR = "src/test/resources/validator/09-performance-edge-cases";
+
+    @BeforeEach
     public void setUp() {
         validator = new OlingoXmlFileComplianceValidator();
     }
-    
-    @Parameterized.Parameters(name = "{0}")
-    public static List<Path> getTestFiles() throws Exception {
-        List<Path> testFiles = new ArrayList<>();
-        Path errorFilesDir = Paths.get("src/test/resources/validator/09-performance-edge-cases");
-        
-        if (Files.exists(errorFilesDir) && Files.isDirectory(errorFilesDir)) {
-            try (Stream<Path> files = Files.walk(errorFilesDir)) {
-                files.filter(Files::isRegularFile)
-                     .filter(path -> path.toString().endsWith(".xml"))
-                     .forEach(testFiles::add);
-            }
-        }
-        
-        // Ensure we have at least one test file
-        if (testFiles.isEmpty()) {
-            throw new RuntimeException("No performance edge case test files found in " + errorFilesDir);
-        }
-        
-        return testFiles;
-    }
-    
+
     @Test
-    public void testPerformanceEdgeCase() {
+    public void testLargeSchema() {
+        testPerformanceEdgeCase("large-schema.xml");
+    }
+
+    @Test
+    public void testDeepNesting() {
+        testPerformanceEdgeCase("deep-nesting.xml");
+    }
+
+    @Test
+    public void testManyReferences() {
+        testPerformanceEdgeCase("many-references.xml");
+    }
+
+    @Test
+    public void testComplexInheritance() {
+        testPerformanceEdgeCase("complex-inheritance.xml");
+    }
+
+    /**
+     * Helper method to test a specific performance edge case file
+     */
+    private void testPerformanceEdgeCase(String fileName) {
+        Path testFilePath = Paths.get(PERFORMANCE_EDGE_CASES_DIR, fileName);
         File xmlFile = testFilePath.toFile();
-        assertTrue("Test file should exist: " + testFilePath, xmlFile.exists());
-        assertTrue("Test file should not be empty: " + testFilePath, xmlFile.length() > 0);
-        
+
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+
         // Measure validation time for performance analysis
         long startTime = System.currentTimeMillis();
-        
+
         XmlComplianceResult result = validator.validateFile(xmlFile);
-        
+
         long validationTime = System.currentTimeMillis() - startTime;
-        
-        assertNotNull("Result should not be null", result);
-        
+
+        assertNotNull(result, "Result should not be null");
+
         // Log the result for debugging
-        System.out.println("Testing performance edge case file: " + testFilePath.getFileName());
-        System.out.println("  Compliant: " + result.isCompliant());
-        System.out.println("  Errors: " + result.getErrorCount());
-        System.out.println("  Warnings: " + result.getWarningCount());
-        System.out.println("  Validation time: " + validationTime + "ms");
-        
-        if (result.hasErrors()) {
-            System.out.println("  Error details: " + result.getErrors());
+        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
+                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount() +
+                          " - Time: " + validationTime + "ms");
+        if (!result.getErrors().isEmpty()) {
+            System.out.println("  Errors: " + result.getErrors());
         }
-        
+
         // For performance edge case files, we're mainly testing that validation completes
         // within reasonable time bounds
-        assertTrue("Validation should complete within reasonable time (< 30 seconds)", validationTime < 30000);
-        
+        assertTrue(validationTime < 30000, "Validation should complete within reasonable time (< 30 seconds)");
+
         // At minimum, the validation should complete without throwing exceptions
-        assertNotNull("Validation should complete successfully", result);
+        assertNotNull(result, "Validation should complete successfully");
     }
 }

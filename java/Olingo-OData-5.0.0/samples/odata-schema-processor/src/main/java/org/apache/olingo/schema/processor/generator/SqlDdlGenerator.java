@@ -354,13 +354,13 @@ public class SqlDdlGenerator {
         StringBuilder sql = new StringBuilder();
         
         // 添加文件头注释
-        sql.append("-- ").append("=".repeat(60)).append("\n");
+        sql.append("-- ").append(repeat("=", 60)).append("\n");
         sql.append("-- OData Schema DDL for ").append(dialect.name()).append("\n");
         sql.append("-- Generated on: ").append(new java.util.Date()).append("\n");
         sql.append("-- Schemas: ").append(schemas.stream()
                 .map(CsdlSchema::getNamespace)
                 .collect(Collectors.joining(", "))).append("\n");
-        sql.append("-- ").append("=".repeat(60)).append("\n\n");
+        sql.append("-- ").append(repeat("=", 60)).append("\n");
         
         // 生成每个实体的表
         for (CsdlEntityType entityType : entityTypes) {
@@ -379,7 +379,15 @@ public class SqlDdlGenerator {
         
         return fileName;
     }
-    
+
+    private static String repeat(String str, int count) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            builder.append(str);
+        }
+        return builder.toString();
+    }
+
     /**
      * 生成CREATE TABLE语句
      */

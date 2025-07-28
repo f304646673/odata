@@ -7,23 +7,24 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schema.processor.parser.ODataXmlParser;
 import org.apache.olingo.schema.processor.repository.SchemaRepository;
-import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * 测试 SchemaDirectoryLoader.loadSchemasToRepository 方法
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SchemaDirectoryLoaderTest_loadSchemasToRepository {
 
     @Mock
@@ -34,7 +35,7 @@ public class SchemaDirectoryLoaderTest_loadSchemasToRepository {
     
     private SchemaDirectoryLoader loader;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         loader = new SchemaDirectoryLoader(mockXmlParser);
     }
@@ -89,7 +90,7 @@ public class SchemaDirectoryLoaderTest_loadSchemasToRepository {
         
         List<CsdlSchema> schemas = Arrays.asList(schema1, schema2);
         
-        // 模拟第一个schema添加时抛出异常，第二个成功
+        // 模拟第一个schema添加时抛出异常，第二个成
         doThrow(new RuntimeException("Repository error")).when(mockRepository).addSchema(schema1);
         doNothing().when(mockRepository).addSchema(schema2);
         
@@ -124,12 +125,12 @@ public class SchemaDirectoryLoaderTest_loadSchemasToRepository {
         schema.setNamespace("com.example.test");
         List<CsdlSchema> schemas = Arrays.asList(schema);
         
-        // 执行测试，应该抛出异常
+        // 执行测试，应该抛出异
         try {
             loader.loadSchemasToRepository(schemas, null);
             fail("Should throw NullPointerException for null repository");
         } catch (NullPointerException e) {
-            // 预期的异常
+            // 预期的异
         }
     }
     

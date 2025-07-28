@@ -2,10 +2,14 @@ package org.apache.olingo.schema.processor.validation;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,22 +17,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.server.core.SchemaBasedEdmProvider;
-import org.apache.olingo.server.core.serializer.utils.CircleStreamBuffer;
-import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.server.core.MetadataParser;
+import org.apache.olingo.server.core.ReferenceResolver;
+import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Olingo-based implementation of XmlFileComplianceValidator.
- * Uses Olingo's internal data structures and methods to validate OData 4.0 XML files.
+ * Uses Olingo's native MetadataParser to validate OData 4.0 XML files.
  */
 public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValidator {
     
@@ -52,12 +56,109 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         long startTime = System.currentTimeMillis();
         String fileName = xmlPath.getFileName().toString();
         
-        try (InputStream inputStream = new FileInputStream(xmlPath.toFile())) {
-            return validateInputStream(inputStream, fileName);
-        } catch (IOException e) {
+        try {
+            return validatePath(xmlPath);
+        } catch (Exception e) {
             logger.error("Failed to read file: {}", xmlPath, e);
             return createErrorResult("Failed to read file: " + e.getMessage(), fileName, System.currentTimeMillis() - startTime);
         }
+    }
+    
+    /**
+     * Validate using file path to ensure proper reference resolution
+     */
+    private XmlComplianceResult validatePath(Path xmlPath) {
+        long startTime = System.currentTimeMillis();
+        List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
+        Set<String> referencedNamespaces = new HashSet<>();
+        Map<String, Object> metadata = new HashMap<>();
+        String fileName = xmlPath.getFileName().toString();
+
+        try {
+            // Configure MetadataParser with base URI for reference resolution
+            MetadataParser parser = new MetadataParser();
+            parser.recursivelyLoadReferences(true);
+            
+            // 获取文件的父目录作为基本 URI
+            URI baseUri = xmlPath.getParent().toUri();
+            
+            // 创建自定义引用解析器
+            ReferenceResolver resolver = (uri, baseURI) -> {
+                try {
+                    // 如果是相对路径，基于当前文件目录解析
+                    if (!uri.isAbsolute()) {
+                        uri = baseUri.resolve(uri);
+                    }
+                    
+                    // 转换为文件路径
+                    Path referencePath = Paths.get(uri);
+                    if (Files.exists(referencePath)) {
+                        return Files.newInputStream(referencePath);
+                    }
+                    return null;
+                } catch (Exception e) {
+                    return null;
+                }
+            };
+            
+            parser.referenceResolver(resolver);
+
+            // Parse with base URI context
+            SchemaBasedEdmProvider edmProvider;
+            String fileContent = new String(Files.readAllBytes(xmlPath), StandardCharsets.UTF_8);
+            
+            // 为 XML 内容添加 xml:base 属性以确保正确的引用解析
+            String modifiedContent = addXmlBase(fileContent, baseUri.toString());
+            
+            try (StringReader reader = new StringReader(modifiedContent)) {
+                edmProvider = parser.buildEdmProvider(reader);
+            }
+
+            // Validate schemas in the main file
+            List<CsdlSchema> schemas = edmProvider.getSchemas();
+            if (schemas != null && !schemas.isEmpty()) {
+                for (CsdlSchema schema : schemas) {
+                    validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata);
+                }
+                metadata.put("schemaCount", schemas.size());
+                
+                // Check references
+                List<EdmxReference> references = edmProvider.getReferences();
+                if (references != null) {
+                    metadata.put("referenceCount", references.size());
+                    for (EdmxReference reference : references) {
+                        if (reference.getIncludes() != null) {
+                            reference.getIncludes().forEach(include -> 
+                                referencedNamespaces.add(include.getNamespace()));
+                        }
+                    }
+                }
+            } else {
+                errors.add("No valid schemas found in the XML file");
+            }
+
+            long validationTime = System.currentTimeMillis() - startTime;
+            metadata.put("validationTimeMs", validationTime);
+
+            boolean isCompliant = errors.isEmpty();
+            return new XmlComplianceResult(isCompliant, errors, warnings, referencedNamespaces, metadata, fileName, validationTime);
+
+        } catch (Exception e) {
+            logger.error("Validation failed for file: {}", fileName, e);
+            errors.add("Validation error: " + e.getMessage());
+            return new XmlComplianceResult(false, errors, warnings, referencedNamespaces, metadata, fileName, System.currentTimeMillis() - startTime);
+        }
+    }
+    
+    /**
+     * 为 XML 内容添加 xml:base 属性
+     */
+    private String addXmlBase(String xmlContent, String baseUri) {
+        // 在根元素中添加 xml:base 属性
+        String pattern = "(<edmx:Edmx[^>]*)(>)";
+        String replacement = "$1 xml:base=\"" + baseUri + "\"$2";
+        return xmlContent.replaceFirst(pattern, replacement);
     }
     
     @Override
@@ -71,7 +172,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         }
         
         try (InputStream inputStream = new java.io.ByteArrayInputStream(xmlContent.getBytes("UTF-8"))) {
-            return validateInputStream(inputStream, fileName);
+            return validateInputStream(inputStream, fileName, null);
         } catch (Exception e) {
             logger.error("Failed to validate content for file: {}", fileName, e);
             return createErrorResult("Failed to validate content: " + e.getMessage(), fileName, 0);
@@ -79,167 +180,59 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     }
     
     /**
-     * Core validation method using Olingo's internal structures
+     * Core validation method using Olingo's native MetadataParser
      */
-    private XmlComplianceResult validateInputStream(InputStream inputStream, String fileName) {
+    private XmlComplianceResult validateInputStream(InputStream inputStream, String fileName, Path basePath) {
         long startTime = System.currentTimeMillis();
         List<String> errors = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
         Set<String> referencedNamespaces = new HashSet<>();
         Map<String, Object> metadata = new HashMap<>();
-        
+
         try {
-            // Use Olingo's SchemaBasedEdmProvider to parse and validate
-            SchemaBasedEdmProvider edmProvider = new SchemaBasedEdmProvider();
+            // Configure MetadataParser with reference resolution capability
+            MetadataParser parser = new MetadataParser();
             
-            // Try to parse the schema using Olingo's native capabilities
-            List<CsdlSchema> schemas = parseSchemaWithOlingo(inputStream, errors, warnings);
-            
+            // Enable reference loading
+            parser.recursivelyLoadReferences(true);
+
+            // Parse the XML file
+            InputStreamReader reader = new InputStreamReader(inputStream, "UTF-8");
+            SchemaBasedEdmProvider edmProvider = parser.buildEdmProvider(reader);
+
+            // Validate schemas in the main file
+            List<CsdlSchema> schemas = edmProvider.getSchemas();
             if (schemas != null && !schemas.isEmpty()) {
-                // Validate each schema using Olingo structures
                 for (CsdlSchema schema : schemas) {
                     validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata);
                 }
-                
                 metadata.put("schemaCount", schemas.size());
-            } else {
-                if (errors.isEmpty()) {
-                    errors.add("No valid schemas found in the XML file");
+                
+                // Check references
+                List<EdmxReference> references = edmProvider.getReferences();
+                if (references != null) {
+                    metadata.put("referenceCount", references.size());
+                    for (EdmxReference reference : references) {
+                        if (reference.getIncludes() != null) {
+                            reference.getIncludes().forEach(include -> 
+                                referencedNamespaces.add(include.getNamespace()));
+                        }
+                    }
                 }
+            } else {
+                errors.add("No valid schemas found in the XML file");
             }
-            
+
             long validationTime = System.currentTimeMillis() - startTime;
             metadata.put("validationTimeMs", validationTime);
-            
+
             boolean isCompliant = errors.isEmpty();
             return new XmlComplianceResult(isCompliant, errors, warnings, referencedNamespaces, metadata, fileName, validationTime);
-            
+
         } catch (Exception e) {
             logger.error("Validation failed for file: {}", fileName, e);
             errors.add("Validation error: " + e.getMessage());
             return new XmlComplianceResult(false, errors, warnings, referencedNamespaces, metadata, fileName, System.currentTimeMillis() - startTime);
-        }
-    }
-    
-    /**
-     * Parse schema using Olingo's native parsing capabilities
-     */
-    private List<CsdlSchema> parseSchemaWithOlingo(InputStream inputStream, List<String> errors, List<String> warnings) {
-        try {
-            // Use Olingo's internal XML reading capabilities
-            // We'll use a more direct approach with DOM parsing and validation
-            javax.xml.parsers.DocumentBuilderFactory factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(false); // We do our own validation
-            
-            javax.xml.parsers.DocumentBuilder builder = factory.newDocumentBuilder();
-            org.w3c.dom.Document document = builder.parse(inputStream);
-            
-            // Check for basic OData 4.0 structure
-            org.w3c.dom.Element root = document.getDocumentElement();
-            if (root == null) {
-                errors.add("No root element found in XML");
-                return null;
-            }
-            
-            // Validate root element is edmx:Edmx
-            if (!"Edmx".equals(root.getLocalName()) || 
-                !"http://docs.oasis-open.org/odata/ns/edmx".equals(root.getNamespaceURI())) {
-                errors.add("Root element must be edmx:Edmx with correct namespace");
-                return null;
-            }
-            
-            // Check version
-            String version = root.getAttribute("Version");
-            if (!"4.0".equals(version)) {
-                warnings.add("Expected OData version 4.0, found: " + version);
-            }
-            
-            // Find DataServices element
-            org.w3c.dom.NodeList dataServices = root.getElementsByTagNameNS(
-                "http://docs.oasis-open.org/odata/ns/edmx", "DataServices");
-            if (dataServices.getLength() == 0) {
-                errors.add("No edmx:DataServices element found");
-                return null;
-            }
-            
-            // Find Schema elements
-            org.w3c.dom.NodeList schemas = ((org.w3c.dom.Element)dataServices.item(0))
-                .getElementsByTagNameNS("http://docs.oasis-open.org/odata/ns/edm", "Schema");
-            
-            if (schemas.getLength() == 0) {
-                errors.add("No Schema elements found in DataServices");
-                return null;
-            }
-            
-            // Create CSDL Schema objects for each schema found
-            List<CsdlSchema> csdlSchemas = new ArrayList<>();
-            for (int i = 0; i < schemas.getLength(); i++) {
-                org.w3c.dom.Element schemaElement = (org.w3c.dom.Element) schemas.item(i);
-                CsdlSchema csdlSchema = createCsdlSchemaFromElement(schemaElement, errors, warnings);
-                if (csdlSchema != null) {
-                    csdlSchemas.add(csdlSchema);
-                }
-            }
-            
-            return csdlSchemas;
-            
-        } catch (javax.xml.parsers.ParserConfigurationException e) {
-            logger.debug("XML parser configuration failed", e);
-            errors.add("XML parser configuration error: " + e.getMessage());
-            return null;
-        } catch (org.xml.sax.SAXException e) {
-            logger.debug("XML parsing failed", e);
-            errors.add("XML parsing error: " + e.getMessage());
-            return null;
-        } catch (IOException e) {
-            logger.debug("IO error during parsing", e);
-            errors.add("IO error: " + e.getMessage());
-            return null;
-        } catch (Exception e) {
-            logger.debug("Olingo schema parsing failed", e);
-            errors.add("Schema parsing failed: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Create a CsdlSchema from a DOM Element
-     */
-    private CsdlSchema createCsdlSchemaFromElement(org.w3c.dom.Element schemaElement, 
-                                                   List<String> errors, List<String> warnings) {
-        try {
-            CsdlSchema schema = new CsdlSchema();
-            
-            // Set namespace
-            String namespace = schemaElement.getAttribute("Namespace");
-            if (namespace == null || namespace.trim().isEmpty()) {
-                errors.add("Schema element missing required Namespace attribute");
-                return null;
-            }
-            schema.setNamespace(namespace);
-            
-            // Set alias if present
-            String alias = schemaElement.getAttribute("Alias");
-            if (alias != null && !alias.trim().isEmpty()) {
-                schema.setAlias(alias);
-            }
-            
-            // Parse entity types
-            parseEntityTypes(schemaElement, schema, errors, warnings);
-            
-            // Parse complex types
-            parseComplexTypes(schemaElement, schema, errors, warnings);
-            
-            // Parse entity containers
-            parseEntityContainers(schemaElement, schema, errors, warnings);
-            
-            return schema;
-            
-        } catch (Exception e) {
-            logger.debug("Failed to create CSDL schema from element", e);
-            errors.add("Failed to create schema: " + e.getMessage());
-            return null;
         }
     }
     
@@ -259,14 +252,14 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         referencedNamespaces.add(namespace);
         
         // Validate namespace format using Olingo's validation logic
-        if (!isValidODataIdentifier(namespace)) {
+        if (!isValidODataNamespace(namespace)) {
             errors.add("Invalid namespace format: " + namespace);
         }
         
         // Validate entity types
         if (schema.getEntityTypes() != null) {
             for (CsdlEntityType entityType : schema.getEntityTypes()) {
-                validateEntityType(entityType, namespace, errors, warnings, referencedNamespaces);
+                validateEntityType(entityType, errors, warnings, referencedNamespaces);
             }
             metadata.put("entityTypes_" + namespace, schema.getEntityTypes().size());
         }
@@ -274,21 +267,34 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Validate complex types
         if (schema.getComplexTypes() != null) {
             for (CsdlComplexType complexType : schema.getComplexTypes()) {
-                validateComplexType(complexType, namespace, errors, warnings, referencedNamespaces);
+                validateComplexType(complexType, errors, warnings, referencedNamespaces);
             }
             metadata.put("complexTypes_" + namespace, schema.getComplexTypes().size());
         }
         
         // Validate entity container
         if (schema.getEntityContainer() != null) {
-            validateEntityContainer(schema.getEntityContainer(), namespace, errors, warnings);
+            validateEntityContainer(schema.getEntityContainer(), errors);
         }
     }
-    
+
+    /**
+     * Validate OData namespace according to OData 4 naming rules.
+     */
+    private boolean isValidODataNamespace(String namespace) {
+        if (namespace == null || namespace.trim().isEmpty()) {
+            return false;
+        }
+
+        // Ensure it starts and ends with a valid character and does not contain consecutive dots
+        String namespacePattern = "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$";
+        return namespace.matches(namespacePattern);
+    }
+
     /**
      * Validate EntityType using Olingo structures
      */
-    private void validateEntityType(CsdlEntityType entityType, String namespace, List<String> errors, 
+    private void validateEntityType(CsdlEntityType entityType, List<String> errors, 
                                    List<String> warnings, Set<String> referencedNamespaces) {
         
         if (entityType.getName() == null || entityType.getName().trim().isEmpty()) {
@@ -324,7 +330,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     /**
      * Validate ComplexType using Olingo structures
      */
-    private void validateComplexType(CsdlComplexType complexType, String namespace, List<String> errors, 
+    private void validateComplexType(CsdlComplexType complexType, List<String> errors, 
                                     List<String> warnings, Set<String> referencedNamespaces) {
         
         if (complexType.getName() == null || complexType.getName().trim().isEmpty()) {
@@ -397,7 +403,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
      * Validate EntityContainer using Olingo structures
      */
     private void validateEntityContainer(org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer container, 
-                                        String namespace, List<String> errors, List<String> warnings) {
+                                        List<String> errors) {
         if (container.getName() == null || container.getName().trim().isEmpty()) {
             errors.add("EntityContainer must have a valid name");
             return;
@@ -460,88 +466,41 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     }
     
     /**
-     * Parse entity types from schema element
-     */
-    private void parseEntityTypes(org.w3c.dom.Element schemaElement, CsdlSchema schema, 
-                                  List<String> errors, List<String> warnings) {
-        org.w3c.dom.NodeList entityTypes = schemaElement.getElementsByTagNameNS(
-            "http://docs.oasis-open.org/odata/ns/edm", "EntityType");
-        
-        List<CsdlEntityType> csdlEntityTypes = new ArrayList<>();
-        for (int i = 0; i < entityTypes.getLength(); i++) {
-            org.w3c.dom.Element entityTypeElement = (org.w3c.dom.Element) entityTypes.item(i);
-            CsdlEntityType entityType = new CsdlEntityType();
-            
-            String name = entityTypeElement.getAttribute("Name");
-            if (name != null && !name.trim().isEmpty()) {
-                entityType.setName(name);
-                csdlEntityTypes.add(entityType);
-            } else {
-                errors.add("EntityType missing required Name attribute");
-            }
-        }
-        
-        if (!csdlEntityTypes.isEmpty()) {
-            schema.setEntityTypes(csdlEntityTypes);
-        }
-    }
-    
-    /**
-     * Parse complex types from schema element
-     */
-    private void parseComplexTypes(org.w3c.dom.Element schemaElement, CsdlSchema schema, 
-                                   List<String> errors, List<String> warnings) {
-        org.w3c.dom.NodeList complexTypes = schemaElement.getElementsByTagNameNS(
-            "http://docs.oasis-open.org/odata/ns/edm", "ComplexType");
-        
-        List<CsdlComplexType> csdlComplexTypes = new ArrayList<>();
-        for (int i = 0; i < complexTypes.getLength(); i++) {
-            org.w3c.dom.Element complexTypeElement = (org.w3c.dom.Element) complexTypes.item(i);
-            CsdlComplexType complexType = new CsdlComplexType();
-            
-            String name = complexTypeElement.getAttribute("Name");
-            if (name != null && !name.trim().isEmpty()) {
-                complexType.setName(name);
-                csdlComplexTypes.add(complexType);
-            } else {
-                errors.add("ComplexType missing required Name attribute");
-            }
-        }
-        
-        if (!csdlComplexTypes.isEmpty()) {
-            schema.setComplexTypes(csdlComplexTypes);
-        }
-    }
-    
-    /**
-     * Parse entity containers from schema element
-     */
-    private void parseEntityContainers(org.w3c.dom.Element schemaElement, CsdlSchema schema, 
-                                       List<String> errors, List<String> warnings) {
-        org.w3c.dom.NodeList containers = schemaElement.getElementsByTagNameNS(
-            "http://docs.oasis-open.org/odata/ns/edm", "EntityContainer");
-        
-        if (containers.getLength() > 0) {
-            org.w3c.dom.Element containerElement = (org.w3c.dom.Element) containers.item(0);
-            org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer container = 
-                new org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer();
-            
-            String name = containerElement.getAttribute("Name");
-            if (name != null && !name.trim().isEmpty()) {
-                container.setName(name);
-                schema.setEntityContainer(container);
-            } else {
-                errors.add("EntityContainer missing required Name attribute");
-            }
-        }
-    }
-    
-    /**
      * Create an error result
      */
     private XmlComplianceResult createErrorResult(String errorMessage, String fileName, long validationTime) {
         List<String> errors = new ArrayList<>();
         errors.add(errorMessage);
         return new XmlComplianceResult(false, errors, new ArrayList<>(), new HashSet<>(), new HashMap<>(), fileName, validationTime);
+    }
+    
+    /**
+     * File System Reference Resolver for handling relative references
+     */
+    private static class FileSystemReferenceResolver implements ReferenceResolver {
+        private final Path basePath;
+        
+        public FileSystemReferenceResolver(Path basePath) {
+            this.basePath = basePath;
+        }
+        
+        @Override
+        public InputStream resolveReference(URI referenceUri, String xmlBase) {
+            try {
+                Path resolvedPath;
+                if (referenceUri.isAbsolute()) {
+                    resolvedPath = basePath.getFileSystem().getPath(referenceUri.getPath());
+                } else {
+                    resolvedPath = basePath.resolve(referenceUri.getPath()).normalize();
+                }
+                
+                if (Files.exists(resolvedPath)) {
+                    return new FileInputStream(resolvedPath.toFile());
+                }
+            } catch (Exception e) {
+                // Ignore and return null
+            }
+            return null;
+        }
     }
 }

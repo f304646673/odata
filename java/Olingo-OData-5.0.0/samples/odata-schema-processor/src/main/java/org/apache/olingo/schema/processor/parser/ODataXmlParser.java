@@ -4,6 +4,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Collections;
 
 /**
  * OData XML解析器接口
@@ -66,11 +67,11 @@ public interface ODataXmlParser {
         public String getSourceName() { return sourceName; }
         
         public static ParseResult success(List<CsdlSchema> schemas, String sourceName) {
-            return new ParseResult(true, schemas, List.of(), List.of(), sourceName);
+            return new ParseResult(true, schemas, Collections.emptyList(), Collections.emptyList(), sourceName);
         }
         
         public static ParseResult failure(List<String> errors, String sourceName) {
-            return new ParseResult(false, List.of(), errors, List.of(), sourceName);
+            return new ParseResult(false, Collections.emptyList(), errors, Collections.emptyList(), sourceName);
         }
     }
     

@@ -54,7 +54,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_SimpleEntityType() {
-        // 测试简单EntityType（无依赖�?
+        // 测试简单EntityType（无依赖
         CsdlEntityType entityType = new CsdlEntityType();
         entityType.setName("SimpleEntity");
         
@@ -82,7 +82,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
         
         assertNotNull(dependencies);
         
-        // 应该包含直接依赖（基类型�?
+        // 应该包含直接依赖（基类型
         boolean hasPersonDependency = dependencies.stream()
             .anyMatch(dep -> dep.getFullQualifiedName().contains("Person"));
         assertTrue(hasPersonDependency);
@@ -121,14 +121,14 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
             
             assertNotNull(dependencies);
             
-            // 验证所有依赖的有效�?
+            // 验证所有依赖的有效
             for (TypeReference dependency : dependencies) {
                 assertNotNull(dependency);
                 assertNotNull(dependency.getFullQualifiedName());
                 assertFalse(dependency.getFullQualifiedName().trim().isEmpty());
             }
             
-            // 验证没有重复的依�?
+            // 验证没有重复的依
             Set<String> uniqueDependencies = dependencies.stream()
                 .map(TypeReference::getFullQualifiedName)
                 .collect(Collectors.toSet());
@@ -138,7 +138,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_CircularDependencyDetection() {
-        // 测试循环依赖检�?
+        // 测试循环依赖检
         CsdlSchema schema = loadCircularDependencySchema();
         
         if (schema.getEntityTypes() != null && !schema.getEntityTypes().isEmpty()) {
@@ -161,7 +161,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_DeepDependencyChain() {
-        // 测试深层依赖�?
+        // 测试深层依赖
         CsdlEntityType entityType = new CsdlEntityType();
         entityType.setName("Level3");
         entityType.setBaseType(new FullQualifiedName("ODataDemo", "Level2"));
@@ -186,7 +186,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
         entityType.setName("ComplexEntity");
         entityType.setBaseType(new FullQualifiedName("ODataDemo", "BaseEntity"));
         
-        // 添加属性依�?
+        // 添加属性依
         CsdlProperty prop1 = new CsdlProperty();
         prop1.setName("RelatedEntity1");
         prop1.setType("ODataDemo.Entity1");
@@ -209,7 +209,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_PerformanceWithComplexDependencies() {
-        // 性能测试：复杂依赖结�?
+        // 性能测试：复杂依赖结
         CsdlSchema schema = loadLargeSchema();
         
         if (schema.getEntityTypes() != null && !schema.getEntityTypes().isEmpty()) {
@@ -233,7 +233,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_CompareWithDirectDependencies() {
-        // 比较getAllDependencies和getDirectDependencies的结�?
+        // 比较getAllDependencies和getDirectDependencies的结
         CsdlEntityType entityType = new CsdlEntityType();
         entityType.setName("TestEntity");
         entityType.setBaseType(new FullQualifiedName("ODataDemo", "BaseEntity"));
@@ -250,14 +250,14 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
         assertNotNull(directDependencies);
         assertNotNull(allDependencies);
         
-        // 所有依赖应该包含直接依�?
+        // 所有依赖应该包含直接依
         for (TypeReference directDep : directDependencies) {
             boolean foundInAll = allDependencies.stream()
                 .anyMatch(allDep -> allDep.getFullQualifiedName().equals(directDep.getFullQualifiedName()));
             assertTrue(foundInAll, "Direct dependency not found in all dependencies: " + directDep.getFullQualifiedName());
         }
         
-        // 所有依赖的数量应该 >= 直接依赖的数�?
+        // 所有依赖的数量应该 >= 直接依赖的数
         assertTrue(allDependencies.size() >= directDependencies.size());
     }
 
@@ -276,7 +276,7 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
 
     @Test
     void testGetAllDependencies_DependencyResolution() {
-        // 测试依赖解析的正确�?
+        // 测试依赖解析的正确
         CsdlSchema schema = loadMultiDependencySchema();
         
         if (schema.getEntityTypes() != null && !schema.getEntityTypes().isEmpty()) {
@@ -290,9 +290,9 @@ class DefaultTypeDependencyAnalyzerTest_getAllDependencies_EntityType {
             
             assertNotNull(dependencies);
             
-            // 验证依赖解析的正确�?
+            // 验证依赖解析的正确
             for (TypeReference dependency : dependencies) {
-                // 每个依赖都应该有有效的类型信�?
+                // 每个依赖都应该有有效的类型信
                 assertNotNull(dependency.getTypeKind());
                 assertNotNull(dependency.getFullQualifiedName());
                 
