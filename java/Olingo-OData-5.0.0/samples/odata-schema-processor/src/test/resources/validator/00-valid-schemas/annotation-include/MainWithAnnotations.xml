@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="Annotations.xml">
+    <edmx:IncludeAnnotations TermNamespace="Annotations.Types" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Main.Entities">
+      <EntityType Name="Customer">
+        <Property Name="Name" Type="Edm.String" />
+        <Annotation Term="Annotations.Types.IsVIP" Bool="true" />
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

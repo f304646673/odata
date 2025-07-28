@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="../a/A.xml">
+    <edmx:Include Namespace="A.Types" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="B.Types">
+      <EntityType Name="Beta">
+        <Property Name="Alpha" Type="A.Types.Alpha" />
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
