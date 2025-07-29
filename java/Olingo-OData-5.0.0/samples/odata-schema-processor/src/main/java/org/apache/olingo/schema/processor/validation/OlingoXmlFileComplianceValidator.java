@@ -18,8 +18,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -277,6 +280,8 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (schema.getEntityTypes() != null) {
             for (CsdlEntityType entityType : schema.getEntityTypes()) {
                 validateEntityType(entityType, errors, warnings, referencedNamespaces, importedNamespaces);
+                // Validate inline annotations on EntityType
+                validateInlineAnnotations(entityType.getAnnotations(), errors, importedNamespaces);
             }
             metadata.put("entityTypes_" + namespace, schema.getEntityTypes().size());
         }
@@ -285,13 +290,44 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (schema.getComplexTypes() != null) {
             for (CsdlComplexType complexType : schema.getComplexTypes()) {
                 validateComplexType(complexType, errors, warnings, referencedNamespaces, importedNamespaces);
+                // Validate inline annotations on ComplexType
+                validateInlineAnnotations(complexType.getAnnotations(), errors, importedNamespaces);
             }
             metadata.put("complexTypes_" + namespace, schema.getComplexTypes().size());
         }
         
+        // Validate enum types
+        if (schema.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : schema.getEnumTypes()) {
+                validateEnumType(enumType, errors, warnings, referencedNamespaces, importedNamespaces);
+                // Validate inline annotations on EnumType
+                validateInlineAnnotations(enumType.getAnnotations(), errors, importedNamespaces);
+            }
+        }
+
+        // Validate actions
+        if (schema.getActions() != null) {
+            for (CsdlAction action : schema.getActions()) {
+                validateAction(action, errors, warnings, referencedNamespaces, importedNamespaces);
+                // Validate inline annotations on Action
+                validateInlineAnnotations(action.getAnnotations(), errors, importedNamespaces);
+            }
+        }
+
+        // Validate functions
+        if (schema.getFunctions() != null) {
+            for (CsdlFunction function : schema.getFunctions()) {
+                validateFunction(function, errors, warnings, referencedNamespaces, importedNamespaces);
+                // Validate inline annotations on Function
+                validateInlineAnnotations(function.getAnnotations(), errors, importedNamespaces);
+            }
+        }
+
         // Validate entity container
         if (schema.getEntityContainer() != null) {
-            validateEntityContainer(schema.getEntityContainer(), errors);
+            validateEntityContainer(schema.getEntityContainer(), errors, warnings, referencedNamespaces, importedNamespaces);
+            // Validate inline annotations on EntityContainer
+            validateInlineAnnotations(schema.getEntityContainer().getAnnotations(), errors, importedNamespaces);
         }
         
         // Validate annotations
@@ -392,9 +428,6 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 extractElementDefinitions(schemaContent, "EnumType", namespace, sourceInfo, allDefinitions);
 
                 // Extract TypeDefinitions
-                extractElementDefinitions(schemaContent, "TypeDefinition", namespace, sourceInfo, allDefinitions);
-
-                // Extract Actions
                 extractElementDefinitions(schemaContent, "Action", namespace, sourceInfo, allDefinitions);
 
                 // Extract Functions
@@ -593,37 +626,37 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (namespace == null || namespace.trim().isEmpty()) {
             return false;
         }
-        return namespace.matches("^([A-Za-z_][A-Za-z0-9_]*)(\\.[A-Za-z_][A-Za-z0-9_]*)*$");
+        return namespace.matches("^([A-Za-z_][A-ZaZ0-9_]*)(\\.[A-Za-z_][A-ZaZ0-9_]*)*$");
     }
 
     /**
      * Validate EntityType using Olingo structures
      */
-    private void validateEntityType(CsdlEntityType entityType, List<String> errors, 
+    private void validateEntityType(CsdlEntityType entityType, List<String> errors,
                                    List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
 
         if (entityType.getName() == null || entityType.getName().trim().isEmpty()) {
             errors.add("EntityType must have a valid name");
             return;
         }
-        
+
         if (!isValidODataIdentifier(entityType.getName())) {
             errors.add("Invalid EntityType name: " + entityType.getName());
         }
-        
+
         // Check BaseType reference
         if (entityType.getBaseType() != null) {
             String baseType = entityType.getBaseType();
             extractAndValidateTypeReference(baseType, referencedNamespaces, errors, importedNamespaces);
         }
-        
+
         // Validate properties
         if (entityType.getProperties() != null) {
             for (CsdlProperty property : entityType.getProperties()) {
                 validateProperty(property, errors, warnings, referencedNamespaces, importedNamespaces);
             }
         }
-        
+
         // Validate navigation properties
         if (entityType.getNavigationProperties() != null) {
             for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
@@ -631,28 +664,28 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             }
         }
     }
-    
+
     /**
      * Validate ComplexType using Olingo structures
      */
-    private void validateComplexType(CsdlComplexType complexType, List<String> errors, 
+    private void validateComplexType(CsdlComplexType complexType, List<String> errors,
                                     List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
 
         if (complexType.getName() == null || complexType.getName().trim().isEmpty()) {
             errors.add("ComplexType must have a valid name");
             return;
         }
-        
+
         if (!isValidODataIdentifier(complexType.getName())) {
             errors.add("Invalid ComplexType name: " + complexType.getName());
         }
-        
+
         // Check BaseType reference
         if (complexType.getBaseType() != null) {
             String baseType = complexType.getBaseType();
             extractAndValidateTypeReference(baseType, referencedNamespaces, errors, importedNamespaces);
         }
-        
+
         // Validate properties
         if (complexType.getProperties() != null) {
             for (CsdlProperty property : complexType.getProperties()) {
@@ -660,7 +693,109 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             }
         }
     }
-    
+
+    /**
+     * Validate EnumType using Olingo structures
+     */
+    private void validateEnumType(CsdlEnumType enumType, List<String> errors, List<String> warnings,
+                                 Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (enumType.getName() == null || enumType.getName().trim().isEmpty()) {
+            errors.add("EnumType must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(enumType.getName())) {
+            errors.add("Invalid EnumType name: " + enumType.getName());
+        }
+
+        // Validate underlying type if specified
+        if (enumType.getUnderlyingType() != null) {
+            extractAndValidateTypeReference(enumType.getUnderlyingType(), referencedNamespaces, errors, importedNamespaces);
+        }
+    }
+
+    /**
+     * Validate Action using Olingo structures
+     */
+    private void validateAction(CsdlAction action, List<String> errors, List<String> warnings,
+                               Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (action.getName() == null || action.getName().trim().isEmpty()) {
+            errors.add("Action must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(action.getName())) {
+            errors.add("Invalid Action name: " + action.getName());
+        }
+
+        // Validate parameters
+        if (action.getParameters() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlParameter parameter : action.getParameters()) {
+                validateParameter(parameter, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
+
+        // Validate return type
+        if (action.getReturnType() != null) {
+            extractAndValidateTypeReference(action.getReturnType().getType(), referencedNamespaces, errors, importedNamespaces);
+        }
+    }
+
+    /**
+     * Validate Function using Olingo structures
+     */
+    private void validateFunction(CsdlFunction function, List<String> errors, List<String> warnings,
+                                 Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (function.getName() == null || function.getName().trim().isEmpty()) {
+            errors.add("Function must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(function.getName())) {
+            errors.add("Invalid Function name: " + function.getName());
+        }
+
+        // Validate parameters
+        if (function.getParameters() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlParameter parameter : function.getParameters()) {
+                validateParameter(parameter, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
+
+        // Validate return type (required for functions)
+        if (function.getReturnType() == null) {
+            errors.add("Function " + function.getName() + " must have a return type");
+        } else {
+            extractAndValidateTypeReference(function.getReturnType().getType(), referencedNamespaces, errors, importedNamespaces);
+        }
+    }
+
+    /**
+     * Validate Parameter using Olingo structures
+     */
+    private void validateParameter(org.apache.olingo.commons.api.edm.provider.CsdlParameter parameter,
+                                  List<String> errors, List<String> warnings,
+                                  Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (parameter.getName() == null || parameter.getName().trim().isEmpty()) {
+            errors.add("Parameter must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(parameter.getName())) {
+            errors.add("Invalid Parameter name: " + parameter.getName());
+        }
+
+        // Validate parameter type
+        if (parameter.getType() != null) {
+            extractAndValidateTypeReference(parameter.getType(), referencedNamespaces, errors, importedNamespaces);
+        } else {
+            errors.add("Parameter " + parameter.getName() + " must have a type");
+        }
+
+        // Validate inline annotations on Parameter
+        validateInlineAnnotations(parameter.getAnnotations(), errors, importedNamespaces);
+    }
+
     /**
      * Validate Property using Olingo structures
      */
@@ -669,19 +804,22 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             errors.add("Property must have a valid name");
             return;
         }
-        
+
         if (!isValidODataIdentifier(property.getName())) {
             errors.add("Invalid Property name: " + property.getName());
         }
-        
+
         // Validate property type
         if (property.getType() != null) {
             extractAndValidateTypeReference(property.getType(), referencedNamespaces, errors, importedNamespaces);
         } else {
             errors.add("Property " + property.getName() + " must have a type");
         }
+
+        // Validate inline annotations on Property
+        validateInlineAnnotations(property.getAnnotations(), errors, importedNamespaces);
     }
-    
+
     /**
      * Validate Annotations using both Olingo structures and manual XML parsing
      */
@@ -705,10 +843,8 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                         System.out.println("DEBUG: Validating annotation term: " + termName);
                         validateAnnotationTerm(annotation.getTerm(), errors, importedNamespaces);
                     }
-                } else {
                 }
             }
-        } else {
         }
 
         // Check inline annotations on entity types
@@ -749,11 +885,11 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             }
         }
     }
-    
+
     /**
      * Validate inline annotations
      */
-    private void validateInlineAnnotations(List<org.apache.olingo.commons.api.edm.provider.CsdlAnnotation> annotations, 
+    private void validateInlineAnnotations(List<org.apache.olingo.commons.api.edm.provider.CsdlAnnotation> annotations,
                                          List<String> errors, Set<String> importedNamespaces) {
         if (annotations != null && !annotations.isEmpty()) {
             for (org.apache.olingo.commons.api.edm.provider.CsdlAnnotation annotation : annotations) {
@@ -761,10 +897,9 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 System.out.println("DEBUG: Validating inline annotation term: " + termName);
                 validateAnnotationTerm(annotation.getTerm(), errors, importedNamespaces);
             }
-        } else {
         }
     }
-    
+
     /**
      * Validate annotation term
      */
@@ -773,20 +908,19 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             errors.add("Annotation term cannot be null or empty");
             return;
         }
-        
+
         // Check basic format
         if (!isValidAnnotationTermFormat(term)) {
             errors.add("Invalid annotation term format: " + term);
             return;
         }
-        
+
         // Check if term is from a known vocabulary namespace
         if (!isKnownVocabularyTerm(term, importedNamespaces)) {
             errors.add("Undefined annotation term: " + term);
-        } else {
         }
     }
-    
+
     /**
      * Validate annotation term format
      */
@@ -794,17 +928,17 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (term == null || term.trim().isEmpty()) {
             return false;
         }
-        
+
         // Check for invalid characters
         if (term.contains("!") || term.contains("?") || term.contains("<") || term.contains(">")) {
             return false;
         }
-        
+
         // Term should have at least one dot (namespace.termname)
         if (!term.contains(".")) {
             return false;
         }
-        
+
         // Validate each segment
         String[] segments = term.split("\\.");
         for (String segment : segments) {
@@ -812,10 +946,10 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check if term is from a known vocabulary
      */
@@ -835,25 +969,25 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         knownVocabularies.add("Authorization");
         knownVocabularies.add("Session");
         knownVocabularies.add("Temporal");
-        
+
         // Check if term starts with a known vocabulary
         for (String vocab : knownVocabularies) {
             if (term.startsWith(vocab + ".")) {
                 return true;
             }
         }
-        
+
         // Check imported namespaces (assume they contain valid vocabularies)
         for (String namespace : importedNamespaces) {
             if (term.startsWith(namespace + ".")) {
                 return true;
             }
         }
-        
+
         // If not from known vocabularies, it's likely undefined
         return false;
     }
-    
+
     /**
      * Validate individual annotation target
      */
@@ -865,18 +999,18 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 errors.add("Invalid annotation target format: " + target);
                 return;
             }
-            
+
             // Parse target path
             if (target.contains("/")) {
                 // Property or navigation property target (e.g., "Namespace.EntityType/PropertyName")
                 String[] parts = target.split("/", 2);
                 String entityPath = parts[0];
                 String propertyName = parts[1];
-                
+
                 if (!validateEntityTypeExists(entityPath, schema, referencedNamespaces, importedNamespaces)) {
                     errors.add("Annotation target references non-existent entity type: " + entityPath);
                 }
-                
+
                 if (!validatePropertyExists(entityPath, propertyName, schema, referencedNamespaces, importedNamespaces)) {
                     errors.add("Annotation target references non-existent property: " + target);
                 }
@@ -890,7 +1024,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             errors.add("Error validating annotation target '" + target + "': " + e.getMessage());
         }
     }
-    
+
     /**
      * Validate annotation target format
      */
@@ -898,12 +1032,12 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (target == null || target.trim().isEmpty()) {
             return false;
         }
-        
+
         // Check for invalid characters
         if (target.contains("!") || target.contains("?") || target.contains("<") || target.contains(">")) {
             return false;
         }
-        
+
         // Basic namespace and identifier validation
         String[] parts = target.split("/");
         for (String part : parts) {
@@ -911,10 +1045,10 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Validate OData path component
      */
@@ -922,26 +1056,26 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (path == null || path.trim().isEmpty()) {
             return false;
         }
-        
+
         // Should contain at least one dot for namespace.identifier format
         if (!path.contains(".")) {
             return false;
         }
-        
+
         String[] segments = path.split("\\.");
         for (String segment : segments) {
             if (!isValidODataIdentifier(segment)) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Check if entity type exists in current schema or imported namespaces
      */
-    private boolean validateEntityTypeExists(String typePath, CsdlSchema schema, 
+    private boolean validateEntityTypeExists(String typePath, CsdlSchema schema,
                                            Set<String> referencedNamespaces, Set<String> importedNamespaces) {
         // Check current schema
         if (schema.getEntityTypes() != null) {
@@ -952,7 +1086,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 }
             }
         }
-        
+
         // Check complex types as well
         if (schema.getComplexTypes() != null) {
             for (CsdlComplexType complexType : schema.getComplexTypes()) {
@@ -962,7 +1096,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 }
             }
         }
-        
+
         // For now, assume types in imported namespaces exist
         // In a full implementation, we would need to resolve and check those schemas
         for (String namespace : importedNamespaces) {
@@ -970,10 +1104,10 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 return true; // Assume imported types are valid
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Check if property exists on the specified entity type
      */
@@ -990,7 +1124,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 }
             }
         }
-        
+
         if (entityType == null) {
             // Check complex types
             CsdlComplexType complexType = null;
@@ -1003,7 +1137,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                     }
                 }
             }
-            
+
             if (complexType != null) {
                 // Check properties in complex type
                 if (complexType.getProperties() != null) {
@@ -1016,7 +1150,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             }
             return false;
         }
-        
+
         // Check regular properties
         if (entityType.getProperties() != null) {
             for (CsdlProperty prop : entityType.getProperties()) {
@@ -1025,7 +1159,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 }
             }
         }
-        
+
         // Check navigation properties
         if (entityType.getNavigationProperties() != null) {
             for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
@@ -1034,47 +1168,189 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Validate NavigationProperty using Olingo structures
      */
-    private void validateNavigationProperty(CsdlNavigationProperty navProp, List<String> errors, 
+    private void validateNavigationProperty(CsdlNavigationProperty navProp, List<String> errors,
                                           List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
         if (navProp.getName() == null || navProp.getName().trim().isEmpty()) {
             errors.add("NavigationProperty must have a valid name");
             return;
         }
-        
+
         if (!isValidODataIdentifier(navProp.getName())) {
             errors.add("Invalid NavigationProperty name: " + navProp.getName());
         }
-        
+
         // Validate navigation property type
         if (navProp.getType() != null) {
             extractAndValidateTypeReference(navProp.getType(), referencedNamespaces, warnings, importedNamespaces);
         } else {
             errors.add("NavigationProperty " + navProp.getName() + " must have a type");
         }
+
+        // Validate inline annotations on NavigationProperty
+        validateInlineAnnotations(navProp.getAnnotations(), errors, importedNamespaces);
     }
-    
+
     /**
      * Validate EntityContainer using Olingo structures
      */
-    private void validateEntityContainer(org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer container, 
-                                        List<String> errors) {
+    private void validateEntityContainer(org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer container,
+                                        List<String> errors, List<String> warnings,
+                                        Set<String> referencedNamespaces, Set<String> importedNamespaces) {
         if (container.getName() == null || container.getName().trim().isEmpty()) {
             errors.add("EntityContainer must have a valid name");
             return;
         }
-        
+
         if (!isValidODataIdentifier(container.getName())) {
             errors.add("Invalid EntityContainer name: " + container.getName());
         }
+
+        // Validate EntitySets
+        if (container.getEntitySets() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlEntitySet entitySet : container.getEntitySets()) {
+                validateEntitySet(entitySet, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
+
+        // Validate Singletons
+        if (container.getSingletons() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlSingleton singleton : container.getSingletons()) {
+                validateSingleton(singleton, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
+
+        // Validate ActionImports
+        if (container.getActionImports() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlActionImport actionImport : container.getActionImports()) {
+                validateActionImport(actionImport, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
+
+        // Validate FunctionImports
+        if (container.getFunctionImports() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport functionImport : container.getFunctionImports()) {
+                validateFunctionImport(functionImport, errors, warnings, referencedNamespaces, importedNamespaces);
+            }
+        }
     }
-    
+
+    /**
+     * Validate EntitySet using Olingo structures
+     */
+    private void validateEntitySet(org.apache.olingo.commons.api.edm.provider.CsdlEntitySet entitySet,
+                                  List<String> errors, List<String> warnings,
+                                  Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (entitySet.getName() == null || entitySet.getName().trim().isEmpty()) {
+            errors.add("EntitySet must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(entitySet.getName())) {
+            errors.add("Invalid EntitySet name: " + entitySet.getName());
+        }
+
+        // Validate EntityType reference
+        if (entitySet.getType() != null) {
+            extractAndValidateTypeReference(entitySet.getType(), referencedNamespaces, errors, importedNamespaces);
+        } else {
+            errors.add("EntitySet " + entitySet.getName() + " must have a type");
+        }
+
+        // Validate inline annotations on EntitySet
+        validateInlineAnnotations(entitySet.getAnnotations(), errors, importedNamespaces);
+    }
+
+    /**
+     * Validate Singleton using Olingo structures
+     */
+    private void validateSingleton(org.apache.olingo.commons.api.edm.provider.CsdlSingleton singleton,
+                                  List<String> errors, List<String> warnings,
+                                  Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (singleton.getName() == null || singleton.getName().trim().isEmpty()) {
+            errors.add("Singleton must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(singleton.getName())) {
+            errors.add("Invalid Singleton name: " + singleton.getName());
+        }
+
+        // Validate EntityType reference
+        if (singleton.getType() != null) {
+            extractAndValidateTypeReference(singleton.getType(), referencedNamespaces, errors, importedNamespaces);
+        } else {
+            errors.add("Singleton " + singleton.getName() + " must have a type");
+        }
+
+        // Validate inline annotations on Singleton
+        validateInlineAnnotations(singleton.getAnnotations(), errors, importedNamespaces);
+    }
+
+    /**
+     * Validate ActionImport using Olingo structures
+     */
+    private void validateActionImport(org.apache.olingo.commons.api.edm.provider.CsdlActionImport actionImport,
+                                     List<String> errors, List<String> warnings,
+                                     Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (actionImport.getName() == null || actionImport.getName().trim().isEmpty()) {
+            errors.add("ActionImport must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(actionImport.getName())) {
+            errors.add("Invalid ActionImport name: " + actionImport.getName());
+        }
+
+        // Validate Action reference
+        if (actionImport.getAction() != null) {
+            // Action reference should be a qualified name
+            if (actionImport.getAction().contains(".")) {
+                referencedNamespaces.add(actionImport.getAction().substring(0, actionImport.getAction().lastIndexOf('.')));
+            }
+        } else {
+            errors.add("ActionImport " + actionImport.getName() + " must reference an Action");
+        }
+
+        // Validate inline annotations on ActionImport
+        validateInlineAnnotations(actionImport.getAnnotations(), errors, importedNamespaces);
+    }
+
+    /**
+     * Validate FunctionImport using Olingo structures
+     */
+    private void validateFunctionImport(org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport functionImport,
+                                       List<String> errors, List<String> warnings,
+                                       Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        if (functionImport.getName() == null || functionImport.getName().trim().isEmpty()) {
+            errors.add("FunctionImport must have a valid name");
+            return;
+        }
+
+        if (!isValidODataIdentifier(functionImport.getName())) {
+            errors.add("Invalid FunctionImport name: " + functionImport.getName());
+        }
+
+        // Validate Function reference
+        if (functionImport.getFunction() != null) {
+            // Function reference should be a qualified name
+            if (functionImport.getFunction().contains(".")) {
+                referencedNamespaces.add(functionImport.getFunction().substring(0, functionImport.getFunction().lastIndexOf('.')));
+            }
+        } else {
+            errors.add("FunctionImport " + functionImport.getName() + " must reference a Function");
+        }
+
+        // Validate inline annotations on FunctionImport
+        validateInlineAnnotations(functionImport.getAnnotations(), errors, importedNamespaces);
+    }
+
     /**
      * Extract and validate type references (handles Collection(Type) and namespace references)
      */
@@ -1082,19 +1358,19 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (typeRef == null || typeRef.trim().isEmpty()) {
             return;
         }
-        
+
         // Handle Collection(Type) format
         String actualType = typeRef;
         if (typeRef.startsWith("Collection(") && typeRef.endsWith(")")) {
             actualType = typeRef.substring(11, typeRef.length() - 1);
         }
-        
+
         // Check if it's a primitive type
         if (actualType.startsWith("Edm.")) {
             validatePrimitiveType(actualType, errors);
             return;
         }
-        
+
         // Extract namespace from qualified type name
         if (actualType.contains(".")) {
             String namespace = actualType.substring(0, actualType.lastIndexOf('.'));
@@ -1105,7 +1381,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             }
         }
     }
-    
+
     /**
      * Validate primitive type using Olingo's EdmPrimitiveTypeKind
      */
@@ -1117,7 +1393,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             errors.add("Unknown primitive type: " + primitiveType);
         }
     }
-    
+
     /**
      * Validate OData identifier using Olingo's naming conventions
      */
@@ -1125,11 +1401,11 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (identifier == null || identifier.trim().isEmpty()) {
             return false;
         }
-        
+
         // OData identifier rules: start with letter or underscore, followed by letters, digits, or underscores
         return identifier.matches("^[A-Za-z_][A-Za-z0-9_]*$");
     }
-    
+
     /**
      * Create an error result
      */
@@ -1137,35 +1413,5 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         List<String> errors = new ArrayList<>();
         errors.add(errorMessage);
         return new XmlComplianceResult(false, errors, new ArrayList<>(), new HashSet<>(), new HashMap<>(), fileName, validationTime);
-    }
-    
-    /**
-     * File System Reference Resolver for handling relative references
-     */
-    private static class FileSystemReferenceResolver implements ReferenceResolver {
-        private final Path basePath;
-        
-        public FileSystemReferenceResolver(Path basePath) {
-            this.basePath = basePath;
-        }
-        
-        @Override
-        public InputStream resolveReference(URI referenceUri, String xmlBase) {
-            try {
-                Path resolvedPath;
-                if (referenceUri.isAbsolute()) {
-                    resolvedPath = basePath.getFileSystem().getPath(referenceUri.getPath());
-                } else {
-                    resolvedPath = basePath.resolve(referenceUri.getPath()).normalize();
-                }
-                
-                if (Files.exists(resolvedPath)) {
-                    return new FileInputStream(resolvedPath.toFile());
-                }
-            } catch (Exception e) {
-                // Ignore and return null
-            }
-            return null;
-        }
     }
 }
