@@ -115,25 +115,29 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 edmProvider = parser.buildEdmProvider(reader);
             }
 
+            // First, collect all imported namespaces from References
+            Set<String> importedNamespaces = new HashSet<>();
+            List<EdmxReference> references = edmProvider.getReferences();
+            if (references != null) {
+                metadata.put("referenceCount", references.size());
+                for (EdmxReference reference : references) {
+                    if (reference.getIncludes() != null) {
+                        reference.getIncludes().forEach(include -> {
+                            String namespace = include.getNamespace();
+                            importedNamespaces.add(namespace);
+                            referencedNamespaces.add(namespace);
+                        });
+                    }
+                }
+            }
+
             // Validate schemas in the main file
             List<CsdlSchema> schemas = edmProvider.getSchemas();
             if (schemas != null && !schemas.isEmpty()) {
                 for (CsdlSchema schema : schemas) {
-                    validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata);
+                    validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata, importedNamespaces);
                 }
                 metadata.put("schemaCount", schemas.size());
-                
-                // Check references
-                List<EdmxReference> references = edmProvider.getReferences();
-                if (references != null) {
-                    metadata.put("referenceCount", references.size());
-                    for (EdmxReference reference : references) {
-                        if (reference.getIncludes() != null) {
-                            reference.getIncludes().forEach(include -> 
-                                referencedNamespaces.add(include.getNamespace()));
-                        }
-                    }
-                }
             } else {
                 errors.add("No valid schemas found in the XML file");
             }
@@ -207,7 +211,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             List<CsdlSchema> schemas = edmProvider.getSchemas();
             if (schemas != null && !schemas.isEmpty()) {
                 for (CsdlSchema schema : schemas) {
-                    validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata);
+                    validateCsdlSchema(schema, errors, warnings, referencedNamespaces, metadata, referencedNamespaces);
                 }
                 metadata.put("schemaCount", schemas.size());
                 
@@ -247,8 +251,9 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
      * Validate a CSDL Schema using Olingo's data structures
      */
     private void validateCsdlSchema(CsdlSchema schema, List<String> errors, List<String> warnings, 
-                                   Set<String> referencedNamespaces, Map<String, Object> metadata) {
-        
+                                   Set<String> referencedNamespaces, Map<String, Object> metadata,
+                                   Set<String> importedNamespaces) {
+
         // Validate schema namespace
         if (schema.getNamespace() == null || schema.getNamespace().trim().isEmpty()) {
             errors.add("Schema must have a valid namespace");
@@ -269,7 +274,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Validate entity types
         if (schema.getEntityTypes() != null) {
             for (CsdlEntityType entityType : schema.getEntityTypes()) {
-                validateEntityType(entityType, errors, warnings, referencedNamespaces);
+                validateEntityType(entityType, errors, warnings, referencedNamespaces, importedNamespaces);
             }
             metadata.put("entityTypes_" + namespace, schema.getEntityTypes().size());
         }
@@ -277,7 +282,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Validate complex types
         if (schema.getComplexTypes() != null) {
             for (CsdlComplexType complexType : schema.getComplexTypes()) {
-                validateComplexType(complexType, errors, warnings, referencedNamespaces);
+                validateComplexType(complexType, errors, warnings, referencedNamespaces, importedNamespaces);
             }
             metadata.put("complexTypes_" + namespace, schema.getComplexTypes().size());
         }
@@ -588,8 +593,8 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
      * Validate EntityType using Olingo structures
      */
     private void validateEntityType(CsdlEntityType entityType, List<String> errors, 
-                                   List<String> warnings, Set<String> referencedNamespaces) {
-        
+                                   List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+
         if (entityType.getName() == null || entityType.getName().trim().isEmpty()) {
             errors.add("EntityType must have a valid name");
             return;
@@ -602,20 +607,20 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Check BaseType reference
         if (entityType.getBaseType() != null) {
             String baseType = entityType.getBaseType();
-            extractAndValidateTypeReference(baseType, referencedNamespaces, warnings);
+            extractAndValidateTypeReference(baseType, referencedNamespaces, errors, importedNamespaces);
         }
         
         // Validate properties
         if (entityType.getProperties() != null) {
             for (CsdlProperty property : entityType.getProperties()) {
-                validateProperty(property, errors, warnings, referencedNamespaces);
+                validateProperty(property, errors, warnings, referencedNamespaces, importedNamespaces);
             }
         }
         
         // Validate navigation properties
         if (entityType.getNavigationProperties() != null) {
             for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
-                validateNavigationProperty(navProp, errors, warnings, referencedNamespaces);
+                validateNavigationProperty(navProp, errors, warnings, referencedNamespaces, importedNamespaces);
             }
         }
     }
@@ -624,8 +629,8 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
      * Validate ComplexType using Olingo structures
      */
     private void validateComplexType(CsdlComplexType complexType, List<String> errors, 
-                                    List<String> warnings, Set<String> referencedNamespaces) {
-        
+                                    List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+
         if (complexType.getName() == null || complexType.getName().trim().isEmpty()) {
             errors.add("ComplexType must have a valid name");
             return;
@@ -638,13 +643,13 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Check BaseType reference
         if (complexType.getBaseType() != null) {
             String baseType = complexType.getBaseType();
-            extractAndValidateTypeReference(baseType, referencedNamespaces, warnings);
+            extractAndValidateTypeReference(baseType, referencedNamespaces, errors, importedNamespaces);
         }
         
         // Validate properties
         if (complexType.getProperties() != null) {
             for (CsdlProperty property : complexType.getProperties()) {
-                validateProperty(property, errors, warnings, referencedNamespaces);
+                validateProperty(property, errors, warnings, referencedNamespaces, importedNamespaces);
             }
         }
     }
@@ -652,7 +657,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     /**
      * Validate Property using Olingo structures
      */
-    private void validateProperty(CsdlProperty property, List<String> errors, List<String> warnings, Set<String> referencedNamespaces) {
+    private void validateProperty(CsdlProperty property, List<String> errors, List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
         if (property.getName() == null || property.getName().trim().isEmpty()) {
             errors.add("Property must have a valid name");
             return;
@@ -664,7 +669,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         
         // Validate property type
         if (property.getType() != null) {
-            extractAndValidateTypeReference(property.getType(), referencedNamespaces, warnings);
+            extractAndValidateTypeReference(property.getType(), referencedNamespaces, errors, importedNamespaces);
         } else {
             errors.add("Property " + property.getName() + " must have a type");
         }
@@ -674,7 +679,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
      * Validate NavigationProperty using Olingo structures
      */
     private void validateNavigationProperty(CsdlNavigationProperty navProp, List<String> errors, 
-                                          List<String> warnings, Set<String> referencedNamespaces) {
+                                          List<String> warnings, Set<String> referencedNamespaces, Set<String> importedNamespaces) {
         if (navProp.getName() == null || navProp.getName().trim().isEmpty()) {
             errors.add("NavigationProperty must have a valid name");
             return;
@@ -686,7 +691,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         
         // Validate navigation property type
         if (navProp.getType() != null) {
-            extractAndValidateTypeReference(navProp.getType(), referencedNamespaces, warnings);
+            extractAndValidateTypeReference(navProp.getType(), referencedNamespaces, warnings, importedNamespaces);
         } else {
             errors.add("NavigationProperty " + navProp.getName() + " must have a type");
         }
@@ -710,7 +715,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     /**
      * Extract and validate type references (handles Collection(Type) and namespace references)
      */
-    private void extractAndValidateTypeReference(String typeRef, Set<String> referencedNamespaces, List<String> warnings) {
+    private void extractAndValidateTypeReference(String typeRef, Set<String> referencedNamespaces, List<String> errors, Set<String> importedNamespaces) {
         if (typeRef == null || typeRef.trim().isEmpty()) {
             return;
         }
@@ -723,7 +728,7 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         
         // Check if it's a primitive type
         if (actualType.startsWith("Edm.")) {
-            validatePrimitiveType(actualType, warnings);
+            validatePrimitiveType(actualType, errors);
             return;
         }
         
@@ -731,18 +736,22 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         if (actualType.contains(".")) {
             String namespace = actualType.substring(0, actualType.lastIndexOf('.'));
             referencedNamespaces.add(namespace);
+
+            if (!namespace.equals("Edm") && !importedNamespaces.contains(namespace)) {
+                errors.add("Namespace " + namespace + " is referenced but not imported in the schema");
+            }
         }
     }
     
     /**
      * Validate primitive type using Olingo's EdmPrimitiveTypeKind
      */
-    private void validatePrimitiveType(String primitiveType, List<String> warnings) {
+    private void validatePrimitiveType(String primitiveType, List<String> errors) {
         try {
             String typeName = primitiveType.substring(4); // Remove "Edm." prefix
             EdmPrimitiveTypeKind.valueOf(typeName);
         } catch (IllegalArgumentException e) {
-            warnings.add("Unknown primitive type: " + primitiveType);
+            errors.add("Unknown primitive type: " + primitiveType);
         }
     }
     

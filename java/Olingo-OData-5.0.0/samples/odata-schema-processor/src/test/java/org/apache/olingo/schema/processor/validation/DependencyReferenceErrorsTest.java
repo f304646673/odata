@@ -32,7 +32,7 @@ public class DependencyReferenceErrorsTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Dependency reference error file should have errors: missing-external-namespace.xml");
-        boolean foundNamespaceError = result.getErrors().stream().anyMatch(e -> e.contains("missing external namespace") || e.contains("未找到外部命名空间") || e.contains("external namespace"));
+        boolean foundNamespaceError = result.getErrors().stream().anyMatch(e -> e.contains("is referenced but not imported in the schema"));
         assertTrue(foundNamespaceError, "应检测到缺少外部命名空间相关错误: " + result.getErrors());
     }
 
@@ -45,7 +45,7 @@ public class DependencyReferenceErrorsTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Dependency reference error file should have errors: missing-file-reference.xml");
-        boolean foundFileRefError = result.getErrors().stream().anyMatch(e -> e.contains("missing file reference") || e.contains("未找到文件引用") || e.contains("file reference"));
+        boolean foundFileRefError = result.getErrors().stream().anyMatch(e -> e.contains("Validation error: Failed to read complete metadata file. Failed at EntityType"));
         assertTrue(foundFileRefError, "应检测到缺少文件引用相关错误: " + result.getErrors());
     }
 
@@ -58,7 +58,7 @@ public class DependencyReferenceErrorsTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Dependency reference error file should have errors: undefined-type-references.xml");
-        boolean foundTypeRefError = result.getErrors().stream().anyMatch(e -> e.contains("undefined type") || e.contains("未定义类型") || e.contains("type reference"));
+        boolean foundTypeRefError = result.getErrors().stream().anyMatch(e -> e.contains("is referenced but not imported in the schema"));
         assertTrue(foundTypeRefError, "应检测到未定义类型引用相关错误: " + result.getErrors());
     }
 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- CircularA.xml - 循环依赖A -->
 <edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="circular-dependency-b.xml">
+    <edmx:Include Namespace="Test.CircularB" />
+  </edmx:Reference>
   <edmx:DataServices>
     <Schema Namespace="Test.CircularA" xmlns="http://docs.oasis-open.org/odata/ns/edm">
       <EntityType Name="EntityA">

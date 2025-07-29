@@ -78,4 +78,60 @@ public class EncodingCharsetErrorsTest {
         boolean foundBomError = result.getErrors().stream().anyMatch(e -> e.toLowerCase().contains("bom") || e.contains("字节顺序标记") || e.contains("byte order mark"));
         assertTrue(foundBomError, "应检测到BOM相关错误: " + result.getErrors());
     }
+
+    @Test
+    public void testIso88591WithUnicode() {
+        Path testFilePath = Paths.get(ENCODING_CHARSET_ERRORS_DIR, "iso-8859-1-with-unicode.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Encoding charset error file should not be compliant: iso-8859-1-with-unicode.xml");
+        assertTrue(result.hasErrors(), "Encoding charset error file should have errors: iso-8859-1-with-unicode.xml");
+        boolean foundEncodingError = result.getErrors().stream().anyMatch(e -> e.toLowerCase().contains("encoding") || e.contains("编码错误") || e.contains("unicode"));
+        assertTrue(foundEncodingError, "应检测到编码相关错误: " + result.getErrors());
+    }
+
+    @Test
+    public void testNoEncodingDeclaration() {
+        Path testFilePath = Paths.get(ENCODING_CHARSET_ERRORS_DIR, "no-encoding-declaration.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Encoding charset error file should not be compliant: no-encoding-declaration.xml");
+        assertTrue(result.hasErrors(), "Encoding charset error file should have errors: no-encoding-declaration.xml");
+        boolean foundEncodingError = result.getErrors().stream().anyMatch(e -> e.toLowerCase().contains("encoding") || e.contains("编码声明") || e.contains("declaration"));
+        assertTrue(foundEncodingError, "应检测到编码声明相关错误: " + result.getErrors());
+    }
+
+    @Test
+    public void testUtf8ContentWrongDeclaration() {
+        Path testFilePath = Paths.get(ENCODING_CHARSET_ERRORS_DIR, "utf8-content-wrong-declaration.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Encoding charset error file should not be compliant: utf8-content-wrong-declaration.xml");
+        assertTrue(result.hasErrors(), "Encoding charset error file should have errors: utf8-content-wrong-declaration.xml");
+        boolean foundEncodingError = result.getErrors().stream().anyMatch(e -> e.toLowerCase().contains("utf-8") || e.toLowerCase().contains("encoding") || e.contains("编码错误"));
+        assertTrue(foundEncodingError, "应检测到UTF-8编码相关错误: " + result.getErrors());
+    }
+
+    @Test
+    public void testUtf8WithBom() {
+        Path testFilePath = Paths.get(ENCODING_CHARSET_ERRORS_DIR, "utf8-with-bom.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Encoding charset error file should not be compliant: utf8-with-bom.xml");
+        assertTrue(result.hasErrors(), "Encoding charset error file should have errors: utf8-with-bom.xml");
+        boolean foundBomError = result.getErrors().stream().anyMatch(e -> e.toLowerCase().contains("bom") || e.contains("字节顺序标记") || e.contains("byte order mark"));
+        assertTrue(foundBomError, "应检测到BOM相关错误: " + result.getErrors());
+    }
 }
