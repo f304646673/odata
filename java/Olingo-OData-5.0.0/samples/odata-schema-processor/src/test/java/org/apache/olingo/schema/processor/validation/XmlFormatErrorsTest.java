@@ -33,7 +33,7 @@ public class XmlFormatErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "XML format error file should not be compliant: encoding-mismatch.xml");
         assertTrue(result.hasErrors(), "XML format error file should have errors: encoding-mismatch.xml");
-        // 针对性断言（根据实际错误内容调整）
+        
         boolean foundEntityOrPropertyError = result.getErrors().stream().anyMatch(e -> e.contains("Invalid EntityType name") || e.contains("Invalid Property name"));
         assertTrue(foundEntityOrPropertyError, "应检测到实体名或属性名相关错误: " + result.getErrors());
     }
@@ -48,7 +48,7 @@ public class XmlFormatErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "XML format error file should not be compliant: invalid-characters.xml");
         assertTrue(result.hasErrors(), "XML format error file should have errors: invalid-characters.xml");
-        // 针对性断言（根据实际错误内容调整）
+        
         boolean foundReadFailed = result.getErrors().stream().anyMatch(e -> e.contains("Failed to read complete metadata file") || e.contains("Failed at Documentation"));
         assertTrue(foundReadFailed, "应检测到读取元数据文件失败相关错误: " + result.getErrors());
     }
@@ -63,7 +63,7 @@ public class XmlFormatErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "XML format error file should not be compliant: missing-root-element.xml");
         assertTrue(result.hasErrors(), "XML format error file should have errors: missing-root-element.xml");
-        // 针对性断言（根据实际错误内容调整）
+        
         boolean foundRootError = result.getErrors().stream().anyMatch(e -> e.contains("Failed to read complete metadata file") || e.contains("Failed at EntityType"));
         assertTrue(foundRootError, "应检测到缺少根元素相关错误: " + result.getErrors());
     }
@@ -78,7 +78,7 @@ public class XmlFormatErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "XML format error file should not be compliant: unclosed-tags.xml");
         assertTrue(result.hasErrors(), "XML format error file should have errors: unclosed-tags.xml");
-        // 针对性断言（根据实际错误内容调整）
+        
         boolean foundUnclosedTag = result.getErrors().stream().anyMatch(e -> e.contains("ParseError") || e.contains("结束标记") || e.contains("终止"));
         assertTrue(foundUnclosedTag, "应检测到未闭合标签相关错误: " + result.getErrors());
     }
