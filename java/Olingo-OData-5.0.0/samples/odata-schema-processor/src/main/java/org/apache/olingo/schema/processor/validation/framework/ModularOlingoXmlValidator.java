@@ -101,27 +101,19 @@ public class ModularOlingoXmlValidator implements XmlFileComplianceValidator {
         ValidationContext context = createValidationContext(fileName);
 
         try {
-            // Step 1: Pre-validate XML structure and encoding
-            preValidateXmlStructure(xmlPath, context);
-
-            // If pre-validation found critical errors, return early
-            if (hasCriticalErrors(context)) {
-                return createResult(context, startTime);
-            }
-
-            // Step 2: Configure Olingo MetadataParser with reference resolution
+            // Step 1: Configure Olingo MetadataParser with reference resolution
             SchemaBasedEdmProvider edmProvider = buildEdmProvider(xmlPath, context);
 
-            // Step 3: Collect imported namespaces from references
+            // Step 2: Collect imported namespaces from references
             collectImportedNamespaces(edmProvider, context);
 
-            // Step 4: Validate all schemas using modular validators
+            // Step 3: Validate all schemas using modular validators
             validateSchemas(edmProvider, context);
 
-            // Step 5: Perform global duplicate checking across all referenced files
+            // Step 4: Perform global duplicate checking across all referenced files
             duplicateChecker.checkGlobalSchemaDuplicates(xmlPath, context.getErrors());
 
-            // Step 6: Finalize results
+            // Step 5: Finalize results
             return createResult(context, startTime);
 
         } catch (Exception e) {
@@ -196,12 +188,59 @@ public class ModularOlingoXmlValidator implements XmlFileComplianceValidator {
 
         parser.referenceResolver(resolver);
 
-        // Read and modify XML content to add xml:base attribute
+        // Read XML content and perform structural validation
         String fileContent = new String(Files.readAllBytes(xmlPath), StandardCharsets.UTF_8);
+        performBasicStructuralValidation(fileContent, context);
+
         String modifiedContent = addXmlBase(fileContent, baseUri.toString());
 
         try (StringReader reader = new StringReader(modifiedContent)) {
             return parser.buildEdmProvider(reader);
+        }
+    }
+
+    /**
+     * Perform basic structural validation that Olingo doesn't cover
+     */
+    private void performBasicStructuralValidation(String xmlContent, ValidationContext context) {
+        // Check for missing Key elements in EntityTypes
+        String[] lines = xmlContent.split("\n");
+        boolean inEntityType = false;
+        boolean hasKey = false;
+        boolean hasBaseType = false;
+        String entityTypeName = "";
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+
+            if (trimmedLine.startsWith("<EntityType")) {
+                inEntityType = true;
+                hasKey = false;
+                hasBaseType = false;
+
+                // Extract entity type name
+                if (trimmedLine.contains("Name=\"")) {
+                    int start = trimmedLine.indexOf("Name=\"") + 6;
+                    int end = trimmedLine.indexOf("\"", start);
+                    if (end > start) {
+                        entityTypeName = trimmedLine.substring(start, end);
+                    }
+                }
+
+                // Check if it has a BaseType
+                if (trimmedLine.contains("BaseType=\"")) {
+                    hasBaseType = true;
+                }
+            } else if (inEntityType && trimmedLine.startsWith("<Key>")) {
+                hasKey = true;
+            } else if (inEntityType && (trimmedLine.startsWith("</EntityType>") || trimmedLine.contains("/>"))) {
+                // End of EntityType - check if it's missing a Key
+                if (!hasKey && !hasBaseType && !entityTypeName.isEmpty()) {
+                    context.addError("EntityType '" + entityTypeName + "' is missing required Key element");
+                }
+                inEntityType = false;
+                entityTypeName = "";
+            }
         }
     }
 
@@ -302,124 +341,6 @@ public class ModularOlingoXmlValidator implements XmlFileComplianceValidator {
         return xmlContent.replaceFirst(pattern, replacement);
     }
 
-    /**
-     * Enhanced pre-validate XML structure and encoding with OData compliance checks
-     */
-    private void preValidateXmlStructure(Path xmlPath, ValidationContext context) {
-        try {
-            String content = new String(Files.readAllBytes(xmlPath), StandardCharsets.UTF_8);
-            String fileName = xmlPath.getFileName().toString();
-
-            // Basic XML structure validation (universal checks)
-            if (!content.trim().startsWith("<?xml")) {
-                context.addError("Missing XML declaration");
-            }
-
-            // Check for BOM issues
-            if (content.startsWith("\uFEFF")) {
-                context.addError("File contains BOM (Byte Order Mark) which may cause parsing issues");
-            }
-
-            // Check for basic XML structure
-            if (!content.contains("<edmx:Edmx")) {
-                context.addError("Missing Edmx root element");
-            }
-
-            if (!content.contains("<Schema")) {
-                context.addError("Missing Schema element");
-            }
-
-            // Check for missing Key elements in EntityTypes
-            validateEntityTypeKeys(content, context);
-
-            // Check for XML parsing issues by attempting basic validation
-            try {
-                // Simple well-formedness check
-                if (content.contains("<Property") && !content.contains("</Property>") && !content.contains("/>")) {
-                    // Count opening vs closing tags
-                    int openTags = countOccurrences(content, "<Property");
-                    int closeTags = countOccurrences(content, "</Property>") + countOccurrences(content, "/>");
-                    if (openTags > closeTags) {
-                        context.addError("Unclosed XML tags detected");
-                    }
-                }
-            } catch (Exception e) {
-                context.addError("XML structure validation failed: " + e.getMessage());
-            }
-
-        } catch (Exception e) {
-            context.addError("Failed to pre-validate XML structure: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Validate that EntityTypes have required Key elements
-     */
-    private void validateEntityTypeKeys(String content, ValidationContext context) {
-        // Look for EntityType definitions without BaseType that are missing Key elements
-        String[] lines = content.split("\n");
-        boolean inEntityType = false;
-        boolean hasKey = false;
-        boolean hasBaseType = false;
-        String entityTypeName = "";
-
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-
-            if (trimmedLine.startsWith("<EntityType")) {
-                inEntityType = true;
-                hasKey = false;
-                hasBaseType = false;
-
-                // Extract entity type name
-                if (trimmedLine.contains("Name=\"")) {
-                    int start = trimmedLine.indexOf("Name=\"") + 6;
-                    int end = trimmedLine.indexOf("\"", start);
-                    if (end > start) {
-                        entityTypeName = trimmedLine.substring(start, end);
-                    }
-                }
-
-                // Check if it has a BaseType
-                if (trimmedLine.contains("BaseType=\"")) {
-                    hasBaseType = true;
-                }
-            } else if (inEntityType && trimmedLine.startsWith("<Key>")) {
-                hasKey = true;
-            } else if (inEntityType && trimmedLine.startsWith("</EntityType>")) {
-                // End of EntityType - check if it's missing a Key
-                if (!hasKey && !hasBaseType && !entityTypeName.isEmpty()) {
-                    context.addError("EntityType '" + entityTypeName + "' is missing required Key element");
-                }
-                inEntityType = false;
-                entityTypeName = "";
-            }
-        }
-    }
-
-    /**
-     * Count occurrences of a substring in a string
-     */
-    private int countOccurrences(String text, String pattern) {
-        int count = 0;
-        int index = 0;
-        while ((index = text.indexOf(pattern, index)) != -1) {
-            count++;
-            index += pattern.length();
-        }
-        return count;
-    }
-
-    /**
-     * Check if the validation context has critical errors
-     */
-    private boolean hasCriticalErrors(ValidationContext context) {
-        return context.getErrors().stream().anyMatch(error ->
-            error.contains("Missing XML declaration") ||
-            error.contains("Missing Edmx root element") ||
-            error.contains("Missing Schema element")
-        );
-    }
 
     /**
      * Categorize and add error to the validation context

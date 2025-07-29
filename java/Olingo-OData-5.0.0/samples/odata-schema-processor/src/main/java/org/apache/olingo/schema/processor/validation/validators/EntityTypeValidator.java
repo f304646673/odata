@@ -50,11 +50,6 @@ public class EntityTypeValidator implements ElementValidator<CsdlEntityType> {
             validateTypeReference(entityType.getBaseType(), context);
         }
 
-        // Check if EntityType has a Key (required unless it has a base type)
-        if (entityType.getKey() == null && entityType.getBaseType() == null) {
-            context.addError("EntityType '" + entityType.getName() + "' is missing required Key element");
-        }
-
         // Validate properties
         if (entityType.getProperties() != null) {
             for (CsdlProperty property : entityType.getProperties()) {
