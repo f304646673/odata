@@ -79,6 +79,8 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             // Configure MetadataParser with base URI for reference resolution
             MetadataParser parser = new MetadataParser();
             parser.recursivelyLoadReferences(true);
+            parser.parseAnnotations(true);
+            parser.useLocalCoreVocabularies(false);
             
             // 获取文件的父目录作为基本 URI
             URI baseUri = xmlPath.getParent().toUri();
@@ -290,6 +292,11 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         // Validate entity container
         if (schema.getEntityContainer() != null) {
             validateEntityContainer(schema.getEntityContainer(), errors);
+        }
+        
+        // Validate annotations
+        if (schema.getAnnotationGroups() != null && !schema.getAnnotationGroups().isEmpty()) {
+            validateAnnotations(schema, errors, warnings, referencedNamespaces, importedNamespaces);
         }
     }
 
@@ -673,6 +680,362 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
         } else {
             errors.add("Property " + property.getName() + " must have a type");
         }
+    }
+    
+    /**
+     * Validate Annotations using both Olingo structures and manual XML parsing
+     */
+    private void validateAnnotations(CsdlSchema schema, List<String> errors, List<String> warnings,
+                                   Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        System.out.println("DEBUG: validateAnnotations called for schema: " + schema.getNamespace());
+
+        // Check annotation groups (Annotations elements)
+        if (schema.getAnnotationGroups() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlAnnotations annotations : schema.getAnnotationGroups()) {
+                String target = annotations.getTarget();
+                if (target != null && !target.trim().isEmpty()) {
+                    validateAnnotationTarget(target, schema, errors, referencedNamespaces, importedNamespaces);
+                }
+
+                // Validate individual annotations within the group
+                if (annotations.getAnnotations() != null) {
+                    System.out.println("DEBUG: Found " + annotations.getAnnotations().size() + " annotations in group");
+                    for (org.apache.olingo.commons.api.edm.provider.CsdlAnnotation annotation : annotations.getAnnotations()) {
+                        String termName = annotation.getTerm();
+                        System.out.println("DEBUG: Validating annotation term: " + termName);
+                        validateAnnotationTerm(annotation.getTerm(), errors, importedNamespaces);
+                    }
+                } else {
+                }
+            }
+        } else {
+        }
+
+        // Check inline annotations on entity types
+        if (schema.getEntityTypes() != null) {
+            System.out.println("DEBUG: Checking inline annotations on " + schema.getEntityTypes().size() + " entity types");
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                System.out.println("DEBUG: Checking entity type: " + entityType.getName());
+                validateInlineAnnotations(entityType.getAnnotations(), errors, importedNamespaces);
+
+                // Check annotations on properties
+                if (entityType.getProperties() != null) {
+                    System.out.println("DEBUG: Checking " + entityType.getProperties().size() + " properties");
+                    for (CsdlProperty property : entityType.getProperties()) {
+                        System.out.println("DEBUG: Checking property: " + property.getName());
+                        validateInlineAnnotations(property.getAnnotations(), errors, importedNamespaces);
+                    }
+                }
+
+                // Check annotations on navigation properties
+                if (entityType.getNavigationProperties() != null) {
+                    for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
+                        validateInlineAnnotations(navProp.getAnnotations(), errors, importedNamespaces);
+                    }
+                }
+            }
+        }
+
+        // Check inline annotations on complex types
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                validateInlineAnnotations(complexType.getAnnotations(), errors, importedNamespaces);
+
+                if (complexType.getProperties() != null) {
+                    for (CsdlProperty property : complexType.getProperties()) {
+                        validateInlineAnnotations(property.getAnnotations(), errors, importedNamespaces);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Validate inline annotations
+     */
+    private void validateInlineAnnotations(List<org.apache.olingo.commons.api.edm.provider.CsdlAnnotation> annotations, 
+                                         List<String> errors, Set<String> importedNamespaces) {
+        if (annotations != null && !annotations.isEmpty()) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlAnnotation annotation : annotations) {
+                String termName = annotation.getTerm();
+                System.out.println("DEBUG: Validating inline annotation term: " + termName);
+                validateAnnotationTerm(annotation.getTerm(), errors, importedNamespaces);
+            }
+        } else {
+        }
+    }
+    
+    /**
+     * Validate annotation term
+     */
+    private void validateAnnotationTerm(String term, List<String> errors, Set<String> importedNamespaces) {
+        if (term == null || term.trim().isEmpty()) {
+            errors.add("Annotation term cannot be null or empty");
+            return;
+        }
+        
+        // Check basic format
+        if (!isValidAnnotationTermFormat(term)) {
+            errors.add("Invalid annotation term format: " + term);
+            return;
+        }
+        
+        // Check if term is from a known vocabulary namespace
+        if (!isKnownVocabularyTerm(term, importedNamespaces)) {
+            errors.add("Undefined annotation term: " + term);
+        } else {
+        }
+    }
+    
+    /**
+     * Validate annotation term format
+     */
+    private boolean isValidAnnotationTermFormat(String term) {
+        if (term == null || term.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Check for invalid characters
+        if (term.contains("!") || term.contains("?") || term.contains("<") || term.contains(">")) {
+            return false;
+        }
+        
+        // Term should have at least one dot (namespace.termname)
+        if (!term.contains(".")) {
+            return false;
+        }
+        
+        // Validate each segment
+        String[] segments = term.split("\\.");
+        for (String segment : segments) {
+            if (!isValidODataIdentifier(segment)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check if term is from a known vocabulary
+     */
+    private boolean isKnownVocabularyTerm(String term, Set<String> importedNamespaces) {
+        // Known OData vocabularies
+        Set<String> knownVocabularies = new HashSet<>();
+        knownVocabularies.add("Core");
+        knownVocabularies.add("Measures");
+        knownVocabularies.add("Capabilities");
+        knownVocabularies.add("Validation");
+        knownVocabularies.add("UI");
+        knownVocabularies.add("Common");
+        knownVocabularies.add("Communication");
+        knownVocabularies.add("PersonalData");
+        knownVocabularies.add("Analytics");
+        knownVocabularies.add("Aggregation");
+        knownVocabularies.add("Authorization");
+        knownVocabularies.add("Session");
+        knownVocabularies.add("Temporal");
+        
+        // Check if term starts with a known vocabulary
+        for (String vocab : knownVocabularies) {
+            if (term.startsWith(vocab + ".")) {
+                return true;
+            }
+        }
+        
+        // Check imported namespaces (assume they contain valid vocabularies)
+        for (String namespace : importedNamespaces) {
+            if (term.startsWith(namespace + ".")) {
+                return true;
+            }
+        }
+        
+        // If not from known vocabularies, it's likely undefined
+        return false;
+    }
+    
+    /**
+     * Validate individual annotation target
+     */
+    private void validateAnnotationTarget(String target, CsdlSchema schema, List<String> errors,
+                                        Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        try {
+            // Basic format validation
+            if (!isValidAnnotationTargetFormat(target)) {
+                errors.add("Invalid annotation target format: " + target);
+                return;
+            }
+            
+            // Parse target path
+            if (target.contains("/")) {
+                // Property or navigation property target (e.g., "Namespace.EntityType/PropertyName")
+                String[] parts = target.split("/", 2);
+                String entityPath = parts[0];
+                String propertyName = parts[1];
+                
+                if (!validateEntityTypeExists(entityPath, schema, referencedNamespaces, importedNamespaces)) {
+                    errors.add("Annotation target references non-existent entity type: " + entityPath);
+                }
+                
+                if (!validatePropertyExists(entityPath, propertyName, schema, referencedNamespaces, importedNamespaces)) {
+                    errors.add("Annotation target references non-existent property: " + target);
+                }
+            } else {
+                // Entity type or other top-level target
+                if (!validateEntityTypeExists(target, schema, referencedNamespaces, importedNamespaces)) {
+                    errors.add("Annotation target references non-existent type: " + target);
+                }
+            }
+        } catch (Exception e) {
+            errors.add("Error validating annotation target '" + target + "': " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Validate annotation target format
+     */
+    private boolean isValidAnnotationTargetFormat(String target) {
+        if (target == null || target.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Check for invalid characters
+        if (target.contains("!") || target.contains("?") || target.contains("<") || target.contains(">")) {
+            return false;
+        }
+        
+        // Basic namespace and identifier validation
+        String[] parts = target.split("/");
+        for (String part : parts) {
+            if (!isValidODataPath(part.trim())) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Validate OData path component
+     */
+    private boolean isValidODataPath(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Should contain at least one dot for namespace.identifier format
+        if (!path.contains(".")) {
+            return false;
+        }
+        
+        String[] segments = path.split("\\.");
+        for (String segment : segments) {
+            if (!isValidODataIdentifier(segment)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check if entity type exists in current schema or imported namespaces
+     */
+    private boolean validateEntityTypeExists(String typePath, CsdlSchema schema, 
+                                           Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        // Check current schema
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                String fullName = schema.getNamespace() + "." + entityType.getName();
+                if (fullName.equals(typePath)) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check complex types as well
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                String fullName = schema.getNamespace() + "." + complexType.getName();
+                if (fullName.equals(typePath)) {
+                    return true;
+                }
+            }
+        }
+        
+        // For now, assume types in imported namespaces exist
+        // In a full implementation, we would need to resolve and check those schemas
+        for (String namespace : importedNamespaces) {
+            if (typePath.startsWith(namespace + ".")) {
+                return true; // Assume imported types are valid
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if property exists on the specified entity type
+     */
+    private boolean validatePropertyExists(String typePath, String propertyName, CsdlSchema schema,
+                                         Set<String> referencedNamespaces, Set<String> importedNamespaces) {
+        // Find the entity type first
+        CsdlEntityType entityType = null;
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType et : schema.getEntityTypes()) {
+                String fullName = schema.getNamespace() + "." + et.getName();
+                if (fullName.equals(typePath)) {
+                    entityType = et;
+                    break;
+                }
+            }
+        }
+        
+        if (entityType == null) {
+            // Check complex types
+            CsdlComplexType complexType = null;
+            if (schema.getComplexTypes() != null) {
+                for (CsdlComplexType ct : schema.getComplexTypes()) {
+                    String fullName = schema.getNamespace() + "." + ct.getName();
+                    if (fullName.equals(typePath)) {
+                        complexType = ct;
+                        break;
+                    }
+                }
+            }
+            
+            if (complexType != null) {
+                // Check properties in complex type
+                if (complexType.getProperties() != null) {
+                    for (CsdlProperty prop : complexType.getProperties()) {
+                        if (propertyName.equals(prop.getName())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Check regular properties
+        if (entityType.getProperties() != null) {
+            for (CsdlProperty prop : entityType.getProperties()) {
+                if (propertyName.equals(prop.getName())) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check navigation properties
+        if (entityType.getNavigationProperties() != null) {
+            for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
+                if (propertyName.equals(navProp.getName())) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
     
     /**

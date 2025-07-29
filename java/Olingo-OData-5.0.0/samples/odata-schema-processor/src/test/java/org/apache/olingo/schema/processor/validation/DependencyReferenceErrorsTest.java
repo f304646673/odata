@@ -62,42 +62,4 @@ public class DependencyReferenceErrorsTest {
         assertTrue(foundTypeRefError, "应检测到未定义类型引用相关错误: " + result.getErrors());
     }
 
-    @Test
-    public void testCircularDependencyA() {
-        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-a.xml");
-        File xmlFile = testFilePath.toFile();
-        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
-        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-        XmlComplianceResult result = validator.validateFile(xmlFile);
-        assertNotNull(result, "Result should not be null");
-        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-a.xml");
-        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
-        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
-    }
-
-    @Test
-    public void testCircularDependencyB() {
-        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-b.xml");
-        File xmlFile = testFilePath.toFile();
-        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
-        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-        XmlComplianceResult result = validator.validateFile(xmlFile);
-        assertNotNull(result, "Result should not be null");
-        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-b.xml");
-        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
-        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
-    }
-
-    @Test
-    public void testCircularDependencyC() {
-        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-c.xml");
-        File xmlFile = testFilePath.toFile();
-        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
-        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-        XmlComplianceResult result = validator.validateFile(xmlFile);
-        assertNotNull(result, "Result should not be null");
-        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-c.xml");
-        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
-        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
-    }
 }

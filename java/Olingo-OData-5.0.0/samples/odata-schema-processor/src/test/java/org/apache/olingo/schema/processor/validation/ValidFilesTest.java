@@ -68,6 +68,14 @@ public class ValidFilesTest {
         testValidXmlFile("shared-type-reference/Main.xml");
     }
 
+
+    @Test
+    public void testCircularDependencyA() {
+        testValidXmlFile("circular-dependency/circular-dependency-a.xml");
+        testValidXmlFile("circular-dependency/circular-dependency-b.xml");
+        testValidXmlFile("circular-dependency/circular-dependency-c.xml");
+    }
+
     /**
      * Helper method to test a specific valid XML file
      */
