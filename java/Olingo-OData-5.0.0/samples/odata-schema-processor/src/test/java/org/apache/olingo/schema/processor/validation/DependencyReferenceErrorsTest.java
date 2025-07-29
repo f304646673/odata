@@ -25,57 +25,79 @@ public class DependencyReferenceErrorsTest {
 
     @Test
     public void testMissingExternalNamespace() {
-        testErrorXmlFile("missing-external-namespace.xml");
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "missing-external-namespace.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: missing-external-namespace.xml");
+        boolean foundNamespaceError = result.getErrors().stream().anyMatch(e -> e.contains("missing external namespace") || e.contains("未找到外部命名空间") || e.contains("external namespace"));
+        assertTrue(foundNamespaceError, "应检测到缺少外部命名空间相关错误: " + result.getErrors());
     }
 
     @Test
     public void testMissingFileReference() {
-        testErrorXmlFile("missing-file-reference.xml");
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "missing-file-reference.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: missing-file-reference.xml");
+        boolean foundFileRefError = result.getErrors().stream().anyMatch(e -> e.contains("missing file reference") || e.contains("未找到文件引用") || e.contains("file reference"));
+        assertTrue(foundFileRefError, "应检测到缺少文件引用相关错误: " + result.getErrors());
     }
 
     @Test
     public void testUndefinedTypeReferences() {
-        testErrorXmlFile("undefined-type-references.xml");
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "undefined-type-references.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: undefined-type-references.xml");
+        boolean foundTypeRefError = result.getErrors().stream().anyMatch(e -> e.contains("undefined type") || e.contains("未定义类型") || e.contains("type reference"));
+        assertTrue(foundTypeRefError, "应检测到未定义类型引用相关错误: " + result.getErrors());
     }
 
     @Test
-    public void testCircularDependency() {
-        testErrorXmlFile("circular-dependency/circular-dependency-a.xml");
-        testErrorXmlFile("circular-dependency/circular-dependency-b.xml");
-        testErrorXmlFile("circular-dependency/circular-dependency-c.xml");
-    }
-
-    /**
-     * Helper method to test a specific error XML file
-     */
-    private void testErrorXmlFile(String fileName) {
-        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, fileName);
+    public void testCircularDependencyA() {
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-a.xml");
         File xmlFile = testFilePath.toFile();
-
         assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
         assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-
         XmlComplianceResult result = validator.validateFile(xmlFile);
-
         assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-a.xml");
+        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
+        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
+    }
 
-        // Log the result for debugging
-        System.out.println("Testing dependency reference error file: " + fileName);
-        System.out.println("  Compliant: " + result.isCompliant());
-        System.out.println("  Errors: " + result.getErrorCount());
-        System.out.println("  Warnings: " + result.getWarningCount());
+    @Test
+    public void testCircularDependencyB() {
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-b.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-b.xml");
+        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
+        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
+    }
 
-        if (result.hasErrors()) {
-            System.out.println("  Error details: " + result.getErrors());
-        }
-
-        // For dependency reference error files, we expect them to have errors or be non-compliant
-        // However, we don't strictly assert this since some files might be valid despite being in the error directory
-        if (result.isCompliant() && result.getErrorCount() == 0) {
-            System.out.println("INFO: Dependency reference error file was actually valid: " + fileName);
-        }
-
-        // At minimum, the validation should complete without throwing exceptions
-        assertNotNull(result, "Validation should complete successfully");
+    @Test
+    public void testCircularDependencyC() {
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "circular-dependency/circular-dependency-c.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Dependency reference error file should have errors: circular-dependency-c.xml");
+        boolean foundCircularError = result.getErrors().stream().anyMatch(e -> e.contains("circular dependency") || e.contains("循环依赖") || e.contains("dependency loop"));
+        assertTrue(foundCircularError, "应检测到循环依赖相关错误: " + result.getErrors());
     }
 }

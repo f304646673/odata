@@ -25,52 +25,71 @@ public class ElementDefinitionErrorsTest {
 
     @Test
     public void testDuplicateEntityType() {
-        testElementDefinitionError("duplicate-entity-type.xml");
+        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, "duplicate-entity-type.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: duplicate-entity-type.xml");
+        assertTrue(result.hasErrors(), "Element definition error file should have errors: duplicate-entity-type.xml");
+        boolean foundDuplicateEntity = result.getErrors().stream().anyMatch(e -> e.contains("duplicate entity") || e.contains("already defined") || e.contains("实体类型重复"));
+        assertTrue(foundDuplicateEntity, "应检测到实体类型重复相关错误: " + result.getErrors());
     }
 
     @Test
     public void testInvalidEntityContainer() {
-        testElementDefinitionError("invalid-entity-container.xml");
+        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, "invalid-entity-container.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: invalid-entity-container.xml");
+        assertTrue(result.hasErrors(), "Element definition error file should have errors: invalid-entity-container.xml");
+        boolean foundInvalidContainer = result.getErrors().stream().anyMatch(e -> e.contains("invalid entity container") || e.contains("EntityContainer") || e.contains("实体容器无效"));
+        assertTrue(foundInvalidContainer, "应检测到实体容器相关错误: " + result.getErrors());
     }
 
     @Test
     public void testInvalidPropertyDefinition() {
-        testElementDefinitionError("invalid-property-definition.xml");
+        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, "invalid-property-definition.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: invalid-property-definition.xml");
+        assertTrue(result.hasErrors(), "Element definition error file should have errors: invalid-property-definition.xml");
+        boolean foundInvalidProperty = result.getErrors().stream().anyMatch(e -> e.contains("invalid property") || e.contains("Property definition") || e.contains("属性定义无效"));
+        assertTrue(foundInvalidProperty, "应检测到属性定义相关错误: " + result.getErrors());
     }
 
     @Test
     public void testMissingEntitySet() {
-        testElementDefinitionError("missing-entity-set.xml");
+        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, "missing-entity-set.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: missing-entity-set.xml");
+        assertTrue(result.hasErrors(), "Element definition error file should have errors: missing-entity-set.xml");
+        boolean foundMissingEntitySet = result.getErrors().stream().anyMatch(e -> e.contains("missing entity set") || e.contains("EntitySet is required") || e.contains("缺少实体集"));
+        assertTrue(foundMissingEntitySet, "应检测到缺少实体集相关错误: " + result.getErrors());
     }
 
     @Test
     public void testInvalidComplexType() {
-        testElementDefinitionError("invalid-complex-type.xml");
-    }
-
-    /**
-     * Helper method to test a specific element definition error file
-     */
-    private void testElementDefinitionError(String fileName) {
-        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, fileName);
+        Path testFilePath = Paths.get(ELEMENT_DEFINITION_ERRORS_DIR, "invalid-complex-type.xml");
         File xmlFile = testFilePath.toFile();
-
         assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
         assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-
         XmlComplianceResult result = validator.validateFile(xmlFile);
-
         assertNotNull(result, "Result should not be null");
-
-        // Log the result for debugging
-        System.out.println("Validated: " + fileName + " - Compliant: " + result.isCompliant() +
-                          " - Errors: " + result.getErrorCount() + " - Warnings: " + result.getWarningCount());
-        if (!result.getErrors().isEmpty()) {
-            System.out.println("  Errors: " + result.getErrors());
-        }
-
-        // Element definition error files should NOT be compliant
-        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: " + fileName);
-        assertTrue(result.hasErrors(), "Element definition error file should have errors: " + fileName);
+        assertFalse(result.isCompliant(), "Element definition error file should not be compliant: invalid-complex-type.xml");
+        assertTrue(result.hasErrors(), "Element definition error file should have errors: invalid-complex-type.xml");
+        boolean foundInvalidComplexType = result.getErrors().stream().anyMatch(e -> e.contains("invalid complex type") || e.contains("ComplexType") || e.contains("复杂类型无效"));
+        assertTrue(foundInvalidComplexType, "应检测到复杂类型相关错误: " + result.getErrors());
     }
 }

@@ -25,45 +25,27 @@ public class AnnotationErrorsTest {
 
     @Test
     public void testInvalidAnnotationTargets() {
-        testErrorXmlFile("invalid-annotation-targets.xml");
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "invalid-annotation-targets.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Annotation error file should have errors: invalid-annotation-targets.xml");
+        boolean foundTargetError = result.getErrors().stream().anyMatch(e -> e.contains("invalid target") || e.contains("Annotation target") || e.contains("目标无效"));
+        assertTrue(foundTargetError, "应检测到注解目标相关错误: " + result.getErrors());
     }
 
     @Test
     public void testUndefinedAnnotationTerms() {
-        testErrorXmlFile("undefined-annotation-terms.xml");
-    }
-
-    /**
-     * Helper method to test a specific error XML file
-     */
-    private void testErrorXmlFile(String fileName) {
-        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, fileName);
+        Path testFilePath = Paths.get(ERROR_SCHEMAS_DIR, "undefined-annotation-terms.xml");
         File xmlFile = testFilePath.toFile();
-
         assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
         assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
-
         XmlComplianceResult result = validator.validateFile(xmlFile);
-
         assertNotNull(result, "Result should not be null");
-
-        // Log the result for debugging
-        System.out.println("Testing annotation error file: " + fileName);
-        System.out.println("  Compliant: " + result.isCompliant());
-        System.out.println("  Errors: " + result.getErrorCount());
-        System.out.println("  Warnings: " + result.getWarningCount());
-
-        if (result.hasErrors()) {
-            System.out.println("  Error details: " + result.getErrors());
-        }
-
-        // For annotation error files, we expect them to have errors or be non-compliant
-        // However, we don't strictly assert this since some files might be valid despite being in the error directory
-        if (result.isCompliant() && result.getErrorCount() == 0) {
-            System.out.println("INFO: Annotation error file was actually valid: " + fileName);
-        }
-
-        // At minimum, the validation should complete without throwing exceptions
-        assertNotNull(result, "Validation should complete successfully");
+        assertTrue(result.hasErrors(), "Annotation error file should have errors: undefined-annotation-terms.xml");
+        boolean foundTermError = result.getErrors().stream().anyMatch(e -> e.contains("undefined term") || e.contains("未定义的术语") || e.contains("Annotation term"));
+        assertTrue(foundTermError, "应检测到注解术语相关错误: " + result.getErrors());
     }
 }

@@ -138,6 +138,9 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 errors.add("No valid schemas found in the XML file");
             }
 
+            // Global duplicate check across all schemas
+            checkGlobalSchemaDuplicates(xmlPath, errors);
+
             long validationTime = System.currentTimeMillis() - startTime;
             metadata.put("validationTimeMs", validationTime);
 
@@ -223,6 +226,10 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
                 errors.add("No valid schemas found in the XML file");
             }
 
+            // Global duplicate check across all schemas - for InputStream we skip this
+            // since we don't have file path context for reference resolution
+            // checkGlobalSchemaDuplicates(edmProvider, errors); // Removed - only works with file paths
+
             long validationTime = System.currentTimeMillis() - startTime;
             metadata.put("validationTimeMs", validationTime);
 
@@ -256,6 +263,9 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
             errors.add("Invalid namespace format: " + namespace);
         }
         
+        // Note: We'll check cross-schema duplicates after all schemas are processed
+        // checkSchemaDuplicates(schema, errors); // Removed - will be done globally
+
         // Validate entity types
         if (schema.getEntityTypes() != null) {
             for (CsdlEntityType entityType : schema.getEntityTypes()) {
@@ -279,16 +289,299 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     }
 
     /**
+     * Check for duplicate schema elements across ALL schemas BEFORE Olingo processing
+     * This addresses the core issue where Olingo uses "override" mode and hides conflicts
+     */
+    private void checkGlobalSchemaDuplicates(Path xmlPath, List<String> errors) {
+        try {
+            // Parse main file and all referenced files manually to detect conflicts
+            Map<String, List<String>> allSchemaDefinitions = new HashMap<>();
+            Set<Path> processedFiles = new HashSet<>();
+
+            // Recursively collect all schema definitions
+            collectSchemaDefinitions(xmlPath, allSchemaDefinitions, processedFiles, xmlPath.getParent());
+
+            // Check for conflicts
+            checkElementConflicts(allSchemaDefinitions, errors);
+
+        } catch (Exception e) {
+            logger.warn("Failed to perform pre-parse duplicate check: {}", e.getMessage());
+            // Don't fail validation, just log the issue
+        }
+    }
+
+    /**
+     * Recursively collect schema definitions from XML files before Olingo processing
+     */
+    private void collectSchemaDefinitions(Path xmlPath, Map<String, List<String>> allDefinitions,
+                                        Set<Path> processedFiles, Path baseDir) {
+        if (processedFiles.contains(xmlPath.normalize())) {
+            return; // Avoid circular references
+        }
+        processedFiles.add(xmlPath.normalize());
+
+        try {
+            if (!Files.exists(xmlPath)) {
+                return;
+            }
+
+            String xmlContent = new String(Files.readAllBytes(xmlPath), StandardCharsets.UTF_8);
+            String sourceInfo = "File: " + xmlPath.getFileName();
+
+            // Parse XML content manually to extract schema definitions
+            parseSchemaDefinitions(xmlContent, sourceInfo, allDefinitions);
+
+            // Find and process references
+            List<String> references = extractReferences(xmlContent);
+            for (String refUri : references) {
+                try {
+                    Path refPath = resolveReference(refUri, baseDir);
+                    if (refPath != null) {
+                        collectSchemaDefinitions(refPath, allDefinitions, processedFiles, baseDir);
+                    }
+                } catch (Exception e) {
+                    logger.debug("Failed to resolve reference: {}", refUri, e);
+                }
+            }
+
+        } catch (Exception e) {
+            logger.debug("Failed to collect schema definitions from: {}", xmlPath, e);
+        }
+    }
+
+    /**
+     * Parse XML content manually to extract schema element definitions
+     */
+    private void parseSchemaDefinitions(String xmlContent, String sourceInfo, Map<String, List<String>> allDefinitions) {
+        try {
+            // Use simple regex patterns to extract schema elements (avoiding full XML parsing)
+            // This approach works because we only need to detect duplicates, not full validation
+
+            // Extract namespace from Schema element
+            String namespacePattern = "<Schema[^>]*Namespace\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>";
+            java.util.regex.Pattern schemaPattern = java.util.regex.Pattern.compile(namespacePattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+            java.util.regex.Matcher schemaMatcher = schemaPattern.matcher(xmlContent);
+
+            while (schemaMatcher.find()) {
+                String namespace = schemaMatcher.group(1);
+
+                // Find schema end to limit search scope
+                int schemaStart = schemaMatcher.start();
+                int schemaEnd = findSchemaEnd(xmlContent, schemaStart);
+                String schemaContent = xmlContent.substring(schemaStart, schemaEnd);
+
+                // Extract EntityTypes
+                extractElementDefinitions(schemaContent, "EntityType", namespace, sourceInfo, allDefinitions);
+
+                // Extract ComplexTypes
+                extractElementDefinitions(schemaContent, "ComplexType", namespace, sourceInfo, allDefinitions);
+
+                // Extract EnumTypes
+                extractElementDefinitions(schemaContent, "EnumType", namespace, sourceInfo, allDefinitions);
+
+                // Extract TypeDefinitions
+                extractElementDefinitions(schemaContent, "TypeDefinition", namespace, sourceInfo, allDefinitions);
+
+                // Extract Actions
+                extractElementDefinitions(schemaContent, "Action", namespace, sourceInfo, allDefinitions);
+
+                // Extract Functions
+                extractElementDefinitions(schemaContent, "Function", namespace, sourceInfo, allDefinitions);
+
+                // Extract EntityContainer elements
+                extractEntityContainerElements(schemaContent, namespace, sourceInfo, allDefinitions);
+            }
+
+        } catch (Exception e) {
+            logger.debug("Failed to parse schema definitions", e);
+        }
+    }
+
+    /**
+     * Extract element definitions using regex
+     */
+    private void extractElementDefinitions(String schemaContent, String elementType, String namespace,
+                                         String sourceInfo, Map<String, List<String>> allDefinitions) {
+        String pattern = "<" + elementType + "[^>]*Name\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>";
+        java.util.regex.Pattern elementPattern = java.util.regex.Pattern.compile(pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = elementPattern.matcher(schemaContent);
+
+        while (matcher.find()) {
+            String elementName = matcher.group(1);
+            String fullName = namespace + "." + elementName;
+            String key = elementType + ":" + fullName;
+
+            allDefinitions.computeIfAbsent(key, k -> new ArrayList<>()).add(sourceInfo);
+        }
+    }
+
+    /**
+     * Extract EntityContainer elements
+     */
+    private void extractEntityContainerElements(String schemaContent, String namespace, String sourceInfo,
+                                              Map<String, List<String>> allDefinitions) {
+        // Find EntityContainer
+        String containerPattern = "<EntityContainer[^>]*Name\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(containerPattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = pattern.matcher(schemaContent);
+
+        while (matcher.find()) {
+            String containerName = matcher.group(1);
+            int containerStart = matcher.start();
+            int containerEnd = findElementEnd(schemaContent, containerStart, "EntityContainer");
+            String containerContent = schemaContent.substring(containerStart, containerEnd);
+
+            // Extract EntitySets
+            extractContainerElements(containerContent, "EntitySet", namespace, containerName, sourceInfo, allDefinitions);
+
+            // Extract Singletons
+            extractContainerElements(containerContent, "Singleton", namespace, containerName, sourceInfo, allDefinitions);
+
+            // Extract ActionImports
+            extractContainerElements(containerContent, "ActionImport", namespace, containerName, sourceInfo, allDefinitions);
+
+            // Extract FunctionImports
+            extractContainerElements(containerContent, "FunctionImport", namespace, containerName, sourceInfo, allDefinitions);
+        }
+    }
+
+    /**
+     * Extract elements within EntityContainer
+     */
+    private void extractContainerElements(String containerContent, String elementType, String namespace,
+                                        String containerName, String sourceInfo, Map<String, List<String>> allDefinitions) {
+        String pattern = "<" + elementType + "[^>]*Name\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>";
+        java.util.regex.Pattern elementPattern = java.util.regex.Pattern.compile(pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = elementPattern.matcher(containerContent);
+
+        while (matcher.find()) {
+            String elementName = matcher.group(1);
+            String fullName = namespace + "." + containerName + "." + elementName;
+            String key = elementType + ":" + fullName;
+
+            allDefinitions.computeIfAbsent(key, k -> new ArrayList<>()).add(sourceInfo);
+        }
+    }
+
+    /**
+     * Find the end of a schema element
+     */
+    private int findSchemaEnd(String xmlContent, int schemaStart) {
+        int depth = 0;
+        boolean inTag = false;
+        boolean inQuote = false;
+        char quoteChar = 0;
+
+        for (int i = schemaStart; i < xmlContent.length(); i++) {
+            char c = xmlContent.charAt(i);
+
+            if (!inQuote) {
+                if (c == '"' || c == '\'') {
+                    inQuote = true;
+                    quoteChar = c;
+                } else if (c == '<') {
+                    inTag = true;
+                    if (i + 1 < xmlContent.length() && xmlContent.charAt(i + 1) == '/') {
+                        // Closing tag
+                        if (xmlContent.substring(i).startsWith("</Schema")) {
+                            if (depth == 0) {
+                                return Math.min(i + 9, xmlContent.length()); // Include </Schema>
+                            }
+                            depth--;
+                        }
+                    } else if (xmlContent.substring(i).startsWith("<Schema")) {
+                        depth++;
+                    }
+                } else if (c == '>' && inTag) {
+                    inTag = false;
+                }
+            } else if (c == quoteChar) {
+                inQuote = false;
+            }
+        }
+
+        return xmlContent.length();
+    }
+
+    /**
+     * Find the end of an element
+     */
+    private int findElementEnd(String content, int start, String elementName) {
+        // Simple implementation - find matching closing tag
+        String closingTag = "</" + elementName;
+        int pos = content.indexOf(closingTag, start);
+        if (pos != -1) {
+            return content.indexOf('>', pos) + 1;
+        }
+        return content.length();
+    }
+
+    /**
+     * Extract references from XML content
+     */
+    private List<String> extractReferences(String xmlContent) {
+        List<String> references = new ArrayList<>();
+
+        // Updated pattern to handle edmx:Reference (with namespace prefix)
+        String pattern = "<(?:edmx:)?Reference[^>]*Uri\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>";
+        java.util.regex.Pattern refPattern = java.util.regex.Pattern.compile(pattern, java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = refPattern.matcher(xmlContent);
+
+        while (matcher.find()) {
+            String uri = matcher.group(1);
+            references.add(uri);
+            logger.debug("Found reference: {}", uri);
+        }
+
+        return references;
+    }
+
+    /**
+     * Resolve reference URI to file path
+     */
+    private Path resolveReference(String refUri, Path baseDir) {
+        try {
+            URI uri = URI.create(refUri);
+            if (uri.isAbsolute()) {
+                return Paths.get(uri);
+            } else {
+                return baseDir.resolve(refUri).normalize();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Check for conflicts in collected definitions
+     */
+    private void checkElementConflicts(Map<String, List<String>> allDefinitions, List<String> errors) {
+        for (Map.Entry<String, List<String>> entry : allDefinitions.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                String key = entry.getKey();
+                List<String> sources = entry.getValue();
+
+                String[] parts = key.split(":", 2);
+                String elementType = parts[0];
+                String fullName = parts[1];
+
+                errors.add("Conflicting " + elementType + " name: " + fullName +
+                          " (defined in " + sources.size() + " locations: " +
+                          String.join(", ", sources) + ")");
+            }
+        }
+    }
+
+    /**
      * Validate OData namespace according to OData 4 naming rules.
+     * OData 4.0: Namespace = one or more dot-separated identifiers, each identifier must start with a letter or underscore, followed by letters, digits, or underscores.
+     * No leading/trailing dot, no consecutive dots, no special chars or spaces.
      */
     private boolean isValidODataNamespace(String namespace) {
         if (namespace == null || namespace.trim().isEmpty()) {
             return false;
         }
-
-        // Ensure it starts and ends with a valid character and does not contain consecutive dots
-        String namespacePattern = "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$";
-        return namespace.matches(namespacePattern);
+        return namespace.matches("^([A-Za-z_][A-Za-z0-9_]*)(\\.[A-Za-z_][A-Za-z0-9_]*)*$");
     }
 
     /**

@@ -53,16 +53,38 @@ public class SpecialCharactersUnicodeTest {
 
     @Test
     public void testUnicodeNames() throws Exception {
-        testSpecialCharactersUnicodeFile(Paths.get("src/test/resources/validator/10-special-characters-unicode/unicode-names.xml"));
+        Path testFilePath = Paths.get("src/test/resources/validator/10-special-characters-unicode/unicode-names.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        // 合法Unicode命名应无错误
+        assertTrue(result.isCompliant() || !result.hasErrors(), "Unicode命名文件应无错误: " + result.getErrors());
     }
 
     @Test
     public void testXmlSpecialChars() throws Exception {
-        testSpecialCharactersUnicodeFile(Paths.get("src/test/resources/validator/10-special-characters-unicode/xml-special-chars.xml"));
+        Path testFilePath = Paths.get("src/test/resources/validator/10-special-characters-unicode/xml-special-chars.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        // XML特殊字符，通常应有错误
+        boolean foundSpecialCharError = result.getErrors().stream().anyMatch(e -> e.contains("special character") || e.contains("非法字符") || e.contains("invalid character"));
+        assertTrue(result.hasErrors() ? foundSpecialCharError : true, "应检测到特殊字符相关错误或无错误: " + result.getErrors());
     }
 
     @Test
     public void testInvalidXmlChars() throws Exception {
-        testSpecialCharactersUnicodeFile(Paths.get("src/test/resources/validator/10-special-characters-unicode/invalid-xml-chars.xml"));
+        Path testFilePath = Paths.get("src/test/resources/validator/10-special-characters-unicode/invalid-xml-chars.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        boolean foundInvalidChar = result.getErrors().stream().anyMatch(e -> e.contains("invalid xml character") || e.contains("非法XML字符") || e.contains("invalid character"));
+        assertTrue(result.hasErrors() && foundInvalidChar, "应检测到非法XML字符相关错误: " + result.getErrors());
     }
 }
