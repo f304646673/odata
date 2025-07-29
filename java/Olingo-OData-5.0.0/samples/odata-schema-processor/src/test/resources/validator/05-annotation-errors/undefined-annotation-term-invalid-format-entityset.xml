@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidAnnotations" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="Products" EntityType="Test.InvalidAnnotations.Product">
+          <Annotation Term="Invalid.Term.Format!" String="EntitySet Annotation Invalid Term Format"/>
+        </EntitySet>
+      </EntityContainer>
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

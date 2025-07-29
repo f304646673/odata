@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidAnnotations" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <EntityContainer Name="DefaultContainer">
+        <FunctionImport Name="GetTopProduct" Function="Test.InvalidAnnotations.GetTopProduct">
+          <Annotation Term="Invalid.Term.Format!" String="FunctionImport Annotation Invalid Term Format"/>
+        </FunctionImport>
+      </EntityContainer>
+      <Function Name="GetTopProduct" IsBound="false">
+        <ReturnType Type="Test.InvalidAnnotations.Product"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

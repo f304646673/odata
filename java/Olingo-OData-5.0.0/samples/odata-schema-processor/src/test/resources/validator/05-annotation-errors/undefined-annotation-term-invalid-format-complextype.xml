@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidAnnotations" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String"/>
+        <!-- ComplexType级别 Annotation Term 格式错误，Annotation放在ComplexType内部 -->
+        <Annotation Term="Invalid.Term.Format!" String="ComplexType Annotation Invalid Term Format"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

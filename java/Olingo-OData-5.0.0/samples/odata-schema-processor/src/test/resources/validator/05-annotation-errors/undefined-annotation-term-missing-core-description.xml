@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidAnnotations" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+      </EntityType>
+      <!-- 在EntityType级别使用不存在的Term -->
+      <Annotations Target="Test.InvalidAnnotations.Product">
+        <Annotation Term="Missing.Core.Description" String="A product entity"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

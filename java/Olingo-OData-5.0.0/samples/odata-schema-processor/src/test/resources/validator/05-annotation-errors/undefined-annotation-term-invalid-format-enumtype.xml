@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidAnnotations" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EnumType Name="Color">
+        <Member Name="Red" Value="1"/>
+        <Member Name="Green" Value="2"/>
+        <!-- EnumType级别 Annotation Term 格式错误，Annotation放在EnumType内部 -->
+        <Annotation Term="Invalid.Term.Format!" String="EnumType Annotation Invalid Term Format"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+
