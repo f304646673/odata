@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 复杂的继承层次结构 -->
+      <ComplexType Name="BaseAddress">
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+      </ComplexType>
+
+      <ComplexType Name="HomeAddress" BaseType="TestService.BaseAddress">
+        <Property Name="HomeType" Type="Edm.String"/>
+      </ComplexType>
+
+      <ComplexType Name="WorkAddress" BaseType="TestService.BaseAddress">
+        <Property Name="CompanyName" Type="Edm.String"/>
+      </ComplexType>
+
+      <ComplexType Name="DetailedHomeAddress" BaseType="TestService.HomeAddress">
+        <Property Name="RoomNumber" Type="Edm.String"/>
+      </ComplexType>
+
+      <EntityType Name="Person">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityType Name="Employee" BaseType="TestService.Person">
+        <Property Name="EmployeeID" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityType Name="Manager" BaseType="TestService.Employee">
+        <Property Name="Department" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityType Name="Executive" BaseType="TestService.Manager">
+        <Property Name="Title" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityContainer Name="Container">
+        <EntitySet Name="People" EntityType="TestService.Person"/>
+        <EntitySet Name="Employees" EntityType="TestService.Employee"/>
+        <EntitySet Name="Managers" EntityType="TestService.Manager"/>
+        <EntitySet Name="Executives" EntityType="TestService.Executive"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

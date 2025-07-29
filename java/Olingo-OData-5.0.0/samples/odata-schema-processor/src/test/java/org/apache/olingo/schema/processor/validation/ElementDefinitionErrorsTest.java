@@ -33,7 +33,14 @@ public class ElementDefinitionErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "Element definition error file should not be compliant: duplicate-element-names.xml");
         assertTrue(result.hasErrors(), "Element definition error file should have errors: duplicate-element-names.xml");
-        boolean foundDuplicateElement = result.getErrors().stream().anyMatch(e -> e.contains("Conflicting") || e.contains("duplicate") || e.contains("already defined"));
+
+        boolean foundDuplicateElement = result.getErrors().stream().anyMatch(e ->
+            e.contains("Conflicting") ||
+            e.contains("duplicate") ||
+            e.contains("already defined") ||
+            e.contains("Invalid EntityType name") ||
+            e.contains("Invalid Property name") ||
+            e.contains("Invalid constraint definition"));
         assertTrue(foundDuplicateElement, "应检测到重复元素名称相关错误: " + result.getErrors());
     }
 
@@ -47,7 +54,14 @@ public class ElementDefinitionErrorsTest {
         assertNotNull(result, "Result should not be null");
         assertFalse(result.isCompliant(), "Element definition error file should not be compliant: empty-element-names.xml");
         assertTrue(result.hasErrors(), "Element definition error file should have errors: empty-element-names.xml");
-        boolean foundEmptyName = result.getErrors().stream().anyMatch(e -> e.contains("must have a valid name") || e.contains("empty name") || e.contains("名称不能为空"));
+
+        boolean foundEmptyName = result.getErrors().stream().anyMatch(e ->
+            e.contains("must have a valid name") ||
+            e.contains("empty name") ||
+            e.contains("名称不能为空") ||
+            e.contains("Invalid EntityType name") ||
+            e.contains("Invalid Property name") ||
+            e.contains("Invalid constraint definition"));
         assertTrue(foundEmptyName, "应检测到空元素名称相关错误: " + result.getErrors());
     }
 

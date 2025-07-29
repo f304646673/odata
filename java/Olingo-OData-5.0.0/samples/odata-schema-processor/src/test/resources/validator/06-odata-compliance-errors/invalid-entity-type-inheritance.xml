@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="BaseEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityType Name="DerivedEntity" BaseType="TestService.NonExistentBase">
+        <Property Name="DerivedProperty" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityContainer Name="Container">
+        <EntitySet Name="BaseEntities" EntityType="TestService.BaseEntity"/>
+        <EntitySet Name="DerivedEntities" EntityType="TestService.DerivedEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

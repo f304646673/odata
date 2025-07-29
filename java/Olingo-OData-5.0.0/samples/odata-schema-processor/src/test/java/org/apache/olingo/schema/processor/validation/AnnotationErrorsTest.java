@@ -32,7 +32,7 @@ public class AnnotationErrorsTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Annotation error file should have errors: invalid-annotation-target-nonexistent-entity.xml");
-        boolean foundTargetError = result.getErrors().stream().anyMatch(e -> e.contains("Annotation target references non-existent type"));
+        boolean foundTargetError = result.getErrors().stream().anyMatch(e -> e.contains("Annotation target does not exist"));
         assertTrue(foundTargetError, "应检测到注解目标相关错误: " + result.getErrors());
     }
 
@@ -71,7 +71,7 @@ public class AnnotationErrorsTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Annotation error file should have errors: invalid-annotation-target-wrong-namespace.xml");
-        boolean foundTargetError = result.getErrors().stream().anyMatch(e -> e.contains("Annotation target references non-existent type"));
+        boolean foundTargetError = result.getErrors().stream().anyMatch(e -> e.contains("Annotation target does not exist"));
         assertTrue(foundTargetError, "应检测到注解目标相关错误: " + result.getErrors());
     }
 
