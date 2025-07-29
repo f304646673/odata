@@ -12,8 +12,9 @@
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-        <!-- 尝试通过实体引用读取敏感文件 -->
+        <!-- 引用了实体 "xxe", 但未声明它 -->
         <Property Name="Name" Type="Edm.String" DefaultValue="&xxe;"/>
+        <!-- 引用了实体 "xxe2", 但未声明它 -->
         <Property Name="ExternalData" Type="Edm.String" DefaultValue="&xxe2;"/>
       </EntityType>
     </Schema>

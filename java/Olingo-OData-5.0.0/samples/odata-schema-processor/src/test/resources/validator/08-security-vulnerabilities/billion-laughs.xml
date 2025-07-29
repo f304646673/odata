@@ -19,7 +19,7 @@
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-        <!-- 包含会导致指数级内存消耗的实体引用 -->
+        <!-- 引用了实体 "lol9", 但未声明它 -->
         <Property Name="Description" Type="Edm.String" DefaultValue="&lol9;"/>
       </EntityType>
     </Schema>

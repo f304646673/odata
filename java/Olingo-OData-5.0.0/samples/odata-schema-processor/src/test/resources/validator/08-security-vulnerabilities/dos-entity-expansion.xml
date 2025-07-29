@@ -14,7 +14,7 @@
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-        <!-- DoS Entity Expansion Attack -->
+        <!-- 引用了实体 "e", 但未声明它 -->
         <Property Name="Name" Type="Edm.String" DefaultValue="&e;"/>
       </EntityType>
 

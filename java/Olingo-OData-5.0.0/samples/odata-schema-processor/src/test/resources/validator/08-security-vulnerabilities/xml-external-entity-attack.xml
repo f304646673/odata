@@ -10,7 +10,7 @@
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-        <!-- XXE Attack attempt -->
+        <!-- 引用了实体 "xxe", 但未声明它 -->
         <Property Name="Name" Type="Edm.String" DefaultValue="&xxe;"/>
       </EntityType>
 

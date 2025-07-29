@@ -11,6 +11,7 @@
           <PropertyRef Name="ID"/>
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- 引用了实体 "malicious", 但未声明它 -->
         <Property Name="Name" Type="Edm.String" DefaultValue="&malicious;"/>
       </EntityType>
 
