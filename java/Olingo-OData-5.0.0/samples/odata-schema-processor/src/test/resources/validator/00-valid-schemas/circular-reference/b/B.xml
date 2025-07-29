@@ -6,6 +6,9 @@
   <edmx:DataServices>
     <Schema Namespace="B.Types">
       <EntityType Name="Beta">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
         <Property Name="Alpha" Type="A.Types.Alpha" />
       </EntityType>
     </Schema>

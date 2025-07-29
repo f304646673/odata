@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
@@ -32,19 +33,6 @@ public class SchemaReferenceValidator {
     
     // 匹配namespace.TypeName格式的正则表达式
     private static final Pattern NAMESPACE_TYPE_PATTERN = Pattern.compile("^([A-Za-z0-9_\\.]+)\\.([A-Za-z0-9_]+)$");
-    
-    // EDM内置类型
-    private static final Set<String> EDM_BUILT_IN_TYPES = new HashSet<>(Arrays.asList(
-        "Edm.String", "Edm.Int32", "Edm.Int64", "Edm.Boolean", "Edm.Decimal", 
-        "Edm.Double", "Edm.Single", "Edm.Guid", "Edm.DateTimeOffset", "Edm.Date",
-        "Edm.TimeOfDay", "Edm.Duration", "Edm.Binary", "Edm.Byte", "Edm.SByte",
-        "Edm.Int16", "Edm.Stream", "Edm.Geography", "Edm.GeographyPoint",
-        "Edm.GeographyLineString", "Edm.GeographyPolygon", "Edm.GeographyMultiPoint",
-        "Edm.GeographyMultiLineString", "Edm.GeographyMultiPolygon", "Edm.GeographyCollection",
-        "Edm.Geometry", "Edm.GeometryPoint", "Edm.GeometryLineString", "Edm.GeometryPolygon",
-        "Edm.GeometryMultiPoint", "Edm.GeometryMultiLineString", "Edm.GeometryMultiPolygon",
-        "Edm.GeometryCollection"
-    ));
     
     /**
      * 验证结果
@@ -202,6 +190,23 @@ public class SchemaReferenceValidator {
     }
     
     /**
+     * EDM内置类型判断，使用Olingo官方定义
+     */
+    private static boolean isEdmBuiltInType(String typeName) {
+        if (typeName == null) return false;
+        String actualType = typeName;
+        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
+            actualType = typeName.substring(11, typeName.length() - 1);
+        }
+        try {
+            EdmPrimitiveTypeKind.valueOfFQN(actualType);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    /**
      * 检查类型引用
      */
     private void checkTypeReference(String typeReference, String currentNamespace, 
@@ -209,9 +214,8 @@ public class SchemaReferenceValidator {
         if (typeReference == null || typeReference.trim().isEmpty()) {
             return;
         }
-        
-        // 跳过EDM内置类型
-        if (EDM_BUILT_IN_TYPES.contains(typeReference)) {
+        // 跳过EDM内置类型（使用Olingo官方判断）
+        if (isEdmBuiltInType(typeReference)) {
             return;
         }
         

@@ -6,6 +6,9 @@
   <edmx:DataServices>
     <Schema Namespace="Main.Entities">
       <EntityType Name="Location">
+        <Key>
+          <PropertyRef Name="LocationID"/>
+        </Key>
         <Property Name="Point" Type="Shared.Types.GeoPoint" />
       </EntityType>
     </Schema>

@@ -434,12 +434,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
         <configuration>
-          <release>${project.build.release.version}</release>
-          <showWarnings>true</showWarnings>
-          <showDeprecation>true</showDeprecation>
-          <compilerArgument>-Xlint:unchecked</compilerArgument>
-          <encoding>${project.build.sourceEncoding}</encoding>
+          <release>8</release>
+          <compilerArgs>
+            <arg>-Xlint:-options</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>

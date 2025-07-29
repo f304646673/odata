@@ -3,7 +3,9 @@
   <edmx:DataServices>
     <Schema Namespace="Base.Entities">
       <EntityType Name="BaseEntity">
-        <Property Name="Id" Type="Edm.Guid" Nullable="false" />
+        <Key>
+          <Property Name="Id" Type="Edm.Guid" Nullable="false" />
+        </Key>
       </EntityType>
     </Schema>
   </edmx:DataServices>

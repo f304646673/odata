@@ -6,6 +6,9 @@
   <edmx:DataServices>
     <Schema Namespace="Business.Entities">
       <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerID"/>
+        </Key>
         <Property Name="Name" Type="Edm.String" />
         <Property Name="Address" Type="Common.Types.Address" />
       </EntityType>
