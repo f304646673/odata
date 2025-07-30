@@ -32,6 +32,9 @@ public class SchemaConflictDetector {
     // Maps (namespace, elementName) to element definitions
     private final Map<ElementKey, List<ElementInfo>> elementToDefinitions = new HashMap<>();
     
+    // Maps (elementKey, termName) to annotation values
+    private final Map<AnnotationKey, List<AnnotationInfo>> annotationToValues = new HashMap<>();
+
     /**
      * Container for schema information
      */
@@ -95,6 +98,60 @@ public class SchemaConflictDetector {
         }
     }
     
+    /**
+     * Container for annotation information
+     */
+    private static class AnnotationInfo {
+        final String termName;
+        final String value;
+        final String fileName;
+        final String targetElement;
+        final String targetNamespace;
+
+        AnnotationInfo(String termName, String value, String fileName, String targetElement, String targetNamespace) {
+            this.termName = termName;
+            this.value = value;
+            this.fileName = fileName;
+            this.targetElement = targetElement;
+            this.targetNamespace = targetNamespace;
+        }
+    }
+
+    /**
+     * Key for identifying unique annotation targets and terms
+     */
+    private static class AnnotationKey {
+        final String namespace;
+        final String elementName;
+        final String termName;
+
+        AnnotationKey(String namespace, String elementName, String termName) {
+            this.namespace = namespace;
+            this.elementName = elementName;
+            this.termName = termName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AnnotationKey that = (AnnotationKey) o;
+            return Objects.equals(namespace, that.namespace) &&
+                   Objects.equals(elementName, that.elementName) &&
+                   Objects.equals(termName, that.termName);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(namespace, elementName, termName);
+        }
+
+        @Override
+        public String toString() {
+            return namespace + "." + elementName + "@" + termName;
+        }
+    }
+
     /**
      * Add a schema for conflict detection analysis
      * 
@@ -212,20 +269,118 @@ public class SchemaConflictDetector {
                 addElement(namespace, term.getName(), "Term", term, fileName);
             }
         }
+
+        // Analyze annotations on schema elements
+        analyzeAnnotations(schema, fileName, namespace);
     }
     
     /**
-     * Add an element to tracking maps
+     * Analyze annotations on all elements in a schema
      */
-    private void addElement(String namespace, String elementName, String elementType, Object definition, String fileName) {
-        ElementKey key = new ElementKey(namespace, elementName);
-        
-        // Track element to files mapping
-        elementToFiles.computeIfAbsent(key, k -> new HashSet<>()).add(fileName);
-        
-        // Track element to definitions mapping
-        elementToDefinitions.computeIfAbsent(key, k -> new ArrayList<>())
-                           .add(new ElementInfo(elementName, elementType, definition, fileName, namespace));
+    private void analyzeAnnotations(CsdlSchema schema, String fileName, String namespace) {
+        // Entity Types
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                analyzeElementAnnotations(entityType.getAnnotations(), namespace, entityType.getName(), fileName);
+            }
+        }
+
+        // Complex Types
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                analyzeElementAnnotations(complexType.getAnnotations(), namespace, complexType.getName(), fileName);
+            }
+        }
+
+        // Enum Types
+        if (schema.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : schema.getEnumTypes()) {
+                analyzeElementAnnotations(enumType.getAnnotations(), namespace, enumType.getName(), fileName);
+            }
+        }
+
+        // Entity Container
+        if (schema.getEntityContainer() != null) {
+            CsdlEntityContainer container = schema.getEntityContainer();
+            analyzeElementAnnotations(container.getAnnotations(), namespace, container.getName(), fileName);
+
+            // Entity Sets
+            if (container.getEntitySets() != null) {
+                for (CsdlEntitySet entitySet : container.getEntitySets()) {
+                    analyzeElementAnnotations(entitySet.getAnnotations(), namespace, entitySet.getName(), fileName);
+                }
+            }
+
+            // Singletons
+            if (container.getSingletons() != null) {
+                for (CsdlSingleton singleton : container.getSingletons()) {
+                    analyzeElementAnnotations(singleton.getAnnotations(), namespace, singleton.getName(), fileName);
+                }
+            }
+        }
+
+        // Functions
+        if (schema.getFunctions() != null) {
+            for (CsdlFunction function : schema.getFunctions()) {
+                String functionKey = createFunctionKey(function);
+                analyzeElementAnnotations(function.getAnnotations(), namespace, functionKey, fileName);
+            }
+        }
+
+        // Actions
+        if (schema.getActions() != null) {
+            for (CsdlAction action : schema.getActions()) {
+                String actionKey = createActionKey(action);
+                analyzeElementAnnotations(action.getAnnotations(), namespace, actionKey, fileName);
+            }
+        }
+
+        // Terms
+        if (schema.getTerms() != null) {
+            for (CsdlTerm term : schema.getTerms()) {
+                analyzeElementAnnotations(term.getAnnotations(), namespace, term.getName(), fileName);
+            }
+        }
+    }
+
+    /**
+     * Analyze annotations on a specific element
+     */
+    private void analyzeElementAnnotations(List<CsdlAnnotation> annotations, String namespace, String elementName, String fileName) {
+        if (annotations == null || annotations.isEmpty()) {
+            return;
+        }
+
+        for (CsdlAnnotation annotation : annotations) {
+            String termName = annotation.getTerm();
+            String value = getAnnotationValue(annotation);
+
+            if (termName != null && value != null) {
+                AnnotationKey key = new AnnotationKey(namespace, elementName, termName);
+                annotationToValues.computeIfAbsent(key, k -> new ArrayList<>())
+                                 .add(new AnnotationInfo(termName, value, fileName, elementName, namespace));
+            }
+        }
+    }
+
+    /**
+     * Extract the value from an annotation (simplified version)
+     */
+    private String getAnnotationValue(CsdlAnnotation annotation) {
+        // CsdlAnnotation in Olingo 5.0 uses different method names
+        // Try to get the expression and convert to string
+        if (annotation.getExpression() != null) {
+            // For simple string values
+            if (annotation.getExpression() instanceof CsdlConstantExpression) {
+                CsdlConstantExpression constantExpr = (CsdlConstantExpression) annotation.getExpression();
+                return constantExpr.getValue();
+            }
+            // For other expression types, return a simplified representation
+            return annotation.getExpression().toString();
+        }
+
+        // Fallback - just return the term name if no expression value is available
+        return annotation.getTerm();
     }
     
     /**
@@ -279,6 +434,50 @@ public class SchemaConflictDetector {
         // Check for incompatible definitions
         conflicts.addAll(detectIncompatibleDefinitions());
         
+        // Check for annotation conflicts
+        conflicts.addAll(detectAnnotationConflicts());
+
+        return conflicts;
+    }
+
+    /**
+     * Detect annotation conflicts
+     * Rule: Same term on same element should not have conflicting values
+     */
+    private List<SchemaConflict> detectAnnotationConflicts() {
+        List<SchemaConflict> conflicts = new ArrayList<>();
+
+        for (Map.Entry<AnnotationKey, List<AnnotationInfo>> entry : annotationToValues.entrySet()) {
+            AnnotationKey key = entry.getKey();
+            List<AnnotationInfo> annotations = entry.getValue();
+
+            if (annotations.size() > 1) {
+                // Check if all annotations have the same value
+                Set<String> uniqueValues = annotations.stream()
+                                                    .map(info -> info.value)
+                                                    .collect(Collectors.toSet());
+
+                if (uniqueValues.size() > 1) {
+                    // Found conflicting annotation values
+                    List<String> files = annotations.stream()
+                                                   .map(info -> info.fileName)
+                                                   .distinct()
+                                                   .collect(Collectors.toList());
+
+                    String details = String.format("Conflicting annotation values for term '%s' on element '%s.%s': %s",
+                                                  key.termName,
+                                                  key.namespace,
+                                                  key.elementName,
+                                                  annotations.stream()
+                                                           .map(info -> String.format("'%s' in %s", info.value, info.fileName))
+                                                           .collect(Collectors.joining(", ")));
+
+                    conflicts.add(SchemaConflict.annotationConflict(key.namespace, key.elementName,
+                                                                  key.termName, files, details));
+                }
+            }
+        }
+
         return conflicts;
     }
     
@@ -413,5 +612,20 @@ public class SchemaConflictDetector {
         namespaceToSchemas.clear();
         elementToFiles.clear();
         elementToDefinitions.clear();
+        annotationToValues.clear();
+    }
+
+    /**
+     * Add an element to tracking maps
+     */
+    private void addElement(String namespace, String elementName, String elementType, Object definition, String fileName) {
+        ElementKey key = new ElementKey(namespace, elementName);
+
+        // Track element to files mapping
+        elementToFiles.computeIfAbsent(key, k -> new HashSet<>()).add(fileName);
+
+        // Track element to definitions mapping
+        elementToDefinitions.computeIfAbsent(key, k -> new ArrayList<>())
+                           .add(new ElementInfo(elementName, elementType, definition, fileName, namespace));
     }
 }

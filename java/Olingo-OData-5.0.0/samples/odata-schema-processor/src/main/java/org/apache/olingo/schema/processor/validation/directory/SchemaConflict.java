@@ -21,7 +21,9 @@ public class SchemaConflict {
         /** Circular reference between schemas */
         CIRCULAR_REFERENCE,
         /** Missing required reference */
-        MISSING_REFERENCE
+        MISSING_REFERENCE,
+        /** Conflicting annotation values on the same element */
+        ANNOTATION_CONFLICT
     }
     
     private final ConflictType type;
@@ -183,5 +185,16 @@ public class SchemaConflict {
                                          elementName, namespace);
         return new SchemaConflict(ConflictType.MISSING_REFERENCE, namespace, elementName,
                                 affectedFiles, description, details);
+    }
+
+    /**
+     * Create an annotation conflict
+     */
+    public static SchemaConflict annotationConflict(String namespace, String elementName, String termName,
+                                                   List<String> conflictingFiles, String details) {
+        String description = String.format("Conflicting annotation values for term '%s' on element '%s' in namespace '%s'",
+                                         termName, elementName, namespace);
+        return new SchemaConflict(ConflictType.ANNOTATION_CONFLICT, namespace, elementName,
+                                conflictingFiles, description, details);
     }
 }

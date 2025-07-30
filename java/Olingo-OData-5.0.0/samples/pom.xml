@@ -36,6 +36,8 @@
 
   <modules>
     <module>server</module>
+    <module>odata-schema-processor</module>
+    <module>odata-xml-validator</module>
     <module>spring-boot-odata-xml</module>
     <module>spring-boot-odata-xml-split</module>
     <module>spring-boot-odata-xml-import</module>

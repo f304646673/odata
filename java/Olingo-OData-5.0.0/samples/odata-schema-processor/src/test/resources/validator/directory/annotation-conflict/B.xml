@@ -2,12 +2,14 @@
 <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
   <edmx:DataServices>
     <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="AnnoConflict">
-      <EntityType Name="E1">
+      <!-- 重复定义同一个 EntityType，但使用不同的 Annotation 值 -->
+      <EntityType Name="Product">
         <Key><PropertyRef Name="ID"/></Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-        <Annotation Term="My.Term" String="B"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- 在同一个 EntityType 上应用相同 Term 但不同值的 Annotation -->
+        <Annotation Term="AnnoConflict.Description" String="Product from file B"/>
       </EntityType>
     </Schema>
   </edmx:DataServices>
 </edmx:Edmx>
-
