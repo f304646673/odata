@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CircularA.xml - 循环依赖A -->
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="../B/circular-dependency-b.xml">
+    <edmx:Include Namespace="Test.CircularB" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.CircularA" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="EntityA">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- 引用CircularB的类型，形成循环依赖 -->
+        <Property Name="RelatedB" Type="Test.CircularB.EntityB"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
