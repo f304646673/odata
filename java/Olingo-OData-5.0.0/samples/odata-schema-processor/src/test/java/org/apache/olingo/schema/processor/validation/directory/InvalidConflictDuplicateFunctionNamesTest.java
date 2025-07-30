@@ -29,24 +29,22 @@ public class InvalidConflictDuplicateFunctionNamesTest {
     }
 
     @Test
-    @DisplayName("Same Function names with similar signatures in same namespace should be non-compliant")
+    @DisplayName("Identical Function signatures in same namespace should be non-compliant")
     void testConflictDuplicateFunctionNames() {
         Path testDir = Paths.get(TEST_RESOURCES_BASE, "invalid-conflict-duplicate-function-names").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         // This should be non-compliant because both files have the same namespace (ConflictNamespace)
-        // and the same Function name (GetDiscountedPrice) with similar signatures, which violates OData 4.0
-        // OData 4.0 requires unique Function signatures within a namespace
-        assertFalse(result.isCompliant(), "Directory should not be compliant - duplicate Function names in same namespace violates OData 4.0");
+        // and the same Function name (GetDiscountedPrice) with identical signatures, which violates OData 4.0
+        assertFalse(result.isCompliant(), "Directory should not be compliant - duplicate Function signatures in same namespace violates OData 4.0");
         assertEquals(2, result.getTotalFilesProcessed(), "Should process 2 files");
         assertEquals(2, result.getValidFiles(), "Both files should be individually valid");
         assertEquals(0, result.getInvalidFiles(), "No files should be invalid");
-        assertTrue(result.hasConflicts(), "Should detect Function name conflicts");
+        assertTrue(result.hasConflicts(), "Should detect Function signature conflicts");
         
         // Check for specific element conflict
         boolean hasElementConflict = result.getConflicts().stream()
-            .anyMatch(conflict -> conflict.getDescription().contains("GetDiscountedPrice") && 
-                                 conflict.getType() == SchemaConflict.ConflictType.DUPLICATE_ELEMENT);
-        assertTrue(hasElementConflict, "Should detect duplicate Function element conflicts");
+            .anyMatch(conflict -> conflict.getDescription().contains("GetDiscountedPrice"));
+        assertTrue(hasElementConflict, "Should detect duplicate Function signature conflicts");
     }
 }

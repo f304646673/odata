@@ -3,8 +3,8 @@
     <edmx:DataServices>
         <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ConflictNamespace">
             <Action Name="PromoteEmployee" IsBound="false">
-                <Parameter Name="employeeId" Type="Edm.Int32"/>
-                <Parameter Name="newPosition" Type="Edm.String"/>
+                <Parameter Name="newDepartment" Type="Edm.String"/>
+                <Parameter Name="effectiveDate" Type="Edm.DateTimeOffset"/>
             </Action>
         </Schema>
     </edmx:DataServices>

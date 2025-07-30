@@ -14,7 +14,7 @@
             <Action Name="PromoteEmployee" IsBound="false">
                 <Parameter Name="employeeId" Type="Edm.Int32"/>
                 <Parameter Name="newPosition" Type="Edm.String"/>
-                <Parameter Name="effectiveDate" Type="Edm.DateTimeOffset"/>
+                <Parameter Name="salary" Type="Edm.Decimal"/>
             </Action>
             
             <EntityContainer Name="Container2">
