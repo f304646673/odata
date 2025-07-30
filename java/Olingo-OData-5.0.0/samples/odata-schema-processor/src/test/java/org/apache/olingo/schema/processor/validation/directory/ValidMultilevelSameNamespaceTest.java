@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
  * but different entities, which is allowed in OData 4.0 specification.
  */
 @DisplayName("Multilevel Same Namespace Directory Test")
-public class MultilevelSameNamespaceTest {
+public class ValidMultilevelSameNamespaceTest {
 
     private DirectorySchemaValidator validator;
     private final String TEST_RESOURCES_BASE = "src/test/resources/validator/directory";
@@ -31,7 +31,7 @@ public class MultilevelSameNamespaceTest {
     @Test
     @DisplayName("Same namespace with different entities should be compliant")
     void testMultilevelSameNamespace() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "multilevel-same-namespace").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-multilevel-same-namespace").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         // This should now be compliant per OData 4.0 specification

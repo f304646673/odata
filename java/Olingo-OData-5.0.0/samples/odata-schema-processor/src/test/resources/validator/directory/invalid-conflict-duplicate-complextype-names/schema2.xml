@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ConflictNamespace">
+            <ComplexType Name="Address">
+                <Property Name="StreetLine1" Type="Edm.String" MaxLength="100"/>
+                <Property Name="StreetLine2" Type="Edm.String" MaxLength="100"/>
+                <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+                <Property Name="Region" Type="Edm.String" MaxLength="50"/>
+            </ComplexType>
+            
+            <EntityType Name="Supplier">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="CompanyName" Type="Edm.String" MaxLength="100"/>
+                <Property Name="BusinessAddress" Type="ConflictNamespace.Address"/>
+            </EntityType>
+            
+            <EntityContainer Name="Container2">
+                <EntitySet Name="Suppliers" EntityType="ConflictNamespace.Supplier"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

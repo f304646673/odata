@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="AnnoConflict">
+      <!-- 定义了同名 Term,单个文件没有问题，但是融合同名schema就是不合法的 -->
+      <Term Name="Description" Type="Edm.String"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

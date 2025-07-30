@@ -1,16 +1,15 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.directory.DirectorySchemaValidator;
-import org.apache.olingo.schema.processor.validation.directory.DirectoryValidationResult;
-import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for valid-separate-namespaces directory validation.
@@ -31,7 +30,7 @@ public class ValidSeparateNamespacesTest {
     @Test
     @DisplayName("Should be compliant with separate namespaces")
     void testValidSeparateNamespaces() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-separate-namespaces").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-valid-separate-namespaces").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         assertTrue(result.isCompliant(), "Directory with separate namespaces should be compliant");

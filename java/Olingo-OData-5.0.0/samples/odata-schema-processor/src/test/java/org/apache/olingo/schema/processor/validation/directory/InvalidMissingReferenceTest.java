@@ -1,21 +1,21 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for missing-reference directory validation.
  * This directory should NOT be compliant as it contains missing references.
  */
 @DisplayName("Missing Reference Directory Test")
-public class MissingReferenceTest {
+public class InvalidMissingReferenceTest {
 
     private DirectorySchemaValidator validator;
     private final String TEST_RESOURCES_BASE = "src/test/resources/validator/directory";
@@ -29,7 +29,7 @@ public class MissingReferenceTest {
     @Test
     @DisplayName("Should detect missing references as non-compliant")
     void testMissingReference() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "missing-reference").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "invalid-missing-reference").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         assertFalse(result.isCompliant(), "Directory should not be compliant due to missing references");

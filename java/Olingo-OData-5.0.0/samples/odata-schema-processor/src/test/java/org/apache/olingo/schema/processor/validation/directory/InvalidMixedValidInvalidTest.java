@@ -1,21 +1,21 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test for mixed-valid-invalid directory validation.
  * This directory should NOT be compliant as it contains both valid and invalid files.
  */
 @DisplayName("Mixed Valid Invalid Directory Test")
-public class MixedValidInvalidTest {
+public class InvalidMixedValidInvalidTest {
 
     private DirectorySchemaValidator validator;
     private final String TEST_RESOURCES_BASE = "src/test/resources/validator/directory";
@@ -29,7 +29,7 @@ public class MixedValidInvalidTest {
     @Test
     @DisplayName("Should not be compliant with mixed valid and invalid files")
     void testMixedValidInvalid() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "mixed-valid-invalid").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "invalid-mixed-valid-invalid").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         assertFalse(result.isCompliant(), "Directory should not be compliant due to invalid files");

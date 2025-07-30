@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ConflictNamespace">
+            <Term Name="Description" Type="Edm.String" MaxLength="500">
+                <Annotation Term="Core.Description" String="A different description annotation with length limit"/>
+            </Term>
+            
+            <EntityType Name="Product">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+                <Property Name="Price" Type="Edm.Decimal" Precision="18" Scale="2"/>
+                <Annotation Term="ConflictNamespace.Description" String="Product entity representing an item for sale"/>
+            </EntityType>
+            
+            <EntityContainer Name="Container2">
+                <EntitySet Name="Products" EntityType="ConflictNamespace.Product"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
