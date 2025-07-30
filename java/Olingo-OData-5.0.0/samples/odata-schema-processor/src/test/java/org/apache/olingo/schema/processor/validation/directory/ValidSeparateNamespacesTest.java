@@ -30,7 +30,7 @@ public class ValidSeparateNamespacesTest {
     @Test
     @DisplayName("Should be compliant with separate namespaces")
     void testValidSeparateNamespaces() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-valid-separate-namespaces").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-separate-namespaces").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         assertTrue(result.isCompliant(), "Directory with separate namespaces should be compliant");

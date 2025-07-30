@@ -32,7 +32,7 @@ public class ValidSameFilenameDifferentDirsTest {
     @Test
     @DisplayName("Same filename in different dirs with different namespaces should be compliant")
     void testValidSameFilenameDifferentDirs() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-valid-same-filename-different-dirs").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-same-filename-different-dirs").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         assertTrue(result.isCompliant(), "Directory should be compliant - different namespaces");
         assertEquals(2, result.getTotalFilesProcessed(), "Should process 2 files");

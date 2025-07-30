@@ -32,7 +32,7 @@ public class ValidSameFilenameSameNamespaceTest {
     @Test
     @DisplayName("Same filename in different dirs with same namespace and no element conflicts should be compliant")
     void testValidSameFilenameSameNamespace() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-valid-same-filename-same-namespace").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-same-filename-same-namespace").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         assertTrue(result.isCompliant(), "Directory should be compliant - same namespace, no element conflicts");
         assertEquals(2, result.getTotalFilesProcessed(), "Should process 2 files");

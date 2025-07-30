@@ -31,7 +31,7 @@ public class ValidSameNamespaceDifferentContainersTest {
     @Test
     @DisplayName("Different EntityContainers in same namespace should be compliant")
     void testValidSameNamespaceDifferentContainers() {
-        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-valid-same-namespace-different-containers").toAbsolutePath();
+        Path testDir = Paths.get(TEST_RESOURCES_BASE, "valid-same-namespace-different-containers").toAbsolutePath();
         DirectoryValidationResult result = validator.validateDirectory(testDir);
         
         // This should be compliant because although both files share the same namespace (DuplicateNamespace),
