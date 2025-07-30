@@ -508,7 +508,9 @@ public class SchemaConflictDetector {
     
     /**
      * Detect duplicate namespace schemas
-     * Rule: Each namespace should have only one complete schema definition
+     * Rule: Only detect conflicts if there are multiple EntityContainers with the SAME NAME
+     * in the same namespace. Multiple EntityContainers with different names in the same 
+     * namespace are allowed by OData 4.0.
      */
     private List<SchemaConflict> detectDuplicateNamespaceSchemas() {
         List<SchemaConflict> conflicts = new ArrayList<>();
@@ -517,31 +519,29 @@ public class SchemaConflictDetector {
             String namespace = entry.getKey();
             List<SchemaInfo> schemas = entry.getValue();
             
-            // Check if multiple files define complete schemas for the same namespace
-            Set<String> filesWithCompleteSchemas = new HashSet<>();
+            // Track EntityContainer names and their files
+            Map<String, List<String>> containerNameToFiles = new HashMap<>();
             
             for (SchemaInfo schemaInfo : schemas) {
-                if (hasCompleteSchemaDefinition(schemaInfo.schema)) {
-                    filesWithCompleteSchemas.add(schemaInfo.fileName);
+                if (schemaInfo.schema.getEntityContainer() != null) {
+                    String containerName = schemaInfo.schema.getEntityContainer().getName();
+                    containerNameToFiles.computeIfAbsent(containerName, k -> new ArrayList<>())
+                                       .add(schemaInfo.fileName);
                 }
             }
             
-            if (filesWithCompleteSchemas.size() > 1) {
-                conflicts.add(SchemaConflict.duplicateNamespaceSchema(namespace, 
-                                                                    new ArrayList<>(filesWithCompleteSchemas)));
+            // Report conflict only if the same EntityContainer name appears in multiple files
+            // within the same namespace (this violates OData 4.0)
+            for (Map.Entry<String, List<String>> containerEntry : containerNameToFiles.entrySet()) {
+                List<String> filesWithSameContainer = containerEntry.getValue();
+                
+                if (filesWithSameContainer.size() > 1) {
+                    conflicts.add(SchemaConflict.duplicateNamespaceSchema(namespace, filesWithSameContainer));
+                }
             }
         }
         
         return conflicts;
-    }
-    
-    /**
-     * Check if a schema has a complete definition (entity container + types)
-     */
-    private boolean hasCompleteSchemaDefinition(CsdlSchema schema) {
-        return schema.getEntityContainer() != null || 
-               (schema.getEntityTypes() != null && !schema.getEntityTypes().isEmpty()) ||
-               (schema.getComplexTypes() != null && !schema.getComplexTypes().isEmpty());
     }
     
     /**
