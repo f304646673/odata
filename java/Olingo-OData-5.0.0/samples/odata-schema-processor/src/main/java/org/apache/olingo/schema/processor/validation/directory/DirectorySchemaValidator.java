@@ -133,10 +133,17 @@ public class DirectorySchemaValidator {
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
         
         try (Stream<Path> stream = Files.walk(directoryPath)) {
-            return stream
+            List<Path> foundFiles = stream
                 .filter(Files::isRegularFile)
                 .filter(path -> matcher.matches(path.getFileName()))
                 .collect(Collectors.toList());
+
+            // 添加调试日志来帮助诊断文件查找问题
+            logger.debug("Found {} XML files in directory {}: {}",
+                        foundFiles.size(), directoryPath,
+                        foundFiles.stream().map(Path::toString).collect(Collectors.joining(", ")));
+
+            return foundFiles;
         }
     }
     
@@ -149,29 +156,30 @@ public class DirectorySchemaValidator {
         if (xmlFiles.size() <= 1 || maxConcurrentValidations <= 1) {
             // Sequential validation for small numbers of files
             for (Path file : xmlFiles) {
-                String fileName = file.getFileName().toString();
+                // Use relative path from base directory as key to avoid conflicts with same filenames
+                String fileKey = getUniqueFileKey(file);
                 try {
                     XmlComplianceResult result = fileValidator.validateFile(file);
-                    results.put(fileName, result);
+                    results.put(fileKey, result);
                 } catch (Exception e) {
                     logger.error("Failed to validate file: {}", file, e);
-                    results.put(fileName, createFileErrorResult(fileName, e.getMessage()));
+                    results.put(fileKey, createFileErrorResult(fileKey, e.getMessage()));
                 }
             }
         } else {
             // Parallel validation for larger numbers of files
             List<CompletableFuture<Void>> futures = xmlFiles.stream()
                 .map(file -> CompletableFuture.runAsync(() -> {
-                    String fileName = file.getFileName().toString();
+                    String fileKey = getUniqueFileKey(file);
                     try {
                         XmlComplianceResult result = fileValidator.validateFile(file);
                         synchronized (results) {
-                            results.put(fileName, result);
+                            results.put(fileKey, result);
                         }
                     } catch (Exception e) {
                         logger.error("Failed to validate file: {}", file, e);
                         synchronized (results) {
-                            results.put(fileName, createFileErrorResult(fileName, e.getMessage()));
+                            results.put(fileKey, createFileErrorResult(fileKey, e.getMessage()));
                         }
                     }
                 }, executorService))
@@ -183,24 +191,37 @@ public class DirectorySchemaValidator {
         
         return results;
     }
-    
+
+    /**
+     * Generate a unique key for a file that includes path information
+     */
+    private String getUniqueFileKey(Path file) {
+        // Use the last 2 path components to create a unique key
+        Path fileName = file.getFileName();
+        Path parent = file.getParent();
+        if (parent != null && parent.getFileName() != null) {
+            return parent.getFileName().toString() + "/" + fileName.toString();
+        }
+        return fileName.toString();
+    }
+
     /**
      * Extract schemas from XML files and add them to conflict detector
      */
     private void extractAndAnalyzeSchemas(List<Path> xmlFiles, Map<String, XmlComplianceResult> fileResults) {
         for (Path xmlFile : xmlFiles) {
-            String fileName = xmlFile.getFileName().toString();
-            XmlComplianceResult result = fileResults.get(fileName);
-            
+            String fileKey = getUniqueFileKey(xmlFile);
+            XmlComplianceResult result = fileResults.get(fileKey);
+
             // Only analyze schemas from files that parsed successfully
             if (result != null && result.isCompliant()) {
                 try {
                     List<CsdlSchema> schemas = extractSchemasFromFile(xmlFile);
                     for (CsdlSchema schema : schemas) {
-                        conflictDetector.addSchema(schema, fileName);
+                        conflictDetector.addSchema(schema, fileKey);
                     }
                 } catch (Exception e) {
-                    logger.warn("Failed to extract schemas from file {} for conflict analysis: {}", fileName, e.getMessage());
+                    logger.warn("Failed to extract schemas from file {} for conflict analysis: {}", fileKey, e.getMessage());
                 }
             }
         }
