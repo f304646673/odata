@@ -1,6 +1,6 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.OlingoXmlFileComplianceValidator;
+import org.apache.olingo.schema.processor.validation.file.OlingoXmlFileComplianceValidator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

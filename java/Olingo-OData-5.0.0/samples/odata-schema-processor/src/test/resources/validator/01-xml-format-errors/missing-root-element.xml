@@ -1,7 +1,0 @@
-<!-- 缺少根节点的XML文件 -->
-<EntityType Name="Product">
-  <Key>
-    <PropertyRef Name="ID"/>
-  </Key>
-  <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-  <Property Name="Name" Type="Edm.String" MaxLength="50"/>

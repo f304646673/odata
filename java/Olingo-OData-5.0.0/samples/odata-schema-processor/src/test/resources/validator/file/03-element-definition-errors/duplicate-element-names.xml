@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.DuplicateNames" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 重复的EntityType名称 -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+      </EntityType>
+      
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ProductID"/>
+        </Key>
+        <Property Name="ProductID" Type="Edm.String" Nullable="false"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="200"/>
+      </EntityType>
+      
+      <!-- 重复的ComplexType名称 -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <ComplexType Name="Address">
+        <Property Name="Line1" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Line2" Type="Edm.String" MaxLength="100"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

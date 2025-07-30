@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidConstraints" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        
+        <!-- 无效的约束组合 -->
+        <Property Name="Name" Type="Edm.String" MaxLength="50" MinLength="100"/>  <!-- MinLength > MaxLength -->
+        <Property Name="Price" Type="Edm.Decimal" Precision="5" Scale="10"/>      <!-- Scale > Precision -->
+        <Property Name="Code" Type="Edm.String" MaxLength="-5"/>                  <!-- 负数长度 -->
+        <Property Name="Rating" Type="Edm.Int32" MinValue="100" MaxValue="10"/>   <!-- MinValue > MaxValue -->
+        
+        <!-- 类型不匹配的约束 -->
+        <Property Name="Description" Type="Edm.String" Precision="10"/>           <!-- String类型使用Precision -->
+        <Property Name="Count" Type="Edm.Int32" MaxLength="50"/>                  <!-- 数值类型使用MaxLength -->
+        <Property Name="Flag" Type="Edm.Boolean" Scale="2"/>                      <!-- Boolean类型使用Scale -->
+        
+        <!-- 超出范围的约束值 -->
+        <Property Name="BigDecimal" Type="Edm.Decimal" Precision="100" Scale="50"/> <!-- 超出Decimal范围 -->
+        <Property Name="HugeString" Type="Edm.String" MaxLength="999999999"/>     <!-- 过大的字符串长度 -->
+      </EntityType>
+      
+      <EntityType Name="InvalidKeys">
+        <Key>
+          <!-- 重复的键属性 -->
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="NoKeyEntity">
+        <!-- 缺少键定义 -->
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Value" Type="Edm.Int32"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

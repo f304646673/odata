@@ -1,6 +1,6 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.XmlComplianceResult;
+import org.apache.olingo.schema.processor.validation.file.XmlComplianceResult;
 
 import java.util.*;
 

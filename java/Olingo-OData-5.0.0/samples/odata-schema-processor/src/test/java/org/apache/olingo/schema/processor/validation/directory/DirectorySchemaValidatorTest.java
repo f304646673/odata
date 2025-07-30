@@ -1,11 +1,12 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.schema.processor.validation.XmlComplianceResult;
-import org.apache.olingo.schema.processor.validation.framework.ModularOlingoXmlValidator;
+import org.apache.olingo.schema.processor.validation.file.XmlComplianceResult;
+import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +29,7 @@ class DirectorySchemaValidatorTest {
         validator = new DirectorySchemaValidator(new ModularOlingoXmlValidator());
         
         // Get the test resources directory
-        testResourcesPath = Paths.get("src/test/resources/directory-validation");
+        testResourcesPath = Paths.get("src/test/resources/validation/directory");
     }
     
     @AfterEach
@@ -186,10 +187,10 @@ class DirectorySchemaValidatorTest {
     @DisplayName("Should validate with custom file pattern")
     void testCustomFilePattern(@TempDir Path tempDir) throws IOException {
         // Given
-        Files.writeString(tempDir.resolve("schema.xml"), getValidXmlContent("TestNamespace"));
-        Files.writeString(tempDir.resolve("config.xml"), getValidXmlContent("ConfigNamespace"));
-        Files.writeString(tempDir.resolve("data.txt"), "not xml content");
-        
+        Files.write(tempDir.resolve("schema.xml"), getValidXmlContent("TestNamespace").getBytes(StandardCharsets.UTF_8));
+        Files.write(tempDir.resolve("config.xml"), getValidXmlContent("ConfigNamespace").getBytes(StandardCharsets.UTF_8));
+        Files.write(tempDir.resolve("data.txt"), "not xml content".getBytes(StandardCharsets.UTF_8));
+
         // When - validate only files starting with "schema"
         DirectoryValidationResult result = validator.validateDirectory(tempDir, "schema*.xml");
         
@@ -230,7 +231,7 @@ class DirectorySchemaValidatorTest {
         // Given - create multiple valid XML files
         for (int i = 1; i <= 10; i++) {
             String content = getValidXmlContent("Namespace" + i);
-            Files.writeString(tempDir.resolve("schema" + i + ".xml"), content);
+            Files.write(tempDir.resolve("schema" + i + ".xml"), content.getBytes(StandardCharsets.UTF_8));
         }
         
         // When
@@ -268,10 +269,10 @@ class DirectorySchemaValidatorTest {
     @DisplayName("Should handle files with XML parsing errors")
     void testXmlParsingErrors(@TempDir Path tempDir) throws IOException {
         // Given
-        Files.writeString(tempDir.resolve("valid.xml"), getValidXmlContent("ValidNamespace"));
-        Files.writeString(tempDir.resolve("malformed.xml"), "<?xml version=\"1.0\"?><invalid><unclosed>");
-        Files.writeString(tempDir.resolve("empty.xml"), "");
-        
+        Files.write(tempDir.resolve("valid.xml"), getValidXmlContent("ValidNamespace").getBytes(StandardCharsets.UTF_8));
+        Files.write(tempDir.resolve("malformed.xml"), "<?xml version=\"1.0\"?><invalid><unclosed>".getBytes(StandardCharsets.UTF_8));
+        Files.write(tempDir.resolve("empty.xml"), "".getBytes(StandardCharsets.UTF_8));
+
         // When
         DirectoryValidationResult result = validator.validateDirectory(tempDir);
         
@@ -293,7 +294,7 @@ class DirectorySchemaValidatorTest {
         // Given - create 50 valid XML files
         for (int i = 1; i <= 50; i++) {
             String content = getValidXmlContent("Namespace" + i);
-            Files.writeString(tempDir.resolve("schema" + i + ".xml"), content);
+            Files.write(tempDir.resolve("schema" + i + ".xml"), content.getBytes(StandardCharsets.UTF_8));
         }
         
         // When

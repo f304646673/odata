@@ -24,7 +24,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.schema.processor.parser.ODataXmlParser;
 import org.apache.olingo.schema.processor.parser.impl.CsdlXmlParserImpl;
-import org.apache.olingo.schema.processor.validation.SchemaReferenceValidator;
+import org.apache.olingo.schema.processor.validation.file.SchemaReferenceValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

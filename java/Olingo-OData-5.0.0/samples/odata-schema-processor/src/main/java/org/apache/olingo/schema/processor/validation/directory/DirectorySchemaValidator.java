@@ -1,8 +1,8 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.schema.processor.validation.XmlComplianceResult;
-import org.apache.olingo.schema.processor.validation.XmlFileComplianceValidator;
+import org.apache.olingo.schema.processor.validation.file.XmlComplianceResult;
+import org.apache.olingo.schema.processor.validation.file.XmlFileComplianceValidator;
 import org.apache.olingo.server.core.MetadataParser;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import org.slf4j.Logger;

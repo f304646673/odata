@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.InvalidNames" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 非法的EntityType名称（以数字开头） -->
+      <EntityType Name="123Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      
+      <!-- 非法的ComplexType名称（包含特殊字符） -->
+      <ComplexType Name="Address@Location">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <!-- 非法的EnumType名称（包含空格） -->
+      <EnumType Name="Product Status">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

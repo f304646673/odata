@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.ManyEntities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 创建大量实体类型以测试处理性能 -->
+      <EntityType Name="Entity001">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity002">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity003">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity004">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity005">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity006">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity007">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity008">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity009">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="Entity010">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- 复杂的继承链 -->
+      <EntityType Name="BaseEntity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="BaseProperty" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="DerivedEntity001" BaseType="Test.ManyEntities.BaseEntity">
+        <Property Name="DerivedProperty001" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="DerivedEntity002" BaseType="Test.ManyEntities.DerivedEntity001">
+        <Property Name="DerivedProperty002" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityType Name="DerivedEntity003" BaseType="Test.ManyEntities.DerivedEntity002">
+        <Property Name="DerivedProperty003" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- 大量枚举类型 -->
+      <EnumType Name="Status001">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+      </EnumType>
+      
+      <EnumType Name="Status002">
+        <Member Name="Pending" Value="1"/>
+        <Member Name="Approved" Value="2"/>
+        <Member Name="Rejected" Value="3"/>
+      </EnumType>
+      
+      <EnumType Name="Status003">
+        <Member Name="Draft" Value="1"/>
+        <Member Name="Published" Value="2"/>
+        <Member Name="Archived" Value="3"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

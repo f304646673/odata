@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Annotations.Types">
+
+      <!-- Define annotation terms -->
+      <Term Name="IsVIP" Type="Edm.Boolean" DefaultValue="false">
+        <Annotation Term="Core.Description" String="Indicates if the entity is a VIP" />
+      </Term>
+
+      <Term Name="Priority" Type="Edm.Int32" DefaultValue="0">
+        <Annotation Term="Core.Description" String="Priority level" />
+      </Term>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

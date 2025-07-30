@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="Base.xml">
+    <edmx:Include Namespace="Base.Entities" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Derived.Entities">
+      <EntityType Name="DerivedEntity" BaseType="Base.Entities.BaseEntity">
+        <Property Name="Name" Type="Edm.String" />
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+
+  <!-- Reference to annotation definitions -->
+  <edmx:Reference Uri="Annotations.xml">
+    <edmx:Include Namespace="Annotations.Types" />
+  </edmx:Reference>
+
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Main.Entities">
+
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="ID" />
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" MaxLength="100">
+          <Annotation Term="Annotations.Types.IsVIP" Bool="true" />
+        </Property>
+        <Property Name="Email" Type="Edm.String" MaxLength="200">
+          <Annotation Term="Annotations.Types.Priority" Int="5" />
+        </Property>
+      </EntityType>
+
+      <EntityContainer Name="MainContainer">
+        <EntitySet Name="Customers" EntityType="Main.Entities.Customer" />
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Unicode" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 包含各种Unicode字符的元素名称 -->
+      <EntityType Name="产品">
+        <Key>
+          <PropertyRef Name="标识符"/>
+        </Key>
+        <Property Name="标识符" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="名称" Type="Edm.String"/>
+        <Property Name="价格" Type="Edm.Decimal"/>
+        
+        <!-- 日文字符 -->
+        <Property Name="製品名" Type="Edm.String"/>
+        <Property Name="説明" Type="Edm.String"/>
+        
+        <!-- 韩文字符 -->
+        <Property Name="제품명" Type="Edm.String"/>
+        <Property Name="설명" Type="Edm.String"/>
+        
+        <!-- 阿拉伯文字符 -->
+        <Property Name="اسم_المنتج" Type="Edm.String"/>
+        <Property Name="الوصف" Type="Edm.String"/>
+        
+        <!-- 希腊文字符 -->
+        <Property Name="όνομα_προϊόντος" Type="Edm.String"/>
+        <Property Name="περιγραφή" Type="Edm.String"/>
+        
+        <!-- 俄文字符 -->
+        <Property Name="название_продукта" Type="Edm.String"/>
+        <Property Name="описание" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- 包含特殊符号的实体类型 -->
+      <EntityType Name="Special_Symbols_♠♣♥♦">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Math_Symbols_∑∏∫∆" Type="Edm.String"/>
+        <Property Name="Currency_€$¥£₹" Type="Edm.String"/>
+        <Property Name="Arrows_←→↑↓⇐⇒" Type="Edm.String"/>
+        <Property Name="Emojis_😀😃😄😁" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- 包含控制字符和特殊空白的测试 -->
+      <EntityType Name="ControlChars">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- 注意：这些可能导致XML解析问题 -->
+        <Property Name="Tab_And_Space	 " Type="Edm.String"/>
+        <Property Name="Zero_Width_Space_​Test" Type="Edm.String"/>
+        <Property Name="Non_Breaking_Space_ Test" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

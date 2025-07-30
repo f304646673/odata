@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.ComplexNavigation" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 复杂的导航属性网络 -->
+      <EntityType Name="Product">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Category" Type="Test.ComplexNavigation.Category" Partner="Products"/>
+        <NavigationProperty Name="Supplier" Type="Test.ComplexNavigation.Supplier" Partner="Products"/>
+        <NavigationProperty Name="Orders" Type="Collection(Test.ComplexNavigation.Order)" Partner="Product"/>
+        <NavigationProperty Name="Reviews" Type="Collection(Test.ComplexNavigation.Review)" Partner="Product"/>
+        <NavigationProperty Name="RelatedProducts" Type="Collection(Test.ComplexNavigation.Product)" Partner="RelatedProducts"/>
+      </EntityType>
+      
+      <EntityType Name="Category">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Products" Type="Collection(Test.ComplexNavigation.Product)" Partner="Category"/>
+        <NavigationProperty Name="ParentCategory" Type="Test.ComplexNavigation.Category" Partner="SubCategories"/>
+        <NavigationProperty Name="SubCategories" Type="Collection(Test.ComplexNavigation.Category)" Partner="ParentCategory"/>
+        <NavigationProperty Name="Suppliers" Type="Collection(Test.ComplexNavigation.Supplier)" Partner="Categories"/>
+      </EntityType>
+      
+      <EntityType Name="Supplier">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Products" Type="Collection(Test.ComplexNavigation.Product)" Partner="Supplier"/>
+        <NavigationProperty Name="Categories" Type="Collection(Test.ComplexNavigation.Category)" Partner="Suppliers"/>
+        <NavigationProperty Name="Orders" Type="Collection(Test.ComplexNavigation.Order)" Partner="Supplier"/>
+        <NavigationProperty Name="Address" Type="Test.ComplexNavigation.Address" Partner="Supplier"/>
+      </EntityType>
+      
+      <EntityType Name="Order">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+        
+        <NavigationProperty Name="Product" Type="Test.ComplexNavigation.Product" Partner="Orders"/>
+        <NavigationProperty Name="Customer" Type="Test.ComplexNavigation.Customer" Partner="Orders"/>
+        <NavigationProperty Name="Supplier" Type="Test.ComplexNavigation.Supplier" Partner="Orders"/>
+        <NavigationProperty Name="OrderDetails" Type="Collection(Test.ComplexNavigation.OrderDetail)" Partner="Order"/>
+      </EntityType>
+      
+      <EntityType Name="Customer">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Orders" Type="Collection(Test.ComplexNavigation.Order)" Partner="Customer"/>
+        <NavigationProperty Name="Reviews" Type="Collection(Test.ComplexNavigation.Review)" Partner="Customer"/>
+        <NavigationProperty Name="Address" Type="Test.ComplexNavigation.Address" Partner="Customer"/>
+      </EntityType>
+      
+      <EntityType Name="Review">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Rating" Type="Edm.Int32"/>
+        <Property Name="Comment" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Product" Type="Test.ComplexNavigation.Product" Partner="Reviews"/>
+        <NavigationProperty Name="Customer" Type="Test.ComplexNavigation.Customer" Partner="Reviews"/>
+      </EntityType>
+      
+      <EntityType Name="Address">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+        
+        <NavigationProperty Name="Customer" Type="Test.ComplexNavigation.Customer" Partner="Address"/>
+        <NavigationProperty Name="Supplier" Type="Test.ComplexNavigation.Supplier" Partner="Address"/>
+      </EntityType>
+      
+      <EntityType Name="OrderDetail">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="Price" Type="Edm.Decimal"/>
+        
+        <NavigationProperty Name="Order" Type="Test.ComplexNavigation.Order" Partner="OrderDetails"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

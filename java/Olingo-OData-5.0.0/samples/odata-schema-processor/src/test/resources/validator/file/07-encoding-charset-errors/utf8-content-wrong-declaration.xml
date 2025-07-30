@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.UTF8" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- 包含UTF-8编码的中文字符，但声明为ISO-8859-1 -->
+        <Property Name="中文名称" Type="Edm.String"/>
+        <Property Name="日本語名前" Type="Edm.String"/>
+        <Property Name="한국어이름" Type="Edm.String"/>
+        <Property Name="ελληνικό_όνομα" Type="Edm.String"/>
+        <Property Name="русское_имя" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
