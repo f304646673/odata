@@ -4,10 +4,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for security vulnerabilities using XmlFileComplianceValidator
@@ -58,7 +59,7 @@ public class SecurityVulnerabilitiesTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "安全漏洞文件应有错误: xml-external-entity-attack.xml");
-        boolean foundXxe = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        boolean foundXxe = result.getErrors().stream().anyMatch(e -> (e.contains("引用了实体") && e.contains("但未声明它")) || (e.contains("was referenced, but not declared.")));
         assertTrue(foundXxe, "应检测到外部实体攻击相关错误: " + result.getErrors());
     }
 
@@ -71,7 +72,7 @@ public class SecurityVulnerabilitiesTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "安全漏洞文件应有错误: billion-laughs.xml");
-        boolean foundBillionLaughs = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        boolean foundBillionLaughs = result.getErrors().stream().anyMatch(e -> (e.contains("引用了实体") && e.contains("但未声明它")) || (e.contains("was referenced, but not declared.")));
         assertTrue(foundBillionLaughs, "应检测到Billion Laughs攻击相关错误: " + result.getErrors());
     }
 
@@ -84,7 +85,7 @@ public class SecurityVulnerabilitiesTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "安全漏洞文件应有错误: dos-entity-expansion.xml");
-        boolean foundDos = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        boolean foundDos = result.getErrors().stream().anyMatch(e -> (e.contains("引用了实体") && e.contains("但未声明它")) || (e.contains("was referenced, but not declared.")));
         assertTrue(foundDos, "应检测到实体扩展DoS相关错误: " + result.getErrors());
     }
 
@@ -97,7 +98,7 @@ public class SecurityVulnerabilitiesTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "安全漏洞文件应有错误: parameter-entity-attack.xml");
-        boolean foundParamEntity = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        boolean foundParamEntity = result.getErrors().stream().anyMatch(e -> (e.contains("引用了实体") && e.contains("但未声明它")) || (e.contains("was referenced, but not declared.")));
         assertTrue(foundParamEntity, "应检测到参数实体攻击相关错误: " + result.getErrors());
     }
 
@@ -121,8 +122,7 @@ public class SecurityVulnerabilitiesTest {
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
         assertTrue(result.hasErrors(), "Security vulnerability file should have errors: xxe-attack.xml");
-        boolean foundXxeError = result.getErrors().stream().anyMatch(e ->
-            e.contains("引用了实体") && e.contains("但未声明它") || e.contains("XXE") || e.contains("external entity"));
+        boolean foundXxeError = result.getErrors().stream().anyMatch(e -> (e.contains("引用了实体") && e.contains("但未声明它")) || (e.contains("was referenced, but not declared.")));
         assertTrue(foundXxeError, "应检测到XXE攻击相关错误: " + result.getErrors());
     }
 }
