@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="InvalidNamespace">
+            <EntityType Name="InvalidEntity">
+                <Key>
+                    <PropertyRef Name="NonExistentProperty"/>
+                </Key>
+                <Property Name="ID" Type="Edm.InvalidType" Nullable="false"/>
+            </EntityType>
+            
+            <EntityContainer Name="InvalidContainer">
+                <EntitySet Name="InvalidEntities" EntityType="InvalidNamespace.NonExistentEntity"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

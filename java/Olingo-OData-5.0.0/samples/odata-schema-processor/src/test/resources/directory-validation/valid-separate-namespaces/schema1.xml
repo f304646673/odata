@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Namespace1">
+            <EntityType Name="Customer">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+                <Property Name="Email" Type="Edm.String" MaxLength="255"/>
+            </EntityType>
+            
+            <ComplexType Name="Address">
+                <Property Name="Street" Type="Edm.String" MaxLength="200"/>
+                <Property Name="City" Type="Edm.String" MaxLength="100"/>
+                <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+            </ComplexType>
+            
+            <EntityContainer Name="Container1">
+                <EntitySet Name="Customers" EntityType="Namespace1.Customer"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

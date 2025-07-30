@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ConflictNamespace">
+            <EntityType Name="Customer">
+                <Key>
+                    <PropertyRef Name="CustomerID"/>
+                </Key>
+                <Property Name="CustomerID" Type="Edm.String" MaxLength="10" Nullable="false"/>
+                <Property Name="CompanyName" Type="Edm.String" MaxLength="40"/>
+                <Property Name="ContactName" Type="Edm.String" MaxLength="30"/>
+            </EntityType>
+            
+            <EntityContainer Name="Container2">
+                <EntitySet Name="Customers" EntityType="ConflictNamespace.Customer"/>
+            </EntityContainer>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
