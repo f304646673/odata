@@ -1,11 +1,31 @@
 package org.apache.olingo.schema.processor.validation.directory;
 
-import org.apache.olingo.commons.api.edm.provider.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
+import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Detects conflicts between schema elements across multiple XML files.
@@ -367,16 +387,21 @@ public class SchemaConflictDetector {
      * Extract the value from an annotation (simplified version)
      */
     private String getAnnotationValue(CsdlAnnotation annotation) {
-        // CsdlAnnotation in Olingo 5.0 uses different method names
         // Try to get the expression and convert to string
         if (annotation.getExpression() != null) {
-            // For simple string values
-            if (annotation.getExpression() instanceof CsdlConstantExpression) {
-                CsdlConstantExpression constantExpr = (CsdlConstantExpression) annotation.getExpression();
-                return constantExpr.getValue();
+            Object expr = annotation.getExpression();
+            // Try to call getValue() reflectively if available
+            try {
+                java.lang.reflect.Method getValueMethod = expr.getClass().getMethod("getValue");
+                Object value = getValueMethod.invoke(expr);
+                if (value != null) {
+                    return value.toString();
+                }
+            } catch (Exception e) {
+                // Ignore, fallback to toString()
             }
-            // For other expression types, return a simplified representation
-            return annotation.getExpression().toString();
+            // Fallback: use toString()
+            return expr.toString();
         }
 
         // Fallback - just return the term name if no expression value is available
