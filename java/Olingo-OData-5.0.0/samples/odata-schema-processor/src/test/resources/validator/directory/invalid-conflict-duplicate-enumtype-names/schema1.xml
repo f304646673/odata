@@ -7,19 +7,6 @@
                 <Member Name="Inactive" Value="2"/>
                 <Member Name="Pending" Value="3"/>
             </EnumType>
-            
-            <EntityType Name="Order">
-                <Key>
-                    <PropertyRef Name="ID"/>
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="OrderNumber" Type="Edm.String" MaxLength="50"/>
-                <Property Name="OrderStatus" Type="ConflictNamespace.Status"/>
-            </EntityType>
-            
-            <EntityContainer Name="Container1">
-                <EntitySet Name="Orders" EntityType="ConflictNamespace.Order"/>
-            </EntityContainer>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>

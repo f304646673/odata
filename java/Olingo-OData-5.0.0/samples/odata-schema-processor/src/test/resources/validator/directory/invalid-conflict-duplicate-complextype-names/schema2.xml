@@ -8,19 +8,6 @@
                 <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
                 <Property Name="Region" Type="Edm.String" MaxLength="50"/>
             </ComplexType>
-            
-            <EntityType Name="Supplier">
-                <Key>
-                    <PropertyRef Name="ID"/>
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="CompanyName" Type="Edm.String" MaxLength="100"/>
-                <Property Name="BusinessAddress" Type="ConflictNamespace.Address"/>
-            </EntityType>
-            
-            <EntityContainer Name="Container2">
-                <EntitySet Name="Suppliers" EntityType="ConflictNamespace.Supplier"/>
-            </EntityContainer>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>

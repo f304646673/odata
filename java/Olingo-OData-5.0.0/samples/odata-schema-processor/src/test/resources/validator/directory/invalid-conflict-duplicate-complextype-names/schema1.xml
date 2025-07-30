@@ -7,19 +7,6 @@
                 <Property Name="City" Type="Edm.String" MaxLength="50"/>
                 <Property Name="Country" Type="Edm.String" MaxLength="50"/>
             </ComplexType>
-            
-            <EntityType Name="Customer">
-                <Key>
-                    <PropertyRef Name="ID"/>
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
-                <Property Name="Address" Type="ConflictNamespace.Address"/>
-            </EntityType>
-            
-            <EntityContainer Name="Container1">
-                <EntitySet Name="Customers" EntityType="ConflictNamespace.Customer"/>
-            </EntityContainer>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>

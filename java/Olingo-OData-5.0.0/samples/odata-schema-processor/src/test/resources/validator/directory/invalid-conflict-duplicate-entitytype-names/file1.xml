@@ -10,10 +10,6 @@
                 <Property Name="Name" Type="Edm.String" MaxLength="100"/>
                 <Property Name="Email" Type="Edm.String" MaxLength="255"/>
             </EntityType>
-            
-            <EntityContainer Name="Container1">
-                <EntitySet Name="Customers" EntityType="ConflictNamespace.Customer"/>
-            </EntityContainer>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>

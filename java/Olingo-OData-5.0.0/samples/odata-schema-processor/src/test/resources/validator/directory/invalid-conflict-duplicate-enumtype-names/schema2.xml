@@ -8,19 +8,6 @@
                 <Member Name="Completed" Value="3"/>
                 <Member Name="Cancelled" Value="4"/>
             </EnumType>
-            
-            <EntityType Name="Task">
-                <Key>
-                    <PropertyRef Name="ID"/>
-                </Key>
-                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-                <Property Name="Title" Type="Edm.String" MaxLength="100"/>
-                <Property Name="TaskStatus" Type="ConflictNamespace.Status"/>
-            </EntityType>
-            
-            <EntityContainer Name="Container2">
-                <EntitySet Name="Tasks" EntityType="ConflictNamespace.Task"/>
-            </EntityContainer>
         </Schema>
     </edmx:DataServices>
 </edmx:Edmx>
