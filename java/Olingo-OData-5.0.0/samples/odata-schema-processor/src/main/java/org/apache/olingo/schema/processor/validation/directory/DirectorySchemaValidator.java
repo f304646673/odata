@@ -127,12 +127,12 @@ public class DirectorySchemaValidator {
     }
     
     /**
-     * Find all XML files in the directory matching the pattern
+     * Find all XML files in the directory matching the pattern (recursively)
      */
     private List<Path> findXmlFiles(Path directoryPath, String pattern) throws IOException {
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
         
-        try (Stream<Path> stream = Files.walk(directoryPath, 1)) {
+        try (Stream<Path> stream = Files.walk(directoryPath)) {
             return stream
                 .filter(Files::isRegularFile)
                 .filter(path -> matcher.matches(path.getFileName()))

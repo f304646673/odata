@@ -1,7 +1,0 @@
-<Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="MissingRoot">
-  <EntityType Name="A">
-    <Key><PropertyRef Name="ID"/></Key>
-    <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
-  </EntityType>
-</Schema>
-
