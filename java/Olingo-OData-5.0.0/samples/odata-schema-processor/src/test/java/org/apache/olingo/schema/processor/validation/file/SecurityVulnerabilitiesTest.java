@@ -49,35 +49,56 @@ public class SecurityVulnerabilitiesTest {
         assertNotNull(result, "Validation should complete successfully");
     }
 
-    private void assertVulnerabilityError(Path testFilePath, String errorHint) {
+    @Test
+    public void testXmlExternalEntityAttack() {
+        Path testFilePath = Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/xml-external-entity-attack.xml");
         File xmlFile = testFilePath.toFile();
         assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
         assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
         XmlComplianceResult result = validator.validateFile(xmlFile);
         assertNotNull(result, "Result should not be null");
-        assertTrue(result.hasErrors(), "安全漏洞文件应有错误: " + testFilePath.getFileName());
-        boolean found = result.getErrors().stream().anyMatch(e -> e.contains(errorHint));
-        assertTrue(found, "应检测到相关安全漏洞错误: " + result.getErrors());
-    }
-
-    @Test
-    public void testXmlExternalEntityAttack() {
-        assertVulnerabilityError(Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/xml-external-entity-attack.xml"), "引用了实体");
+        assertTrue(result.hasErrors(), "安全漏洞文件应有错误: xml-external-entity-attack.xml");
+        boolean foundXxe = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        assertTrue(foundXxe, "应检测到外部实体攻击相关错误: " + result.getErrors());
     }
 
     @Test
     public void testBillionLaughs() {
-        assertVulnerabilityError(Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/billion-laughs.xml"), "引用了实体");
+        Path testFilePath = Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/billion-laughs.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "安全漏洞文件应有错误: billion-laughs.xml");
+        boolean foundBillionLaughs = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        assertTrue(foundBillionLaughs, "应检测到Billion Laughs攻击相关错误: " + result.getErrors());
     }
 
     @Test
     public void testDosEntityExpansion() {
-        assertVulnerabilityError(Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/dos-entity-expansion.xml"), "引用了实体");
+        Path testFilePath = Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/dos-entity-expansion.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "安全漏洞文件应有错误: dos-entity-expansion.xml");
+        boolean foundDos = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        assertTrue(foundDos, "应检测到实体扩展DoS相关错误: " + result.getErrors());
     }
 
     @Test
     public void testParameterEntityAttack() {
-        assertVulnerabilityError(Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/parameter-entity-attack.xml"), "引用了实体");
+        Path testFilePath = Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/parameter-entity-attack.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "安全漏洞文件应有错误: parameter-entity-attack.xml");
+        boolean foundParamEntity = result.getErrors().stream().anyMatch(e -> e.contains("引用了实体") && e.contains("但未声明它"));
+        assertTrue(foundParamEntity, "应检测到参数实体攻击相关错误: " + result.getErrors());
     }
 
     @Test
@@ -93,6 +114,15 @@ public class SecurityVulnerabilitiesTest {
 
     @Test
     public void testXxeAttack() {
-        assertVulnerabilityError(Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/xxe-attack.xml"), "引用了实体");
+        Path testFilePath = Paths.get("src/test/resources/validator/file/08-security-vulnerabilities/xxe-attack.xml");
+        File xmlFile = testFilePath.toFile();
+        assertTrue(xmlFile.exists(), "Test file should exist: " + testFilePath);
+        assertTrue(xmlFile.length() > 0, "Test file should not be empty: " + testFilePath);
+        XmlComplianceResult result = validator.validateFile(xmlFile);
+        assertNotNull(result, "Result should not be null");
+        assertTrue(result.hasErrors(), "Security vulnerability file should have errors: xxe-attack.xml");
+        boolean foundXxeError = result.getErrors().stream().anyMatch(e ->
+            e.contains("引用了实体") && e.contains("但未声明它") || e.contains("XXE") || e.contains("external entity"));
+        assertTrue(foundXxeError, "应检测到XXE攻击相关错误: " + result.getErrors());
     }
 }
