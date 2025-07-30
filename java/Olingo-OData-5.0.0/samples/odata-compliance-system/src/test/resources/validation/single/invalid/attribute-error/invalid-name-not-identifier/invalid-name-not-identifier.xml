@@ -1,0 +1,16 @@
+<!--
+错误原因：Name属性不符合OData标识符规范。
+Error Reason: The Name attribute does not conform to OData identifier rules.
+应报错：Name属性必须为合法标识符。
+Expected Error: The Name attribute must be a valid identifier.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="1Invalid-Name!">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,16 @@
+<!--
+错误原因：<EntityType> 没有 <Property>。
+Reason: <EntityType> does not have any <Property> elements.
+应报错：EntityType 必须包含至少一个 Property。
+Expected: EntityType must contain at least one Property.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <!-- 缺少 Property 元素 -->
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

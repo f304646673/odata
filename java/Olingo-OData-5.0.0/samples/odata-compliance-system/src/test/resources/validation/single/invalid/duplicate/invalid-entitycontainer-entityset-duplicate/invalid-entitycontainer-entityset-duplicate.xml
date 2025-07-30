@@ -1,0 +1,20 @@
+<!--
+错误原因：EntityContainer 下有重复的 EntitySet 名称。
+Error Reason: There are duplicate EntitySet names under the EntityContainer.
+应报错：EntitySet 名称必须唯一。
+Expected Error: EntitySet names must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="E">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Set1" EntityType="Test.E"/>
+        <EntitySet Name="Set1" EntityType="Test.E"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

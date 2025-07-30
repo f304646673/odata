@@ -1,0 +1,16 @@
+<!--
+错误原因：同一 <Schema> 下有两个同名 <ComplexType>。
+应报错：ComplexType 名称不能重复。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="Address">
+        <Property Name="City" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

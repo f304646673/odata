@@ -1,0 +1,15 @@
+<!--
+错误原因：EntityType 缺少 Key 元素。
+Error Reason: The EntityType is missing the Key element.
+应报错：EntityType 必须定义 Key。
+Expected Error: The EntityType must define a Key.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="NoKey">
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

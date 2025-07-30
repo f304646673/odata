@@ -1,0 +1,16 @@
+<!--
+错误原因：EntityType BaseType 指向不存在的类型。
+Error Reason: The EntityType BaseType points to a non-existent type.
+应报错：BaseType 必须引用已定义的 EntityType。
+Expected Error: The BaseType must reference a defined EntityType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Child" BaseType="Test.NotExist">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

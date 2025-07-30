@@ -1,0 +1,15 @@
+<!--
+错误原因：Function ReturnType 指向的类型不是可用的类型（如 EntityType 不能作为 ReturnType）。
+应报错：Function ReturnType 必须为 Edm.primitive, ComplexType, EnumType, TypeDefinition。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="NotPrimitive"/>
+      <Function Name="TestFunction">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <ReturnType Type="Test.NotPrimitive"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

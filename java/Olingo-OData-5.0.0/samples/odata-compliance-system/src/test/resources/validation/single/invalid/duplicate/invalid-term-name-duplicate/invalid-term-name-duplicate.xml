@@ -1,0 +1,14 @@
+<!--
+错误原因：同一 Schema 下有两个同名 Term。
+Error Reason: There are two Terms with the same name under the same Schema.
+应报错：Term 名称必须唯一。
+Expected Error: Term names must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Term Name="T1" Type="Edm.String"/>
+      <Term Name="T1" Type="Edm.String"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,13 @@
+<!--
+错误原因：Term 缺少 Type 属性。
+Error Reason: The Term is missing the Type attribute.
+应报错：Term 必须有 Type 属性。
+Expected Error: The Term must have a Type attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Term Name="MyTerm"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

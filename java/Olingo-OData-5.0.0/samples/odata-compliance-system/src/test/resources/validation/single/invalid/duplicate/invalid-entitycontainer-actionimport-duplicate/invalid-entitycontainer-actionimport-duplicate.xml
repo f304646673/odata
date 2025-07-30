@@ -1,0 +1,19 @@
+<!--
+错误原因：EntityContainer 下有重复的 ActionImport 名称。
+Error Reason: There are duplicate ActionImport names under the EntityContainer.
+应报错：ActionImport 名称必须唯一。
+Expected Error: ActionImport names must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Action Name="A">
+        <Parameter Name="p1" Type="Edm.String"/>
+      </Action>
+      <EntityContainer Name="Container">
+        <ActionImport Name="A1" Action="Test.A"/>
+        <ActionImport Name="A1" Action="Test.A"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

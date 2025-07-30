@@ -1,0 +1,20 @@
+<!--
+错误原因：EntityType 存在循环继承。
+Error Reason: The EntityType has circular inheritance.
+应报错：EntityType 不能形成继承环。
+Expected Error: The EntityType must not form an inheritance cycle.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="A" BaseType="Test.B">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <EntityType Name="B" BaseType="Test.A">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

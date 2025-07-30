@@ -1,0 +1,11 @@
+<!--
+错误原因：<edmx:DataServices> 下没有 <Schema> 元素。
+Reason: No <Schema> element under <edmx:DataServices>.
+应报错：缺少 <Schema> 元素。
+Expected: Missing <Schema> element.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <!-- 缺少 <Schema> 元素 -->
+  </edmx:DataServices>
+</edmx:Edmx>

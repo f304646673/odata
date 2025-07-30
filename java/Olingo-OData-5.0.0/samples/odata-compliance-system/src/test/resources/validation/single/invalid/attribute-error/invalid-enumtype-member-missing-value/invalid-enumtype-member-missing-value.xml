@@ -1,0 +1,15 @@
+<!--
+错误原因：EnumType Member 缺少 Value 属性。
+Error Reason: The EnumType Member is missing the Value attribute.
+应报错：Member 必须有 Value 属性。
+Expected Error: The Member must have a Value attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EnumType Name="Color">
+        <Member Name="Red"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

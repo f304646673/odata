@@ -1,0 +1,20 @@
+<!--
+错误原因：EntityContainer 下有重复的 FunctionImport 名称。
+Error Reason: There are duplicate FunctionImport names under the EntityContainer.
+应报错：FunctionImport 名称必须唯一。
+Expected Error: FunctionImport names must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="F">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+      <EntityContainer Name="Container">
+        <FunctionImport Name="F1" Function="Test.F"/>
+        <FunctionImport Name="F1" Function="Test.F"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

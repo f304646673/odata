@@ -1,0 +1,14 @@
+<!--
+错误原因：Term Type 指向的类型不是可用的类型（如 EntityType 不能作为 Term Type）。
+Error Reason: The Term Type points to an invalid type (e.g., EntityType cannot be used as Term Type).
+应报错：Term Type 必须为 Edm.primitive, ComplexType, EnumType, 或 TypeDefinition。
+Expected Error: The Term Type must be Edm.primitive, ComplexType, EnumType, or TypeDefinition.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="NotPrimitive"/>
+      <Term Name="TestTerm" Type="Test.NotPrimitive"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

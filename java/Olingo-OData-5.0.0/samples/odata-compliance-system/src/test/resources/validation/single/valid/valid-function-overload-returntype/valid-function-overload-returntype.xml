@@ -1,0 +1,17 @@
+<!--
+同名Function参数相同但返回值不同，合规（重载）。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="GetSomething">
+        <Parameter Name="id" Type="Edm.Int32"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+      <Function Name="GetSomething">
+        <Parameter Name="id" Type="Edm.Int32"/>
+        <ReturnType Type="Edm.Boolean"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

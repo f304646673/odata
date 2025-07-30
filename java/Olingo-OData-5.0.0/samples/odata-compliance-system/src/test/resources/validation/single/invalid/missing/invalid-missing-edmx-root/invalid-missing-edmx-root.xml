@@ -1,0 +1,14 @@
+<!--
+错误原因：缺少 <edmx:Edmx> 根元素。
+Reason: Missing <edmx:Edmx> root element.
+应报错：缺少OData元数据根元素 <edmx:Edmx>。
+Expected: Missing OData metadata root element <edmx:Edmx>.
+-->
+<edmx:DataServices xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+    <EntityType Name="Entity">
+      <Key><PropertyRef Name="ID"/></Key>
+      <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+    </EntityType>
+  </Schema>
+</edmx:DataServices>

@@ -1,0 +1,17 @@
+<!--
+错误原因：使用了未知的 Annotation。
+Reason: An unknown Annotation is used.
+应报错：未知的 Annotation。
+Expected: Unknown Annotation.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Annotation Term="Test.Term"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

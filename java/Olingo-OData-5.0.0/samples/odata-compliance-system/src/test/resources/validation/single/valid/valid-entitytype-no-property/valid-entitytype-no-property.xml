@@ -1,0 +1,14 @@
+<!--
+此EntityType未定义任何Property，符合OData 4.0规范。
+OData 4.0允许EntityType无Property（如仅用于导航或Key），但一般实际业务会建议至少有一个Property。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <!-- 无 Property 元素，依然合规 -->
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

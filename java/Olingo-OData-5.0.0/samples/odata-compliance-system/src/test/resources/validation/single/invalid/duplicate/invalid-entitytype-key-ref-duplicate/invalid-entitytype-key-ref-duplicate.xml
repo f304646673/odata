@@ -1,0 +1,19 @@
+<!--
+错误原因：EntityType Key 中有重复的 PropertyRef。
+Error Reason: There are duplicate PropertyRef elements in the EntityType Key.
+应报错：Key 中的 PropertyRef 不允许重复。
+Expected Error: Duplicate PropertyRef elements are not allowed in the Key.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="KeyRefDuplicate">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

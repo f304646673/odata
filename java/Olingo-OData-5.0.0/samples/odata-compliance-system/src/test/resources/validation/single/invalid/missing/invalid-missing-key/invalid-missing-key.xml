@@ -1,0 +1,15 @@
+<!--
+错误原因：<EntityType> 缺少 <Key>。
+Reason: <EntityType> is missing a <Key> element.
+应报错：EntityType 必须包含 <Key> 元素。
+Expected: EntityType must contain a <Key> element.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

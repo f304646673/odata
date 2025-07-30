@@ -1,0 +1,18 @@
+<!--
+错误原因：同一 EntityType 下有两个同名 NavigationProperty。
+Error Reason: There are two NavigationProperties with the same name under the same EntityType.
+应报错：NavigationProperty 名称不能重复。
+Expected Error: NavigationProperty names must not be duplicated.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <NavigationProperty Name="Nav" Type="Test.Other"/>
+        <NavigationProperty Name="Nav" Type="Test.Other2"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,16 @@
+<!--
+错误原因：Key引用的Property不存在。
+Error Reason: The Property referenced by the Key does not exist.
+应报错：Key PropertyRef Name必须指向本EntityType下存在的Property。
+Expected Error: The Key PropertyRef Name must point to an existing Property within the EntityType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <!-- 没有ID属性 -->
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,16 @@
+<!--
+错误原因：EntityType 继承自自身。
+Error Reason: The EntityType inherits from itself.
+应报错：EntityType 不能继承自身。
+Expected Error: The EntityType must not inherit from itself.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Self" BaseType="Test.Self">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

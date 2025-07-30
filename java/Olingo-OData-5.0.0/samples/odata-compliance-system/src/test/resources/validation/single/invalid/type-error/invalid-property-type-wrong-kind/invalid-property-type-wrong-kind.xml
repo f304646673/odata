@@ -1,0 +1,21 @@
+<!--
+错误原因：Property Type 指向的类型不是可用的类型（如 EntityType 不能作为 Property Type）。
+Error Reason: The Property Type points to an invalid type (e.g., EntityType cannot be used as a Property Type).
+应报错：Property Type 必须为可用的类型（Edm.primitive, ComplexType, EnumType, TypeDefinition）。
+Expected Error: The Property Type must be a valid type (Edm.primitive, ComplexType, EnumType, TypeDefinition).
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="TestEntity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <EntityType Name="OtherEntity">
+          <Key><PropertyRef Name="OID"/></Key>
+          <Property Name="OID" Type="Edm.Int32" Nullable="false"/>
+        </EntityType>
+        <Property Name="WrongKind" Type="Test.OtherEntity"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

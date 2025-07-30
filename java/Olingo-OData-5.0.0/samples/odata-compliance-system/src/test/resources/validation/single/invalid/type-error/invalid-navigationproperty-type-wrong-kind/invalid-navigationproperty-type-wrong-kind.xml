@@ -1,0 +1,18 @@
+<!--
+错误原因：NavigationProperty Type 指向的类型不是 EntityType。
+Reason: NavigationProperty Type points to a type that is not an EntityType.
+应报错：NavigationProperty Type 必须引用 EntityType。
+Expected: NavigationProperty Type must reference an EntityType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="NotEntity"/>
+      <EntityType Name="TestEntity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <NavigationProperty Name="Nav" Type="Test.NotEntity"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,11 @@
+<!--
+此Schema未定义任何类型，符合OData 4.0规范。
+OData 4.0允许Schema为空或只包含Annotation/Reference等，无需强制有EntityType/ComplexType等类型定义。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <!-- 无 EntityType/ComplexType/EnumType/TypeDefinition/Action/Function/Term，依然合规 -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

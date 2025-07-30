@@ -1,0 +1,18 @@
+<!--
+错误原因：ComplexType 存在循环继承。
+Error Reason: The ComplexType has circular inheritance.
+应报错：ComplexType 不能形成继承环。
+Expected Error: The ComplexType must not form an inheritance cycle.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="A" BaseType="Test.B">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="B" BaseType="Test.A">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

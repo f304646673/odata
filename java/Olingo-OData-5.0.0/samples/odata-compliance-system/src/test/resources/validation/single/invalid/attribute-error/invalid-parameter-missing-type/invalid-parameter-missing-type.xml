@@ -1,0 +1,16 @@
+<!--
+错误原因：Function Parameter 缺少 Type 属性。
+Error Reason: The Function Parameter is missing the Type attribute.
+应报错：Parameter 必须有 Type 属性。
+Expected Error: The Parameter must have a Type attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="GetSomething">
+        <Parameter Name="id"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

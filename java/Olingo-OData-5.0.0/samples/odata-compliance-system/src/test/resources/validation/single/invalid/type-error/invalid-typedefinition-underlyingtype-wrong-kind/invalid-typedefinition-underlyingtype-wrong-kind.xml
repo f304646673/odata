@@ -1,0 +1,14 @@
+<!--
+错误原因：TypeDefinition UnderlyingType 指向的类型不是可用的基础类型（如 EntityType 不能作为 UnderlyingType）。
+Reason: TypeDefinition UnderlyingType points to a type that is not a valid base type (e.g., EntityType cannot be used as UnderlyingType).
+应报错：TypeDefinition UnderlyingType 必须为 Edm.primitive 或 EnumType。
+Expected: TypeDefinition UnderlyingType must be Edm.primitive or EnumType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="NotPrimitive"/>
+      <TypeDefinition Name="CustomType" UnderlyingType="Test.NotPrimitive"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

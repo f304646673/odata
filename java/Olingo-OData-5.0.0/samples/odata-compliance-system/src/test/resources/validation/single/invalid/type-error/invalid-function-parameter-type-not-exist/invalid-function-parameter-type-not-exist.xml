@@ -1,0 +1,14 @@
+<!--
+错误原因：Function Parameter Type 指向不存在的类型。
+应报错：Function Parameter Type 必须引用已定义的类型。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="TestFunction">
+        <Parameter Name="p1" Type="Test.NotExistType"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

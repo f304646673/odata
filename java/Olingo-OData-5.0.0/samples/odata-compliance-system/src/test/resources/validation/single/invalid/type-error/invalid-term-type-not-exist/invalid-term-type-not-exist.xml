@@ -1,0 +1,13 @@
+<!--
+错误原因：Term Type 指向不存在的类型。
+Error Reason: The Term Type points to a non-existent type.
+应报错：Term Type 必须引用已定义的类型。
+Expected Error: The Term Type must reference a defined type.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Term Name="TestTerm" Type="Test.NotExistType"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

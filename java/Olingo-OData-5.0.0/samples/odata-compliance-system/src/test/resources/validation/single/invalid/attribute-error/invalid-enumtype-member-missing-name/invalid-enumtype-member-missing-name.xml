@@ -1,0 +1,15 @@
+<!--
+错误原因：EnumType Member 缺少 Name 属性。
+Error Reason: The EnumType Member is missing the Name attribute.
+应报错：Member 必须有 Name 属性。
+Expected Error: The Member must have a Name attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EnumType Name="Color">
+        <Member Value="0"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,16 @@
+<!--
+错误原因：Function ReturnType 缺少 Type 属性。
+Error Reason: The Function ReturnType is missing the Type attribute.
+应报错：ReturnType 必须有 Type 属性。
+Expected Error: The ReturnType must have a Type attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="GetSomething">
+        <Parameter Name="id" Type="Edm.Int32"/>
+        <ReturnType/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

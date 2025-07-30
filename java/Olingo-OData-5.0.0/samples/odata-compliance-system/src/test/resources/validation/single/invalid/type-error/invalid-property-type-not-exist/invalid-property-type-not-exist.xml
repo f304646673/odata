@@ -1,0 +1,17 @@
+<!--
+错误原因：Property Type 指向不存在的类型。
+Reason: Property Type points to a non-existent type.
+应报错：Property Type 必须引用已定义的类型。
+Expected: Property Type must reference a defined type.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="TestEntity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="NotExist" Type="Test.NotExistType"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

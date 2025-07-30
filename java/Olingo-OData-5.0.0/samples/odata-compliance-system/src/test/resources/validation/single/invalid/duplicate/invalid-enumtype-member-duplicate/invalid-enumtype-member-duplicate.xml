@@ -1,0 +1,14 @@
+<!--
+错误原因：EnumType 下有重复的 Member 名称。
+应报错：EnumType 的 Member 名称必须唯一。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EnumType Name="Color">
+        <Member Name="Red" Value="1"/>
+        <Member Name="Red" Value="2"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

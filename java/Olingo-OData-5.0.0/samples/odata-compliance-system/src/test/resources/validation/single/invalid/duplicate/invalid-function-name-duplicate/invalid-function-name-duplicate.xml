@@ -1,0 +1,20 @@
+<!--
+错误原因：同一 Schema 下有两个同名 Function（参数签名相同）。
+Error Reason: There are two Functions with the same name (and parameter signature) under the same Schema.
+应报错：Function 名称+参数签名必须唯一。
+Expected Error: The Function name and parameter signature must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="F1">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+      <Function Name="F1">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

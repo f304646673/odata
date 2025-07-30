@@ -1,0 +1,19 @@
+<!--
+错误原因：ComplexType BaseType 指向的类型不是 ComplexType。
+Error Reason: The ComplexType BaseType points to a type that is not a ComplexType.
+应报错：BaseType 必须引用 ComplexType。
+Expected Error: The BaseType must reference a ComplexType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Base">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <ComplexType Name="Child" BaseType="Test.Base">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

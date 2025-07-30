@@ -1,0 +1,15 @@
+<!--
+错误原因：EntitySet 缺少 EntityType 属性。
+Error Reason: The EntitySet is missing the EntityType attribute.
+应报错：EntitySet 必须有 EntityType 属性。
+Expected Error: The EntitySet must have an EntityType attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityContainer Name="Default">
+        <EntitySet Name="Entities"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

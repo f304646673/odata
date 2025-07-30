@@ -1,0 +1,16 @@
+<!--
+错误原因：同一 <Schema> 下有两个同名 <EnumType>。
+应报错：EnumType 名称不能重复。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EnumType Name="Color">
+        <Member Name="Red" Value="0"/>
+      </EnumType>
+      <EnumType Name="Color">
+        <Member Name="Blue" Value="1"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

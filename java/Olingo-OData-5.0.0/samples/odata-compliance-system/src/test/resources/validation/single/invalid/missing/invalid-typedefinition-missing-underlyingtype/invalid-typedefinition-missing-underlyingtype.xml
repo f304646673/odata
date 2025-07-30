@@ -1,0 +1,13 @@
+<!--
+错误原因：TypeDefinition 缺少 UnderlyingType 属性。
+Error Reason: The TypeDefinition is missing the UnderlyingType attribute.
+应报错：TypeDefinition 必须有 UnderlyingType 属性。
+Expected Error: The TypeDefinition must have an UnderlyingType attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <TypeDefinition Name="MyString"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

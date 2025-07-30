@@ -1,0 +1,20 @@
+<!--
+错误原因：同一 <Schema> 下有两个同名 <EntityType>。
+Reason: Two <EntityType> elements with the same name exist in one <Schema>.
+应报错：EntityType 名称不能重复。
+Expected: EntityType names must be unique within a Schema.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID2"/></Key>
+        <Property Name="ID2" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

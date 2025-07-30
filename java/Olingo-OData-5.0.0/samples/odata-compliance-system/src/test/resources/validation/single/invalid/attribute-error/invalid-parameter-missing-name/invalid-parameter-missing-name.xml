@@ -1,0 +1,16 @@
+<!--
+错误原因：Function Parameter 缺少 Name 属性。
+Reason: Function Parameter is missing the Name attribute.
+应报错：Parameter 必须有 Name 属性。
+Expected: Parameter must have a Name attribute.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="GetSomething">
+        <Parameter Type="Edm.Int32"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

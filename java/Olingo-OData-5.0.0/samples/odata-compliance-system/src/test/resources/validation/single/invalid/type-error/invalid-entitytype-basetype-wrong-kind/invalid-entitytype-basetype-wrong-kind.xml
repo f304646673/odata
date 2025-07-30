@@ -1,0 +1,17 @@
+<!--
+错误原因：EntityType BaseType 指向的类型不是 EntityType。
+Error Reason: The EntityType BaseType points to a type that is not an EntityType.
+应报错：BaseType 必须引用 EntityType。
+Expected Error: The BaseType must reference an EntityType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="Base"/>
+      <EntityType Name="Child" BaseType="Test.Base">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

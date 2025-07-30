@@ -1,0 +1,24 @@
+<!--
+合法复杂OData 4.0 XML示例。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Core">
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+      <EntityType Name="Customer">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Address" Type="Test.Core.Address"/>
+      </EntityType>
+    </Schema>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Sales">
+      <EntityType Name="Order">
+        <Key><PropertyRef Name="OrderID"/></Key>
+        <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+        <NavigationProperty Name="Customer" Type="Test.Core.Customer"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,15 @@
+<!--
+错误原因：ComplexType 继承自自身。
+Error Reason: The ComplexType inherits from itself.
+应报错：ComplexType 不能继承自身。
+Expected Error: The ComplexType must not inherit from itself.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="Self" BaseType="Test.Self">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

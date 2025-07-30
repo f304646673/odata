@@ -1,0 +1,15 @@
+<!--
+错误原因：ComplexType BaseType 指向不存在的类型。
+Error Reason: The ComplexType BaseType points to a non-existent type.
+应报错：BaseType 必须引用已定义的 ComplexType。
+Expected Error: The BaseType must reference a defined ComplexType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="Child" BaseType="Test.NotExist">
+        <Property Name="Street" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

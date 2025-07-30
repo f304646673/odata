@@ -1,0 +1,14 @@
+<!--
+错误原因：同一 Schema 下有两个同名 EntityContainer。
+Error Reason: There are two EntityContainers with the same name under the same Schema.
+应报错：EntityContainer 名称必须唯一。
+Expected Error: EntityContainer names must be unique.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityContainer Name="Container"/>
+      <EntityContainer Name="Container"/>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

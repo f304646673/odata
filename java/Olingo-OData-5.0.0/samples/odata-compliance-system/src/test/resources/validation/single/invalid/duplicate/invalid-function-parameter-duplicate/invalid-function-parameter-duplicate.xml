@@ -1,0 +1,15 @@
+<!--
+错误原因：Function 下有重复的 Parameter 名称。
+应报错：Function 的 Parameter 名称必须唯一。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Function Name="TestFunction">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <Parameter Name="p1" Type="Edm.Int32"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

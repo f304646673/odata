@@ -1,0 +1,14 @@
+<!--
+错误原因：Action 下有重复的 Parameter 名称。
+应报错：Action 的 Parameter 名称必须唯一。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <Action Name="TestAction">
+        <Parameter Name="p1" Type="Edm.String"/>
+        <Parameter Name="p1" Type="Edm.Int32"/>
+      </Action>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

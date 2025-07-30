@@ -1,0 +1,14 @@
+<!--
+错误原因：缺少 <edmx:DataServices> 元素。
+Reason: Missing <edmx:DataServices> element.
+应报错：缺少 <edmx:DataServices> 元素。
+Expected: Missing <edmx:DataServices> element.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+    <EntityType Name="Entity">
+      <Key><PropertyRef Name="ID"/></Key>
+      <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+    </EntityType>
+  </Schema>
+</edmx:Edmx>

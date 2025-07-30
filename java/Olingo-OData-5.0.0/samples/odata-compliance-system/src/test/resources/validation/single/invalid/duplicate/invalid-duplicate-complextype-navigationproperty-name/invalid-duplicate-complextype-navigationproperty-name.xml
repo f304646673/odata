@@ -1,0 +1,16 @@
+<!--
+错误原因：同一 ComplexType 下有两个同名 NavigationProperty。
+Reason: Two NavigationProperty elements with the same name exist in one ComplexType.
+应报错：NavigationProperty 名称不能重复。
+Expected: NavigationProperty names must be unique within a ComplexType.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <ComplexType Name="Address">
+        <NavigationProperty Name="Nav" Type="Test.Other"/>
+        <NavigationProperty Name="Nav" Type="Test.Other2"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
