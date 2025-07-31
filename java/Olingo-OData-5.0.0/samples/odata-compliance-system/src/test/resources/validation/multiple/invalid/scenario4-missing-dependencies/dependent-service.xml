@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Dependent.Service" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 引用不存在的类型 NonExistent.Base.MissingType -->
+      <EntityType Name="DependentEntity" BaseType="NonExistent.Base.MissingType">
+        <Property Name="AdditionalProperty" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- 使用不存在的ComplexType -->
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerID"/>
+        </Key>
+        <Property Name="CustomerID" Type="Edm.String" Nullable="false"/>
+        <Property Name="AddressInfo" Type="NonExistent.Models.MissingAddress"/>
+      </EntityType>
+      
+      <EntityContainer Name="Container">
+        <EntitySet Name="Customers" EntityType="Dependent.Service.Customer"/>
+        <EntitySet Name="DependentEntities" EntityType="Dependent.Service.DependentEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

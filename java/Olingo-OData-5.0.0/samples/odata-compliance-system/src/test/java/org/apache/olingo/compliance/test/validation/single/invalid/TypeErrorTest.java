@@ -56,6 +56,7 @@ public class TypeErrorTest extends BaseComplianceTest {
         new TypeTestCase("invalid-action-returntype-wrong-kind", ComplianceErrorType.VALIDATION_ERROR, "action return"),
         new TypeTestCase("invalid-complextype-basetype-not-exist", ComplianceErrorType.VALIDATION_ERROR, "complex type"),
         new TypeTestCase("invalid-complextype-basetype-wrong-kind", ComplianceErrorType.VALIDATION_ERROR, "complex type"),
+        new TypeTestCase("invalid-complextype-inherits-entitytype", ComplianceErrorType.INVALID_BASE_TYPE, "complex type cannot inherit from entity type"),
         new TypeTestCase("invalid-entitytype-basetype-not-exist", ComplianceErrorType.VALIDATION_ERROR, "entity type"),
         new TypeTestCase("invalid-entitytype-basetype-wrong-kind", ComplianceErrorType.VALIDATION_ERROR, "entity type"),
         new TypeTestCase("invalid-entitytype-key-ref-not-exist", ComplianceErrorType.VALIDATION_ERROR, "key reference"),

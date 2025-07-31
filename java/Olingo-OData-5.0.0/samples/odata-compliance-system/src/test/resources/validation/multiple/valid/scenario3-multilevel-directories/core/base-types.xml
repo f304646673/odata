@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Core.Base" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="BaseEntity" Abstract="true">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="ModifiedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+      
+      <ComplexType Name="AuditInfo">
+        <Property Name="CreatedBy" Type="Edm.String"/>
+        <Property Name="ModifiedBy" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

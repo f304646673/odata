@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Extensions.Customer" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 正确的继承：EntityType继承EntityType -->
+      <EntityType Name="Customer" BaseType="Core.Base.BaseEntity">
+        <Property Name="CustomerName" Type="Edm.String"/>
+        <Property Name="Email" Type="Edm.String"/>
+      </EntityType>
+      
+      <ComplexType Name="CustomerInfo">
+        <Property Name="FullName" Type="Edm.String"/>
+        <Property Name="PreferredLanguage" Type="Edm.String"/>
+      </ComplexType>
+      
+      <EntityContainer Name="Container">
+        <EntitySet Name="Customers" EntityType="Extensions.Customer.Customer"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

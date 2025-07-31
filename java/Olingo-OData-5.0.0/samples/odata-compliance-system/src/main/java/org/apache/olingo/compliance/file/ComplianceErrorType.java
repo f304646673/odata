@@ -47,6 +47,14 @@ public enum ComplianceErrorType {
     INVALID_SCHEMA_STRUCTURE("Invalid schema structure"),
     INVALID_INHERITANCE_HIERARCHY("Invalid inheritance hierarchy"),
     
+    // Directory validation errors
+    ELEMENT_CONFLICT("Element conflict across files"),
+    ALIAS_CONFLICT("Alias conflict across files"),
+    NAMESPACE_CONFLICT("Namespace conflict"),
+    CIRCULAR_REFERENCE("Circular reference detected"),
+    SCHEMA_DEPENDENCY_ERROR("Schema dependency error"),
+    MULTIPLE_SCHEMA_SAME_NAMESPACE("Multiple schemas with same namespace"),
+    
     // Other errors
     UNKNOWN_ANNOTATION("Unknown annotation"),
     VALIDATION_ERROR("General validation error"),

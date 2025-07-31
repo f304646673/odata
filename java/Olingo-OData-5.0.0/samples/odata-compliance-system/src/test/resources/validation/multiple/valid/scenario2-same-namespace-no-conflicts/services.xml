@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Shared.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="OrderID"/>
+        </Key>
+        <Property Name="OrderID" Type="Edm.String" Nullable="false"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="CustomerID" Type="Edm.String"/>
+      </EntityType>
+      
+      <ComplexType Name="OrderInfo">
+        <Property Name="TotalAmount" Type="Edm.Decimal"/>
+        <Property Name="Status" Type="Edm.String"/>
+      </ComplexType>
+      
+      <EntityContainer Name="Container">
+        <EntitySet Name="Customers" EntityType="Shared.Models.Customer"/>
+        <EntitySet Name="Orders" EntityType="Shared.Models.Order"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

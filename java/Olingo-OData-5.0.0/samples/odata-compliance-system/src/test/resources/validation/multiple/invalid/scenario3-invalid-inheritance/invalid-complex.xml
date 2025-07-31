@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Inheritance.Invalid" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 无效的继承：ComplexType试图继承EntityType -->
+      <ComplexType Name="InvalidComplex" BaseType="Inheritance.Base.BaseEntity">
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="Category" Type="Edm.String"/>
+      </ComplexType>
+      
+      <EntityContainer Name="Container">
+        <EntitySet Name="BaseEntities" EntityType="Inheritance.Base.BaseEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

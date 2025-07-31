@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <!-- 跨命名空间别名冲突：不同命名空间使用相同别名 "SVC" -->
+    <Schema Namespace="Service.V2" Alias="SVC" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerID"/>
+        </Key>
+        <Property Name="CustomerID" Type="Edm.String" Nullable="false"/>
+        <Property Name="CustomerName" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityContainer Name="Container">
+        <EntitySet Name="Customers" EntityType="Service.V2.Customer"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
