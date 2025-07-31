@@ -11,16 +11,6 @@
         <Property Name="Name" Type="Edm.String"/>
         <Property Name="Phone" Type="Edm.String"/>
       </EntityType>
-      
-      <!-- 同一命名空间，重复定义Address ComplexType - 这应该引发冲突 -->
-      <ComplexType Name="Address">
-        <Property Name="StreetAddress" Type="Edm.String"/>
-        <Property Name="PostalCode" Type="Edm.String"/>
-      </ComplexType>
-      
-      <EntityContainer Name="Container">
-        <EntitySet Name="Customers" EntityType="Conflicted.Models.Customer"/>
-      </EntityContainer>
     </Schema>
   </edmx:DataServices>
 </edmx:Edmx>

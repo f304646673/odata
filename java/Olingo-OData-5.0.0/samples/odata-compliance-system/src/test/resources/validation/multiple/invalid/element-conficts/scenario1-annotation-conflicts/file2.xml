@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Model" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotations Target="Test.Model.Entity1">
+        <Annotation Term="UI.DisplayName" String="Entity1" />
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

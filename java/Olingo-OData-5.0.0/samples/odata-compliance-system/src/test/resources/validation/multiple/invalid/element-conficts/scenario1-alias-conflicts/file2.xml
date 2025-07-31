@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Model2" Alias="AliasConflict" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Entity2" />
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Model" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Order">
+        <Key><PropertyRef Name="OrderID"/></Key>
+        <Property Name="OrderID" Type="Edm.String" Nullable="false"/>
+        <NavigationProperty Name="Customer" Type="Test.Model.Customer">
+          <ReferentialConstraint Property="OrderID" ReferencedProperty="CustomerID" />
+        </NavigationProperty>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

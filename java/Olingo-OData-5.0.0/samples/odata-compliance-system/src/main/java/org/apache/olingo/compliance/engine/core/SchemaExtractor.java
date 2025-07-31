@@ -106,6 +106,43 @@ public class SchemaExtractor {
             }
         }
         
+        // 提取TypeDefinition
+        NodeList typeDefinitions = schemaElement.getElementsByTagNameNS("*", "TypeDefinition");
+        for (int i = 0; i < typeDefinitions.getLength(); i++) {
+            Element element = (Element) typeDefinitions.item(i);
+            String name = element.getAttribute("Name");
+            String underlyingType = element.getAttribute("UnderlyingType");
+            
+            if (name != null && !name.isEmpty()) {
+                types.add(new TypeDefinition(name, "TypeDefinition", underlyingType));
+            }
+        }
+        
+        // 提取Term
+        NodeList terms = schemaElement.getElementsByTagNameNS("*", "Term");
+        for (int i = 0; i < terms.getLength(); i++) {
+            Element element = (Element) terms.item(i);
+            String name = element.getAttribute("Name");
+            String termType = element.getAttribute("Type");
+            
+            if (name != null && !name.isEmpty()) {
+                types.add(new TypeDefinition(name, "Term", termType));
+            }
+        }
+        
+        // 提取Annotation
+        NodeList annotations = schemaElement.getElementsByTagNameNS("*", "Annotation");
+        for (int i = 0; i < annotations.getLength(); i++) {
+            Element element = (Element) annotations.item(i);
+            String term = element.getAttribute("Term");
+            String target = element.getAttribute("Target");
+            
+            if (term != null && !term.isEmpty()) {
+                // 对于Annotation，我们使用Term作为名称，因为它们是按Term分组的
+                types.add(new TypeDefinition(term, "Annotation", target));
+            }
+        }
+        
         // 提取Action
         NodeList actions = schemaElement.getElementsByTagNameNS("*", "Action");
         for (int i = 0; i < actions.getLength(); i++) {

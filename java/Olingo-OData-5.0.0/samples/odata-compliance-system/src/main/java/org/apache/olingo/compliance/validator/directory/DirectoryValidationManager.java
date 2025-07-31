@@ -43,6 +43,10 @@ public class DirectoryValidationManager {
     public DirectoryValidationResult validateDirectory(String directoryPath, SchemaRegistry systemRegistry) throws IOException {
         long startTime = System.currentTimeMillis();
         
+        // 每次验证时重置冲突检测的数据结构
+        namespaceToSchemas.clear();
+        fileToSchema.clear();
+        
         // 1. 收集所有XML文件
         List<File> xmlFiles = collectXmlFiles(directoryPath);
         
@@ -115,6 +119,97 @@ public class DirectoryValidationManager {
         }
         
         return xmlFiles;
+    }
+    
+    /**
+     * 只收集指定目录中的XML文件（不递归子目录）
+     */
+    private List<File> collectXmlFilesNonRecursive(String directoryPath) throws IOException {
+        List<File> xmlFiles = new ArrayList<>();
+        Path dirPath = Paths.get(directoryPath);
+        
+        if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
+            return xmlFiles;
+        }
+        
+        try (Stream<Path> paths = Files.list(dirPath)) {
+            paths.filter(Files::isRegularFile)
+                 .filter(path -> path.toString().toLowerCase().endsWith(".xml"))
+                 .sorted() // 确保处理顺序一致
+                 .forEach(path -> xmlFiles.add(path.toFile()));
+        }
+        
+        return xmlFiles;
+    }
+    
+    /**
+     * 验证单个目录（不递归子目录）
+     * @param directoryPath 目录路径
+     * @param systemRegistry 系统级Schema注册表（可选，包含外部依赖）
+     */
+    public DirectoryValidationResult validateSingleDirectory(String directoryPath, SchemaRegistry systemRegistry) throws IOException {
+        long startTime = System.currentTimeMillis();
+        
+        // 每次验证时重置冲突检测的数据结构
+        namespaceToSchemas.clear();
+        fileToSchema.clear();
+        
+        // 1. 收集指定目录中的XML文件（不递归）
+        List<File> xmlFiles = collectXmlFilesNonRecursive(directoryPath);
+        
+        // 2. 构建目录级Schema Registry
+        SchemaRegistry directoryRegistry = buildDirectoryRegistry(xmlFiles);
+        
+        // 3. 合并系统级和目录级Registry
+        SchemaRegistry combinedRegistry = new SchemaRegistry();
+        if (systemRegistry != null) {
+            combinedRegistry.merge(systemRegistry);
+        }
+        combinedRegistry.merge(directoryRegistry);
+        
+        // 4. 使用合并后的Registry验证每个文件
+        Map<String, XmlComplianceResult> fileResults = new LinkedHashMap<>();
+        List<ComplianceIssue> allIssues = new ArrayList<>();
+        
+        for (File xmlFile : xmlFiles) {
+            try {
+                XmlComplianceResult result = fileValidator.validateWithRegistry(xmlFile, combinedRegistry);
+                fileResults.put(xmlFile.getAbsolutePath(), result);
+                allIssues.addAll(result.getIssues());
+            } catch (Exception e) {
+                ComplianceIssue issue = new ComplianceIssue(
+                    ComplianceErrorType.VALIDATION_ERROR,
+                    "Failed to validate file: " + e.getMessage(),
+                    null,
+                    xmlFile.getAbsolutePath(),
+                    ComplianceIssue.Severity.ERROR
+                );
+                allIssues.add(issue);
+            }
+        }
+        
+        // 5. 检测Schema冲突（仅针对当前目录）
+        List<ComplianceIssue> conflictIssues = conflictDetector.detectConflicts(namespaceToSchemas);
+        allIssues.addAll(conflictIssues);
+        
+        long endTime = System.currentTimeMillis();
+        
+        return new DirectoryValidationResult(
+            directoryPath,
+            xmlFiles.size(),
+            fileResults,
+            conflictIssues,
+            allIssues,
+            createStatistics(combinedRegistry, xmlFiles.size(), endTime - startTime, fileResults),
+            endTime - startTime
+        );
+    }
+    
+    /**
+     * 验证单个目录（不递归子目录，使用默认的空系统Registry）
+     */
+    public DirectoryValidationResult validateSingleDirectory(String directoryPath) throws IOException {
+        return validateSingleDirectory(directoryPath, null);
     }
     
     /**

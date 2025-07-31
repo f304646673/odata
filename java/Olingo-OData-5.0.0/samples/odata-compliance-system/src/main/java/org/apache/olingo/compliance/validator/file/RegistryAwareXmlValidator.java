@@ -188,9 +188,12 @@ public class RegistryAwareXmlValidator {
                 if (baseType != null && !baseType.isEmpty()) {
                     String fullTypeName = currentNamespace + "." + typeName;
                     if (!registry.isValidBaseType(fullTypeName, baseType)) {
+                        ComplianceErrorType errorType = determineInheritanceErrorType(baseType, registry);
+                        String message = determineInheritanceErrorMessage(typeName, baseType, errorType);
+                        
                         issues.add(new ComplianceIssue(
-                            ComplianceErrorType.INVALID_BASE_TYPE,
-                            "Invalid inheritance: EntityType '" + typeName + "' cannot inherit from '" + baseType + "'",
+                            errorType,
+                            message,
                             null,
                             xmlFile.getAbsolutePath(),
                             ComplianceIssue.Severity.ERROR
@@ -209,9 +212,12 @@ public class RegistryAwareXmlValidator {
                 if (baseType != null && !baseType.isEmpty()) {
                     String fullTypeName = currentNamespace + "." + typeName;
                     if (!registry.isValidBaseType(fullTypeName, baseType)) {
+                        ComplianceErrorType errorType = determineInheritanceErrorType(baseType, registry);
+                        String message = determineInheritanceErrorMessage(typeName, baseType, errorType);
+                        
                         issues.add(new ComplianceIssue(
-                            ComplianceErrorType.INVALID_BASE_TYPE,
-                            "Invalid inheritance: ComplexType '" + typeName + "' cannot inherit from '" + baseType + "'",
+                            errorType,
+                            message,
                             null,
                             xmlFile.getAbsolutePath(),
                             ComplianceIssue.Severity.ERROR
@@ -264,5 +270,29 @@ public class RegistryAwareXmlValidator {
             return typeName.substring(11, typeName.length() - 1);
         }
         return typeName;
+    }
+    
+    /**
+     * 根据基类型确定继承错误的类型
+     */
+    private ComplianceErrorType determineInheritanceErrorType(String baseType, SchemaRegistry registry) {
+        // 如果基类型完全不存在，则是依赖错误
+        if (!registry.isTypeExists(baseType)) {
+            return ComplianceErrorType.SCHEMA_DEPENDENCY_ERROR;
+        }
+        
+        // 如果基类型存在但不是合法的基类型，则是继承层次结构错误
+        return ComplianceErrorType.INVALID_INHERITANCE_HIERARCHY;
+    }
+    
+    /**
+     * 根据错误类型生成适当的错误消息
+     */
+    private String determineInheritanceErrorMessage(String typeName, String baseType, ComplianceErrorType errorType) {
+        if (errorType == ComplianceErrorType.SCHEMA_DEPENDENCY_ERROR) {
+            return "Schema dependency error: Type '" + typeName + "' references non-existent base type '" + baseType + "'";
+        } else {
+            return "Invalid inheritance hierarchy: Type '" + typeName + "' cannot inherit from '" + baseType + "'";
+        }
     }
 }

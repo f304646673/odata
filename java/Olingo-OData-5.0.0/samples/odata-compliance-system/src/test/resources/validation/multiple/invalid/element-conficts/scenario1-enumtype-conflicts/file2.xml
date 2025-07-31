@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Conflicted.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EnumType Name="Color">
+        <Member Name="Blue" Value="3"/>
+        <Member Name="Yellow" Value="4"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
