@@ -38,6 +38,7 @@ public class ValidationContext {
     private final Set<String> importedNamespaces;
     private final Set<String> currentSchemaNamespaces;
     private final Set<String> definedTargets;
+    private final Map<String, String> typeKinds;  // Maps type name to type kind (EntityType, ComplexType, etc.)
     private final Map<String, Object> metadata;
     private final Map<String, Object> cache;
     
@@ -62,6 +63,7 @@ public class ValidationContext {
         this.importedNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.currentSchemaNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.definedTargets = Collections.synchronizedSet(new HashSet<>());
+        this.typeKinds = new ConcurrentHashMap<>();
         this.metadata = new ConcurrentHashMap<>();
         this.cache = new ConcurrentHashMap<>();
         this.ruleExecutionTimes = new ConcurrentHashMap<>();
@@ -139,6 +141,19 @@ public class ValidationContext {
     
     public void addDefinedTargets(Set<String> targets) {
         definedTargets.addAll(targets);
+    }
+    
+    // Type kinds management  
+    public void addTypeKind(String typeFullName, String kind) {
+        typeKinds.put(typeFullName, kind);
+    }
+    
+    public String getTypeKind(String typeFullName) {
+        return typeKinds.get(typeFullName);
+    }
+    
+    public Map<String, String> getTypeKinds() {
+        return Collections.unmodifiableMap(typeKinds);
     }
     
     // Metadata management

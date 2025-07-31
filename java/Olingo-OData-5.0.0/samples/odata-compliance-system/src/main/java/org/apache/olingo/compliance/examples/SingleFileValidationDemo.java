@@ -2,6 +2,7 @@ package org.apache.olingo.compliance.examples;
 
 import java.io.File;
 
+import org.apache.olingo.compliance.file.ComplianceIssue;
 import org.apache.olingo.compliance.file.ModernXmlFileComplianceValidator;
 import org.apache.olingo.compliance.file.XmlComplianceResult;
 
@@ -52,16 +53,16 @@ public class SingleFileValidationDemo {
             if (result.hasErrors()) {
                 System.out.println("错误数量: " + result.getErrorCount());
                 System.out.println("错误详情:");
-                for (String error : result.getErrors()) {
-                    System.out.println("  - " + error);
+                for (ComplianceIssue error : result.getErrors()) {
+                    System.out.println("  - " + error.getMessage());
                 }
             }
             
             if (result.hasWarnings()) {
                 System.out.println("警告数量: " + result.getWarningCount());
                 System.out.println("警告详情:");
-                for (String warning : result.getWarnings()) {
-                    System.out.println("  - " + warning);
+                for (ComplianceIssue warning : result.getWarnings()) {
+                    System.out.println("  - " + warning.getMessage());
                 }
             }
             

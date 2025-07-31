@@ -119,7 +119,13 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
         if (schema.getEntityContainer() != null) {
             String error = validateEntityContainer(schema.getEntityContainer(), context, definedNames);
             if (error != null) return error;
-        }        return null;
+        }
+        
+        // PHASE 2: Now that all types are registered, validate BaseType references
+        String error = validateAllBaseTypeReferences(schema, context);
+        if (error != null) return error;
+        
+        return null;
     }
     
     private String validateEntityType(CsdlEntityType entityType, ValidationContext context, Set<String> definedNames) {
@@ -139,14 +145,16 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
         // Register as defined target
         String namespace = getCurrentNamespace(context);
         if (namespace != null) {
-            context.addDefinedTarget(namespace + "." + entityType.getName());
+            String fullName = namespace + "." + entityType.getName();
+            context.addDefinedTarget(fullName);
+            context.addTypeKind(fullName, "EntityType");
         }
 
-        // Check BaseType reference
-        if (entityType.getBaseType() != null) {
-            String error = validateTypeReference(entityType.getBaseType(), context);
-            if (error != null) return error;
-        }
+        // Check BaseType reference - skip for now, will be validated in second phase
+        // if (entityType.getBaseType() != null) {
+        //     String error = validateEntityTypeBaseType(entityType.getBaseType(), context);
+        //     if (error != null) return error;
+        // }
 
         // Validate properties with duplicate name checking
         if (entityType.getProperties() != null) {
@@ -190,14 +198,16 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
         // Register as defined target
         String namespace = getCurrentNamespace(context);
         if (namespace != null) {
-            context.addDefinedTarget(namespace + "." + complexType.getName());
+            String fullName = namespace + "." + complexType.getName();
+            context.addDefinedTarget(fullName);
+            context.addTypeKind(fullName, "ComplexType");
         }
 
-        // Check BaseType reference
-        if (complexType.getBaseType() != null) {
-            String error = validateTypeReference(complexType.getBaseType(), context);
-            if (error != null) return error;
-        }
+        // Check BaseType reference - skip for now, will be validated in second phase
+        // if (complexType.getBaseType() != null) {
+        //     String error = validateComplexTypeBaseType(complexType.getBaseType(), context);
+        //     if (error != null) return error;
+        // }
 
         // Validate properties with duplicate name checking
         if (complexType.getProperties() != null) {
@@ -236,7 +246,9 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
         // Register as defined target
         String namespace = getCurrentNamespace(context);
         if (namespace != null) {
-            context.addDefinedTarget(namespace + "." + enumType.getName());
+            String fullName = namespace + "." + enumType.getName();
+            context.addDefinedTarget(fullName);
+            context.addTypeKind(fullName, "EnumType");
         }
         
         return null;
@@ -543,5 +555,70 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
     @Override
     public long getEstimatedExecutionTime() {
         return 400; // Element validation can be complex
+    }
+    
+    /**
+     * Validates that an EntityType's BaseType reference points to another EntityType.
+     */
+    private String validateEntityTypeBaseType(String baseTypeRef, ValidationContext context) {
+        // First do general type reference validation
+        String error = validateTypeReference(baseTypeRef, context);
+        if (error != null) return error;
+        
+        // Then check type kind if the base type is defined in current schema
+        if (baseTypeRef != null && context.getDefinedTargets().contains(baseTypeRef)) {
+            String baseTypeKind = context.getTypeKind(baseTypeRef);
+            if (baseTypeKind != null && !"EntityType".equals(baseTypeKind)) {
+                return "EntityType BaseType must reference another EntityType, but '" + baseTypeRef + "' is a " + baseTypeKind;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Validates that a ComplexType's BaseType reference points to another ComplexType.
+     */
+    private String validateComplexTypeBaseType(String baseTypeRef, ValidationContext context) {
+        // First do general type reference validation
+        String error = validateTypeReference(baseTypeRef, context);
+        if (error != null) return error;
+        
+        // Then check type kind if the base type is defined in current schema
+        if (baseTypeRef != null && context.getDefinedTargets().contains(baseTypeRef)) {
+            String baseTypeKind = context.getTypeKind(baseTypeRef);
+            if (baseTypeKind != null && !"ComplexType".equals(baseTypeKind)) {
+                return "ComplexType BaseType must reference another ComplexType, but '" + baseTypeRef + "' is a " + baseTypeKind;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Phase 2 validation: Validates all BaseType references after all types have been registered.
+     */
+    private String validateAllBaseTypeReferences(CsdlSchema schema, ValidationContext context) {
+        // Validate EntityType BaseTypes
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                if (entityType.getBaseType() != null) {
+                    String error = validateEntityTypeBaseType(entityType.getBaseType(), context);
+                    if (error != null) return error;
+                }
+            }
+        }
+        
+        // Validate ComplexType BaseTypes
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                if (complexType.getBaseType() != null) {
+                    String error = validateComplexTypeBaseType(complexType.getBaseType(), context);
+                    if (error != null) return error;
+                }
+            }
+        }
+        
+        return null;
     }
 }

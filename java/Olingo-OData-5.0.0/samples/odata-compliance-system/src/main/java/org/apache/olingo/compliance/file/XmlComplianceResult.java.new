@@ -1,10 +1,10 @@
 package org.apache.olingo.compliance.file;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 /**
  * Result of XML file compliance validation with unified issue reporting.
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class XmlComplianceResult {
     
     private final boolean compliant;
-    private final List<ComplianceIssue> issues; // Unified collection for errors and warnings
+    private final List<ComplianceError> issues; // Unified collection for errors and warnings
     private final Set<String> referencedNamespaces;
     private final Map<String, Object> metadata;
     private final String fileName;
@@ -31,7 +31,7 @@ public class XmlComplianceResult {
      * @param validationTimeMs time taken for validation in milliseconds
      */
     public XmlComplianceResult(boolean compliant, 
-                              List<ComplianceIssue> issues,
+                              List<ComplianceError> issues,
                               Set<String> referencedNamespaces, 
                               Map<String, Object> metadata,
                               String fileName, 
@@ -54,31 +54,31 @@ public class XmlComplianceResult {
     /**
      * Get all validation issues (errors and warnings)
      * 
-     * @return list of all ComplianceIssue objects
+     * @return list of all ComplianceError objects
      */
-    public List<ComplianceIssue> getIssues() {
+    public List<ComplianceError> getIssues() {
         return new ArrayList<>(issues);
     }
     
     /**
      * Get all error issues (severity ERROR)
      * 
-     * @return list of error ComplianceIssue objects
+     * @return list of error ComplianceError objects
      */
-    public List<ComplianceIssue> getErrors() {
+    public List<ComplianceError> getErrors() {
         return issues.stream()
-                .filter(issue -> issue.getSeverity() == ComplianceIssue.Severity.ERROR)
+                .filter(issue -> issue.getSeverity() == ComplianceError.Severity.ERROR)
                 .collect(Collectors.toList());
     }
     
     /**
      * Get all warning issues (severity WARNING)
      * 
-     * @return list of warning ComplianceIssue objects
+     * @return list of warning ComplianceError objects
      */
-    public List<ComplianceIssue> getWarnings() {
+    public List<ComplianceError> getWarnings() {
         return issues.stream()
-                .filter(issue -> issue.getSeverity() == ComplianceIssue.Severity.WARNING)
+                .filter(issue -> issue.getSeverity() == ComplianceError.Severity.WARNING)
                 .collect(Collectors.toList());
     }
     
@@ -86,12 +86,12 @@ public class XmlComplianceResult {
      * Get error messages as strings (legacy compatibility)
      * 
      * @return list of error message strings
-     * @deprecated Use getErrors() and ComplianceIssue.getMessage() for structured access
+     * @deprecated Use getErrors() and ComplianceError.getMessage() for structured access
      */
     @Deprecated
     public List<String> getErrorMessages() {
         return getErrors().stream()
-                .map(ComplianceIssue::getMessage)
+                .map(ComplianceError::getMessage)
                 .collect(Collectors.toList());
     }
     
@@ -99,12 +99,12 @@ public class XmlComplianceResult {
      * Get warning messages as strings (legacy compatibility)
      * 
      * @return list of warning message strings
-     * @deprecated Use getWarnings() and ComplianceIssue.getMessage() for structured access
+     * @deprecated Use getWarnings() and ComplianceError.getMessage() for structured access
      */
     @Deprecated
     public List<String> getWarningMessages() {
         return getWarnings().stream()
-                .map(ComplianceIssue::getMessage)
+                .map(ComplianceError::getMessage)
                 .collect(Collectors.toList());
     }
     
@@ -134,7 +134,7 @@ public class XmlComplianceResult {
      * @param errorType the error type to filter by
      * @return list of issues of the specified type
      */
-    public List<ComplianceIssue> getIssuesOfType(ComplianceErrorType errorType) {
+    public List<ComplianceError> getIssuesOfType(ComplianceErrorType errorType) {
         return issues.stream()
                 .filter(issue -> issue.getErrorType() == errorType)
                 .collect(Collectors.toList());
@@ -146,7 +146,7 @@ public class XmlComplianceResult {
      * @param errorType the error type to filter by
      * @return list of errors of the specified type
      */
-    public List<ComplianceIssue> getErrorsOfType(ComplianceErrorType errorType) {
+    public List<ComplianceError> getErrorsOfType(ComplianceErrorType errorType) {
         return getErrors().stream()
                 .filter(error -> error.getErrorType() == errorType)
                 .collect(Collectors.toList());
