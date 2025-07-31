@@ -1,0 +1,13 @@
+<!--
+Valid case: Empty EnumType without members.
+根据OData规范，空的EnumType是允许的。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EnumType Name="Color">
+        <!-- Empty EnumType is valid in OData specification -->
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

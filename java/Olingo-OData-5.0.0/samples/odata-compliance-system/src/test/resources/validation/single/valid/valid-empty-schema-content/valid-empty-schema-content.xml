@@ -1,0 +1,11 @@
+<!--
+Valid case: Empty Schema without EntityType or ComplexType.
+根据OData规范，空的Schema是允许的，可以只包含注解或其他元素。
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <!-- Empty Schema content is valid in OData specification -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

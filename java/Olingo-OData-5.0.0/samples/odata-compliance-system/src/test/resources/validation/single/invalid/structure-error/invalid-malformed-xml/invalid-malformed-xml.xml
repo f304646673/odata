@@ -1,0 +1,16 @@
+<!--
+错误原因：XML 格式非法，缺少结束标签。
+Structural error: Invalid XML format with missing closing tags.
+应报错：XML 解析失败。
+Expected error: XML parsing failed due to malformed structure.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test">
+      <EntityType Name="Entity">
+        <Key><PropertyRef Name="ID"/></Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      <!-- Missing closing tag for EntityType element -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

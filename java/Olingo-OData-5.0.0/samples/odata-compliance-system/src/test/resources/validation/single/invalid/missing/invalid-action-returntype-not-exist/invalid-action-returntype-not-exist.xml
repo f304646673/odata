@@ -1,6 +1,8 @@
 <!--
 错误原因：Action ReturnType 指向不存在的类型。
+Error reason: Action ReturnType references a non-existent type.
 应报错：Action ReturnType 必须引用已定义的类型。
+Expected error: Action ReturnType must reference a defined type.
 -->
 <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
   <edmx:DataServices>

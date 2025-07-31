@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Common.Types">
+      
+      <!-- Common Complex Types -->
+      <ComplexType Name="Money">
+        <Property Name="Amount" Type="Edm.Decimal" Precision="19" Scale="4" Nullable="false"/>
+        <Property Name="Currency" Type="Edm.String" MaxLength="3" Nullable="false"/>
+      </ComplexType>
+
+      <ComplexType Name="ContactInfo">
+        <Property Name="Email" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Phone" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Address" Type="Common.Types.Address"/>
+      </ComplexType>
+
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="255"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Region" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="100"/>
+      </ComplexType>
+
+      <!-- Common Enum Types -->
+      <EnumType Name="StatusType">
+        <Member Name="Active" Value="0"/>
+        <Member Name="Inactive" Value="1"/>
+        <Member Name="Pending" Value="2"/>
+        <Member Name="Archived" Value="3"/>
+      </EnumType>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,6 +1,8 @@
 <!--
 错误原因：同一 <Schema> 下有两个同名 <EntityContainer>。
+Error reason: Two EntityContainers with the same name within the same Schema.
 应报错：EntityContainer 名称不能重复。
+Expected error: EntityContainer names must be unique within a Schema.
 -->
 <edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
   <edmx:DataServices>

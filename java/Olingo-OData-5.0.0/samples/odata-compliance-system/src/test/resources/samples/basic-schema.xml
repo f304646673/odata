@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="TestService">
+      
+      <!-- Entity Types -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="255"/>
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
+        <Property Name="Category" Type="Edm.String" MaxLength="100"/>
+        <Property Name="InStock" Type="Edm.Boolean" Nullable="false"/>
+      </EntityType>
+
+      <EntityType Name="Category">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+        <Property Name="Description" Type="Edm.String"/>
+        <NavigationProperty Name="Products" Type="Collection(TestService.Product)"/>
+      </EntityType>
+
+      <!-- Complex Types -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="255"/>
+        <Property Name="City" Type="Edm.String" MaxLength="100"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="100"/>
+      </ComplexType>
+
+      <!-- Entity Container -->
+      <EntityContainer Name="TestContainer">
+        <EntitySet Name="Products" EntityType="TestService.Product"/>
+        <EntitySet Name="Categories" EntityType="TestService.Category"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
