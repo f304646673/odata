@@ -1,9 +1,9 @@
 package org.apache.olingo.compliance.test.validation.multiple;
 
-import org.apache.olingo.compliance.file.ComplianceErrorType;
-import org.apache.olingo.compliance.file.ComplianceIssue;
-import org.apache.olingo.compliance.validation.directory.DirectoryValidationManager;
-import org.apache.olingo.compliance.validation.directory.SchemaConflictDetector;
+import org.apache.olingo.compliance.core.model.ComplianceErrorType;
+import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
+import org.apache.olingo.compliance.validator.directory.SchemaConflictDetector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;

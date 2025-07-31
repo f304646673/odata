@@ -12,39 +12,39 @@
 - **ModernXmlFileComplianceValidator 类**: `org.apache.olingo.compliance.file.ModernXmlFileComplianceValidator`
 
 ### 2. 验证API层
-- **ValidationResult**: `org.apache.olingo.compliance.validation.api.ValidationResult`
-- **ValidationConfig**: `org.apache.olingo.compliance.validation.api.ValidationConfig`
-- **SchemaValidator**: `org.apache.olingo.compliance.validation.api.SchemaValidator`
+- **ValidationResult**: `org.apache.olingo.compliance.core.api.ValidationResult`
+- **ValidationConfig**: `org.apache.olingo.compliance.core.api.ValidationConfig`
+- **SchemaValidator**: `org.apache.olingo.compliance.core.api.SchemaValidator`
 
 ### 3. 验证实现层
-- **ConfigurableSchemaValidator**: `org.apache.olingo.compliance.validation.impl.ConfigurableSchemaValidator`
-- **DefaultValidationEngine**: `org.apache.olingo.compliance.validation.impl.DefaultValidationEngine`
+- **ConfigurableSchemaValidator**: `org.apache.olingo.compliance..impl.ConfigurableSchemaValidator`
+- **DefaultValidationEngine**: `org.apache.olingo.compliance..impl.DefaultValidationEngine`
 
 ### 4. 验证核心组件
-- **ValidationEngine**: `org.apache.olingo.compliance.validation.core.ValidationEngine`
-- **ValidationContext**: `org.apache.olingo.compliance.validation.core.ValidationContext`
-- **ValidationRule**: `org.apache.olingo.compliance.validation.core.ValidationRule`
-- **ValidationStrategy**: `org.apache.olingo.compliance.validation.core.ValidationStrategy`
+- **ValidationEngine**: `org.apache.olingo.compliance..core.ValidationEngine`
+- **ValidationContext**: `org.apache.olingo.compliance..core.ValidationContext`
+- **ValidationRule**: `org.apache.olingo.compliance..core.ValidationRule`
+- **ValidationStrategy**: `org.apache.olingo.compliance..core.ValidationStrategy`
 
 ### 5. 验证规则
-- **结构验证规则**: `org.apache.olingo.compliance.validation.rules.structural.*`
+- **结构验证规则**: `org.apache.olingo.compliance.engine.rules.structural.*`
   - ElementDefinitionRule
   - ReferenceValidationRule  
   - SchemaNamespaceRule
-- **语义验证规则**: `org.apache.olingo.compliance.validation.rules.semantic.*`
+- **语义验证规则**: `org.apache.olingo.compliance.engine.rules.semantic.*`
   - AnnotationValidationRule
   - ComplianceRule
-- **安全验证规则**: `org.apache.olingo.compliance.validation.rules.security.*`
+- **安全验证规则**: `org.apache.olingo.compliance.engine.rules.security.*`
   - XxeAttackRule
 
 ### 6. 验证策略
-- **FileValidationStrategy**: `org.apache.olingo.compliance.validation.strategies.FileValidationStrategy`
+- **FileValidationStrategy**: `org.apache.olingo.compliance..strategies.FileValidationStrategy`
 
 ## 包名更新
 
 所有移植的类都已更新包名：
 - **原包名**: `org.apache.olingo.schema.processor.validation.*`
-- **新包名**: `org.apache.olingo.compliance.validation.*`
+- **新包名**: `org.apache.olingo.compliance..*`
 
 ## 编译状态
 

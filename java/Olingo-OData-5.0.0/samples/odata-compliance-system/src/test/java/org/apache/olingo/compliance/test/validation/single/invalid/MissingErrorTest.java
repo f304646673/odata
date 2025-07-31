@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.Arrays;
 
-import org.apache.olingo.compliance.file.ComplianceIssue;
-import org.apache.olingo.compliance.file.ComplianceErrorType;
-import org.apache.olingo.compliance.file.ModernXmlFileComplianceValidator;
-import org.apache.olingo.compliance.file.XmlComplianceResult;
-import org.apache.olingo.compliance.file.XmlFileComplianceValidator;
+import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.core.model.ComplianceErrorType;
+import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
+import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

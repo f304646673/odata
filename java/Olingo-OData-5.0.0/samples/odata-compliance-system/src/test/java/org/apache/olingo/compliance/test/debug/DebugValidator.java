@@ -1,8 +1,8 @@
 package org.apache.olingo.compliance.test.debug;
 
-import org.apache.olingo.compliance.file.ModernXmlFileComplianceValidator;
-import org.apache.olingo.compliance.file.ComplianceIssue;
-import org.apache.olingo.compliance.file.XmlComplianceResult;
+import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
+import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.core.model.XmlComplianceResult;
 import java.util.List;
 import java.io.File;
 
