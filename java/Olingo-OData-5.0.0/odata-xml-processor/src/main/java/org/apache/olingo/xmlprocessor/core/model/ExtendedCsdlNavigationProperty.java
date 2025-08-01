@@ -1,110 +1,202 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 /**
  * 扩展的CsdlNavigationProperty，增加依赖关系追踪功能
+ * 内部包含Extended版本的子元素
  */
-public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty {
-    
-    private final Set<String> dependencies = new HashSet<>();
-    private String fullyQualifiedName;
-    
+public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty implements ExtendedCsdlElement {
+
+    private String namespace;
+
+    // Extended版本的内部元素
+    private List<ExtendedCsdlAnnotation> extendedAnnotations;
+
     /**
-     * 获取依赖的类型全限定名集合
-     * @return 依赖的类型全限定名集合
+     * 构造函数
      */
-    public Set<String> getDependencies() {
-        return new HashSet<>(dependencies);
+    public ExtendedCsdlNavigationProperty() {
+        this.extendedAnnotations = new ArrayList<>();
+    }
+
+    /**
+     * 从标准CsdlNavigationProperty创建ExtendedCsdlNavigationProperty
+     * @param source 源CsdlNavigationProperty
+     * @return ExtendedCsdlNavigationProperty实例
+     */
+    public static ExtendedCsdlNavigationProperty fromCsdlNavigationProperty(CsdlNavigationProperty source) {
+        if (source == null) {
+            return null;
+        }
+
+        ExtendedCsdlNavigationProperty extended = new ExtendedCsdlNavigationProperty();
+
+        // 复制基本属性
+        extended.setName(source.getName());
+        extended.setType(source.getType());
+        extended.setCollection(source.isCollection());
+        extended.setNullable(source.isNullable());
+        extended.setPartner(source.getPartner());
+        extended.setContainsTarget(source.isContainsTarget());
+
+        // 复制引用约束
+        if (source.getReferentialConstraints() != null) {
+            extended.setReferentialConstraints(new ArrayList<>(source.getReferentialConstraints()));
+        }
+
+        // 复制OnDelete
+        if (source.getOnDelete() != null) {
+            extended.setOnDelete(source.getOnDelete());
+        }
+
+        // 转换Annotations为Extended版本
+        if (source.getAnnotations() != null) {
+            List<ExtendedCsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
+                    .map(ExtendedCsdlAnnotation::fromCsdlAnnotation)
+                    .collect(Collectors.toList());
+            extended.setExtendedAnnotations(extendedAnnotations);
+
+            // 同时设置父类的annotations以保持兼容性
+            extended.setAnnotations(new ArrayList<>(source.getAnnotations()));
+        }
+
+        return extended;
+    }
+
+    /**
+     * 设置namespace
+     * @param namespace 命名空间
+     * @return 当前实例
+     */
+    public ExtendedCsdlNavigationProperty setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
     }
     
     /**
-     * 添加依赖
-     * @param fullyQualifiedTypeName 依赖的类型全限定名
+     * 获取namespace
+     * @return 命名空间
      */
-    public void addDependency(String fullyQualifiedTypeName) {
-        if (fullyQualifiedTypeName != null && !fullyQualifiedTypeName.trim().isEmpty()) {
-            dependencies.add(fullyQualifiedTypeName);
+    public String getNamespace() {
+        return namespace;
+    }
+
+    /**
+     * 获取Extended版本的Annotations
+     * @return Extended Annotations列表
+     */
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return extendedAnnotations;
+    }
+
+    /**
+     * 设置Extended版本的Annotations
+     * @param extendedAnnotations Extended Annotations列表
+     */
+    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations = extendedAnnotations != null ? extendedAnnotations : new ArrayList<>();
+
+        // 同步到父类的annotations
+        if (extendedAnnotations != null) {
+            List<CsdlAnnotation> standardAnnotations = new ArrayList<>(extendedAnnotations);
+            setAnnotations(standardAnnotations);
         }
     }
-    
+
     /**
-     * 分析并设置类型依赖
+     * 添加Extended Annotation
+     * @param annotation Extended Annotation
      */
-    public void analyzeDependencies() {
-        dependencies.clear();
-        
+    public void addExtendedAnnotation(ExtendedCsdlAnnotation annotation) {
+        if (annotation != null) {
+            if (extendedAnnotations == null) {
+                extendedAnnotations = new ArrayList<>();
+            }
+            extendedAnnotations.add(annotation);
+
+            // 同步到父类
+            if (getAnnotations() == null) {
+                setAnnotations(new ArrayList<>());
+            }
+            getAnnotations().add(annotation);
+        }
+    }
+
+    /**
+     * 获取目标实体类型的namespace
+     * @return 目标实体类型的namespace
+     */
+    public String getTargetEntityNamespace() {
         String type = getType();
         if (type != null) {
-            String dependency = extractTypeNamespace(type);
-            if (dependency != null) {
-                addDependency(dependency);
+            // 移除Collection()包装
+            String cleanTypeName = type.replaceAll("^Collection\\((.*)\\)$", "$1");
+
+            // 提取namespace
+            int lastDotIndex = cleanTypeName.lastIndexOf('.');
+            if (lastDotIndex > 0) {
+                return cleanTypeName.substring(0, lastDotIndex);
             }
         }
-    }
-    
-    /**
-     * 从类型名中提取namespace
-     * @param typeName 类型名
-     * @return namespace，如果是基础类型返回null
-     */
-    private String extractTypeNamespace(String typeName) {
-        if (typeName == null || typeName.trim().isEmpty()) {
-            return null;
-        }
-        
-        // 处理Collection类型
-        String actualType = typeName;
-        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
-            actualType = typeName.substring(11, typeName.length() - 1);
-        }
-        
-        // 跳过EDM基础类型
-        if (actualType.startsWith("Edm.")) {
-            return null;
-        }
-        
-        // 提取namespace
-        int lastDotIndex = actualType.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return actualType.substring(0, lastDotIndex);
-        }
-        
         return null;
     }
-    
-    public String getFullyQualifiedName() {
-        return fullyQualifiedName;
+
+    /**
+     * 获取目标实体类型名
+     * @return 目标实体类型名
+     */
+    public String getTargetEntityTypeName() {
+        String type = getType();
+        if (type != null) {
+            // 移除Collection()包装
+            String cleanTypeName = type.replaceAll("^Collection\\((.*)\\)$", "$1");
+
+            // 提取类型名
+            int lastDotIndex = cleanTypeName.lastIndexOf('.');
+            if (lastDotIndex > 0) {
+                return cleanTypeName.substring(lastDotIndex + 1);
+            }
+            return cleanTypeName;
+        }
+        return null;
     }
-    
-    public void setFullyQualifiedName(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
+
+    // ExtendedCsdlElement接口实现
+    @Override
+    public String getElementId() {
+        return getName() != null ? getName() : "NavigationProperty_" + hashCode();
+    }
+
+    @Override
+    public FullQualifiedName getElementFullyQualifiedName() {
+        if (namespace != null && getName() != null) {
+            return new FullQualifiedName(namespace, getName());
+        }
+        return null;
+    }
+
+    @Override
+    public CsdlDependencyNode.DependencyType getElementDependencyType() {
+        return CsdlDependencyNode.DependencyType.NAVIGATION_PROPERTY;
     }
     
     @Override
-    public ExtendedCsdlNavigationProperty setName(String name) {
-        super.setName(name);
-        return this;
+    public String getElementPropertyName() {
+        return getName();
     }
     
     @Override
-    public ExtendedCsdlNavigationProperty setType(String type) {
-        super.setType(type);
-        analyzeDependencies();
-        return this;
-    }
-    
-    @Override
-    public ExtendedCsdlNavigationProperty setNullable(Boolean nullable) {
-        super.setNullable(nullable);
-        return this;
-    }
-    
-    public ExtendedCsdlNavigationProperty setPartner(String partner) {
-        super.setPartner(partner);
-        return this;
+    public String toString() {
+        return String.format("ExtendedCsdlNavigationProperty{name='%s', type='%s', namespace='%s', partner='%s'}",
+                getName(), getType(), namespace, getPartner());
     }
 }

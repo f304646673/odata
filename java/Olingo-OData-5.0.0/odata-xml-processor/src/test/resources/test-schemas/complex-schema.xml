@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="ComplexTestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+
+      <!-- EntityType -->
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerID"/>
+        </Key>
+        <Property Name="CustomerID" Type="Edm.String" Nullable="false"/>
+        <Property Name="CompanyName" Type="Edm.String"/>
+        <Property Name="ContactInfo" Type="ComplexTestService.ContactInformation"/>
+        <NavigationProperty Name="Orders" Type="Collection(ComplexTestService.Order)"/>
+      </EntityType>
+
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="OrderID"/>
+        </Key>
+        <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+        <NavigationProperty Name="Customer" Type="ComplexTestService.Customer"/>
+      </EntityType>
+
+      <!-- ComplexType -->
+      <ComplexType Name="ContactInformation">
+        <Property Name="Phone" Type="Edm.String"/>
+        <Property Name="Email" Type="Edm.String"/>
+        <Property Name="Address" Type="ComplexTestService.Address"/>
+      </ComplexType>
+
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String"/>
+        <Property Name="City" Type="Edm.String"/>
+        <Property Name="Country" Type="Edm.String"/>
+      </ComplexType>
+
+      <!-- EnumType -->
+      <EnumType Name="OrderStatus">
+        <Member Name="Pending" Value="0"/>
+        <Member Name="Processing" Value="1"/>
+        <Member Name="Shipped" Value="2"/>
+        <Member Name="Delivered" Value="3"/>
+      </EnumType>
+
+      <!-- EntityContainer -->
+      <EntityContainer Name="ComplexContainer">
+        <EntitySet Name="Customers" EntityType="ComplexTestService.Customer">
+          <NavigationPropertyBinding Path="Orders" Target="Orders"/>
+        </EntitySet>
+        <EntitySet Name="Orders" EntityType="ComplexTestService.Order">
+          <NavigationPropertyBinding Path="Customer" Target="Customers"/>
+        </EntitySet>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

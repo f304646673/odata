@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="AnnotationTestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+
+      <Term Name="DisplayName" Type="Edm.String"/>
+      <Term Name="Description" Type="Edm.String"/>
+      <Term Name="IsRequired" Type="Edm.Boolean"/>
+
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false">
+          <Annotation Term="AnnotationTestService.DisplayName" String="Product ID"/>
+          <Annotation Term="AnnotationTestService.IsRequired" Bool="true"/>
+        </Property>
+        <Property Name="Name" Type="Edm.String">
+          <Annotation Term="AnnotationTestService.DisplayName" String="Product Name"/>
+          <Annotation Term="AnnotationTestService.Description" String="The name of the product"/>
+        </Property>
+        <Property Name="Price" Type="Edm.Decimal">
+          <Annotation Term="AnnotationTestService.DisplayName" String="Price"/>
+        </Property>
+      </EntityType>
+
+      <EntityContainer Name="AnnotationContainer">
+        <EntitySet Name="Products" EntityType="AnnotationTestService.Product">
+          <Annotation Term="AnnotationTestService.DisplayName" String="Product Catalog"/>
+          <Annotation Term="AnnotationTestService.Description" String="Collection of all products"/>
+        </EntitySet>
+      </EntityContainer>
+
+      <!-- Schema level annotations -->
+      <Annotations Target="AnnotationTestService.Product">
+        <Annotation Term="AnnotationTestService.Description" String="Product entity with annotations"/>
+      </Annotations>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

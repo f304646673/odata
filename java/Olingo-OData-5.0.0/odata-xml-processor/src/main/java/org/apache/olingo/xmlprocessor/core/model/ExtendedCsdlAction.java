@@ -1,8 +1,8 @@
-package org.apache.olingo.xmlprocessor.core.dependency;
+package org.apache.olingo.xmlprocessor.core.model;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
-import org.apache.olingo.schema.processor.model.dependency.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 /**
  * 扩展的CsdlAction，支持依赖关系跟踪

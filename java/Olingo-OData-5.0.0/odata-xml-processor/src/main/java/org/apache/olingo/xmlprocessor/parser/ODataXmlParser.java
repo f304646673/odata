@@ -1,6 +1,7 @@
 package org.apache.olingo.xmlprocessor.parser;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlSchema;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
@@ -46,12 +47,12 @@ public interface ODataXmlParser {
      */
     class ParseResult {
         private final boolean success;
-        private final List<CsdlSchema> schemas;
+        private final List<ExtendedCsdlSchema> schemas;
         private final List<String> errors;
         private final List<String> warnings;
         private final String sourceName;
         
-        public ParseResult(boolean success, List<CsdlSchema> schemas, List<String> errors,
+        public ParseResult(boolean success, List<ExtendedCsdlSchema> schemas, List<String> errors,
                           List<String> warnings, String sourceName) {
             this.success = success;
             this.schemas = schemas;
@@ -61,12 +62,12 @@ public interface ODataXmlParser {
         }
         
         public boolean isSuccess() { return success; }
-        public List<CsdlSchema> getSchemas() { return schemas; }
+        public List<ExtendedCsdlSchema> getSchemas() { return schemas; }
         public List<String> getErrors() { return errors; }
         public List<String> getWarnings() { return warnings; }
         public String getSourceName() { return sourceName; }
         
-        public static ParseResult success(List<CsdlSchema> schemas, String sourceName) {
+        public static ParseResult success(List<ExtendedCsdlSchema> schemas, String sourceName) {
             return new ParseResult(true, schemas, Collections.emptyList(), Collections.emptyList(), sourceName);
         }
         
