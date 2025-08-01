@@ -31,9 +31,7 @@ public class CsdlDependencyNode {
         NAVIGATION_PROPERTY_REFERENCE,
         PARAMETER_REFERENCE,
         RETURN_TYPE_REFERENCE,
-        ANNOTATION_REFERENCE,
-        PROPERTY,  // 添加缺失的PROPERTY常量
-        NAVIGATION_PROPERTY  // 添加缺失的NAVIGATION_PROPERTY常量
+        ANNOTATION_REFERENCE
     }
 
     private final String elementId;

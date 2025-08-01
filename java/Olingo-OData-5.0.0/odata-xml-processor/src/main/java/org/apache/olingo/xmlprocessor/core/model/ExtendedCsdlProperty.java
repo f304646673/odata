@@ -192,7 +192,7 @@ public class ExtendedCsdlProperty extends AbstractExtendedCsdlElement<CsdlProper
 
     @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.PROPERTY;
+        return CsdlDependencyNode.DependencyType.PROPERTY_REFERENCE;
     }
 
     @Override
