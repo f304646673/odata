@@ -1,4 +1,4 @@
-package org.apache.olingo.compliance.validator.directory;
+package org.apache.olingo.compliance.core.model;
 
 /**
  * 验证统计信息

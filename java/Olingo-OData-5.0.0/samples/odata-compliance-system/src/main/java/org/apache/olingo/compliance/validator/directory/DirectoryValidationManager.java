@@ -1,19 +1,28 @@
 package org.apache.olingo.compliance.validator.directory;
 
-import org.apache.olingo.compliance.engine.core.*;
-import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.validator.file.RegistryAwareXmlValidator;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+import org.apache.olingo.compliance.core.model.ComplianceErrorType;
+import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.core.model.ValidationStatistics;
+import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.engine.core.SchemaExtractor;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
+import org.apache.olingo.compliance.validator.file.RegistryAwareXmlValidator;
 
 /**
  * 目录验证管理器，负责验证多层目录结构中的OData XML文件
