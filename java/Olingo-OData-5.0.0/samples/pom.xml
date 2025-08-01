@@ -82,9 +82,9 @@
         <module>spring-boot-odata-xml</module>
         <module>spring-boot-odata-xml-split</module>
         <module>spring-boot-odata-xml-import</module>
-        <module>samples/odata-compliance-system</module>
-        <module>samples/odata-schema-validation-engine</module>
-        <module>samples/odata-schema-processor</module>
+        <module>odata-compliance-system</module>
+        <module>odata-schema-validation-engine</module>
+        <module>odata-schema-processor</module>
       </modules>
     </profile>
     <profile>
