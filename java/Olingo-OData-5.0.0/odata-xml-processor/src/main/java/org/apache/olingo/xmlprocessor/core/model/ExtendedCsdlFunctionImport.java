@@ -1,33 +1,28 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 扩展的CsdlFunctionImport，增加依赖关系追踪功能
+ * 扩展的 CsdlFunctionImport，采用组合模式
+ * 使用组合模式包装CsdlFunctionImport，保持内部数据联动
  */
-public class ExtendedCsdlFunctionImport extends CsdlFunctionImport implements ExtendedCsdlElement {
-
-    private final Set<String> dependencies = new HashSet<>();
-    private String fullyQualifiedName;
-    private String namespace;
-
+public class ExtendedCsdlFunctionImport {
+    
+    private final CsdlFunctionImport wrappedFunctionImport;
+    
     // Extended版本的内部元素
     private List<ExtendedCsdlAnnotation> extendedAnnotations;
-
-    /**
-     * 默认构造函数
-     */
+    
     public ExtendedCsdlFunctionImport() {
-        super();
+        this.wrappedFunctionImport = new CsdlFunctionImport();
+        initializeExtendedCollections();
+    }
+    
+    public ExtendedCsdlFunctionImport(CsdlFunctionImport csdlFunctionImport) {
+        this.wrappedFunctionImport = csdlFunctionImport != null ? csdlFunctionImport : new CsdlFunctionImport();
         initializeExtendedCollections();
     }
 
@@ -47,12 +42,17 @@ public class ExtendedCsdlFunctionImport extends CsdlFunctionImport implements Ex
         extended.setEntitySet(source.getEntitySet());
         extended.setIncludeInServiceDocument(source.isIncludeInServiceDocument());
 
-        // 转换Annotations为ExtendedCsdlAnnotation
+        // 复制Annotations并转换为Extended版本
         if (source.getAnnotations() != null) {
-            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
-                .collect(Collectors.toList());
-            extended.setAnnotations(extendedAnnotations);
+            List<ExtendedCsdlAnnotation> extendedAnnotationsList = new ArrayList<ExtendedCsdlAnnotation>();
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    extendedAnnotationsList.add(extendedAnnotation);
+                }
+            }
+            extended.setExtendedAnnotations(extendedAnnotationsList);
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
@@ -62,200 +62,105 @@ public class ExtendedCsdlFunctionImport extends CsdlFunctionImport implements Ex
      * 初始化扩展集合
      */
     private void initializeExtendedCollections() {
-        this.extendedAnnotations = new ArrayList<>();
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+    }
+    
+    // 获取内部包装的对象
+    public CsdlFunctionImport asCsdlFunctionImport() {
+        return wrappedFunctionImport;
+    }
+    
+    // ==================== CsdlFunctionImport 方法委托 ====================
+    
+    public String getName() {
+        return wrappedFunctionImport.getName();
     }
 
-    @Override
-    public String getElementId() {
-        if (getName() != null) {
-            return getName();
-        }
-        return "FunctionImport_" + hashCode();
-    }
-
-    @Override
-    public ExtendedCsdlFunctionImport setNamespace(String namespace) {
-        this.namespace = namespace;
+    public ExtendedCsdlFunctionImport setName(String name) {
+        wrappedFunctionImport.setName(name);
         return this;
     }
 
-    @Override
-    public String getNamespace() {
-        return this.namespace;
+    public String getFunction() {
+        return wrappedFunctionImport.getFunction();
     }
 
-    @Override
-    public ExtendedCsdlFunctionImport registerElement() {
-        ExtendedCsdlElement.super.registerElement();
+    public ExtendedCsdlFunctionImport setFunction(String function) {
+        wrappedFunctionImport.setFunction(function);
         return this;
     }
 
-    /**
-     * 获取元素的完全限定名（如果适用）
-     */
-    @Override
-    public FullQualifiedName getElementFullyQualifiedName() {
-        return new FullQualifiedName(getNamespace(), getName());
+    public String getEntitySet() {
+        return wrappedFunctionImport.getEntitySet();
     }
 
-    /**
-     * 获取元素的依赖类型
-     */
-    @Override
-    public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.FUNCTION_IMPORT_REFERENCE;
+    public ExtendedCsdlFunctionImport setEntitySet(String entitySet) {
+        wrappedFunctionImport.setEntitySet(entitySet);
+        return this;
     }
 
-    /**
-     * 添加依赖 - 重写接口方法以匹配签名
-     * @param namespace 依赖的命名空间
-     * @return 是否成功添加
-     */
-    @Override
-    public boolean addDependency(String namespace) {
-        if (namespace != null && !namespace.trim().isEmpty()) {
-            dependencies.add(namespace);
-            return true;
-        }
-        return false;
+    public boolean isIncludeInServiceDocument() {
+        return wrappedFunctionImport.isIncludeInServiceDocument();
     }
-    
-    /**
-     * 移除依赖
-     * @param namespace 要移除的命名空间
-     * @return 是否成功移除
-     */
-    public boolean removeDependency(String namespace) {
-        return dependencies.remove(namespace);
+
+    public ExtendedCsdlFunctionImport setIncludeInServiceDocument(boolean includeInServiceDocument) {
+        wrappedFunctionImport.setIncludeInServiceDocument(includeInServiceDocument);
+        return this;
     }
-    
-    /**
-     * 获取所有依赖 - 为了兼容性保留的方法
-     * @return 依赖的命名空间集合
-     */
-    public Set<String> getStringDependencies() {
-        return new HashSet<>(dependencies);
+
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedFunctionImport.getAnnotations();
     }
-    
-    /**
-     * 检查是否有特定依赖
-     * @param namespace 要检查的命名空间
-     * @return 是否存在该依赖
-     */
-    public boolean hasDependency(String namespace) {
-        return dependencies.contains(namespace);
+
+    public ExtendedCsdlFunctionImport setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedFunctionImport.setAnnotations(annotations);
+        syncAnnotationsToExtended();
+        return this;
     }
-    
-    /**
-     * 清除所有依赖
-     */
-    public void clearDependencies() {
-        dependencies.clear();
-    }
-    
-    /**
-     * 获取依赖数量
-     * @return 依赖数量
-     */
-    public int getDependencyCount() {
-        return dependencies.size();
-    }
-    
-    /**
-     * 分析并设置依赖关系
-     */
-    public void analyzeDependencies() {
-        dependencies.clear();
-        
-        // 分析Function依赖
-        FullQualifiedName functionFQN = getFunctionFQN();
-        if (functionFQN != null) {
-            String functionNamespace = extractNamespace(functionFQN.getFullQualifiedNameAsString());
-            if (functionNamespace != null) {
-                addDependency(functionNamespace);
-            }
-        }
-        
-        // 分析EntitySet依赖
-        if (getEntitySet() != null) {
-            String entitySetNamespace = extractNamespace(getEntitySet());
-            if (entitySetNamespace != null) {
-                addDependency(entitySetNamespace);
-            }
-        }
-    }
-    
-    /**
-     * 从类型名中提取namespace
-     */
-    private String extractNamespace(String typeName) {
-        if (typeName == null || typeName.trim().isEmpty()) {
-            return null;
-        }
-        
-        // 处理Collection类型
-        String actualType = typeName;
-        if (typeName.startsWith("Collection(") && typeName.endsWith(")")) {
-            actualType = typeName.substring(11, typeName.length() - 1);
-        }
-        
-        // 跳过EDM基础类型
-        if (actualType.startsWith("Edm.")) {
-            return null;
-        }
-        
-        // 提取namespace
-        int lastDotIndex = actualType.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            return actualType.substring(0, lastDotIndex);
-        }
-        
-        return null;
-    }
-    
-    public String getFullyQualifiedName() {
-        if (fullyQualifiedName != null) {
-            return fullyQualifiedName;
-        }
-        if (namespace != null && getName() != null) {
-            return namespace + "." + getName();
-        }
-        return getName();
-    }
-    
-    // Extended集合的getter方法
+
+    // ==================== Extended 集合方法 ====================
+
     public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
         return extendedAnnotations;
     }
-    
-    @Override
-    public ExtendedCsdlFunctionImport setName(String name) {
-        super.setName(name);
-        return this;
-    }
-    
-    @Override
-    public ExtendedCsdlFunctionImport setFunction(String function) {
-        super.setFunction(function);
-        analyzeDependencies();
-        return this;
-    }
-    
-    @Override
-    public ExtendedCsdlFunctionImport setEntitySet(String entitySet) {
-        super.setEntitySet(entitySet);
-        analyzeDependencies();
-        return this;
-    }
-    
-    @Override
-    public ExtendedCsdlFunctionImport setIncludeInServiceDocument(boolean includeInServiceDocument) {
-        super.setIncludeInServiceDocument(includeInServiceDocument);
-        return this;
+
+    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations = extendedAnnotations;
+        syncExtendedAnnotationsToOriginal();
     }
 
-    @Override
-    public String getElementPropertyName() {
-        return null; // FunctionImport通常不关联特定属性
+    /**
+     * 将原始Annotations同步到Extended集合
+     */
+    private void syncAnnotationsToExtended() {
+        if (this.extendedAnnotations == null) {
+            this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+        }
+        this.extendedAnnotations.clear();
+        
+        List<CsdlAnnotation> annotations = getAnnotations();
+        if (annotations != null) {
+            for (CsdlAnnotation annotation : annotations) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    this.extendedAnnotations.add(extendedAnnotation);
+                }
+            }
+        }
+    }
+
+    /**
+     * 将Extended Annotations同步到原始集合
+     */
+    private void syncExtendedAnnotationsToOriginal() {
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        if (this.extendedAnnotations != null) {
+            for (ExtendedCsdlAnnotation extendedAnnotation : this.extendedAnnotations) {
+                if (extendedAnnotation != null) {
+                    annotations.add(extendedAnnotation.asCsdlAnnotation());
+                }
+            }
+        }
+        wrappedFunctionImport.setAnnotations(annotations);
     }
 }

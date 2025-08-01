@@ -1,0 +1,216 @@
+2025-08-01 18:19:30.782 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 18:19:30.783 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 18:19:30.783 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 18:19:30.814 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 18:19:30.814 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 18:19:30.818 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 18:19:30.818 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 18:19:30.818 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 18:19:30.818 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 18:19:30.818 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 18:19:30.818 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 18:19:30.818 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 18:19:30.819 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 18:24:49.811 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - Starting Advanced Dependency Management Demo
+2025-08-01 18:24:49.812 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - Parsing complex schema with dependencies
+2025-08-01 18:24:49.812 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: complex-demo
+2025-08-01 18:24:49.851 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from complex-demo
+2025-08-01 18:24:49.851 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: ComplexService
+2025-08-01 18:24:49.858 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: ComplexService
+2025-08-01 18:24:49.858 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: ComplexService
+2025-08-01 18:24:49.859 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - Successfully parsed 1 schema(s)
+2025-08-01 18:24:49.859 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - === 依赖关系分析 ===
+2025-08-01 18:24:49.859 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - Schema: ExtendedCsdlSchema (Namespace: ComplexService)
+2025-08-01 18:24:49.860 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   实体类型依赖分析:
+2025-08-01 18:24:49.860 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Entity: Customer
+2025-08-01 18:24:49.860 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'ID' depends on type: Edm.Int32
+2025-08-01 18:24:49.860 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Name' depends on type: Edm.String
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Address' depends on type: ComplexService.Address
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'Orders' depends on: ComplexService.Order
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Entity: Order
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'ID' depends on type: Edm.Int32
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'OrderDate' depends on type: Edm.DateTimeOffset
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'TotalAmount' depends on type: Edm.Decimal
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'Customer' depends on: ComplexService.Customer
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'OrderItems' depends on: ComplexService.OrderItem
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Entity: Product
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'ID' depends on type: Edm.Int32
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Name' depends on type: Edm.String
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Price' depends on type: Edm.Decimal
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Status' depends on type: ComplexService.ProductStatus
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'OrderItems' depends on: ComplexService.OrderItem
+2025-08-01 18:24:49.861 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Entity: OrderItem
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'ID' depends on type: Edm.Int32
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'Quantity' depends on type: Edm.Int32
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Property 'UnitPrice' depends on type: Edm.Decimal
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'Order' depends on: ComplexService.Order
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -       Navigation 'Product' depends on: ComplexService.Product
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   复杂类型: 1
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Complex Type: Address
+2025-08-01 18:24:49.862 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   枚举类型: 1
+2025-08-01 18:24:49.863 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -     Enum Type: ProductStatus
+2025-08-01 18:24:49.863 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - === 全局依赖管理器演示 ===
+2025-08-01 18:24:49.863 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - 已注册的依赖节点总数: 0
+2025-08-01 18:24:49.864 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - 依赖图统计:
+2025-08-01 18:24:49.864 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   根节点数: 0
+2025-08-01 18:24:49.864 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   叶子节点数: 0
+2025-08-01 18:24:49.865 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo -   有循环依赖: false
+2025-08-01 18:24:49.866 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - 详细统计: DependencyTree Statistics: 0 nodes, 0 dependencies, 0 roots, 0 leaves, circular=false
+2025-08-01 18:24:49.866 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - 清理依赖管理器...
+2025-08-01 18:24:49.866 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - 清理完成，剩余节点数: 0
+2025-08-01 18:24:49.866 [main] INFO  o.a.o.x.demo.AdvancedDependencyDemo - Advanced Demo completed
+2025-08-01 18:25:06.604 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Starting Comprehensive Demo
+2025-08-01 18:25:06.605 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - === 组合模式演示 ===
+2025-08-01 18:25:06.607 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - ExtendedEntityType Name: DemoEntity
+2025-08-01 18:25:06.607 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - ExtendedEntityType HasStream: true
+2025-08-01 18:25:06.607 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Internal CsdlEntityType Name: DemoEntity
+2025-08-01 18:25:06.608 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Internal CsdlEntityType HasStream: true
+2025-08-01 18:25:06.608 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Added property: DemoProperty (Type: Edm.String, Nullable: false)
+2025-08-01 18:25:06.608 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Internal properties count: 1
+2025-08-01 18:25:06.608 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Added navigation property: DemoNavigation (Type: Collection(Demo.RelatedEntity))
+2025-08-01 18:25:06.609 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - === 解析和依赖分析演示 ===
+2025-08-01 18:25:06.609 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: comprehensive-test
+2025-08-01 18:25:06.641 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from comprehensive-test
+2025-08-01 18:25:06.641 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: ComprehensiveTest
+2025-08-01 18:25:06.649 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: ComprehensiveTest
+2025-08-01 18:25:06.650 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: ComprehensiveTest
+2025-08-01 18:25:06.650 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - 成功解析Schema，数量: 1
+2025-08-01 18:25:06.650 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Schema命名空间: ComprehensiveTest
+2025-08-01 18:25:06.650 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -   实体类型数: 2
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -     Entity: Person
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -       属性数: 4
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: ID (Type: Edm.Int32)
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: Name (Type: Edm.String)
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: Address (Type: ComprehensiveTest.Address)
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: Status (Type: ComprehensiveTest.Status)
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -       导航属性数: 1
+2025-08-01 18:25:06.651 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         NavProperty: Orders (Type: ComprehensiveTest.Order)
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -     Entity: Order
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -       属性数: 2
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: ID (Type: Edm.Int32)
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         Property: OrderDate (Type: Edm.DateTimeOffset)
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -       导航属性数: 1
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -         NavProperty: Customer (Type: ComprehensiveTest.Person)
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -   复杂类型数: 1
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -   枚举类型数: 1
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -   实体容器: Container
+2025-08-01 18:25:06.652 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - === 错误处理演示 ===
+2025-08-01 18:25:06.653 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: error-test
+2025-08-01 18:25:06.653 [main] ERROR o.a.o.x.p.impl.CsdlXmlParserImpl - Failed to parse with Olingo native parser from error-test: Failed to read complete metadata file. Failed at invalid
+2025-08-01 18:25:06.654 [main] ERROR o.a.o.x.p.impl.CsdlXmlParserImpl - XML parsing error for error-test
+java.lang.RuntimeException: Olingo native parsing failed: Failed to read complete metadata file. Failed at invalid
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseWithOlingoNative(CsdlXmlParserImpl.java:199)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseSchemas(CsdlXmlParserImpl.java:52)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseSchemas(CsdlXmlParserImpl.java:104)
+	at org.apache.olingo.xmlprocessor.demo.ComprehensiveDemo.demonstrateErrorHandling(ComprehensiveDemo.java:156)
+	at org.apache.olingo.xmlprocessor.demo.ComprehensiveDemo.main(ComprehensiveDemo.java:30)
+Caused by: javax.xml.stream.XMLStreamException: Failed to read complete metadata file. Failed at invalid
+	at org.apache.olingo.server.core.MetadataParser.addToEdmProvider(MetadataParser.java:232)
+	at org.apache.olingo.server.core.MetadataParser.buildEdmProvider(MetadataParser.java:200)
+	at org.apache.olingo.server.core.MetadataParser.buildEdmProvider(MetadataParser.java:167)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseWithOlingoNative(CsdlXmlParserImpl.java:184)
+	... 4 common frames omitted
+2025-08-01 18:25:06.654 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - 预期的解析失败，错误数: 1
+2025-08-01 18:25:06.655 [main] INFO  o.a.o.x.demo.ComprehensiveDemo -   错误: Failed to parse XML from error-test: Olingo native parsing failed: Failed to read complete metadata file. Failed at invalid
+2025-08-01 18:25:06.655 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: empty-test
+2025-08-01 18:25:06.666 [main] ERROR o.a.o.x.p.impl.CsdlXmlParserImpl - Failed to parse with Olingo native parser from empty-test: ParseError at [row,col]:[1,1]
+Message: Premature end of file.
+2025-08-01 18:25:06.667 [main] ERROR o.a.o.x.p.impl.CsdlXmlParserImpl - XML parsing error for empty-test
+java.lang.RuntimeException: Olingo native parsing failed: ParseError at [row,col]:[1,1]
+Message: Premature end of file.
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseWithOlingoNative(CsdlXmlParserImpl.java:199)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseSchemas(CsdlXmlParserImpl.java:52)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseSchemas(CsdlXmlParserImpl.java:104)
+	at org.apache.olingo.xmlprocessor.demo.ComprehensiveDemo.demonstrateErrorHandling(ComprehensiveDemo.java:166)
+	at org.apache.olingo.xmlprocessor.demo.ComprehensiveDemo.main(ComprehensiveDemo.java:30)
+Caused by: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]
+Message: Premature end of file.
+	at java.xml/com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl.next(XMLStreamReaderImpl.java:652)
+	at java.xml/com.sun.xml.internal.stream.XMLEventReaderImpl.peek(XMLEventReaderImpl.java:277)
+	at org.apache.olingo.server.core.MetadataParser$ElementReader.read(MetadataParser.java:1194)
+	at org.apache.olingo.server.core.MetadataParser.addToEdmProvider(MetadataParser.java:223)
+	at org.apache.olingo.server.core.MetadataParser.buildEdmProvider(MetadataParser.java:200)
+	at org.apache.olingo.server.core.MetadataParser.buildEdmProvider(MetadataParser.java:167)
+	at org.apache.olingo.xmlprocessor.parser.impl.CsdlXmlParserImpl.parseWithOlingoNative(CsdlXmlParserImpl.java:184)
+	... 4 common frames omitted
+2025-08-01 18:25:06.667 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - 空内容解析失败，符合预期
+2025-08-01 18:25:06.667 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - null内容解析失败，符合预期
+2025-08-01 18:25:06.667 [main] INFO  o.a.o.x.demo.ComprehensiveDemo - Comprehensive Demo completed
+2025-08-01 18:47:02.771 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 18:47:02.772 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 18:47:02.773 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 18:47:02.806 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 18:47:02.806 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 18:47:02.806 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 18:47:02.806 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 18:47:02.807 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 18:50:52.339 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 18:50:52.340 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 18:50:52.340 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 18:50:52.374 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 18:50:52.374 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 18:50:52.375 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 18:50:52.375 [main] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 18:50:52.375 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 18:50:52.375 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 18:50:52.375 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 18:50:52.375 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 18:50:52.376 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 18:50:52.376 [main] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 19:15:12.059 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 19:15:12.060 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 19:15:12.060 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 19:15:12.092 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 19:15:12.092 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 19:15:12.093 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 19:15:12.093 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 19:15:12.093 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 19:15:12.094 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 19:15:12.094 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 19:15:12.094 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 19:15:12.094 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 19:15:12.094 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 19:16:59.521 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 19:16:59.523 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 19:16:59.523 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 19:16:59.553 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 19:16:59.553 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 19:16:59.554 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 19:16:59.554 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 19:16:59.555 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 19:25:58.623 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 19:25:58.625 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 19:25:58.625 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 19:25:58.657 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 19:25:58.658 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 19:25:58.659 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 19:25:58.659 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 19:25:58.660 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed
+2025-08-01 19:43:00.345 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Starting OData XML Processor Demo
+2025-08-01 19:43:00.347 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Parsing schema from XML content
+2025-08-01 19:43:00.347 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Parsing XML from source: demo-content
+2025-08-01 19:43:00.380 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully parsed 1 schemas using Olingo native parser from demo-content
+2025-08-01 19:43:00.380 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Converting schema: TestService
+2025-08-01 19:43:00.382 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Schema elements conversion completed for: TestService
+2025-08-01 19:43:00.382 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] DEBUG o.a.o.x.p.impl.CsdlXmlParserImpl - Successfully converted schema: TestService
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Successfully parsed 1 schema(s)
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Schema: ExtendedCsdlSchema - Namespace: TestService
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Entity Types: 1
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Complex Types: 0
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo -   Enum Types: 0
+2025-08-01 19:43:00.383 [org.apache.olingo.xmlprocessor.demo.MainDemo.main()] INFO  o.a.o.xmlprocessor.demo.MainDemo - Demo completed

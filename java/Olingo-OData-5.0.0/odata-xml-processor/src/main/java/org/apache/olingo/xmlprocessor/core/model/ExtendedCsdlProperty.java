@@ -1,7 +1,5 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,14 +7,16 @@ import java.util.stream.Collectors;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 /**
  * 扩展的CsdlProperty，增加依赖关系追踪功能
- * 内部包含Extended版本的子元素
+ * 使用组合模式包装CsdlProperty，保持内部数据联动
  */
-public class ExtendedCsdlProperty extends CsdlProperty implements ExtendedCsdlElement {
+public class ExtendedCsdlProperty implements ExtendedCsdlElement {
 
+    private final CsdlProperty wrappedProperty;
     private String namespace;
 
     // Extended版本的内部元素
@@ -26,19 +26,18 @@ public class ExtendedCsdlProperty extends CsdlProperty implements ExtendedCsdlEl
      * 构造函数
      */
     public ExtendedCsdlProperty() {
-        this.extendedAnnotations = new ArrayList<>();
+        this.wrappedProperty = new CsdlProperty();
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
     }
-    
+
     /**
      * 从标准CsdlProperty创建ExtendedCsdlProperty
-     * @param source 源CsdlProperty
-     * @return ExtendedCsdlProperty实例
      */
     public static ExtendedCsdlProperty fromCsdlProperty(CsdlProperty source) {
         if (source == null) {
             return null;
         }
-        
+
         ExtendedCsdlProperty extended = new ExtendedCsdlProperty();
 
         // 复制基本属性
@@ -49,110 +48,232 @@ public class ExtendedCsdlProperty extends CsdlProperty implements ExtendedCsdlEl
         extended.setMaxLength(source.getMaxLength());
         extended.setPrecision(source.getPrecision());
         extended.setScale(source.getScale());
-        extended.setSrid(source.getSrid());
         extended.setUnicode(source.isUnicode());
         extended.setDefaultValue(source.getDefaultValue());
+        extended.setSrid(source.getSrid());
 
-        // 转换Annotations为Extended版本
+        // 级联构建Annotations
         if (source.getAnnotations() != null) {
-            List<ExtendedCsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                    .map(ExtendedCsdlAnnotation::fromCsdlAnnotation)
-                    .collect(Collectors.toList());
-            extended.setExtendedAnnotations(extendedAnnotations);
-
-            // 同时设置父类的annotations以保持兼容性
-            extended.setAnnotations(new ArrayList<>(source.getAnnotations()));
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                extended.addExtendedAnnotation(extendedAnnotation);
+            }
         }
 
         return extended;
     }
 
+    // ==================== CsdlProperty 方法委托 ====================
+    
+    public String getName() {
+        return wrappedProperty.getName();
+    }
+
+    public ExtendedCsdlProperty setName(String name) {
+        wrappedProperty.setName(name);
+        return this;
+    }
+
+    public String getType() {
+        return wrappedProperty.getType();
+    }
+
+    public ExtendedCsdlProperty setType(String type) {
+        wrappedProperty.setType(type);
+        return this;
+    }
+
+    public ExtendedCsdlProperty setType(FullQualifiedName type) {
+        wrappedProperty.setType(type);
+        return this;
+    }
+
+    public boolean isCollection() {
+        return wrappedProperty.isCollection();
+    }
+
+    public ExtendedCsdlProperty setCollection(boolean isCollection) {
+        wrappedProperty.setCollection(isCollection);
+        return this;
+    }
+
+    public Boolean isNullable() {
+        return wrappedProperty.isNullable();
+    }
+
+    public ExtendedCsdlProperty setNullable(Boolean nullable) {
+        wrappedProperty.setNullable(nullable);
+        return this;
+    }
+
+    public Integer getMaxLength() {
+        return wrappedProperty.getMaxLength();
+    }
+
+    public ExtendedCsdlProperty setMaxLength(Integer maxLength) {
+        wrappedProperty.setMaxLength(maxLength);
+        return this;
+    }
+
+    public Integer getPrecision() {
+        return wrappedProperty.getPrecision();
+    }
+
+    public ExtendedCsdlProperty setPrecision(Integer precision) {
+        wrappedProperty.setPrecision(precision);
+        return this;
+    }
+
+    public Integer getScale() {
+        return wrappedProperty.getScale();
+    }
+
+    public ExtendedCsdlProperty setScale(Integer scale) {
+        wrappedProperty.setScale(scale);
+        return this;
+    }
+
+    public Boolean isUnicode() {
+        return wrappedProperty.isUnicode();
+    }
+
+    public ExtendedCsdlProperty setUnicode(Boolean unicode) {
+        wrappedProperty.setUnicode(unicode);
+        return this;
+    }
+
+    public String getDefaultValue() {
+        return wrappedProperty.getDefaultValue();
+    }
+
+    public ExtendedCsdlProperty setDefaultValue(String defaultValue) {
+        wrappedProperty.setDefaultValue(defaultValue);
+        return this;
+    }
+
+    public SRID getSrid() {
+        return wrappedProperty.getSrid();
+    }
+
+    public ExtendedCsdlProperty setSrid(SRID srid) {
+        wrappedProperty.setSrid(srid);
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        // 返回不可修改的原始数据视图
+        return wrappedProperty.getAnnotations();
+    }
+
     /**
-     * 设置namespace
-     * @param namespace 命名空间
-     * @return 当前实例
+     * 获取Extended注解列表
      */
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return new ArrayList<>(extendedAnnotations);
+    }
+
+    /**
+     * 添加Extended注解，同时更新原始数据
+     */
+    public ExtendedCsdlProperty addExtendedAnnotation(ExtendedCsdlAnnotation extendedAnnotation) {
+        if (extendedAnnotation != null) {
+            extendedAnnotations.add(extendedAnnotation);
+            syncAnnotationsToWrapped();
+        }
+        return this;
+    }
+
+    /**
+     * 设置Extended注解列表，同时更新原始数据
+     */
+    public ExtendedCsdlProperty setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations.clear();
+        if (extendedAnnotations != null) {
+            this.extendedAnnotations.addAll(extendedAnnotations);
+        }
+        syncAnnotationsToWrapped();
+        return this;
+    }
+
+    /**
+     * 同步Extended注解到原始数据
+     */
+    private void syncAnnotationsToWrapped() {
+        List<CsdlAnnotation> csdlAnnotations = new ArrayList<>();
+        for (ExtendedCsdlAnnotation extAnnotation : extendedAnnotations) {
+            csdlAnnotations.add(extAnnotation.asCsdlAnnotation());
+        }
+        wrappedProperty.setAnnotations(csdlAnnotations);
+    }
+
+    @Deprecated
+    public ExtendedCsdlProperty setAnnotations(List<CsdlAnnotation> annotations) {
+        // 保留向后兼容，但建议使用setExtendedAnnotations
+        wrappedProperty.setAnnotations(annotations);
+        // 同步到Extended对象
+        syncAnnotationsFromWrapped();
+        return this;
+    }
+
+    /**
+     * 从原始数据同步到Extended注解
+     */
+    private void syncAnnotationsFromWrapped() {
+        extendedAnnotations.clear();
+        if (wrappedProperty.getAnnotations() != null) {
+            for (CsdlAnnotation annotation : wrappedProperty.getAnnotations()) {
+                ExtendedCsdlAnnotation extAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                extendedAnnotations.add(extAnnotation);
+            }
+        }
+    }
+
+    /**
+     * 获取包装的CsdlProperty实例
+     */
+    public CsdlProperty asCsdlProperty() {
+        return wrappedProperty;
+    }
+
+    // ==================== ExtendedCsdlElement 实现 ====================
+
+    @Override
+    public String getElementId() {
+        if (getName() != null) {
+            return getName();
+        }
+        return "Property_" + hashCode();
+    }
+
+    @Override
     public ExtendedCsdlProperty setNamespace(String namespace) {
         this.namespace = namespace;
         return this;
     }
 
-    /**
-     * 获取namespace
-     * @return 命名空间
-     */
-    public String getNamespace() {
-        return namespace;
-    }
-
-    /**
-     * 获取Extended版本的Annotations
-     * @return Extended Annotations列表
-     */
-    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
-        return extendedAnnotations;
-    }
-
-    /**
-     * 设置Extended版本的Annotations
-     * @param extendedAnnotations Extended Annotations列表
-     */
-    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
-        this.extendedAnnotations = extendedAnnotations != null ? extendedAnnotations : new ArrayList<>();
-
-        // 同步到父类的annotations
-        if (extendedAnnotations != null) {
-            List<CsdlAnnotation> standardAnnotations = new ArrayList<>(extendedAnnotations);
-            setAnnotations(standardAnnotations);
-        }
-    }
-
-    /**
-     * 添加Extended Annotation
-     * @param annotation Extended Annotation
-     */
-    public void addExtendedAnnotation(ExtendedCsdlAnnotation annotation) {
-        if (annotation != null) {
-            if (extendedAnnotations == null) {
-                extendedAnnotations = new ArrayList<>();
-            }
-            extendedAnnotations.add(annotation);
-
-            // 同步到父类
-            if (getAnnotations() == null) {
-                setAnnotations(new ArrayList<>());
-            }
-            getAnnotations().add(annotation);
-        }
-    }
-
-    // ExtendedCsdlElement接口实现
     @Override
-    public String getElementId() {
-        return getName() != null ? getName() : "Property_" + hashCode();
+    public String getNamespace() {
+        return this.namespace;
+    }
+
+    @Override
+    public ExtendedCsdlProperty registerElement() {
+        ExtendedCsdlElement.super.registerElement();
+        return this;
     }
 
     @Override
     public FullQualifiedName getElementFullyQualifiedName() {
-        if (namespace != null && getName() != null) {
-            return new FullQualifiedName(namespace, getName());
-        }
-        return null;
+        return new FullQualifiedName(getNamespace(), getName());
     }
-    
+
     @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.PROPERTY;
+        return CsdlDependencyNode.DependencyType.PROPERTY_REFERENCE;
     }
-    
+
     @Override
     public String getElementPropertyName() {
         return getName();
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("ExtendedCsdlProperty{name='%s', type='%s', namespace='%s'}",
-                getName(), getType(), namespace);
     }
 }

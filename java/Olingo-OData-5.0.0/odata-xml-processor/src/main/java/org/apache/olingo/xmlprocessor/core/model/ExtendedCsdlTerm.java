@@ -1,31 +1,26 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * 扩展的CSDL术语
- * 继承自CsdlTerm，增加依赖跟踪和扩展功能
+ * 扩展的 CsdlTerm，采用组合模式
  */
-public class ExtendedCsdlTerm extends CsdlTerm implements ExtendedCsdlElement {
+public class ExtendedCsdlTerm {
     
-    private String namespace;
+    private final CsdlTerm wrappedTerm;
     
-    // Extended版本的内部元素
-    private List<ExtendedCsdlAnnotation> extendedAnnotations;
-
-    /**
-     * 默认构造函数
-     */
+    // Extended子对象集合，与原始数据保持同步
+    private final List<ExtendedCsdlAnnotation> extendedAnnotations = new ArrayList<>();
+    
     public ExtendedCsdlTerm() {
-        super();
-        initializeExtendedCollections();
+        this.wrappedTerm = new CsdlTerm();
+    }
+    
+    public ExtendedCsdlTerm(CsdlTerm csdlTerm) {
+        this.wrappedTerm = csdlTerm != null ? csdlTerm : new CsdlTerm();
     }
 
     /**
@@ -42,79 +37,176 @@ public class ExtendedCsdlTerm extends CsdlTerm implements ExtendedCsdlElement {
         extended.setName(source.getName());
         extended.setType(source.getType());
         extended.setBaseTerm(source.getBaseTerm());
-        extended.setDefaultValue(source.getDefaultValue());
         extended.setAppliesTo(source.getAppliesTo());
         extended.setNullable(source.isNullable());
         extended.setMaxLength(source.getMaxLength());
         extended.setPrecision(source.getPrecision());
         extended.setScale(source.getScale());
+        extended.setDefaultValue(source.getDefaultValue());
 
-        // 转换Annotations为ExtendedCsdlAnnotation
+        // 级联构建Annotations
         if (source.getAnnotations() != null) {
-            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
-                .collect(Collectors.toList());
-            extended.setAnnotations(extendedAnnotations);
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                extended.addExtendedAnnotation(extendedAnnotation);
+            }
         }
 
         return extended;
     }
+    
+    // 获取内部包装的对象
+    public CsdlTerm asCsdlTerm() {
+        return wrappedTerm;
+    }
+    
+    // 基本属性和方法
+    public String getName() {
+        return wrappedTerm.getName();
+    }
 
-    /**
-     * 初始化扩展集合
-     */
-    private void initializeExtendedCollections() {
-        this.extendedAnnotations = new ArrayList<>();
-    }
-    
-    @Override
-    public String getElementId() {
-        if (getName() != null) {
-            return getName();
-        }
-        return "Term_" + hashCode();
-    }
-    
-    @Override
-    public ExtendedCsdlTerm setNamespace(String namespace) {
-        this.namespace = namespace;
+    public ExtendedCsdlTerm setName(String name) {
+        wrappedTerm.setName(name);
         return this;
     }
 
-    @Override
-    public String getNamespace() {
-        return this.namespace;
+    public String getType() {
+        return wrappedTerm.getType();
     }
 
-    @Override
-    public ExtendedCsdlTerm registerElement() {
-        ExtendedCsdlElement.super.registerElement();
+    public ExtendedCsdlTerm setType(String type) {
+        wrappedTerm.setType(type);
         return this;
     }
-    
-    /**
-     * 获取元素的完全限定名（如果适用）
-     */
-    @Override
-    public FullQualifiedName getElementFullyQualifiedName() {
-        return new FullQualifiedName(getNamespace(), getName());
-    }
-    
-    /**
-     * 获取元素的依赖类型
-     */
-    @Override
-    public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.TERM_REFERENCE;
+
+    public String getBaseTerm() {
+        return wrappedTerm.getBaseTerm();
     }
 
-    @Override
-    public String getElementPropertyName() {
-        return null; // Term通常不关联特定属性
+    public ExtendedCsdlTerm setBaseTerm(String baseTerm) {
+        wrappedTerm.setBaseTerm(baseTerm);
+        return this;
     }
-    
-    // Extended集合的getter方法
+
+    public List<String> getAppliesTo() {
+        return wrappedTerm.getAppliesTo();
+    }
+
+    public ExtendedCsdlTerm setAppliesTo(List<String> appliesTo) {
+        wrappedTerm.setAppliesTo(appliesTo);
+        return this;
+    }
+
+    public boolean isNullable() {
+        return wrappedTerm.isNullable();
+    }
+
+    public ExtendedCsdlTerm setNullable(boolean nullable) {
+        wrappedTerm.setNullable(nullable);
+        return this;
+    }
+
+    public Integer getMaxLength() {
+        return wrappedTerm.getMaxLength();
+    }
+
+    public ExtendedCsdlTerm setMaxLength(Integer maxLength) {
+        wrappedTerm.setMaxLength(maxLength);
+        return this;
+    }
+
+    public Integer getPrecision() {
+        return wrappedTerm.getPrecision();
+    }
+
+    public ExtendedCsdlTerm setPrecision(Integer precision) {
+        wrappedTerm.setPrecision(precision);
+        return this;
+    }
+
+    public Integer getScale() {
+        return wrappedTerm.getScale();
+    }
+
+    public ExtendedCsdlTerm setScale(Integer scale) {
+        wrappedTerm.setScale(scale);
+        return this;
+    }
+
+    public String getDefaultValue() {
+        return wrappedTerm.getDefaultValue();
+    }
+
+    public ExtendedCsdlTerm setDefaultValue(String defaultValue) {
+        wrappedTerm.setDefaultValue(defaultValue);
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        // 返回不可修改的原始数据视图
+        return wrappedTerm.getAnnotations();
+    }
+
+    /**
+     * 获取Extended注解列表
+     */
     public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
-        return extendedAnnotations;
+        return new ArrayList<>(extendedAnnotations);
+    }
+
+    /**
+     * 添加Extended注解，同时更新原始数据
+     */
+    public ExtendedCsdlTerm addExtendedAnnotation(ExtendedCsdlAnnotation extendedAnnotation) {
+        if (extendedAnnotation != null) {
+            extendedAnnotations.add(extendedAnnotation);
+            syncAnnotationsToWrapped();
+        }
+        return this;
+    }
+
+    /**
+     * 设置Extended注解列表，同时更新原始数据
+     */
+    public ExtendedCsdlTerm setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations.clear();
+        if (extendedAnnotations != null) {
+            this.extendedAnnotations.addAll(extendedAnnotations);
+        }
+        syncAnnotationsToWrapped();
+        return this;
+    }
+
+    /**
+     * 同步Extended注解到原始数据
+     */
+    private void syncAnnotationsToWrapped() {
+        List<CsdlAnnotation> csdlAnnotations = new ArrayList<>();
+        for (ExtendedCsdlAnnotation extAnnotation : extendedAnnotations) {
+            csdlAnnotations.add(extAnnotation.asCsdlAnnotation());
+        }
+        wrappedTerm.setAnnotations(csdlAnnotations);
+    }
+
+    @Deprecated
+    public ExtendedCsdlTerm setAnnotations(List<CsdlAnnotation> annotations) {
+        // 保留向后兼容，但建议使用setExtendedAnnotations
+        wrappedTerm.setAnnotations(annotations);
+        // 同步到Extended对象
+        syncAnnotationsFromWrapped();
+        return this;
+    }
+
+    /**
+     * 从原始数据同步到Extended注解
+     */
+    private void syncAnnotationsFromWrapped() {
+        extendedAnnotations.clear();
+        if (wrappedTerm.getAnnotations() != null) {
+            for (CsdlAnnotation annotation : wrappedTerm.getAnnotations()) {
+                ExtendedCsdlAnnotation extAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                extendedAnnotations.add(extAnnotation);
+            }
+        }
     }
 }

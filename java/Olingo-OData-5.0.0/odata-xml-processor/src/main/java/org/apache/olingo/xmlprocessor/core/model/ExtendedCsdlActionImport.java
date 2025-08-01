@@ -1,39 +1,28 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * 扩展的CsdlActionImport，支持依赖关系跟踪
+ * 扩展的 CsdlActionImport，采用组合模式
+ * 使用组合模式包装CsdlActionImport，保持内部数据联动
  */
-public class ExtendedCsdlActionImport extends CsdlActionImport implements ExtendedCsdlElement {
+public class ExtendedCsdlActionImport {
     
-    private final String elementId;
-    private String namespace;
-
+    private final CsdlActionImport wrappedActionImport;
+    
     // Extended版本的内部元素
     private List<ExtendedCsdlAnnotation> extendedAnnotations;
-
-    /**
-     * 构造函数
-     */
+    
     public ExtendedCsdlActionImport() {
-        this.elementId = null;
+        this.wrappedActionImport = new CsdlActionImport();
         initializeExtendedCollections();
     }
     
-    /**
-     * 构造函数，使用指定的elementId
-     * @param elementId 元素唯一标识
-     */
-    public ExtendedCsdlActionImport(String elementId) {
-        this.elementId = elementId;
+    public ExtendedCsdlActionImport(CsdlActionImport csdlActionImport) {
+        this.wrappedActionImport = csdlActionImport != null ? csdlActionImport : new CsdlActionImport();
         initializeExtendedCollections();
     }
 
@@ -52,12 +41,19 @@ public class ExtendedCsdlActionImport extends CsdlActionImport implements Extend
         extended.setAction(source.getAction());
         extended.setEntitySet(source.getEntitySet());
 
-        // 转换Annotations为ExtendedCsdlAnnotation
+        // 复制Annotations并转换为Extended版本
         if (source.getAnnotations() != null) {
-            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
-                .collect(Collectors.toList());
-            extended.setAnnotations(extendedAnnotations);
+            List<ExtendedCsdlAnnotation> extendedAnnotationsList = new ArrayList<ExtendedCsdlAnnotation>();
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    extendedAnnotationsList.add(extendedAnnotation);
+                }
+            }
+            extended.setExtendedAnnotations(extendedAnnotationsList);
+            
+            // 同时设置原始Annotations以保持数据联动
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
@@ -67,60 +63,98 @@ public class ExtendedCsdlActionImport extends CsdlActionImport implements Extend
      * 初始化扩展集合
      */
     private void initializeExtendedCollections() {
-        this.extendedAnnotations = new ArrayList<>();
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
     }
     
-    @Override
-    public String getElementId() {
-        if (elementId != null) {
-            return elementId;
-        }
-        if (getName() != null) {
-            return getName();
-        }
-        return "ActionImport_" + hashCode();
+    // 获取内部包装的对象
+    public CsdlActionImport asCsdlActionImport() {
+        return wrappedActionImport;
     }
     
-    @Override
-    public ExtendedCsdlActionImport setNamespace(String namespace) {
-        this.namespace = namespace;
+    // ==================== CsdlActionImport 方法委托 ====================
+    
+    public String getName() {
+        return wrappedActionImport.getName();
+    }
+
+    public ExtendedCsdlActionImport setName(String name) {
+        wrappedActionImport.setName(name);
         return this;
     }
 
-    @Override
-    public String getNamespace() {
-        return this.namespace;
+    public String getAction() {
+        return wrappedActionImport.getAction();
     }
 
-    @Override
-    public ExtendedCsdlActionImport registerElement() {
-        ExtendedCsdlElement.super.registerElement();
+    public ExtendedCsdlActionImport setAction(String action) {
+        wrappedActionImport.setAction(action);
         return this;
     }
 
-    /**
-     * 获取元素的完全限定名（如果适用）
-     */
-    @Override
-    public FullQualifiedName getElementFullyQualifiedName() {
-        return new FullQualifiedName(getNamespace(), getName());
-    }
-    
-    /**
-     * 获取元素的依赖类型
-     */
-    @Override
-    public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.ACTION_IMPORT_REFERENCE;
-    }
-    
-    @Override
-    public String getElementPropertyName() {
-        return null; // ActionImport通常不关联特定属性
+    public String getEntitySet() {
+        return wrappedActionImport.getEntitySet();
     }
 
-    // Extended集合的getter方法
+    public ExtendedCsdlActionImport setEntitySet(String entitySet) {
+        wrappedActionImport.setEntitySet(entitySet);
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedActionImport.getAnnotations();
+    }
+
+    public ExtendedCsdlActionImport setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedActionImport.setAnnotations(annotations);
+        // 同步到Extended集合
+        syncAnnotationsToExtended();
+        return this;
+    }
+
+    // ==================== Extended 集合方法 ====================
+
     public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
         return extendedAnnotations;
+    }
+
+    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations = extendedAnnotations;
+        // 同步到原始集合
+        syncExtendedAnnotationsToOriginal();
+    }
+
+    /**
+     * 将原始Annotations同步到Extended集合
+     */
+    private void syncAnnotationsToExtended() {
+        if (this.extendedAnnotations == null) {
+            this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+        }
+        this.extendedAnnotations.clear();
+        
+        List<CsdlAnnotation> annotations = getAnnotations();
+        if (annotations != null) {
+            for (CsdlAnnotation annotation : annotations) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    this.extendedAnnotations.add(extendedAnnotation);
+                }
+            }
+        }
+    }
+
+    /**
+     * 将Extended Annotations同步到原始集合
+     */
+    private void syncExtendedAnnotationsToOriginal() {
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        if (this.extendedAnnotations != null) {
+            for (ExtendedCsdlAnnotation extendedAnnotation : this.extendedAnnotations) {
+                if (extendedAnnotation != null) {
+                    annotations.add(extendedAnnotation.asCsdlAnnotation());
+                }
+            }
+        }
+        wrappedActionImport.setAnnotations(annotations);
     }
 }

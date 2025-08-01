@@ -1,26 +1,27 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
-import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 扩展的CsdlFunction，支持依赖关系跟踪
+ * 使用组合模式包装CsdlFunction，保持内部数据联动
  */
-public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlElement {
+public class ExtendedCsdlFunction implements ExtendedCsdlElement {
     
-    private final String elementId;
+    private final CsdlFunction wrappedFunction;
     private String namespace;
     
-    // Extended版本的内部元素
-    private List<ExtendedCsdlParameter> extendedParameters;
+    // Extended子对象集合，与原始数据保持同步
+    private final List<ExtendedCsdlParameter> extendedParameters = new ArrayList<>();
     private ExtendedCsdlReturnType extendedReturnType;
     private List<ExtendedCsdlAnnotation> extendedAnnotations;
 
@@ -28,17 +29,15 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
      * 构造函数
      */
     public ExtendedCsdlFunction() {
-        this.elementId = null;
+        this.wrappedFunction = new CsdlFunction();
         initializeExtendedCollections();
     }
-    
+
     /**
-     * 构造函数，使用指定的elementId
-     * @param elementId 元素唯一标识
+     * 初始化扩展集合
      */
-    public ExtendedCsdlFunction(String elementId) {
-        this.elementId = elementId;
-        initializeExtendedCollections();
+    private void initializeExtendedCollections() {
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
     }
 
     /**
@@ -57,108 +56,303 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
         extended.setComposable(source.isComposable());
         extended.setEntitySetPath(source.getEntitySetPath());
 
-        // 转换Parameters为ExtendedCsdlParameter
+        // 级联构建Parameters
         if (source.getParameters() != null) {
-            List<CsdlParameter> extendedParameters = source.getParameters().stream()
-                .map(parameter -> ExtendedCsdlParameter.fromCsdlParameter(parameter))
-                .collect(Collectors.toList());
-            extended.setParameters(extendedParameters);
+            for (CsdlParameter param : source.getParameters()) {
+                ExtendedCsdlParameter extendedParam = ExtendedCsdlParameter.fromCsdlParameter(param);
+                extended.addExtendedParameter(extendedParam);
+            }
         }
 
-        // 转换ReturnType为ExtendedCsdlReturnType
+        // 级联构建ReturnType
         if (source.getReturnType() != null) {
-            ExtendedCsdlReturnType extendedReturnType =
-                ExtendedCsdlReturnType.fromCsdlReturnType(source.getReturnType());
-            extended.setReturnType(extendedReturnType);
+            ExtendedCsdlReturnType extendedReturnType = ExtendedCsdlReturnType.fromCsdlReturnType(source.getReturnType());
+            extended.setExtendedReturnType(extendedReturnType);
         }
 
-        // 转换Annotations为ExtendedCsdlAnnotation
+        // 复制Annotations并转换为Extended版本
         if (source.getAnnotations() != null) {
-            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
-                .collect(Collectors.toList());
-            extended.setAnnotations(extendedAnnotations);
+            List<ExtendedCsdlAnnotation> extendedAnnotationsList = new ArrayList<ExtendedCsdlAnnotation>();
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    extendedAnnotationsList.add(extendedAnnotation);
+                }
+            }
+            extended.setExtendedAnnotations(extendedAnnotationsList);
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
     }
 
     /**
-     * 初始化扩展集合
+     * 获取底层的CsdlFunction
      */
-    private void initializeExtendedCollections() {
-        this.extendedParameters = new ArrayList<>();
-        this.extendedAnnotations = new ArrayList<>();
+    public CsdlFunction asCsdlFunction() {
+        return wrappedFunction;
     }
-    
+
+    // ==================== CsdlFunction 方法委托 ====================
+
+    public String getName() {
+        return wrappedFunction.getName();
+    }
+
+    public ExtendedCsdlFunction setName(String name) {
+        wrappedFunction.setName(name);
+        return this;
+    }
+
+    public boolean isBound() {
+        return wrappedFunction.isBound();
+    }
+
+    public ExtendedCsdlFunction setBound(boolean isBound) {
+        wrappedFunction.setBound(isBound);
+        return this;
+    }
+
+    public boolean isComposable() {
+        return wrappedFunction.isComposable();
+    }
+
+    public ExtendedCsdlFunction setComposable(boolean isComposable) {
+        wrappedFunction.setComposable(isComposable);
+        return this;
+    }
+
+    public String getEntitySetPath() {
+        return wrappedFunction.getEntitySetPath();
+    }
+
+    public ExtendedCsdlFunction setEntitySetPath(String entitySetPath) {
+        wrappedFunction.setEntitySetPath(entitySetPath);
+        return this;
+    }
+
+    public List<CsdlParameter> getParameters() {
+        // 返回不可修改的原始数据视图
+        return wrappedFunction.getParameters() != null ? 
+            Collections.unmodifiableList(wrappedFunction.getParameters()) : null;
+    }
+
+    /**
+     * 获取Extended参数列表
+     */
+    public List<ExtendedCsdlParameter> getExtendedParameters() {
+        return new ArrayList<>(extendedParameters);
+    }
+
+    /**
+     * 添加Extended参数，同时更新原始数据
+     */
+    public ExtendedCsdlFunction addExtendedParameter(ExtendedCsdlParameter extendedParameter) {
+        if (extendedParameter != null) {
+            extendedParameters.add(extendedParameter);
+            syncParametersToWrapped();
+        }
+        return this;
+    }
+
+    /**
+     * 设置Extended参数列表，同时更新原始数据
+     */
+    public ExtendedCsdlFunction setExtendedParameters(List<ExtendedCsdlParameter> extendedParameters) {
+        this.extendedParameters.clear();
+        if (extendedParameters != null) {
+            this.extendedParameters.addAll(extendedParameters);
+        }
+        syncParametersToWrapped();
+        return this;
+    }
+
+    /**
+     * 同步Extended参数到原始数据
+     */
+    private void syncParametersToWrapped() {
+        List<CsdlParameter> csdlParams = new ArrayList<>();
+        for (ExtendedCsdlParameter extParam : extendedParameters) {
+            csdlParams.add(extParam.asCsdlParameter());
+        }
+        wrappedFunction.setParameters(csdlParams);
+    }
+
+    public CsdlParameter getParameter(String name) {
+        return wrappedFunction.getParameter(name);
+    }
+
+    /**
+     * 获取Extended参数
+     */
+    public ExtendedCsdlParameter getExtendedParameter(String name) {
+        return extendedParameters.stream()
+            .filter(p -> name.equals(p.getName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Deprecated
+    public ExtendedCsdlFunction setParameters(List<CsdlParameter> parameters) {
+        // 保留向后兼容，但建议使用setExtendedParameters
+        wrappedFunction.setParameters(parameters);
+        // 同步到Extended对象
+        syncParametersFromWrapped();
+        return this;
+    }
+
+    /**
+     * 从原始数据同步到Extended参数
+     */
+    private void syncParametersFromWrapped() {
+        extendedParameters.clear();
+        if (wrappedFunction.getParameters() != null) {
+            for (CsdlParameter param : wrappedFunction.getParameters()) {
+                ExtendedCsdlParameter extParam = ExtendedCsdlParameter.fromCsdlParameter(param);
+                extendedParameters.add(extParam);
+            }
+        }
+    }
+
+    public CsdlReturnType getReturnType() {
+        // 返回不可修改的原始数据
+        return wrappedFunction.getReturnType();
+    }
+
+    /**
+     * 获取Extended返回类型
+     */
+    public ExtendedCsdlReturnType getExtendedReturnType() {
+        return extendedReturnType;
+    }
+
+    /**
+     * 设置Extended返回类型，同时更新原始数据
+     */
+    public ExtendedCsdlFunction setExtendedReturnType(ExtendedCsdlReturnType extendedReturnType) {
+        this.extendedReturnType = extendedReturnType;
+        if (extendedReturnType != null) {
+            wrappedFunction.setReturnType(extendedReturnType.asCsdlReturnType());
+        } else {
+            wrappedFunction.setReturnType(null);
+        }
+        return this;
+    }
+
+    @Deprecated
+    public ExtendedCsdlFunction setReturnType(CsdlReturnType returnType) {
+        // 保留向后兼容，但建议使用setExtendedReturnType
+        wrappedFunction.setReturnType(returnType);
+        if (returnType != null) {
+            this.extendedReturnType = ExtendedCsdlReturnType.fromCsdlReturnType(returnType);
+        } else {
+            this.extendedReturnType = null;
+        }
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedFunction.getAnnotations();
+    }
+
+    public ExtendedCsdlFunction setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedFunction.setAnnotations(annotations);
+        syncAnnotationsToExtended();
+        return this;
+    }
+
+    // ==================== Extended 集合方法 ====================
+
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return extendedAnnotations;
+    }
+
+    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations = extendedAnnotations;
+        syncExtendedAnnotationsToOriginal();
+    }
+
+    /**
+     * 将原始Annotations同步到Extended集合
+     */
+    private void syncAnnotationsToExtended() {
+        if (this.extendedAnnotations == null) {
+            this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+        }
+        this.extendedAnnotations.clear();
+        
+        List<CsdlAnnotation> annotations = getAnnotations();
+        if (annotations != null) {
+            for (CsdlAnnotation annotation : annotations) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    this.extendedAnnotations.add(extendedAnnotation);
+                }
+            }
+        }
+    }
+
+    /**
+     * 将Extended Annotations同步到原始集合
+     */
+    private void syncExtendedAnnotationsToOriginal() {
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        if (this.extendedAnnotations != null) {
+            for (ExtendedCsdlAnnotation extendedAnnotation : this.extendedAnnotations) {
+                if (extendedAnnotation != null) {
+                    annotations.add(extendedAnnotation.asCsdlAnnotation());
+                }
+            }
+        }
+        wrappedFunction.setAnnotations(annotations);
+    }
+
+    // ==================== Extended Element 接口实现 ====================
+
     @Override
     public String getElementId() {
-        if (elementId != null) {
-            return elementId;
-        }
-        if (getName() != null) {
-            return getName();
+        if (wrappedFunction.getName() != null) {
+            return wrappedFunction.getName();
         }
         return "Function_" + hashCode();
     }
-    
-    /**
-     * Override setNamespace to return the correct type for fluent interface
-     */
-    @Override
-    public ExtendedCsdlFunction setNamespace(String namespace) {
-        this.namespace = namespace;
-        return this;
-    }
 
-    /**
-     * Get namespace
-     */
-    @Override
-    public String getNamespace() {
-        return this.namespace;
-    }
-
-    @Override
-    public ExtendedCsdlFunction registerElement() {
-        ExtendedCsdlElement.super.registerElement();
-        return this;
-    }
-    
-    /**
-     * 获取元素的完全限定名（如果适用）
-     */
     @Override
     public FullQualifiedName getElementFullyQualifiedName() {
-        return new FullQualifiedName(getNamespace(), getName());
+        if (namespace != null && getName() != null) {
+            return new FullQualifiedName(namespace, getName());
+        }
+        return null;
     }
-    
-    /**
-     * 获取元素的依赖类型
-     */
+
     @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
         return CsdlDependencyNode.DependencyType.FUNCTION_REFERENCE;
     }
 
-    /**
-     * 获取元素的属性名称
-     */
     @Override
     public String getElementPropertyName() {
-        return null; // Function通常不关联特定属性
-    }
-    
-    // Extended集合的getter方法
-    public List<ExtendedCsdlParameter> getExtendedParameters() {
-        return extendedParameters;
+        return getName();
     }
 
-    public ExtendedCsdlReturnType getExtendedReturnType() {
-        return extendedReturnType;
+    // ==================== 扩展属性 ====================
+
+    public String getNamespace() {
+        return namespace;
     }
 
-    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
-        return extendedAnnotations;
+    public ExtendedCsdlFunction setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "ExtendedCsdlFunction{" +
+                "name='" + getName() + '\'' +
+                ", isBound=" + isBound() +
+                ", isComposable=" + isComposable() +
+                ", namespace='" + namespace + '\'' +
+                '}';
     }
 }

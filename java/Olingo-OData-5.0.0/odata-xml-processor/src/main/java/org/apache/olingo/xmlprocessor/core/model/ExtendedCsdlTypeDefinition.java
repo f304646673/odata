@@ -3,18 +3,19 @@ package org.apache.olingo.xmlprocessor.core.model;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 扩展的CsdlTypeDefinition，增加依赖关系追踪功能
+ * 使用组合模式包装CsdlTypeDefinition，保持内部数据联动
  */
-public class ExtendedCsdlTypeDefinition extends CsdlTypeDefinition implements ExtendedCsdlElement {
+public class ExtendedCsdlTypeDefinition implements ExtendedCsdlElement {
     
-    private String fullyQualifiedName;
+    private final CsdlTypeDefinition wrappedTypeDefinition;
     private String namespace;
     
     // Extended版本的内部元素
@@ -24,7 +25,7 @@ public class ExtendedCsdlTypeDefinition extends CsdlTypeDefinition implements Ex
      * 默认构造函数
      */
     public ExtendedCsdlTypeDefinition() {
-        super();
+        this.wrappedTypeDefinition = new CsdlTypeDefinition();
         initializeExtendedCollections();
     }
 
@@ -45,13 +46,11 @@ public class ExtendedCsdlTypeDefinition extends CsdlTypeDefinition implements Ex
         extended.setPrecision(source.getPrecision());
         extended.setScale(source.getScale());
         extended.setUnicode(source.isUnicode());
+        extended.setSrid(source.getSrid());
 
-        // 转换Annotations为ExtendedCsdlAnnotation
+        // 复制Annotations
         if (source.getAnnotations() != null) {
-            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
-                .collect(Collectors.toList());
-            extended.setAnnotations(extendedAnnotations);
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
@@ -61,44 +60,124 @@ public class ExtendedCsdlTypeDefinition extends CsdlTypeDefinition implements Ex
      * 初始化扩展集合
      */
     private void initializeExtendedCollections() {
-        this.extendedAnnotations = new ArrayList<>();
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
     }
+
+    // ==================== CsdlTypeDefinition 方法委托 ====================
+    
+    public String getName() {
+        return wrappedTypeDefinition.getName();
+    }
+
+    public ExtendedCsdlTypeDefinition setName(String name) {
+        wrappedTypeDefinition.setName(name);
+        return this;
+    }
+
+    public String getUnderlyingType() {
+        return wrappedTypeDefinition.getUnderlyingType();
+    }
+
+    public ExtendedCsdlTypeDefinition setUnderlyingType(String underlyingType) {
+        wrappedTypeDefinition.setUnderlyingType(underlyingType);
+        return this;
+    }
+
+    public ExtendedCsdlTypeDefinition setUnderlyingType(FullQualifiedName underlyingType) {
+        wrappedTypeDefinition.setUnderlyingType(underlyingType);
+        return this;
+    }
+
+    public Integer getMaxLength() {
+        return wrappedTypeDefinition.getMaxLength();
+    }
+
+    public ExtendedCsdlTypeDefinition setMaxLength(Integer maxLength) {
+        wrappedTypeDefinition.setMaxLength(maxLength);
+        return this;
+    }
+
+    public Integer getPrecision() {
+        return wrappedTypeDefinition.getPrecision();
+    }
+
+    public ExtendedCsdlTypeDefinition setPrecision(Integer precision) {
+        wrappedTypeDefinition.setPrecision(precision);
+        return this;
+    }
+
+    public Integer getScale() {
+        return wrappedTypeDefinition.getScale();
+    }
+
+    public ExtendedCsdlTypeDefinition setScale(Integer scale) {
+        wrappedTypeDefinition.setScale(scale);
+        return this;
+    }
+
+    public Boolean isUnicode() {
+        return wrappedTypeDefinition.isUnicode();
+    }
+
+    public ExtendedCsdlTypeDefinition setUnicode(Boolean unicode) {
+        wrappedTypeDefinition.setUnicode(unicode);
+        return this;
+    }
+
+    public SRID getSrid() {
+        return wrappedTypeDefinition.getSrid();
+    }
+
+    public ExtendedCsdlTypeDefinition setSrid(SRID srid) {
+        wrappedTypeDefinition.setSrid(srid);
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedTypeDefinition.getAnnotations();
+    }
+
+    public ExtendedCsdlTypeDefinition setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedTypeDefinition.setAnnotations(annotations);
+        return this;
+    }
+
+    // ==================== Extended 集合方法 ====================
+
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return extendedAnnotations;
+    }
+
+    public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
+        this.extendedAnnotations = extendedAnnotations;
+    }
+
+    /**
+     * 获取包装的CsdlTypeDefinition实例
+     */
+    public CsdlTypeDefinition asCsdlTypeDefinition() {
+        return wrappedTypeDefinition;
+    }
+
+    // ==================== ExtendedCsdlElement 实现 ====================
 
     @Override
     public String getElementId() {
-        return getFullyQualifiedName();
-    }
-
-    @Override
-    public FullQualifiedName getElementFullyQualifiedName() {
-        if (namespace != null && getName() != null) {
-            return new FullQualifiedName(namespace, getName());
+        if (getName() != null) {
+            return getName();
         }
-        return null;
-    }
-
-    @Override
-    public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.TYPE_DEFINITION;
-    }
-
-    @Override
-    public String getElementPropertyName() {
-        return null; // TypeDefinitions don't have property dependencies
+        return "TypeDefinition_" + hashCode();
     }
 
     @Override
     public ExtendedCsdlTypeDefinition setNamespace(String namespace) {
         this.namespace = namespace;
-        if (namespace != null && this.getName() != null) {
-            this.fullyQualifiedName = namespace + "." + this.getName();
-        }
         return this;
     }
 
     @Override
     public String getNamespace() {
-        return namespace;
+        return this.namespace;
     }
 
     @Override
@@ -107,21 +186,18 @@ public class ExtendedCsdlTypeDefinition extends CsdlTypeDefinition implements Ex
         return this;
     }
 
-    /**
-     * 获取完全限定名
-     */
-    public String getFullyQualifiedName() {
-        if (fullyQualifiedName != null) {
-            return fullyQualifiedName;
-        }
-        if (namespace != null && getName() != null) {
-            return namespace + "." + getName();
-        }
-        return getName();
+    @Override
+    public FullQualifiedName getElementFullyQualifiedName() {
+        return new FullQualifiedName(getNamespace(), getName());
     }
 
-    // Extended集合的getter方法
-    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
-        return extendedAnnotations;
+    @Override
+    public CsdlDependencyNode.DependencyType getElementDependencyType() {
+        return CsdlDependencyNode.DependencyType.TYPE_REFERENCE;
+    }
+
+    @Override
+    public String getElementPropertyName() {
+        return null;
     }
 }

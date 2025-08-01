@@ -1,51 +1,50 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
-import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * 扩展的CsdlEntityType，支持依赖关系跟踪
- * 内部包含Extended版本的所有子元素，保持对象树的一致性
+ * 扩展的CsdlEntityType，增加依赖关系追踪功能
+ * 使用组合模式包装CsdlEntityType，保持内部数据联动
  */
-public class ExtendedCsdlEntityType extends CsdlEntityType implements ExtendedCsdlElement {
-    
-    private final String elementId;
+public class ExtendedCsdlEntityType implements ExtendedCsdlElement {
+
+    private final CsdlEntityType wrappedEntityType;
     private String namespace;
-    
-    // Extended版本的内部元素
-    private List<ExtendedCsdlProperty> extendedProperties;
-    private List<ExtendedCsdlNavigationProperty> extendedNavigationProperties;
+
+    // Extended子对象集合，与原始数据保持同步
+    private final List<ExtendedCsdlProperty> extendedProperties = new ArrayList<>();
+    private final List<ExtendedCsdlNavigationProperty> extendedNavigationProperties = new ArrayList<>();
     private List<ExtendedCsdlAnnotation> extendedAnnotations;
 
     /**
      * 构造函数
      */
     public ExtendedCsdlEntityType() {
-        this.elementId = null;
-        initializeExtendedCollections();
-    }
-    
-    /**
-     * 构造函数，使用指定的elementId
-     * @param elementId 元素唯一标识
-     */
-    public ExtendedCsdlEntityType(String elementId) {
-        this.elementId = elementId;
+        this.wrappedEntityType = new CsdlEntityType();
         initializeExtendedCollections();
     }
 
     /**
+     * 初始化扩展集合
+     */
+    private void initializeExtendedCollections() {
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+    }
+
+    /**
      * 从标准CsdlEntityType创建ExtendedCsdlEntityType
-     * @param source 源CsdlEntityType
-     * @return ExtendedCsdlEntityType实例
      */
     public static ExtendedCsdlEntityType fromCsdlEntityType(CsdlEntityType source) {
         if (source == null) {
@@ -56,334 +55,391 @@ public class ExtendedCsdlEntityType extends CsdlEntityType implements ExtendedCs
 
         // 复制基本属性
         extended.setName(source.getName());
+        // 安全设置BaseType，避免null值导致的异常
+        if (source.getBaseType() != null) {
+            extended.setBaseType(source.getBaseType());
+        }
         extended.setAbstract(source.isAbstract());
-        extended.setOpenType(source.isOpenType());
         extended.setHasStream(source.hasStream());
-        extended.setBaseType(source.getBaseType());
+        extended.setOpenType(source.isOpenType());
 
-        // 复制Key
+        // 复制Key属性
         if (source.getKey() != null) {
-            extended.setKey(source.getKey());
+            extended.setKey(new ArrayList<CsdlPropertyRef>(source.getKey()));
         }
 
-        // 转换Properties为Extended版本
+        // 级联构建Properties
         if (source.getProperties() != null) {
-            List<ExtendedCsdlProperty> extendedProps = source.getProperties().stream()
-                    .map(ExtendedCsdlProperty::fromCsdlProperty)
-                    .collect(Collectors.toList());
-            extended.setExtendedProperties(extendedProps);
-
-            // 同时设置父类的properties以保持兼容性
-            extended.setProperties(new ArrayList<>(source.getProperties()));
+            for (CsdlProperty prop : source.getProperties()) {
+                ExtendedCsdlProperty extendedProp = ExtendedCsdlProperty.fromCsdlProperty(prop);
+                extended.addExtendedProperty(extendedProp);
+            }
         }
 
-        // 转换NavigationProperties为Extended版本
+        // 级联构建NavigationProperties
         if (source.getNavigationProperties() != null) {
-            List<ExtendedCsdlNavigationProperty> extendedNavProps = source.getNavigationProperties().stream()
-                    .map(ExtendedCsdlNavigationProperty::fromCsdlNavigationProperty)
-                    .collect(Collectors.toList());
-            extended.setExtendedNavigationProperties(extendedNavProps);
-
-            // 同时设置父类的navigationProperties以保持兼容性
-            extended.setNavigationProperties(new ArrayList<>(source.getNavigationProperties()));
+            for (CsdlNavigationProperty navProp : source.getNavigationProperties()) {
+                ExtendedCsdlNavigationProperty extendedNavProp = ExtendedCsdlNavigationProperty.fromCsdlNavigationProperty(navProp);
+                extended.addExtendedNavigationProperty(extendedNavProp);
+            }
         }
 
-        // 转换Annotations为Extended版本
+        // 复制Annotations并转换为Extended版本
         if (source.getAnnotations() != null) {
-            List<ExtendedCsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                    .map(ExtendedCsdlAnnotation::fromCsdlAnnotation)
-                    .collect(Collectors.toList());
-            extended.setExtendedAnnotations(extendedAnnotations);
-
-            // 同时设置父类的annotations以保持兼容性
-            extended.setAnnotations(new ArrayList<>(source.getAnnotations()));
+            List<ExtendedCsdlAnnotation> extendedAnnotationsList = new ArrayList<ExtendedCsdlAnnotation>();
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    extendedAnnotationsList.add(extendedAnnotation);
+                }
+            }
+            extended.setExtendedAnnotations(extendedAnnotationsList);
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
     }
 
-    private void initializeExtendedCollections() {
-        this.extendedProperties = new ArrayList<>();
-        this.extendedNavigationProperties = new ArrayList<>();
-        this.extendedAnnotations = new ArrayList<>();
-    }
-    
-    @Override
-    public String getElementId() {
-        if (elementId != null) {
-            return elementId;
-        }
-        if (getName() != null) {
-            return getName();
-        }
-        return "EntityType_" + hashCode();
-    }
-    
     /**
-     * Override setNamespace to return the correct type for fluent interface
+     * 获取底层的CsdlEntityType
      */
-    @Override
-    public ExtendedCsdlEntityType setNamespace(String namespace) {
-        this.namespace = namespace;
-        // 更新所有子元素的namespace
-        updateChildNamespaces(namespace);
+    public CsdlEntityType asCsdlEntityType() {
+        return wrappedEntityType;
+    }
+
+    // ==================== CsdlEntityType 方法委托 ====================
+    
+    public String getName() {
+        return wrappedEntityType.getName();
+    }
+
+    public ExtendedCsdlEntityType setName(String name) {
+        wrappedEntityType.setName(name);
+        return this;
+    }
+
+    public String getBaseType() {
+        return wrappedEntityType.getBaseType();
+    }
+
+    public FullQualifiedName getBaseTypeFQN() {
+        return wrappedEntityType.getBaseTypeFQN();
+    }
+
+    public ExtendedCsdlEntityType setBaseType(FullQualifiedName baseType) {
+        wrappedEntityType.setBaseType(baseType);
+        return this;
+    }
+
+    public ExtendedCsdlEntityType setBaseType(String baseType) {
+        // 只有非空值才设置，避免FullQualifiedName构造函数的NullPointerException
+        if (baseType != null && !baseType.trim().isEmpty()) {
+            wrappedEntityType.setBaseType(baseType);
+        }
+        return this;
+    }
+
+    public boolean isAbstract() {
+        return wrappedEntityType.isAbstract();
+    }
+
+    public ExtendedCsdlEntityType setAbstract(boolean isAbstract) {
+        wrappedEntityType.setAbstract(isAbstract);
+        return this;
+    }
+
+    public boolean isOpenType() {
+        return wrappedEntityType.isOpenType();
+    }
+
+    public ExtendedCsdlEntityType setOpenType(boolean isOpenType) {
+        wrappedEntityType.setOpenType(isOpenType);
+        return this;
+    }
+
+    public boolean hasStream() {
+        return wrappedEntityType.hasStream();
+    }
+
+    public ExtendedCsdlEntityType setHasStream(boolean hasStream) {
+        wrappedEntityType.setHasStream(hasStream);
+        return this;
+    }
+
+    public List<CsdlPropertyRef> getKey() {
+        return wrappedEntityType.getKey();
+    }
+
+    public ExtendedCsdlEntityType setKey(List<CsdlPropertyRef> key) {
+        wrappedEntityType.setKey(key);
+        return this;
+    }
+
+    public List<CsdlProperty> getProperties() {
+        // 返回不可修改的原始数据视图
+        return wrappedEntityType.getProperties() != null ?
+            Collections.unmodifiableList(wrappedEntityType.getProperties()) : null;
+    }
+
+    /**
+     * 获取Extended属性列表
+     */
+    public List<ExtendedCsdlProperty> getExtendedProperties() {
+        return new ArrayList<>(extendedProperties);
+    }
+
+    /**
+     * 添加Extended属性，同时更新原始数据
+     */
+    public ExtendedCsdlEntityType addExtendedProperty(ExtendedCsdlProperty extendedProperty) {
+        if (extendedProperty != null) {
+            extendedProperties.add(extendedProperty);
+            syncPropertiesToWrapped();
+        }
         return this;
     }
 
     /**
-     * Get the namespace
+     * 设置Extended属性列表，同时更新原始数据
      */
-    public String getNamespace() {
-        return namespace;
-    }
-    
-    /**
-     * 获取Extended版本的Properties
-     * @return Extended Properties列表
-     */
-    public List<ExtendedCsdlProperty> getExtendedProperties() {
-        return extendedProperties;
-    }
-
-    /**
-     * 设置Extended版本的Properties
-     * @param extendedProperties Extended Properties列表
-     */
-    public void setExtendedProperties(List<ExtendedCsdlProperty> extendedProperties) {
-        this.extendedProperties = extendedProperties != null ? extendedProperties : new ArrayList<>();
-
-        // 同步到父类的properties
+    public ExtendedCsdlEntityType setExtendedProperties(List<ExtendedCsdlProperty> extendedProperties) {
+        this.extendedProperties.clear();
         if (extendedProperties != null) {
-            List<CsdlProperty> standardProperties = new ArrayList<>(extendedProperties);
-            setProperties(standardProperties);
+            this.extendedProperties.addAll(extendedProperties);
         }
+        syncPropertiesToWrapped();
+        return this;
     }
 
     /**
-     * 添加Extended Property
-     * @param property Extended Property
+     * 同步Extended属性到原始数据
      */
-    public void addExtendedProperty(ExtendedCsdlProperty property) {
-        if (property != null) {
-            if (extendedProperties == null) {
-                extendedProperties = new ArrayList<>();
-            }
-            extendedProperties.add(property);
-
-            // 同步到父类
-            if (getProperties() == null) {
-                setProperties(new ArrayList<>());
-            }
-            getProperties().add(property);
+    private void syncPropertiesToWrapped() {
+        List<CsdlProperty> csdlProps = new ArrayList<>();
+        for (ExtendedCsdlProperty extProp : extendedProperties) {
+            csdlProps.add(extProp.asCsdlProperty());
         }
+        wrappedEntityType.setProperties(csdlProps);
+    }
+
+    public CsdlProperty getProperty(String name) {
+        return wrappedEntityType.getProperty(name);
     }
 
     /**
-     * 获取Extended版本的NavigationProperties
-     * @return Extended NavigationProperties列表
+     * 获取Extended属性
+     */
+    public ExtendedCsdlProperty getExtendedProperty(String name) {
+        return extendedProperties.stream()
+            .filter(p -> name.equals(p.getName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Deprecated
+    public ExtendedCsdlEntityType setProperties(List<CsdlProperty> properties) {
+        // 保留向后兼容，但建议使用setExtendedProperties
+        wrappedEntityType.setProperties(properties);
+        // 同步到Extended对象
+        syncPropertiesFromWrapped();
+        return this;
+    }
+
+    /**
+     * 从原始数据同步到Extended属性
+     */
+    private void syncPropertiesFromWrapped() {
+        extendedProperties.clear();
+        if (wrappedEntityType.getProperties() != null) {
+            for (CsdlProperty prop : wrappedEntityType.getProperties()) {
+                ExtendedCsdlProperty extProp = ExtendedCsdlProperty.fromCsdlProperty(prop);
+                extendedProperties.add(extProp);
+            }
+        }
+    }
+
+    public List<CsdlNavigationProperty> getNavigationProperties() {
+        // 返回不可修改的原始数据视图
+        return wrappedEntityType.getNavigationProperties() != null ?
+            Collections.unmodifiableList(wrappedEntityType.getNavigationProperties()) : null;
+    }
+
+    /**
+     * 获取Extended导航属性列表
      */
     public List<ExtendedCsdlNavigationProperty> getExtendedNavigationProperties() {
-        return extendedNavigationProperties;
+        return new ArrayList<>(extendedNavigationProperties);
     }
 
     /**
-     * 设置Extended版本的NavigationProperties
-     * @param extendedNavigationProperties Extended NavigationProperties列表
+     * 添加Extended导航属性，同时更新原始数据
      */
-    public void setExtendedNavigationProperties(List<ExtendedCsdlNavigationProperty> extendedNavigationProperties) {
-        this.extendedNavigationProperties = extendedNavigationProperties != null ? extendedNavigationProperties : new ArrayList<>();
+    public ExtendedCsdlEntityType addExtendedNavigationProperty(ExtendedCsdlNavigationProperty extendedNavProperty) {
+        if (extendedNavProperty != null) {
+            extendedNavigationProperties.add(extendedNavProperty);
+            syncNavigationPropertiesToWrapped();
+        }
+        return this;
+    }
 
-        // 同步到父类的navigationProperties
-        if (extendedNavigationProperties != null) {
-            List<CsdlNavigationProperty> standardNavProps = new ArrayList<>(extendedNavigationProperties);
-            setNavigationProperties(standardNavProps);
+    /**
+     * 设置Extended导航属性列表，同时更新原始数据
+     */
+    public ExtendedCsdlEntityType setExtendedNavigationProperties(List<ExtendedCsdlNavigationProperty> extendedNavProperties) {
+        this.extendedNavigationProperties.clear();
+        if (extendedNavProperties != null) {
+            this.extendedNavigationProperties.addAll(extendedNavProperties);
+        }
+        syncNavigationPropertiesToWrapped();
+        return this;
+    }
+
+    /**
+     * 同步Extended导航属性到原始数据
+     */
+    private void syncNavigationPropertiesToWrapped() {
+        List<CsdlNavigationProperty> csdlNavProps = new ArrayList<>();
+        for (ExtendedCsdlNavigationProperty extNavProp : extendedNavigationProperties) {
+            csdlNavProps.add(extNavProp.asCsdlNavigationProperty());
+        }
+        wrappedEntityType.setNavigationProperties(csdlNavProps);
+    }
+
+    public CsdlNavigationProperty getNavigationProperty(String name) {
+        return wrappedEntityType.getNavigationProperty(name);
+    }
+
+    /**
+     * 获取Extended导航属性
+     */
+    public ExtendedCsdlNavigationProperty getExtendedNavigationProperty(String name) {
+        return extendedNavigationProperties.stream()
+            .filter(p -> name.equals(p.getName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Deprecated
+    public ExtendedCsdlEntityType setNavigationProperties(List<CsdlNavigationProperty> navigationProperties) {
+        // 保留向后兼容，但建议使用setExtendedNavigationProperties
+        wrappedEntityType.setNavigationProperties(navigationProperties);
+        // 同步到Extended对象
+        syncNavigationPropertiesFromWrapped();
+        return this;
+    }
+
+    /**
+     * 从原始数据同步到Extended导航属性
+     */
+    private void syncNavigationPropertiesFromWrapped() {
+        extendedNavigationProperties.clear();
+        if (wrappedEntityType.getNavigationProperties() != null) {
+            for (CsdlNavigationProperty navProp : wrappedEntityType.getNavigationProperties()) {
+                ExtendedCsdlNavigationProperty extNavProp = ExtendedCsdlNavigationProperty.fromCsdlNavigationProperty(navProp);
+                extendedNavigationProperties.add(extNavProp);
+            }
         }
     }
 
-    /**
-     * 添加Extended NavigationProperty
-     * @param navigationProperty Extended NavigationProperty
-     */
-    public void addExtendedNavigationProperty(ExtendedCsdlNavigationProperty navigationProperty) {
-        if (navigationProperty != null) {
-            if (extendedNavigationProperties == null) {
-                extendedNavigationProperties = new ArrayList<>();
-            }
-            extendedNavigationProperties.add(navigationProperty);
-
-            // 同步到父类
-            if (getNavigationProperties() == null) {
-                setNavigationProperties(new ArrayList<>());
-            }
-            getNavigationProperties().add(navigationProperty);
-        }
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedEntityType.getAnnotations();
     }
 
-    /**
-     * 获取Extended版本的Annotations
-     * @return Extended Annotations列表
-     */
+    public ExtendedCsdlEntityType setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedEntityType.setAnnotations(annotations);
+        syncAnnotationsToExtended();
+        return this;
+    }
+
+    // ==================== Extended 集合方法 ====================
+
     public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
         return extendedAnnotations;
     }
 
-    /**
-     * 设置Extended版本的Annotations
-     * @param extendedAnnotations Extended Annotations列表
-     */
     public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
-        this.extendedAnnotations = extendedAnnotations != null ? extendedAnnotations : new ArrayList<>();
-
-        // 同步到父类的annotations
-        if (extendedAnnotations != null) {
-            List<CsdlAnnotation> standardAnnotations = new ArrayList<>(extendedAnnotations);
-            setAnnotations(standardAnnotations);
-        }
+        this.extendedAnnotations = extendedAnnotations;
+        syncExtendedAnnotationsToOriginal();
     }
 
     /**
-     * 添加Extended Annotation
-     * @param annotation Extended Annotation
+     * 将原始Annotations同步到Extended集合
      */
-    public void addExtendedAnnotation(ExtendedCsdlAnnotation annotation) {
-        if (annotation != null) {
-            if (extendedAnnotations == null) {
-                extendedAnnotations = new ArrayList<>();
+    private void syncAnnotationsToExtended() {
+        if (this.extendedAnnotations == null) {
+            this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+        }
+        this.extendedAnnotations.clear();
+        
+        List<CsdlAnnotation> annotations = getAnnotations();
+        if (annotations != null) {
+            for (CsdlAnnotation annotation : annotations) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    this.extendedAnnotations.add(extendedAnnotation);
+                }
             }
-            extendedAnnotations.add(annotation);
+        }
+    }
 
-            // 同步到父类
-            if (getAnnotations() == null) {
-                setAnnotations(new ArrayList<>());
+    /**
+     * 将Extended Annotations同步到原始集合
+     */
+    private void syncExtendedAnnotationsToOriginal() {
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        if (this.extendedAnnotations != null) {
+            for (ExtendedCsdlAnnotation extendedAnnotation : this.extendedAnnotations) {
+                if (extendedAnnotation != null) {
+                    annotations.add(extendedAnnotation.asCsdlAnnotation());
+                }
             }
-            getAnnotations().add(annotation);
         }
+        wrappedEntityType.setAnnotations(annotations);
     }
 
-    /**
-     * 更新所有子元素的namespace
-     * @param namespace 新的namespace
-     */
-    private void updateChildNamespaces(String namespace) {
-        if (extendedProperties != null) {
-            extendedProperties.forEach(prop -> {
-                if (prop instanceof ExtendedCsdlProperty) {
-                    ((ExtendedCsdlProperty) prop).setNamespace(namespace);
-                }
-            });
-        }
+    // ==================== Extended Element 接口实现 ====================
 
-        if (extendedNavigationProperties != null) {
-            extendedNavigationProperties.forEach(navProp -> {
-                if (navProp instanceof ExtendedCsdlNavigationProperty) {
-                    ((ExtendedCsdlNavigationProperty) navProp).setNamespace(namespace);
-                }
-            });
+    @Override
+    public String getElementId() {
+        if (wrappedEntityType.getName() != null) {
+            return wrappedEntityType.getName();
         }
-
-        if (extendedAnnotations != null) {
-            extendedAnnotations.forEach(annotation -> {
-                if (annotation instanceof ExtendedCsdlAnnotation) {
-                    ((ExtendedCsdlAnnotation) annotation).setNamespace(namespace);
-                }
-            });
-        }
+        return "EntityType_" + hashCode();
     }
 
-    /**
-     * 获取元素的完全限定名
-     */
     @Override
     public FullQualifiedName getElementFullyQualifiedName() {
         if (namespace != null && getName() != null) {
             return new FullQualifiedName(namespace, getName());
         }
-        if (getName() != null) {
-            return null;
-        }
         return null;
     }
-    
-    /**
-     * 获取元素的依赖类型
-     */
+
     @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
         return CsdlDependencyNode.DependencyType.ENTITY_TYPE;
     }
-    
-    /**
-     * 获取元素相关的属性名（如果适用）
-     */
+
     @Override
     public String getElementPropertyName() {
-        return null; // EntityType通常不关联特定属性
+        return getName();
     }
-    
-    /**
-     * 注册扩展元素 - 用于依赖关系跟踪
-     */
-    public ExtendedCsdlEntityType registerElement() {
-        // 注册自身到全局依赖管理器
 
-        // 注册所有子元素
-        if (extendedProperties != null) {
-            extendedProperties.forEach(prop -> {
-                if (prop instanceof ExtendedCsdlElement) {
-                    // 可以调用子元素的注册方法
-                }
-            });
-        }
+    public String getNamespace() {
+        return namespace;
+    }
 
-        if (extendedNavigationProperties != null) {
-            extendedNavigationProperties.forEach(navProp -> {
-                if (navProp instanceof ExtendedCsdlElement) {
-                    // 可以调用子元素的注册方法
-                }
-            });
-        }
-
+    public ExtendedCsdlEntityType setNamespace(String namespace) {
+        this.namespace = namespace;
         return this;
-    }
-
-    /**
-     * 获取所有依赖的类型名称列表（自定义方法）
-     * @return 依赖的类型全限定名列表
-     */
-    public List<String> getDependencyTypeNames() {
-        List<String> dependencies = new ArrayList<>();
-
-        // 添加基类型依赖
-        if (getBaseType() != null) {
-            dependencies.add(getBaseType().toString());
-        }
-
-        // 添加属性依赖
-        if (extendedProperties != null) {
-            extendedProperties.forEach(prop -> {
-                if (prop.getType() != null) {
-                    dependencies.add(prop.getType());
-                }
-            });
-        }
-
-        // 添加导航属性依赖
-        if (extendedNavigationProperties != null) {
-            extendedNavigationProperties.forEach(navProp -> {
-                if (navProp.getType() != null) {
-                    dependencies.add(navProp.getType());
-                }
-            });
-        }
-
-        return dependencies;
     }
 
     @Override
     public String toString() {
-        return String.format("ExtendedCsdlEntityType{name='%s', namespace='%s', properties=%d, navigationProperties=%d}",
-                getName(), namespace,
-                extendedProperties != null ? extendedProperties.size() : 0,
-                extendedNavigationProperties != null ? extendedNavigationProperties.size() : 0);
+        return "ExtendedCsdlEntityType{" +
+                "name='" + getName() + '\'' +
+                ", namespace='" + namespace + '\'' +
+                ", baseType=" + getBaseTypeFQN() +
+                '}';
     }
 }

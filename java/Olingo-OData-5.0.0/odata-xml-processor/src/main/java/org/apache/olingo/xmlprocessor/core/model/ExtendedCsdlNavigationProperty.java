@@ -2,7 +2,6 @@ package org.apache.olingo.xmlprocessor.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
@@ -12,10 +11,11 @@ import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
 
 /**
  * 扩展的CsdlNavigationProperty，增加依赖关系追踪功能
- * 内部包含Extended版本的子元素
+ * 使用组合模式包装CsdlNavigationProperty，保持内部数据联动
  */
-public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty implements ExtendedCsdlElement {
+public class ExtendedCsdlNavigationProperty implements ExtendedCsdlElement {
 
+    private final CsdlNavigationProperty wrappedNavProperty;
     private String namespace;
 
     // Extended版本的内部元素
@@ -25,13 +25,19 @@ public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty imple
      * 构造函数
      */
     public ExtendedCsdlNavigationProperty() {
-        this.extendedAnnotations = new ArrayList<>();
+        this.wrappedNavProperty = new CsdlNavigationProperty();
+        initializeExtendedCollections();
+    }
+
+    /**
+     * 初始化扩展集合
+     */
+    private void initializeExtendedCollections() {
+        this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
     }
 
     /**
      * 从标准CsdlNavigationProperty创建ExtendedCsdlNavigationProperty
-     * @param source 源CsdlNavigationProperty
-     * @return ExtendedCsdlNavigationProperty实例
      */
     public static ExtendedCsdlNavigationProperty fromCsdlNavigationProperty(CsdlNavigationProperty source) {
         if (source == null) {
@@ -48,7 +54,7 @@ public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty imple
         extended.setPartner(source.getPartner());
         extended.setContainsTarget(source.isContainsTarget());
 
-        // 复制引用约束
+        // 复制ReferentialConstraints
         if (source.getReferentialConstraints() != null) {
             extended.setReferentialConstraints(new ArrayList<>(source.getReferentialConstraints()));
         }
@@ -58,145 +64,203 @@ public class ExtendedCsdlNavigationProperty extends CsdlNavigationProperty imple
             extended.setOnDelete(source.getOnDelete());
         }
 
-        // 转换Annotations为Extended版本
+        // 复制Annotations并转换为Extended版本
         if (source.getAnnotations() != null) {
-            List<ExtendedCsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
-                    .map(ExtendedCsdlAnnotation::fromCsdlAnnotation)
-                    .collect(Collectors.toList());
-            extended.setExtendedAnnotations(extendedAnnotations);
-
-            // 同时设置父类的annotations以保持兼容性
-            extended.setAnnotations(new ArrayList<>(source.getAnnotations()));
+            List<ExtendedCsdlAnnotation> extendedAnnotationsList = new ArrayList<ExtendedCsdlAnnotation>();
+            for (CsdlAnnotation annotation : source.getAnnotations()) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    extendedAnnotationsList.add(extendedAnnotation);
+                }
+            }
+            extended.setExtendedAnnotations(extendedAnnotationsList);
+            extended.setAnnotations(new ArrayList<CsdlAnnotation>(source.getAnnotations()));
         }
 
         return extended;
     }
 
-    /**
-     * 设置namespace
-     * @param namespace 命名空间
-     * @return 当前实例
-     */
-    public ExtendedCsdlNavigationProperty setNamespace(String namespace) {
-        this.namespace = namespace;
-        return this;
-    }
+    // ==================== CsdlNavigationProperty 方法委托 ====================
     
-    /**
-     * 获取namespace
-     * @return 命名空间
-     */
-    public String getNamespace() {
-        return namespace;
+    public String getName() {
+        return wrappedNavProperty.getName();
     }
 
-    /**
-     * 获取Extended版本的Annotations
-     * @return Extended Annotations列表
-     */
+    public ExtendedCsdlNavigationProperty setName(String name) {
+        wrappedNavProperty.setName(name);
+        return this;
+    }
+
+    public String getType() {
+        return wrappedNavProperty.getType();
+    }
+
+    public ExtendedCsdlNavigationProperty setType(String type) {
+        wrappedNavProperty.setType(type);
+        return this;
+    }
+
+    public ExtendedCsdlNavigationProperty setType(FullQualifiedName type) {
+        wrappedNavProperty.setType(type);
+        return this;
+    }
+
+    public boolean isCollection() {
+        return wrappedNavProperty.isCollection();
+    }
+
+    public ExtendedCsdlNavigationProperty setCollection(boolean isCollection) {
+        wrappedNavProperty.setCollection(isCollection);
+        return this;
+    }
+
+    public Boolean isNullable() {
+        return wrappedNavProperty.isNullable();
+    }
+
+    public ExtendedCsdlNavigationProperty setNullable(Boolean nullable) {
+        wrappedNavProperty.setNullable(nullable);
+        return this;
+    }
+
+    public String getPartner() {
+        return wrappedNavProperty.getPartner();
+    }
+
+    public ExtendedCsdlNavigationProperty setPartner(String partner) {
+        wrappedNavProperty.setPartner(partner);
+        return this;
+    }
+
+    public boolean isContainsTarget() {
+        return wrappedNavProperty.isContainsTarget();
+    }
+
+    public ExtendedCsdlNavigationProperty setContainsTarget(boolean containsTarget) {
+        wrappedNavProperty.setContainsTarget(containsTarget);
+        return this;
+    }
+
+    public List<CsdlReferentialConstraint> getReferentialConstraints() {
+        return wrappedNavProperty.getReferentialConstraints();
+    }
+
+    public ExtendedCsdlNavigationProperty setReferentialConstraints(List<CsdlReferentialConstraint> referentialConstraints) {
+        wrappedNavProperty.setReferentialConstraints(referentialConstraints);
+        return this;
+    }
+
+    public org.apache.olingo.commons.api.edm.provider.CsdlOnDelete getOnDelete() {
+        return wrappedNavProperty.getOnDelete();
+    }
+
+    public ExtendedCsdlNavigationProperty setOnDelete(org.apache.olingo.commons.api.edm.provider.CsdlOnDelete onDelete) {
+        wrappedNavProperty.setOnDelete(onDelete);
+        return this;
+    }
+
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedNavProperty.getAnnotations();
+    }
+
+    public ExtendedCsdlNavigationProperty setAnnotations(List<CsdlAnnotation> annotations) {
+        wrappedNavProperty.setAnnotations(annotations);
+        syncAnnotationsToExtended();
+        return this;
+    }
+
+    // ==================== Extended 集合方法 ====================
+
     public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
         return extendedAnnotations;
     }
 
-    /**
-     * 设置Extended版本的Annotations
-     * @param extendedAnnotations Extended Annotations列表
-     */
     public void setExtendedAnnotations(List<ExtendedCsdlAnnotation> extendedAnnotations) {
-        this.extendedAnnotations = extendedAnnotations != null ? extendedAnnotations : new ArrayList<>();
+        this.extendedAnnotations = extendedAnnotations;
+        syncExtendedAnnotationsToOriginal();
+    }
 
-        // 同步到父类的annotations
-        if (extendedAnnotations != null) {
-            List<CsdlAnnotation> standardAnnotations = new ArrayList<>(extendedAnnotations);
-            setAnnotations(standardAnnotations);
+    /**
+     * 将原始Annotations同步到Extended集合
+     */
+    private void syncAnnotationsToExtended() {
+        if (this.extendedAnnotations == null) {
+            this.extendedAnnotations = new ArrayList<ExtendedCsdlAnnotation>();
+        }
+        this.extendedAnnotations.clear();
+        
+        List<CsdlAnnotation> annotations = getAnnotations();
+        if (annotations != null) {
+            for (CsdlAnnotation annotation : annotations) {
+                ExtendedCsdlAnnotation extendedAnnotation = ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation);
+                if (extendedAnnotation != null) {
+                    this.extendedAnnotations.add(extendedAnnotation);
+                }
+            }
         }
     }
 
     /**
-     * 添加Extended Annotation
-     * @param annotation Extended Annotation
+     * 将Extended Annotations同步到原始集合
      */
-    public void addExtendedAnnotation(ExtendedCsdlAnnotation annotation) {
-        if (annotation != null) {
-            if (extendedAnnotations == null) {
-                extendedAnnotations = new ArrayList<>();
+    private void syncExtendedAnnotationsToOriginal() {
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        if (this.extendedAnnotations != null) {
+            for (ExtendedCsdlAnnotation extendedAnnotation : this.extendedAnnotations) {
+                if (extendedAnnotation != null) {
+                    annotations.add(extendedAnnotation.asCsdlAnnotation());
+                }
             }
-            extendedAnnotations.add(annotation);
-
-            // 同步到父类
-            if (getAnnotations() == null) {
-                setAnnotations(new ArrayList<>());
-            }
-            getAnnotations().add(annotation);
         }
+        wrappedNavProperty.setAnnotations(annotations);
     }
 
     /**
-     * 获取目标实体类型的namespace
-     * @return 目标实体类型的namespace
+     * 获取包装的CsdlNavigationProperty实例
      */
-    public String getTargetEntityNamespace() {
-        String type = getType();
-        if (type != null) {
-            // 移除Collection()包装
-            String cleanTypeName = type.replaceAll("^Collection\\((.*)\\)$", "$1");
-
-            // 提取namespace
-            int lastDotIndex = cleanTypeName.lastIndexOf('.');
-            if (lastDotIndex > 0) {
-                return cleanTypeName.substring(0, lastDotIndex);
-            }
-        }
-        return null;
+    public CsdlNavigationProperty asCsdlNavigationProperty() {
+        return wrappedNavProperty;
     }
 
-    /**
-     * 获取目标实体类型名
-     * @return 目标实体类型名
-     */
-    public String getTargetEntityTypeName() {
-        String type = getType();
-        if (type != null) {
-            // 移除Collection()包装
-            String cleanTypeName = type.replaceAll("^Collection\\((.*)\\)$", "$1");
+    // ==================== ExtendedCsdlElement 实现 ====================
 
-            // 提取类型名
-            int lastDotIndex = cleanTypeName.lastIndexOf('.');
-            if (lastDotIndex > 0) {
-                return cleanTypeName.substring(lastDotIndex + 1);
-            }
-            return cleanTypeName;
-        }
-        return null;
-    }
-
-    // ExtendedCsdlElement接口实现
     @Override
     public String getElementId() {
-        return getName() != null ? getName() : "NavigationProperty_" + hashCode();
+        if (getName() != null) {
+            return getName();
+        }
+        return "NavigationProperty_" + hashCode();
+    }
+
+    @Override
+    public ExtendedCsdlNavigationProperty setNamespace(String namespace) {
+        this.namespace = namespace;
+        return this;
+    }
+
+    @Override
+    public String getNamespace() {
+        return this.namespace;
+    }
+
+    @Override
+    public ExtendedCsdlNavigationProperty registerElement() {
+        ExtendedCsdlElement.super.registerElement();
+        return this;
     }
 
     @Override
     public FullQualifiedName getElementFullyQualifiedName() {
-        if (namespace != null && getName() != null) {
-            return new FullQualifiedName(namespace, getName());
-        }
-        return null;
+        return new FullQualifiedName(getNamespace(), getName());
     }
 
     @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.NAVIGATION_PROPERTY;
+        return CsdlDependencyNode.DependencyType.NAVIGATION_PROPERTY_REFERENCE;
     }
-    
+
     @Override
     public String getElementPropertyName() {
         return getName();
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("ExtendedCsdlNavigationProperty{name='%s', type='%s', namespace='%s', partner='%s'}",
-                getName(), getType(), namespace, getPartner());
     }
 }

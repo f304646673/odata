@@ -1,19 +1,20 @@
 package org.apache.olingo.xmlprocessor.parser.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
 
-import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlSchema;
 import org.apache.olingo.xmlprocessor.parser.ODataXmlParser.ParseResult;
 import org.apache.olingo.xmlprocessor.parser.ODataXmlParser.ValidationResult;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -56,20 +57,19 @@ class CsdlXmlParserImplTest {
         // 验证包含EntityType
         assertNotNull(schema.getEntityTypes(), "应该包含EntityTypes");
         assertFalse(schema.getEntityTypes().isEmpty(), "EntityTypes不应该为空");
-        assertTrue(schema.getEntityTypeCount() > 0, "EntityType数量应该大于0");
+        assertTrue(schema.getEntityTypes().size() > 0, "EntityType数量应该大于0");
 
         // 验证包含ComplexType
         assertNotNull(schema.getComplexTypes(), "应该包含ComplexTypes");
         assertFalse(schema.getComplexTypes().isEmpty(), "ComplexTypes不应该为空");
-        assertTrue(schema.getComplexTypeCount() > 0, "ComplexType数量应该大于0");
+        assertTrue(schema.getComplexTypes().size() > 0, "ComplexType数量应该大于0");
 
         // 验证包含EntityContainer
         assertNotNull(schema.getEntityContainer(), "应该包含EntityContainer");
 
-        // 测试统计信息
-        String stats = schema.getStatistics();
-        assertNotNull(stats, "统计信息不应该为null");
-        assertTrue(stats.contains("ComplexTestService"), "统计信息应该包含命名空间");
+        // 测试基本信息
+        assertNotNull(schema.getNamespace(), "Namespace不应该为null");
+        assertTrue(schema.getNamespace().contains("ComplexTestService"), "Namespace应该包含ComplexTestService");
     }
 
     @Test
@@ -232,7 +232,7 @@ class CsdlXmlParserImplTest {
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
         assertNotNull(schema.getEnumTypes(), "应该包含EnumTypes");
         assertFalse(schema.getEnumTypes().isEmpty(), "EnumTypes不应该为空");
-        assertTrue(schema.getEnumTypeCount() > 0, "EnumType数量应该大于0");
+        assertTrue(schema.getEnumTypes().size() > 0, "EnumType数量应该大于0");
     }
 
     @Test
@@ -246,7 +246,7 @@ class CsdlXmlParserImplTest {
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
         assertNotNull(schema.getTypeDefinitions(), "应该包含TypeDefinitions");
         assertFalse(schema.getTypeDefinitions().isEmpty(), "TypeDefinitions不应该为空");
-        assertTrue(schema.getTypeDefinitionCount() > 0, "TypeDefinition数量应该大于0");
+        assertTrue(schema.getTypeDefinitions().size() > 0, "TypeDefinition数量应该大于0");
     }
 
     @Test
@@ -260,10 +260,10 @@ class CsdlXmlParserImplTest {
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
         // 验证包含注解或Terms
         if (schema.getAnnotations() != null) {
-            assertTrue(schema.getAnnotationCount() >= 0, "Annotation数量应该>=0");
+            assertTrue(schema.getAnnotations().size() >= 0, "Annotation数量应该>=0");
         }
         if (schema.getTerms() != null) {
-            assertTrue(schema.getTermCount() > 0, "Term数量应该>0");
+            assertTrue(schema.getTerms().size() > 0, "Term数量应该>0");
         }
     }
 

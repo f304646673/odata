@@ -195,7 +195,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>org.apache.olingo.xmlprocessor.examples.XmlProcessorDemo</mainClass>
+                    <mainClass>org.apache.olingo.xmlprocessor.demo.MainDemo</mainClass>
                 </configuration>
             </plugin>
         </plugins>
