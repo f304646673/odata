@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  * ExtendedCsdlActionRefactored的单元测试
  */
-class ExtendedCsdlActionRefactoredTest {
+class ExtendedCsdlActionTest {
 
     @Test
     void testConstructor() {
