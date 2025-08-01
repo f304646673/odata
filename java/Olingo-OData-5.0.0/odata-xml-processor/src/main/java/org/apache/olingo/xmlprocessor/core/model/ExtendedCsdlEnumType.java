@@ -98,6 +98,7 @@ public class ExtendedCsdlEnumType extends AbstractExtendedCsdlElement<CsdlEnumTy
         return this;
     }
 
+    @Deprecated
     public List<CsdlEnumMember> getMembers() {
         return wrappedElement.getMembers();
     }

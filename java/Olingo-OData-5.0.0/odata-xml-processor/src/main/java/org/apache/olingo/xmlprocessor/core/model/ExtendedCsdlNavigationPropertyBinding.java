@@ -48,12 +48,14 @@ public class ExtendedCsdlNavigationPropertyBinding extends AbstractExtendedCsdlE
 
     // ==================== 基类方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         // CsdlNavigationPropertyBinding没有annotations，返回null
         return null;
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         // CsdlNavigationPropertyBinding没有annotations，不执行任何操作

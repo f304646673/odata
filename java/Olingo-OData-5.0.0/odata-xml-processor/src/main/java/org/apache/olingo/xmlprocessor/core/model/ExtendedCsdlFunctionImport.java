@@ -52,11 +52,13 @@ public class ExtendedCsdlFunctionImport extends AbstractExtendedCsdlElement<Csdl
 
     // ==================== 基类方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         return wrappedElement.getAnnotations();
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         wrappedElement.setAnnotations(annotations);

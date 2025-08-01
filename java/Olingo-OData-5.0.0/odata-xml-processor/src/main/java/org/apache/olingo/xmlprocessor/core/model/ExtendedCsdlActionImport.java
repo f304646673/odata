@@ -77,6 +77,7 @@ public class ExtendedCsdlActionImport
         return this;
     }
 
+    @Deprecated
     public List<CsdlAnnotation> getAnnotations() {
         return wrappedElement.getAnnotations();
     }
@@ -88,11 +89,13 @@ public class ExtendedCsdlActionImport
 
     // ==================== 抽象方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         return wrappedElement.getAnnotations();
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         wrappedElement.setAnnotations(annotations);

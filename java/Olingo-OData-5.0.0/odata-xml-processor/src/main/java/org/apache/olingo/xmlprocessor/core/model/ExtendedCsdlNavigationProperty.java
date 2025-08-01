@@ -142,6 +142,7 @@ public class ExtendedCsdlNavigationProperty extends AbstractExtendedCsdlElement<
         return this;
     }
 
+    @Deprecated
     public List<CsdlReferentialConstraint> getReferentialConstraints() {
         return wrappedElement.getReferentialConstraints();
     }

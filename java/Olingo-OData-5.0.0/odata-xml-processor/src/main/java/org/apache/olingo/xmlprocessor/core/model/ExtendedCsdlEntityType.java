@@ -158,6 +158,7 @@ public class ExtendedCsdlEntityType extends AbstractExtendedCsdlElement<CsdlEnti
         return this;
     }
 
+    @Deprecated
     public List<CsdlPropertyRef> getKey() {
         return wrappedElement.getKey();
     }
@@ -167,6 +168,7 @@ public class ExtendedCsdlEntityType extends AbstractExtendedCsdlElement<CsdlEnti
         return this;
     }
 
+    @Deprecated
     public List<CsdlProperty> getProperties() {
         // 返回不可修改的原始数据视图
         return wrappedElement.getProperties() != null ?
@@ -250,6 +252,7 @@ public class ExtendedCsdlEntityType extends AbstractExtendedCsdlElement<CsdlEnti
         }
     }
 
+    @Deprecated
     public List<CsdlNavigationProperty> getNavigationProperties() {
         // 返回不可修改的原始数据视图
         return wrappedElement.getNavigationProperties() != null ?

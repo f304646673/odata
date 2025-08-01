@@ -104,6 +104,7 @@ public class ExtendedCsdlEntitySet extends AbstractExtendedCsdlElement<CsdlEntit
         return this;
     }
 
+    @Deprecated
     public List<CsdlNavigationPropertyBinding> getNavigationPropertyBindings() {
         return wrappedElement.getNavigationPropertyBindings();
     }

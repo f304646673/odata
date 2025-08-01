@@ -134,6 +134,7 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
     }
     */
 
+    @Deprecated
     public List<CsdlEntitySet> getEntitySets() {
         return wrappedElement.getEntitySets();
     }
@@ -144,6 +145,7 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         return this;
     }
 
+    @Deprecated
     public List<CsdlSingleton> getSingletons() {
         return wrappedElement.getSingletons();
     }
@@ -154,6 +156,7 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         return this;
     }
 
+    @Deprecated
     public List<CsdlActionImport> getActionImports() {
         return wrappedElement.getActionImports();
     }
@@ -164,6 +167,7 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         return this;
     }
 
+    @Deprecated
     public List<CsdlFunctionImport> getFunctionImports() {
         return wrappedElement.getFunctionImports();
     }
@@ -216,10 +220,10 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         return this;
     }
 
-    // 简化实现的方法
     public ExtendedCsdlEntityContainer addExtendedSingleton(ExtendedCsdlSingleton singleton) {
         if (singleton != null) {
             extendedSingletons.add(singleton);
+            syncSingletonsToWrapped();
         }
         return this;
     }
@@ -280,9 +284,22 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         }
     }
 
+    private void syncSingletonsToWrapped() {
+        List<CsdlSingleton> csdlSingletons = new ArrayList<>();
+        for (ExtendedCsdlSingleton extSingleton : extendedSingletons) {
+            csdlSingletons.add(extSingleton.asCsdlSingleton());
+        }
+        wrappedElement.setSingletons(csdlSingletons);
+    }
+
     private void syncSingletonsFromWrapped() {
         extendedSingletons.clear();
-        // 简化实现
+        if (wrappedElement.getSingletons() != null) {
+            for (CsdlSingleton singleton : wrappedElement.getSingletons()) {
+                ExtendedCsdlSingleton extSingleton = ExtendedCsdlSingleton.fromCsdlSingleton(singleton);
+                extendedSingletons.add(extSingleton);
+            }
+        }
     }
 
     // ==================== ExtendedCsdlElement 接口实现 ====================

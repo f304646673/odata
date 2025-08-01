@@ -49,12 +49,14 @@ public class ExtendedCsdlAnnotation extends AbstractExtendedCsdlElement<CsdlAnno
 
     // ==================== 基类方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         // CsdlAnnotation本身不包含annotations，返回空列表
         return java.util.Collections.emptyList();
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         // CsdlAnnotation本身不包含annotations，无操作
@@ -85,6 +87,7 @@ public class ExtendedCsdlAnnotation extends AbstractExtendedCsdlElement<CsdlAnno
         return this;
     }
 
+    @Deprecated
     public CsdlExpression getExpression() {
         return wrappedElement.getExpression();
     }

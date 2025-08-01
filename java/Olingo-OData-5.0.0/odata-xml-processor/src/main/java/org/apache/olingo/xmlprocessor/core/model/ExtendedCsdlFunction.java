@@ -121,6 +121,7 @@ public class ExtendedCsdlFunction extends AbstractExtendedCsdlElement<CsdlFuncti
         return this;
     }
 
+    @Deprecated
     public List<CsdlParameter> getParameters() {
         return wrappedElement.getParameters();
     }
@@ -131,6 +132,7 @@ public class ExtendedCsdlFunction extends AbstractExtendedCsdlElement<CsdlFuncti
         return this;
     }
 
+    @Deprecated
     public CsdlReturnType getReturnType() {
         return wrappedElement.getReturnType();
     }

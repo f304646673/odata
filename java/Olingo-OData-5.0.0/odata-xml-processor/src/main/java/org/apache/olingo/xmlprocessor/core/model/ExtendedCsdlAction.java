@@ -71,12 +71,13 @@ public class ExtendedCsdlAction extends AbstractExtendedCsdlElement<CsdlAction, 
     }
 
     // ==================== 基类方法实现 ====================
-
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         return wrappedElement.getAnnotations();
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         wrappedElement.setAnnotations(annotations);
@@ -111,6 +112,7 @@ public class ExtendedCsdlAction extends AbstractExtendedCsdlElement<CsdlAction, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlParameter> getParameters() {
         return wrappedElement.getParameters();
     }
@@ -121,6 +123,7 @@ public class ExtendedCsdlAction extends AbstractExtendedCsdlElement<CsdlAction, 
         return this;
     }
 
+    @Deprecated
     public CsdlReturnType getReturnType() {
         return wrappedElement.getReturnType();
     }

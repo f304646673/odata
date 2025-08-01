@@ -82,10 +82,12 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
             }
         }
 
-        // 级联构建EnumTypes（简化实现）
-        if (source.getEnumTypes() != null && !source.getEnumTypes().isEmpty()) {
-            // 暂时直接设置到底层对象，不级联构建Extended版本
-            extended.wrappedElement.setEnumTypes(new ArrayList<>(source.getEnumTypes()));
+        // 级联构建EnumTypes
+        if (source.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : source.getEnumTypes()) {
+                ExtendedCsdlEnumType extendedEnumType = ExtendedCsdlEnumType.fromCsdlEnumType(enumType);
+                extended.addExtendedEnumType(extendedEnumType);
+            }
         }
 
         // 级联构建Actions
@@ -104,16 +106,20 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
             }
         }
 
-        // 级联构建TypeDefinitions（简化实现）
-        if (source.getTypeDefinitions() != null && !source.getTypeDefinitions().isEmpty()) {
-            // 暂时直接设置到底层对象，不级联构建Extended版本
-            extended.wrappedElement.setTypeDefinitions(new ArrayList<>(source.getTypeDefinitions()));
+        // 级联构建TypeDefinitions
+        if (source.getTypeDefinitions() != null) {
+            for (CsdlTypeDefinition typeDefinition : source.getTypeDefinitions()) {
+                ExtendedCsdlTypeDefinition extendedTypeDefinition = ExtendedCsdlTypeDefinition.fromCsdlTypeDefinition(typeDefinition);
+                extended.addExtendedTypeDefinition(extendedTypeDefinition);
+            }
         }
 
-        // 级联构建Terms（简化实现）
-        if (source.getTerms() != null && !source.getTerms().isEmpty()) {
-            // 暂时直接设置到底层对象，不级联构建Extended版本
-            extended.wrappedElement.setTerms(new ArrayList<>(source.getTerms()));
+        // 级联构建Terms
+        if (source.getTerms() != null) {
+            for (CsdlTerm term : source.getTerms()) {
+                ExtendedCsdlTerm extendedTerm = ExtendedCsdlTerm.fromCsdlTerm(term);
+                extended.addExtendedTerm(extendedTerm);
+            }
         }
 
         // 级联构建EntityContainer
@@ -171,6 +177,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlEntityType> getEntityTypes() {
         return wrappedElement.getEntityTypes();
     }
@@ -181,6 +188,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlComplexType> getComplexTypes() {
         return wrappedElement.getComplexTypes();
     }
@@ -191,6 +199,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlEnumType> getEnumTypes() {
         return wrappedElement.getEnumTypes();
     }
@@ -201,6 +210,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlAction> getActions() {
         return wrappedElement.getActions();
     }
@@ -211,6 +221,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlFunction> getFunctions() {
         return wrappedElement.getFunctions();
     }
@@ -221,6 +232,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlTypeDefinition> getTypeDefinitions() {
         return wrappedElement.getTypeDefinitions();
     }
@@ -231,6 +243,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlTerm> getTerms() {
         return wrappedElement.getTerms();
     }
@@ -241,6 +254,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public CsdlEntityContainer getEntityContainer() {
         return wrappedElement.getEntityContainer();
     }
@@ -250,6 +264,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    @Deprecated
     public List<CsdlAnnotation> getAnnotations() {
         return wrappedElement.getAnnotations();
     }
@@ -396,6 +411,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         if (wrappedElement.getEntityTypes() != null) {
             for (CsdlEntityType type : wrappedElement.getEntityTypes()) {
                 ExtendedCsdlEntityType extType = ExtendedCsdlEntityType.fromCsdlEntityType(type);
+                extType.setNamespace(getNamespace());
                 extendedEntityTypes.add(extType);
             }
         }
@@ -414,6 +430,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         if (wrappedElement.getComplexTypes() != null) {
             for (CsdlComplexType type : wrappedElement.getComplexTypes()) {
                 ExtendedCsdlComplexType extType = ExtendedCsdlComplexType.fromCsdlComplexType(type);
+                extType.setNamespace(getNamespace());
                 extendedComplexTypes.add(extType);
             }
         }
@@ -432,6 +449,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         if (wrappedElement.getActions() != null) {
             for (CsdlAction action : wrappedElement.getActions()) {
                 ExtendedCsdlAction extAction = ExtendedCsdlAction.fromCsdlAction(action);
+                extAction.setNamespace(getNamespace());
                 extendedActions.add(extAction);
             }
         }
@@ -450,6 +468,7 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         if (wrappedElement.getFunctions() != null) {
             for (CsdlFunction function : wrappedElement.getFunctions()) {
                 ExtendedCsdlFunction extFunction = ExtendedCsdlFunction.fromCsdlFunction(function);
+                extFunction.setNamespace(getNamespace());
                 extendedFunctions.add(extFunction);
             }
         }
@@ -479,20 +498,39 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         wrappedElement.setTerms(csdlTerms);
     }
 
-    // 其他Extended类型的同步方法 - 简化实现
+    // ==================== 从 Wrapped 到 Extended 的同步方法 ====================
+
     private void syncEnumTypesFromWrapped() {
         extendedEnumTypes.clear();
-        // 简化实现 - 实际应该级联构建ExtendedCsdlEnumType
+        if (wrappedElement.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : wrappedElement.getEnumTypes()) {
+                ExtendedCsdlEnumType extendedEnumType = ExtendedCsdlEnumType.fromCsdlEnumType(enumType);
+                extendedEnumType.setNamespace(getNamespace());
+                extendedEnumTypes.add(extendedEnumType);
+            }
+        }
     }
 
     private void syncTypeDefinitionsFromWrapped() {
         extendedTypeDefinitions.clear();
-        // 简化实现 - 实际应该级联构建ExtendedCsdlTypeDefinition
+        if (wrappedElement.getTypeDefinitions() != null) {
+            for (CsdlTypeDefinition typeDefinition : wrappedElement.getTypeDefinitions()) {
+                ExtendedCsdlTypeDefinition extendedTypeDefinition = ExtendedCsdlTypeDefinition.fromCsdlTypeDefinition(typeDefinition);
+                extendedTypeDefinition.setNamespace(getNamespace());
+                extendedTypeDefinitions.add(extendedTypeDefinition);
+            }
+        }
     }
 
     private void syncTermsFromWrapped() {
         extendedTerms.clear();
-        // 简化实现 - 实际应该级联构建ExtendedCsdlTerm
+        if (wrappedElement.getTerms() != null) {
+            for (CsdlTerm term : wrappedElement.getTerms()) {
+                ExtendedCsdlTerm extendedTerm = ExtendedCsdlTerm.fromCsdlTerm(term);
+                extendedTerm.setNamespace(getNamespace());
+                extendedTerms.add(extendedTerm);
+            }
+        }
     }
 
     // ==================== ExtendedCsdlElement 接口实现 ====================

@@ -62,12 +62,14 @@ public class ExtendedCsdlReturnType extends AbstractExtendedCsdlElement<CsdlRetu
 
     // ==================== 基类方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         // CsdlReturnType没有annotations，返回null
         return null;
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         // CsdlReturnType没有annotations，不执行任何操作

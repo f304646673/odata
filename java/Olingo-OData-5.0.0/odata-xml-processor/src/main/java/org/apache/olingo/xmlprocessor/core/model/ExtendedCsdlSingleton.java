@@ -64,11 +64,13 @@ public class ExtendedCsdlSingleton extends AbstractExtendedCsdlElement<CsdlSingl
 
     // ==================== 基类方法实现 ====================
 
+    @Deprecated
     @Override
     protected List<CsdlAnnotation> getOriginalAnnotations() {
         return wrappedElement.getAnnotations();
     }
 
+    @Deprecated
     @Override
     protected void setOriginalAnnotations(List<CsdlAnnotation> annotations) {
         wrappedElement.setAnnotations(annotations);
@@ -94,6 +96,7 @@ public class ExtendedCsdlSingleton extends AbstractExtendedCsdlElement<CsdlSingl
         return this;
     }
 
+    @Deprecated
     public List<CsdlNavigationPropertyBinding> getNavigationPropertyBindings() {
         return wrappedElement.getNavigationPropertyBindings();
     }
