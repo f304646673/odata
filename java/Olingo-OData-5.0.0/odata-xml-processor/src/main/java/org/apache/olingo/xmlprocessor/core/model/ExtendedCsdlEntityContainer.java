@@ -188,6 +188,10 @@ public class ExtendedCsdlEntityContainer extends AbstractExtendedCsdlElement<Csd
         return this;
     }
 
+    public List<ExtendedCsdlSingleton> getExtendedSingletons() {
+        return new ArrayList<>(extendedSingletons);
+    }
+
     public List<ExtendedCsdlActionImport> getExtendedActionImports() {
         return new ArrayList<>(extendedActionImports);
     }

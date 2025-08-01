@@ -250,6 +250,15 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    public List<CsdlAnnotation> getAnnotations() {
+        return wrappedElement.getAnnotations();
+    }
+
+    public ExtendedCsdlSchema setAnnotations(List<CsdlAnnotation> annotations) {
+        // 使用基类的通用处理方法
+        return handleSetAnnotations(annotations);
+    }
+
     // ==================== Extended 集合方法 ====================
 
     public List<ExtendedCsdlEntityType> getExtendedEntityTypes() {
@@ -276,6 +285,18 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         return this;
     }
 
+    public List<ExtendedCsdlEnumType> getExtendedEnumTypes() {
+        return new ArrayList<>(extendedEnumTypes);
+    }
+
+    public ExtendedCsdlSchema addExtendedEnumType(ExtendedCsdlEnumType enumType) {
+        if (enumType != null) {
+            extendedEnumTypes.add(enumType);
+            syncEnumTypesToWrapped();
+        }
+        return this;
+    }
+
     public List<ExtendedCsdlAction> getExtendedActions() {
         return new ArrayList<>(extendedActions);
     }
@@ -296,6 +317,30 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
         if (function != null) {
             extendedFunctions.add(function);
             syncFunctionsToWrapped();
+        }
+        return this;
+    }
+
+    public List<ExtendedCsdlTypeDefinition> getExtendedTypeDefinitions() {
+        return new ArrayList<>(extendedTypeDefinitions);
+    }
+
+    public ExtendedCsdlSchema addExtendedTypeDefinition(ExtendedCsdlTypeDefinition typeDefinition) {
+        if (typeDefinition != null) {
+            extendedTypeDefinitions.add(typeDefinition);
+            syncTypeDefinitionsToWrapped();
+        }
+        return this;
+    }
+
+    public List<ExtendedCsdlTerm> getExtendedTerms() {
+        return new ArrayList<>(extendedTerms);
+    }
+
+    public ExtendedCsdlSchema addExtendedTerm(ExtendedCsdlTerm term) {
+        if (term != null) {
+            extendedTerms.add(term);
+            syncTermsToWrapped();
         }
         return this;
     }
@@ -408,6 +453,30 @@ public class ExtendedCsdlSchema extends AbstractExtendedCsdlElement<CsdlSchema, 
                 extendedFunctions.add(extFunction);
             }
         }
+    }
+
+    private void syncEnumTypesToWrapped() {
+        List<CsdlEnumType> csdlEnumTypes = new ArrayList<>();
+        for (ExtendedCsdlEnumType extEnumType : extendedEnumTypes) {
+            csdlEnumTypes.add(extEnumType.asCsdlEnumType());
+        }
+        wrappedElement.setEnumTypes(csdlEnumTypes);
+    }
+
+    private void syncTypeDefinitionsToWrapped() {
+        List<CsdlTypeDefinition> csdlTypeDefinitions = new ArrayList<>();
+        for (ExtendedCsdlTypeDefinition extTypeDefinition : extendedTypeDefinitions) {
+            csdlTypeDefinitions.add(extTypeDefinition.asCsdlTypeDefinition());
+        }
+        wrappedElement.setTypeDefinitions(csdlTypeDefinitions);
+    }
+
+    private void syncTermsToWrapped() {
+        List<CsdlTerm> csdlTerms = new ArrayList<>();
+        for (ExtendedCsdlTerm extTerm : extendedTerms) {
+            csdlTerms.add(extTerm.asCsdlTerm());
+        }
+        wrappedElement.setTerms(csdlTerms);
     }
 
     // 其他Extended类型的同步方法 - 简化实现

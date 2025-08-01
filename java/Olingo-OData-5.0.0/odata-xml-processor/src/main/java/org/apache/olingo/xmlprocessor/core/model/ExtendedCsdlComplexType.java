@@ -176,6 +176,16 @@ public class ExtendedCsdlComplexType extends AbstractExtendedCsdlElement<CsdlCom
         return wrappedElement;
     }
 
+    // ==================== 扩展集合方法 ====================
+
+    public List<ExtendedCsdlProperty> getExtendedProperties() {
+        return extendedProperties != null ? new ArrayList<>(extendedProperties) : new ArrayList<>();
+    }
+
+    public List<ExtendedCsdlNavigationProperty> getExtendedNavigationProperties() {
+        return extendedNavigationProperties != null ? new ArrayList<>(extendedNavigationProperties) : new ArrayList<>();
+    }
+
     // ==================== Extended Element 接口实现 ====================
 
     @Override

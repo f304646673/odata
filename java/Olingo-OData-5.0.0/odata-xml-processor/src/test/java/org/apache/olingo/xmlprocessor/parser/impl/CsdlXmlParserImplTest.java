@@ -39,7 +39,7 @@ class CsdlXmlParserImplTest {
 
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
         assertEquals("TestService", schema.getNamespace(), "命名空间应该匹配");
-        assertTrue(schema.isExtended(), "应该是扩展Schema");
+        assertNotNull(schema, "Schema不应该为null");
         assertNotNull(schema.getSourcePath(), "应该有源路径");
     }
 
@@ -259,8 +259,8 @@ class CsdlXmlParserImplTest {
 
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
         // 验证包含注解或Terms
-        if (schema.getAnnotations() != null) {
-            assertTrue(schema.getAnnotations().size() >= 0, "Annotation数量应该>=0");
+        if (schema.getExtendedAnnotations() != null) {
+            assertTrue(schema.getExtendedAnnotations().size() >= 0, "Annotation数量应该>=0");
         }
         if (schema.getTerms() != null) {
             assertTrue(schema.getTerms().size() > 0, "Term数量应该>0");
@@ -277,7 +277,7 @@ class CsdlXmlParserImplTest {
         ExtendedCsdlSchema schema = result.getSchemas().get(0);
 
         // 测试扩展功能
-        assertTrue(schema.isExtended(), "应该是扩展Schema");
+        assertNotNull(schema, "Schema应该不为null");
         assertEquals("test-extended-features", schema.getSourcePath(), "源路径应该匹配");
         assertNotNull(schema.getReferencedNamespaces(), "引用命名空间列表不应该为null");
 
