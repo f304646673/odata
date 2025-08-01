@@ -40,7 +40,9 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
     @Override
     public XmlComplianceResult validateFile(File xmlFile) {
         try {
-            String content = Files.readString(xmlFile.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+            // Java 8 compatible way to read file content
+            byte[] bytes = Files.readAllBytes(xmlFile.toPath());
+            String content = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
             return validateContent(content, xmlFile.getName());
         } catch (IOException e) {
             List<ComplianceIssue> issues = new ArrayList<>();

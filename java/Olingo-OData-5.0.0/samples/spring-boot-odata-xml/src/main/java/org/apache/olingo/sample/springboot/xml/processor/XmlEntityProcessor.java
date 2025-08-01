@@ -9,7 +9,7 @@
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
+ * Unless required by applicable law or agreed in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
@@ -20,6 +20,7 @@ package org.apache.olingo.sample.springboot.xml.processor;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.Entity;
@@ -82,7 +83,7 @@ public class XmlEntityProcessor extends BaseXmlODataProcessor implements EntityC
         UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) uriInfo.getUriResourceParts().get(0);
         List<String> keyValues = uriResourceEntitySet.getKeyPredicates().stream()
             .map(keyPredicate -> keyPredicate.getText())
-            .toList();
+            .collect(Collectors.toList());
 
         Entity entity = dataProvider.getEntity(edmEntitySet, keyValues);
 

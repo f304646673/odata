@@ -19,6 +19,7 @@
 package org.apache.olingo.sample.springboot.xml;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -135,7 +136,7 @@ class XmlMetadataLoadingTest {
         // Verify property names
         List<String> propertyNames = carEntityType.getProperties().stream()
                 .map(p -> p.getName())
-                .toList();
+                .collect(Collectors.toList());
         assertThat(propertyNames).containsExactlyInAnyOrder("Id", "Model", "Price", "Year");
     }
 
@@ -158,7 +159,7 @@ class XmlMetadataLoadingTest {
         // Verify property names
         List<String> propertyNames = manufacturerEntityType.getProperties().stream()
                 .map(p -> p.getName())
-                .toList();
+                .collect(Collectors.toList());
         assertThat(propertyNames).containsExactlyInAnyOrder("Id", "Name", "Founded", "Address");
     }
 }

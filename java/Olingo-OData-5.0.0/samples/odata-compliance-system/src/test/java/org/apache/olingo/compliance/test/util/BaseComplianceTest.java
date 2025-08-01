@@ -2,11 +2,12 @@ package org.apache.olingo.compliance.test.util;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
 import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
 import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,7 +61,7 @@ public abstract class BaseComplianceTest {
             .anyMatch(issue -> issue.getMessage().contains(expectedMessageFragment));
         assertTrue(foundExpectedMessage, 
             "Expected error message containing '" + expectedMessageFragment + "' but found: " + 
-            errors.stream().map(ComplianceIssue::getMessage).toList());
+            errors.stream().map(ComplianceIssue::getMessage).collect(Collectors.toList()));
     }
     
     /**
