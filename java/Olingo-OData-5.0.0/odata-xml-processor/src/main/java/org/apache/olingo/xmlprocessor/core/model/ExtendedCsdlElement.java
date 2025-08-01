@@ -1,13 +1,12 @@
 package org.apache.olingo.xmlprocessor.core.model;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
-import org.apache.olingo.xmlprocessor.core.dependency.GlobalDependencyManager;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.GlobalDependencyManager;
 
 /**
  * Extended CSDL element interface for dependency tracking

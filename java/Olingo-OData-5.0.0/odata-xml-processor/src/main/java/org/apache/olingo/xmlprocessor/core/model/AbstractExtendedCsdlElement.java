@@ -129,12 +129,14 @@ public abstract class AbstractExtendedCsdlElement<T, E extends AbstractExtendedC
      * 获取原始对象的annotations
      * 子类必须实现此方法来返回对应的annotations列表
      */
+    @Deprecated
     protected abstract List<CsdlAnnotation> getOriginalAnnotations();
 
     /**
      * 设置原始对象的annotations
      * 子类必须实现此方法来设置对应的annotations列表
      */
+    @Deprecated
     protected abstract void setOriginalAnnotations(List<CsdlAnnotation> annotations);
 
     // ==================== ExtendedCsdlElement 默认实现 ====================
