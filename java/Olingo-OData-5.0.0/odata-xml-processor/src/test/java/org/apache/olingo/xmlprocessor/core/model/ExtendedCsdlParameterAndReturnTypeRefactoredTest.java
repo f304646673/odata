@@ -16,7 +16,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testParameterConstructor() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored();
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
         assertNotNull(parameter);
         assertNotNull(parameter.asCsdlParameter());
     }
@@ -32,7 +32,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
         source.setMaxLength(255);
 
         // 执行转换
-        ExtendedCsdlParameterRefactored extended = ExtendedCsdlParameterRefactored.fromCsdlParameter(source);
+        ExtendedCsdlParameter extended = ExtendedCsdlParameter.fromCsdlParameter(source);
 
         // 验证结果
         assertNotNull(extended);
@@ -45,7 +45,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testParameterFluentAPI() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored()
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter()
                 .setName("fluentParam")
                 .setType("Edm.Int32")
                 .setCollection(false)
@@ -63,7 +63,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeConstructor() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored();
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
         assertNotNull(returnType);
         assertNotNull(returnType.asCsdlReturnType());
     }
@@ -78,7 +78,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
         source.setMaxLength(100);
 
         // 执行转换
-        ExtendedCsdlReturnTypeRefactored extended = ExtendedCsdlReturnTypeRefactored.fromCsdlReturnType(source);
+        ExtendedCsdlReturnType extended = ExtendedCsdlReturnType.fromCsdlReturnType(source);
 
         // 验证结果
         assertNotNull(extended);
@@ -90,7 +90,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeFluentAPI() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored()
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType()
                 .setType("Edm.Decimal")
                 .setCollection(false)
                 .setNullable(true)
@@ -106,7 +106,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testParameterElementInterface() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored();
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
         parameter.setName("testParam");
         parameter.setNamespace("test.namespace");
 
@@ -118,7 +118,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeElementInterface() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored();
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
         returnType.setType("Edm.String");
         returnType.setNamespace("test.namespace");
 
@@ -129,7 +129,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testParameterAnnotationsViaBaseClass() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored();
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
 
         // 创建Extended注解
         ExtendedCsdlAnnotation annotation = new ExtendedCsdlAnnotation();
@@ -145,7 +145,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeToString() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored();
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
         returnType.setType("Edm.String");
         returnType.setCollection(true);
         returnType.setNamespace("test.namespace");
@@ -158,7 +158,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testParameterParentName() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored();
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
         parameter.setParentName("TestAction");
 
         assertEquals("TestAction", parameter.getParentName());
@@ -169,7 +169,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeParentName() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored();
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
         returnType.setParentName("TestFunction");
 
         assertEquals("TestFunction", returnType.getParentName());
@@ -181,17 +181,17 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
     @Test
     void testNullHandling() {
         // 测试Parameter的null处理
-        ExtendedCsdlParameterRefactored paramFromNull = ExtendedCsdlParameterRefactored.fromCsdlParameter(null);
+        ExtendedCsdlParameter paramFromNull = ExtendedCsdlParameter.fromCsdlParameter(null);
         assertNull(paramFromNull);
 
         // 测试ReturnType的null处理
-        ExtendedCsdlReturnTypeRefactored returnFromNull = ExtendedCsdlReturnTypeRefactored.fromCsdlReturnType(null);
+        ExtendedCsdlReturnType returnFromNull = ExtendedCsdlReturnType.fromCsdlReturnType(null);
         assertNull(returnFromNull);
     }
 
     @Test
     void testParameterTypeFQN() {
-        ExtendedCsdlParameterRefactored parameter = new ExtendedCsdlParameterRefactored();
+        ExtendedCsdlParameter parameter = new ExtendedCsdlParameter();
         parameter.setType("TestNamespace.CustomType");
 
         assertEquals("TestNamespace.CustomType", parameter.getType());
@@ -206,7 +206,7 @@ class ExtendedCsdlParameterAndReturnTypeRefactoredTest {
 
     @Test
     void testReturnTypeTypeFQN() {
-        ExtendedCsdlReturnTypeRefactored returnType = new ExtendedCsdlReturnTypeRefactored();
+        ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
         returnType.setType("TestNamespace.CustomType");
 
         assertEquals("TestNamespace.CustomType", returnType.getType());

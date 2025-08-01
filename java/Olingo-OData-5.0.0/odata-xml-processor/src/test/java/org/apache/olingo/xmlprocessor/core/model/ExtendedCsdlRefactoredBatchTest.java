@@ -15,7 +15,7 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testNavigationPropertyRefactored() {
-        ExtendedCsdlNavigationPropertyRefactored navProp = new ExtendedCsdlNavigationPropertyRefactored();
+        ExtendedCsdlNavigationProperty navProp = new ExtendedCsdlNavigationProperty();
         navProp.setName("Orders")
                .setType("TestNamespace.Order")
                .setCollection(true)
@@ -29,7 +29,7 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testFunctionImportRefactored() {
-        ExtendedCsdlFunctionImportRefactored funcImport = new ExtendedCsdlFunctionImportRefactored();
+        ExtendedCsdlFunctionImport funcImport = new ExtendedCsdlFunctionImport();
         funcImport.setName("GetCustomers")
                   .setFunction("TestNamespace.GetCustomers")
                   .setEntitySet("Customers")
@@ -43,7 +43,7 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testNavigationPropertyBindingRefactored() {
-        ExtendedCsdlNavigationPropertyBindingRefactored binding = new ExtendedCsdlNavigationPropertyBindingRefactored();
+        ExtendedCsdlNavigationPropertyBinding binding = new ExtendedCsdlNavigationPropertyBinding();
         binding.setPath("Orders")
                .setTarget("OrderSet");
 
@@ -53,7 +53,7 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testEntityContainerRefactored() {
-        ExtendedCsdlEntityContainerRefactored container = new ExtendedCsdlEntityContainerRefactored();
+        ExtendedCsdlEntityContainer container = new ExtendedCsdlEntityContainer();
         container.setName("DefaultContainer");
 
         assertEquals("DefaultContainer", container.getName());
@@ -68,8 +68,8 @@ class ExtendedCsdlRefactoredBatchTest {
         navProp.setName("Orders");
         navProp.setType("TestNamespace.Order");
         
-        ExtendedCsdlNavigationPropertyRefactored extended = 
-            ExtendedCsdlNavigationPropertyRefactored.fromCsdlNavigationProperty(navProp);
+        ExtendedCsdlNavigationProperty extended =
+            ExtendedCsdlNavigationProperty.fromCsdlNavigationProperty(navProp);
         
         assertNotNull(extended);
         assertEquals("Orders", extended.getName());
@@ -78,15 +78,15 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testNullHandling() {
-        assertNull(ExtendedCsdlNavigationPropertyRefactored.fromCsdlNavigationProperty(null));
-        assertNull(ExtendedCsdlFunctionImportRefactored.fromCsdlFunctionImport(null));
-        assertNull(ExtendedCsdlNavigationPropertyBindingRefactored.fromCsdlNavigationPropertyBinding(null));
-        assertNull(ExtendedCsdlEntityContainerRefactored.fromCsdlEntityContainer(null));
+        assertNull(ExtendedCsdlNavigationProperty.fromCsdlNavigationProperty(null));
+        assertNull(ExtendedCsdlFunctionImport.fromCsdlFunctionImport(null));
+        assertNull(ExtendedCsdlNavigationPropertyBinding.fromCsdlNavigationPropertyBinding(null));
+        assertNull(ExtendedCsdlEntityContainer.fromCsdlEntityContainer(null));
     }
 
     @Test
     void testToStringMethods() {
-        ExtendedCsdlNavigationPropertyRefactored navProp = new ExtendedCsdlNavigationPropertyRefactored();
+        ExtendedCsdlNavigationProperty navProp = new ExtendedCsdlNavigationProperty();
         navProp.setName("Orders");
         navProp.setNamespace("test");
         
@@ -97,7 +97,7 @@ class ExtendedCsdlRefactoredBatchTest {
 
     @Test
     void testElementInterface() {
-        ExtendedCsdlFunctionImportRefactored funcImport = new ExtendedCsdlFunctionImportRefactored();
+        ExtendedCsdlFunctionImport funcImport = new ExtendedCsdlFunctionImport();
         funcImport.setName("TestFunction");
         funcImport.setNamespace("test.namespace");
 

@@ -19,7 +19,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testConstructor() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
         assertNotNull(action);
         assertNotNull(action.asCsdlAction());
     }
@@ -49,7 +49,7 @@ class ExtendedCsdlActionTest {
         source.setReturnType(returnType);
 
         // 执行转换
-        ExtendedCsdlActionRefactored extended = ExtendedCsdlActionRefactored.fromCsdlAction(source);
+        ExtendedCsdlAction extended = ExtendedCsdlAction.fromCsdlAction(source);
 
         // 验证结果
         assertNotNull(extended);
@@ -62,13 +62,13 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testFromCsdlActionWithNull() {
-        ExtendedCsdlActionRefactored extended = ExtendedCsdlActionRefactored.fromCsdlAction(null);
+        ExtendedCsdlAction extended = ExtendedCsdlAction.fromCsdlAction(null);
         assertNull(extended);
     }
 
     @Test
     void testBasicProperties() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 测试Name
         action.setName("TestAction");
@@ -85,7 +85,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testFluentAPI() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored()
+        ExtendedCsdlAction action = new ExtendedCsdlAction()
                 .setName("FluentAction")
                 .setBound(false)
                 .setEntitySetPath("TestEntities");
@@ -97,7 +97,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testParametersManagement() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 添加Extended参数
         ExtendedCsdlParameter param1 = new ExtendedCsdlParameter();
@@ -124,7 +124,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testReturnTypeManagement() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 设置Extended返回类型
         ExtendedCsdlReturnType returnType = new ExtendedCsdlReturnType();
@@ -145,7 +145,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testAnnotationsViaBaseClass() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 创建Extended注解 - 简化测试，不设置复杂表达式
         ExtendedCsdlAnnotation annotation = new ExtendedCsdlAnnotation();
@@ -165,7 +165,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testElementInterfaceMethods() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
         action.setName("TestAction");
         action.setNamespace("test.namespace");
 
@@ -187,7 +187,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testToString() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
         action.setName("TestAction");
         action.setNamespace("test.namespace");
         action.setBound(true);
@@ -200,7 +200,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testDataSynchronization() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 通过标准方法设置参数
         CsdlParameter param = new CsdlParameter();
@@ -227,7 +227,7 @@ class ExtendedCsdlActionTest {
 
     @Test
     void testNullHandling() {
-        ExtendedCsdlActionRefactored action = new ExtendedCsdlActionRefactored();
+        ExtendedCsdlAction action = new ExtendedCsdlAction();
 
         // 测试添加null参数
         action.addExtendedParameter(null);
