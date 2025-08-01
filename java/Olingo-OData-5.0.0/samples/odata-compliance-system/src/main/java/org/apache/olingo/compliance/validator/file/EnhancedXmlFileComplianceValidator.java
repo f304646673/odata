@@ -9,7 +9,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,7 +40,7 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
     @Override
     public XmlComplianceResult validateFile(File xmlFile) {
         try {
-            String content = Files.readString(xmlFile.toPath());
+            String content = Files.readString(xmlFile.toPath(), java.nio.charset.StandardCharsets.UTF_8);
             return validateContent(content, xmlFile.getName());
         } catch (IOException e) {
             List<ComplianceIssue> issues = new ArrayList<>();
@@ -57,7 +61,10 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
         
         try {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(new java.io.ByteArrayInputStream(xmlContent.getBytes()));
+            // Use UTF-8 encoding explicitly
+            java.io.ByteArrayInputStream inputStream = new java.io.ByteArrayInputStream(
+                xmlContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            Document doc = dBuilder.parse(inputStream);
             doc.getDocumentElement().normalize();
             
             // Perform various validation checks
@@ -175,9 +182,10 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
     
     private void validateDuplicates(Document doc, List<ComplianceIssue> issues) {
         // Check for duplicate element names within the same scope
-        String[] elementTypes = {"EntityType", "ComplexType", "EnumType", "Action", "Function", "Term", "TypeDefinition"};
-        
-        for (String elementType : elementTypes) {
+        // Note: Functions and Actions can have overloads with different signatures
+        String[] simpleElementTypes = {"EntityType", "ComplexType", "EnumType", "Term", "TypeDefinition"};
+
+        for (String elementType : simpleElementTypes) {
             NodeList elements = doc.getElementsByTagName(elementType);
             List<String> names = new ArrayList<>();
             
@@ -195,6 +203,10 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
             }
         }
         
+        // Check for duplicate functions (must have different signatures)
+        validateFunctionOverloads(doc, issues, "Function");
+        validateFunctionOverloads(doc, issues, "Action");
+
         // Check for duplicate parameters in functions/actions
         NodeList functions = doc.getElementsByTagName("Function");
         NodeList actions = doc.getElementsByTagName("Action");
@@ -215,6 +227,76 @@ public class EnhancedXmlFileComplianceValidator implements XmlFileComplianceVali
         }
     }
     
+    private void validateFunctionOverloads(Document doc, List<ComplianceIssue> issues, String elementType) {
+        NodeList elements = doc.getElementsByTagName(elementType);
+        Map<String, List<Element>> nameToElements = new HashMap<>();
+
+        // Group elements by name
+        for (int i = 0; i < elements.getLength(); i++) {
+            Element element = (Element) elements.item(i);
+            String name = element.getAttribute("Name");
+            if (!name.isEmpty()) {
+                nameToElements.computeIfAbsent(name, k -> new ArrayList<>()).add(element);
+            }
+        }
+
+        // Check each group for valid overloads
+        for (Map.Entry<String, List<Element>> entry : nameToElements.entrySet()) {
+            List<Element> elementsWithSameName = entry.getValue();
+            if (elementsWithSameName.size() > 1) {
+                // Multiple elements with same name - check if they have different signatures
+                if (!hasValidOverloads(elementsWithSameName)) {
+                    issues.add(new ComplianceIssue(ComplianceErrorType.DUPLICATE_ELEMENT,
+                        "Duplicate " + elementType + " name with identical signatures: " + entry.getKey()));
+                }
+            }
+        }
+    }
+
+    private boolean hasValidOverloads(List<Element> elements) {
+        Set<String> signatures = new HashSet<>();
+
+        for (Element element : elements) {
+            String signature = buildSignature(element);
+            if (signatures.contains(signature)) {
+                return false; // Duplicate signature found
+            }
+            signatures.add(signature);
+        }
+
+        return true; // All signatures are different
+    }
+
+    private String buildSignature(Element functionOrAction) {
+        StringBuilder signature = new StringBuilder();
+
+        // Add parameter types to signature
+        NodeList parameters = functionOrAction.getElementsByTagName("Parameter");
+        List<String> paramTypes = new ArrayList<>();
+        for (int i = 0; i < parameters.getLength(); i++) {
+            Element param = (Element) parameters.item(i);
+            String type = param.getAttribute("Type");
+            if (!type.isEmpty()) {
+                paramTypes.add(type);
+            }
+        }
+        signature.append("(").append(String.join(",", paramTypes)).append(")");
+
+        // For functions, add return type to signature
+        if ("Function".equals(functionOrAction.getTagName())) {
+            NodeList returnTypes = functionOrAction.getElementsByTagName("ReturnType");
+            if (returnTypes.getLength() > 0) {
+                Element returnType = (Element) returnTypes.item(0);
+                String type = returnType.getAttribute("Type");
+                if (!type.isEmpty()) {
+                    signature.append(":").append(type);
+                }
+            }
+        }
+
+        return signature.toString();
+    }
+
     private void validateStructure(Document doc, List<ComplianceIssue> issues) {
         // Structure validation logic would go here
         // For now, we'll add placeholder for some common structure errors

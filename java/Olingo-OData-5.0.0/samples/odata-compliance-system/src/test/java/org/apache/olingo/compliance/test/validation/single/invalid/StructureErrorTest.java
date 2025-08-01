@@ -56,7 +56,7 @@ public class StructureErrorTest extends BaseComplianceTest {
         new StructureTestCase("invalid-circular-inheritance-entitytype", ComplianceErrorType.VALIDATION_ERROR, "validator limitation"), // Valid by validator
         new StructureTestCase("invalid-complextype-self-inheritance", ComplianceErrorType.VALIDATION_ERROR, "validator limitation"), // Valid by validator
         new StructureTestCase("invalid-entitytype-self-inheritance", ComplianceErrorType.VALIDATION_ERROR, "validator limitation"), // Valid by validator
-        new StructureTestCase("invalid-malformed-xml", ComplianceErrorType.PARSING_ERROR, "element type")
+        new StructureTestCase("invalid-malformed-xml", ComplianceErrorType.PARSING_ERROR, "EntityType")
     );
     
     @BeforeEach
