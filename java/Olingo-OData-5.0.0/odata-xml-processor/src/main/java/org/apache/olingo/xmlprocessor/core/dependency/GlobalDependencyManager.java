@@ -59,10 +59,11 @@ public class GlobalDependencyManager {
      * @return 注册的依赖节点
      */
     public synchronized CsdlDependencyNode registerElement(String elementId, FullQualifiedName fqn, 
-                                                          CsdlDependencyNode.DependencyType dependencyType, String propertyName) {
+                                                          CsdlDependencyNode.DependencyType dependencyType, String namespace) {
         CsdlDependencyNode node = registeredNodes.get(elementId);
         if (node == null) {
-            node = new CsdlDependencyNode(elementId, fqn, dependencyType, propertyName);
+            // 修复构造器调用，使用正确的参数数量和顺序
+            node = new CsdlDependencyNode(elementId, fqn, dependencyType, namespace, null);
             registeredNodes.put(elementId, node);
             globalDependencyTree.addNode(node);
             

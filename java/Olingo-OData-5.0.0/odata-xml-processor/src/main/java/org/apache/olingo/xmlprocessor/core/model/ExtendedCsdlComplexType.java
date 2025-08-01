@@ -292,9 +292,6 @@ public class ExtendedCsdlComplexType extends CsdlComplexType implements Extended
         if (namespace != null && getName() != null) {
             return new FullQualifiedName(namespace, getName());
         }
-        if (getName() != null) {
-            return null;
-        }
         return null;
     }
     
@@ -307,7 +304,7 @@ public class ExtendedCsdlComplexType extends CsdlComplexType implements Extended
     }
     
     /**
-     * 获取元素相关的属性名（如果适用）
+     * 获取元素的属性名称（如果适用）
      */
     @Override
     public String getElementPropertyName() {
@@ -317,16 +314,23 @@ public class ExtendedCsdlComplexType extends CsdlComplexType implements Extended
     /**
      * 注册扩展元素 - 用于依赖关系跟踪
      */
+    @Override
     public ExtendedCsdlComplexType registerElement() {
-        // 注册自身到全局依赖管理器
-
+        ExtendedCsdlElement.super.registerElement();
         return this;
+    }
+
+    /**
      * 获取所有依赖的类型名称列表（自定义方法）
+     */
     public List<String> getDependencyTypeNames() {
+        List<String> dependencies = new ArrayList<>();
+
         if (extendedProperties != null) {
             extendedProperties.forEach(prop -> {
                 if (prop instanceof ExtendedCsdlElement) {
                     // 可以调用子元素的注册方法
+                    ((ExtendedCsdlElement) prop).registerElement();
                 }
             });
         }
@@ -335,49 +339,11 @@ public class ExtendedCsdlComplexType extends CsdlComplexType implements Extended
             extendedNavigationProperties.forEach(navProp -> {
                 if (navProp instanceof ExtendedCsdlElement) {
                     // 可以调用子元素的注册方法
-                }
-            });
-        }
-    }
-
-    /**
-     * 获取所有依赖的类型
-     * @return 依赖的类型全限定名列表
-     */
-    public List<String> getAllDependencies() {
-        List<String> dependencies = new ArrayList<>();
-
-        // 添加基类型依赖
-        if (getBaseType() != null) {
-            dependencies.add(getBaseType().toString());
-        }
-
-        // 添加属性依赖
-        if (extendedProperties != null) {
-            extendedProperties.forEach(prop -> {
-                if (prop.getType() != null) {
-                    dependencies.add(prop.getType());
-                }
-            });
-        }
-
-        // 添加导航属性依赖
-        if (extendedNavigationProperties != null) {
-            extendedNavigationProperties.forEach(navProp -> {
-                if (navProp.getType() != null) {
-                    dependencies.add(navProp.getType());
+                    ((ExtendedCsdlElement) navProp).registerElement();
                 }
             });
         }
 
         return dependencies;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("ExtendedCsdlComplexType{name='%s', namespace='%s', properties=%d, navigationProperties=%d}",
-                getName(), namespace,
-                extendedProperties != null ? extendedProperties.size() : 0,
-                extendedNavigationProperties != null ? extendedNavigationProperties.size() : 0);
     }
 }

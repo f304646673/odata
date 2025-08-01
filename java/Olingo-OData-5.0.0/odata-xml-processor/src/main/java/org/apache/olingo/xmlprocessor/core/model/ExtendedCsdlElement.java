@@ -241,95 +241,67 @@ public interface ExtendedCsdlElement {
     }
     
     /**
-     * Check if has dependency path to target
-     * 
-     * @param targetId target element ID
-     * @return true if path exists
-     */
-    default boolean hasDependencyPath(String targetId) {
-        return getDependencyPath(targetId) != null && !getDependencyPath(targetId).isEmpty();
-    }
-    
-    /**
-     * Get dependent count (number of elements that depend on this)
-     * 
-     * @return number of dependents
-     */
-    default int getDependentCount() {
-        return getDirectDependents().size();
-    }
-    
-    // === Legacy namespace support (placeholder for compatibility) ===
-    
-    /**
-     * Set namespace (placeholder implementation for test compatibility)
-     * 
+     * Set namespace for the element
+     *
      * @param namespace namespace to set
-     * @return this element for chaining
+     * @return this element for fluent interface
      */
-    default ExtendedCsdlElement setNamespace(String namespace) {
-        // Since we're now using global management, this is a no-op
-        // The namespace is derived from the element's context
-        return this;
-    }
-    
+    ExtendedCsdlElement setNamespace(String namespace);
+
     /**
-     * Get namespace (placeholder implementation for test compatibility)
-     * 
-     * @return namespace or null
+     * Get namespace for the element
+     *
+     * @return namespace of the element
      */
-    default String getNamespace() {
-        // Try to extract namespace from dependency node
-        CsdlDependencyNode node = getDependencyNode();
-        if (node != null && node.getFullyQualifiedName() != null) {
-            return node.getFullyQualifiedName().getNamespace();
-        }
-        return null;
-    }
-    
+    String getNamespace();
+
     /**
-     * Register element with global dependency manager
-     * 
-     * @return this element for chaining
+     * Register element in global dependency manager
+     *
+     * @return this element for fluent interface
      */
     default ExtendedCsdlElement registerElement() {
-        // Ensure the element is registered with the global manager
-        // This creates a node if it doesn't exist using the element's specific dependency type
-        GlobalDependencyManager.getInstance().registerElement(getElementId(), 
-            getElementFullyQualifiedName(), 
-            getElementDependencyType(), getElementPropertyName());
+        GlobalDependencyManager.getInstance().registerElement(
+            getElementId(),
+            getElementFullyQualifiedName(),
+            getElementDependencyType(),
+            getNamespace()
+        );
         return this;
     }
     
     /**
-     * Set parent name (for parameter-like elements, placeholder for compatibility)
-     * 
-     * @param parentName parent name
-     * @return this element for chaining  
+     * Add dependency by namespace (simplified)
+     *
+     * @param namespace namespace to add as dependency
+     * @return true if added successfully
+     */
+    default boolean addDependency(String namespace) {
+        if (namespace != null && !namespace.trim().isEmpty()) {
+            GlobalDependencyManager.getInstance().addDependency(getElementId(), namespace);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Set parent name for elements that support it
+     *
+     * @param parentName parent name to set
+     * @return this element for fluent interface
      */
     default ExtendedCsdlElement setParentName(String parentName) {
-        // This is a placeholder for test compatibility
-        // The parent relationship is handled through dependency relationships
+        // Default implementation - do nothing for elements that don't support parent names
         return this;
     }
     
     /**
-     * Get parent name (placeholder for compatibility)
-     * 
+     * Get parent name for elements that support it
+     *
      * @return parent name or null
      */
     default String getParentName() {
-        // This is a placeholder for test compatibility
+        // Default implementation - return null for elements that don't support parent names
         return null;
-    }
-    
-    /**
-     * Add dependency by element ID (simplified version for tests)
-     * 
-     * @param elementId target element ID
-     * @return true if added successfully
-     */
-    default boolean addDependency(String elementId) {
-        return GlobalDependencyManager.getInstance().addDependency(getElementId(), elementId);
     }
 }

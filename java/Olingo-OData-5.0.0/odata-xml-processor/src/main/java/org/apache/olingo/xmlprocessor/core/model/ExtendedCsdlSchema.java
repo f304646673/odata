@@ -13,6 +13,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 扩展的CSDL Schema实现
@@ -22,19 +23,17 @@ public class ExtendedCsdlSchema extends CsdlSchema {
 
     private String sourcePath;
     private List<String> referencedNamespaces;
-    private boolean isExtended = false;
+    private boolean isExtended = true;
 
     public ExtendedCsdlSchema() {
         super();
         this.referencedNamespaces = new ArrayList<>();
-        this.isExtended = true;
     }
 
     public ExtendedCsdlSchema(String namespace) {
         super();
         setNamespace(namespace);
         this.referencedNamespaces = new ArrayList<>();
-        this.isExtended = true;
     }
 
     /**
@@ -47,41 +46,75 @@ public class ExtendedCsdlSchema extends CsdlSchema {
         extended.setNamespace(baseSchema.getNamespace());
         extended.setAlias(baseSchema.getAlias());
 
-        // 复制所有集合
+        // 转换EntityTypes为ExtendedCsdlEntityType
         if (baseSchema.getEntityTypes() != null) {
-            extended.setEntityTypes(new ArrayList<>(baseSchema.getEntityTypes()));
+            List<CsdlEntityType> extendedEntityTypes = baseSchema.getEntityTypes().stream()
+                .map(entityType -> ExtendedCsdlEntityType.fromCsdlEntityType(entityType))
+                .collect(Collectors.toList());
+            extended.setEntityTypes(extendedEntityTypes);
         }
 
+        // 转换ComplexTypes为ExtendedCsdlComplexType
         if (baseSchema.getComplexTypes() != null) {
-            extended.setComplexTypes(new ArrayList<>(baseSchema.getComplexTypes()));
+            List<CsdlComplexType> extendedComplexTypes = baseSchema.getComplexTypes().stream()
+                .map(complexType -> ExtendedCsdlComplexType.fromCsdlComplexType(complexType))
+                .collect(Collectors.toList());
+            extended.setComplexTypes(extendedComplexTypes);
         }
 
+        // 转换EnumTypes为ExtendedCsdlEnumType
         if (baseSchema.getEnumTypes() != null) {
-            extended.setEnumTypes(new ArrayList<>(baseSchema.getEnumTypes()));
+            List<CsdlEnumType> extendedEnumTypes = baseSchema.getEnumTypes().stream()
+                .map(enumType -> ExtendedCsdlEnumType.fromCsdlEnumType(enumType))
+                .collect(Collectors.toList());
+            extended.setEnumTypes(extendedEnumTypes);
         }
 
+        // 转换TypeDefinitions为ExtendedCsdlTypeDefinition
         if (baseSchema.getTypeDefinitions() != null) {
-            extended.setTypeDefinitions(new ArrayList<>(baseSchema.getTypeDefinitions()));
+            List<CsdlTypeDefinition> extendedTypeDefinitions = baseSchema.getTypeDefinitions().stream()
+                .map(typeDef -> ExtendedCsdlTypeDefinition.fromCsdlTypeDefinition(typeDef))
+                .collect(Collectors.toList());
+            extended.setTypeDefinitions(extendedTypeDefinitions);
         }
 
+        // 转换Actions为ExtendedCsdlAction
         if (baseSchema.getActions() != null) {
-            extended.setActions(new ArrayList<>(baseSchema.getActions()));
+            List<CsdlAction> extendedActions = baseSchema.getActions().stream()
+                .map(action -> ExtendedCsdlAction.fromCsdlAction(action))
+                .collect(Collectors.toList());
+            extended.setActions(extendedActions);
         }
 
+        // 转换Functions为ExtendedCsdlFunction
         if (baseSchema.getFunctions() != null) {
-            extended.setFunctions(new ArrayList<>(baseSchema.getFunctions()));
+            List<CsdlFunction> extendedFunctions = baseSchema.getFunctions().stream()
+                .map(function -> ExtendedCsdlFunction.fromCsdlFunction(function))
+                .collect(Collectors.toList());
+            extended.setFunctions(extendedFunctions);
         }
 
+        // 转换Terms为ExtendedCsdlTerm
         if (baseSchema.getTerms() != null) {
-            extended.setTerms(new ArrayList<>(baseSchema.getTerms()));
+            List<CsdlTerm> extendedTerms = baseSchema.getTerms().stream()
+                .map(term -> ExtendedCsdlTerm.fromCsdlTerm(term))
+                .collect(Collectors.toList());
+            extended.setTerms(extendedTerms);
         }
 
+        // 转换Annotations为ExtendedCsdlAnnotation
         if (baseSchema.getAnnotations() != null) {
-            extended.setAnnotations(new ArrayList<>(baseSchema.getAnnotations()));
+            List<CsdlAnnotation> extendedAnnotations = baseSchema.getAnnotations().stream()
+                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
+                .collect(Collectors.toList());
+            extended.setAnnotations(extendedAnnotations);
         }
 
+        // 转换EntityContainer为ExtendedCsdlEntityContainer
         if (baseSchema.getEntityContainer() != null) {
-            extended.setEntityContainer(baseSchema.getEntityContainer());
+            ExtendedCsdlEntityContainer extendedContainer =
+                ExtendedCsdlEntityContainer.fromCsdlEntityContainer(baseSchema.getEntityContainer());
+            extended.setEntityContainer(extendedContainer);
         }
 
         return extended;
@@ -187,35 +220,14 @@ public class ExtendedCsdlSchema extends CsdlSchema {
         return getAnnotations() != null ? getAnnotations().size() : 0;
     }
 
-    /**
-     * 获取Schema的统计信息
-     */
-    public String getStatistics() {
-        StringBuilder stats = new StringBuilder();
-        stats.append("ExtendedCsdlSchema Statistics for namespace: ").append(getNamespace()).append("\n");
-        stats.append("- EntityTypes: ").append(getEntityTypeCount()).append("\n");
-        stats.append("- ComplexTypes: ").append(getComplexTypeCount()).append("\n");
-        stats.append("- EnumTypes: ").append(getEnumTypeCount()).append("\n");
-        stats.append("- TypeDefinitions: ").append(getTypeDefinitionCount()).append("\n");
-        stats.append("- Actions: ").append(getActionCount()).append("\n");
-        stats.append("- Functions: ").append(getFunctionCount()).append("\n");
-        stats.append("- Terms: ").append(getTermCount()).append("\n");
-        stats.append("- Annotations: ").append(getAnnotationCount()).append("\n");
-        stats.append("- Referenced Namespaces: ").append(referencedNamespaces.size()).append("\n");
-        stats.append("- Source Path: ").append(sourcePath != null ? sourcePath : "N/A");
-        return stats.toString();
-    }
-
     @Override
     public String toString() {
-        return "ExtendedCsdlSchema{" +
-                "namespace='" + getNamespace() + '\'' +
-                ", alias='" + getAlias() + '\'' +
-                ", sourcePath='" + sourcePath + '\'' +
-                ", entityTypes=" + getEntityTypeCount() +
-                ", complexTypes=" + getComplexTypeCount() +
-                ", enumTypes=" + getEnumTypeCount() +
-                ", referencedNamespaces=" + referencedNamespaces.size() +
-                '}';
+        return String.format("ExtendedCsdlSchema{namespace='%s', alias='%s', sourcePath='%s', " +
+                "entityTypes=%d, complexTypes=%d, enumTypes=%d, typeDefinitions=%d, " +
+                "actions=%d, functions=%d, terms=%d, annotations=%d, referencedNamespaces=%s}",
+                getNamespace(), getAlias(), sourcePath,
+                getEntityTypeCount(), getComplexTypeCount(), getEnumTypeCount(), getTypeDefinitionCount(),
+                getActionCount(), getFunctionCount(), getTermCount(), getAnnotationCount(),
+                referencedNamespaces);
     }
 }

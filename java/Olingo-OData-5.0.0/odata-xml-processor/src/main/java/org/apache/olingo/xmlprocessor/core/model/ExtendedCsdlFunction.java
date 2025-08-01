@@ -2,7 +2,14 @@ package org.apache.olingo.xmlprocessor.core.model;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 扩展的CsdlFunction，支持依赖关系跟踪
@@ -12,11 +19,17 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
     private final String elementId;
     private String namespace;
     
+    // Extended版本的内部元素
+    private List<ExtendedCsdlParameter> extendedParameters;
+    private ExtendedCsdlReturnType extendedReturnType;
+    private List<ExtendedCsdlAnnotation> extendedAnnotations;
+
     /**
      * 构造函数
      */
     public ExtendedCsdlFunction() {
         this.elementId = null;
+        initializeExtendedCollections();
     }
     
     /**
@@ -25,6 +38,57 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
      */
     public ExtendedCsdlFunction(String elementId) {
         this.elementId = elementId;
+        initializeExtendedCollections();
+    }
+
+    /**
+     * 从标准CsdlFunction创建ExtendedCsdlFunction
+     */
+    public static ExtendedCsdlFunction fromCsdlFunction(CsdlFunction source) {
+        if (source == null) {
+            return null;
+        }
+
+        ExtendedCsdlFunction extended = new ExtendedCsdlFunction();
+
+        // 复制基本属性
+        extended.setName(source.getName());
+        extended.setBound(source.isBound());
+        extended.setComposable(source.isComposable());
+        extended.setEntitySetPath(source.getEntitySetPath());
+
+        // 转换Parameters为ExtendedCsdlParameter
+        if (source.getParameters() != null) {
+            List<CsdlParameter> extendedParameters = source.getParameters().stream()
+                .map(parameter -> ExtendedCsdlParameter.fromCsdlParameter(parameter))
+                .collect(Collectors.toList());
+            extended.setParameters(extendedParameters);
+        }
+
+        // 转换ReturnType为ExtendedCsdlReturnType
+        if (source.getReturnType() != null) {
+            ExtendedCsdlReturnType extendedReturnType =
+                ExtendedCsdlReturnType.fromCsdlReturnType(source.getReturnType());
+            extended.setReturnType(extendedReturnType);
+        }
+
+        // 转换Annotations为ExtendedCsdlAnnotation
+        if (source.getAnnotations() != null) {
+            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
+                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
+                .collect(Collectors.toList());
+            extended.setAnnotations(extendedAnnotations);
+        }
+
+        return extended;
+    }
+
+    /**
+     * 初始化扩展集合
+     */
+    private void initializeExtendedCollections() {
+        this.extendedParameters = new ArrayList<>();
+        this.extendedAnnotations = new ArrayList<>();
     }
     
     @Override
@@ -54,13 +118,9 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
     public String getNamespace() {
         return this.namespace;
     }
-    
-    /**
-     * Override registerElement to return the correct type for fluent interface
-     */
+
     @Override
     public ExtendedCsdlFunction registerElement() {
-        // Call the interface default method but return this instance
         ExtendedCsdlElement.super.registerElement();
         return this;
     }
@@ -68,6 +128,7 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
     /**
      * 获取元素的完全限定名（如果适用）
      */
+    @Override
     public FullQualifiedName getElementFullyQualifiedName() {
         return new FullQualifiedName(getNamespace(), getName());
     }
@@ -75,21 +136,29 @@ public class ExtendedCsdlFunction extends CsdlFunction implements ExtendedCsdlEl
     /**
      * 获取元素的依赖类型
      */
+    @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.FUNCTION;
+        return CsdlDependencyNode.DependencyType.FUNCTION_REFERENCE;
     }
-    
+
     /**
-     * 获取元素相关的属性名（如果适用）
+     * 获取元素的属性名称
      */
+    @Override
     public String getElementPropertyName() {
         return null; // Function通常不关联特定属性
     }
     
-    @Override
-    public String toString() {
-        return String.format("ExtendedCsdlFunction{name='%s', bound=%s, parameters=%d}", 
-                getName(), isBound(), 
-                getParameters() != null ? getParameters().size() : 0);
+    // Extended集合的getter方法
+    public List<ExtendedCsdlParameter> getExtendedParameters() {
+        return extendedParameters;
+    }
+
+    public ExtendedCsdlReturnType getExtendedReturnType() {
+        return extendedReturnType;
+    }
+
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return extendedAnnotations;
     }
 }

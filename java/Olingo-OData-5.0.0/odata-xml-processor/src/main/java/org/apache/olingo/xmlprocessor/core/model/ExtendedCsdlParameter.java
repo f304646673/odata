@@ -1,8 +1,13 @@
-package org.apache.olingo.xmlprocessor.core.model;;
+package org.apache.olingo.xmlprocessor.core.model;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 扩展的CsdlParameter，支持依赖关系跟踪
@@ -13,11 +18,15 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
     private String namespace;
     private String parentName;
     
+    // Extended版本的内部元素
+    private List<ExtendedCsdlAnnotation> extendedAnnotations;
+
     /**
      * 构造函数
      */
     public ExtendedCsdlParameter() {
         this.elementId = null;
+        initializeExtendedCollections();
     }
     
     /**
@@ -26,6 +35,44 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
      */
     public ExtendedCsdlParameter(String elementId) {
         this.elementId = elementId;
+        initializeExtendedCollections();
+    }
+
+    /**
+     * 从标准CsdlParameter创建ExtendedCsdlParameter
+     */
+    public static ExtendedCsdlParameter fromCsdlParameter(CsdlParameter source) {
+        if (source == null) {
+            return null;
+        }
+
+        ExtendedCsdlParameter extended = new ExtendedCsdlParameter();
+
+        // 复制基本属性
+        extended.setName(source.getName());
+        extended.setType(source.getType());
+        extended.setCollection(source.isCollection());
+        extended.setNullable(source.isNullable());
+        extended.setMaxLength(source.getMaxLength());
+        extended.setPrecision(source.getPrecision());
+        extended.setScale(source.getScale());
+
+        // 转换Annotations为ExtendedCsdlAnnotation
+        if (source.getAnnotations() != null) {
+            List<CsdlAnnotation> extendedAnnotations = source.getAnnotations().stream()
+                .map(annotation -> ExtendedCsdlAnnotation.fromCsdlAnnotation(annotation))
+                .collect(Collectors.toList());
+            extended.setAnnotations(extendedAnnotations);
+        }
+
+        return extended;
+    }
+
+    /**
+     * 初始化扩展集合
+     */
+    private void initializeExtendedCollections() {
+        this.extendedAnnotations = new ArrayList<>();
     }
     
     @Override
@@ -57,21 +104,6 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
     }
 
     /**
-     * Set parent name
-     */
-    public ExtendedCsdlParameter setParentName(String parentName) {
-        this.parentName = parentName;
-        return this;
-    }
-
-    /**
-     * Get parent name
-     */
-    public String getParentName() {
-        return this.parentName;
-    }
-    
-    /**
      * Override registerElement to return the correct type for fluent interface
      */
     @Override
@@ -84,27 +116,54 @@ public class ExtendedCsdlParameter extends CsdlParameter implements ExtendedCsdl
     /**
      * 获取元素的完全限定名（如果适用）
      */
+    @Override
     public FullQualifiedName getElementFullyQualifiedName() {
-        String namespace = getNamespace();
-        String name = getName();
-        if (parentName != null && name != null) {
-            name = parentName + "." + name;
+        if (getType() != null && getType().contains(".")) {
+            String[] parts = getType().split("\\.");
+            if (parts.length >= 2) {
+                String ns = String.join(".", java.util.Arrays.copyOf(parts, parts.length - 1));
+                String name = parts[parts.length - 1];
+                return new FullQualifiedName(ns, name);
+            }
         }
-        return new FullQualifiedName(namespace, name);
+        return null;
     }
     
     /**
      * 获取元素的依赖类型
      */
+    @Override
     public CsdlDependencyNode.DependencyType getElementDependencyType() {
-        return CsdlDependencyNode.DependencyType.PARAMETER;
+        return CsdlDependencyNode.DependencyType.TYPE_REFERENCE;
     }
     
     /**
      * 获取元素相关的属性名（如果适用）
      */
+    @Override
     public String getElementPropertyName() {
-        return "type"; // Parameter的依赖属性是type
+        return getName();
+    }
+
+    /**
+     * 设置父元素名称
+     */
+    @Override
+    public ExtendedCsdlParameter setParentName(String parentName) {
+        this.parentName = parentName;
+        return this;
+    }
+
+    /**
+     * 获取父元素名称
+     */
+    public String getParentName() {
+        return parentName;
+    }
+
+    // Extended集合的getter方法
+    public List<ExtendedCsdlAnnotation> getExtendedAnnotations() {
+        return extendedAnnotations;
     }
     
     @Override
