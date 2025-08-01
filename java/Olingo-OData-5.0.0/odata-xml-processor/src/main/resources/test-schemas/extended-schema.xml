@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="FirstName" Type="Edm.String" MaxLength="50"/>
+        <Property Name="LastName" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Email" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Phone" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Address" Type="TestService.Models.Address"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+      
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="CustomerID" Type="Edm.Int32"/>
+        <Property Name="OrderDate" Type="Edm.DateTimeOffset"/>
+        <Property Name="Status" Type="TestService.Models.OrderStatus"/>
+        <Property Name="TotalAmount" Type="Edm.Decimal" Precision="18" Scale="2"/>
+        <NavigationProperty Name="Customer" Type="TestService.Models.Customer"/>
+        <NavigationProperty Name="OrderItems" Type="Collection(TestService.Models.OrderItem)"/>
+      </EntityType>
+      
+      <EntityType Name="OrderItem">
+        <Key>
+          <PropertyRef Name="OrderID"/>
+          <PropertyRef Name="ProductID"/>
+        </Key>
+        <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="ProductID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="UnitPrice" Type="Edm.Decimal" Precision="18" Scale="2"/>
+        <NavigationProperty Name="Order" Type="TestService.Models.Order"/>
+        <NavigationProperty Name="Product" Type="TestService.Models.Product"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- 这个schema与basic-schema.xml有冲突，Product定义不同 -->
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>  <!-- 类型冲突：String vs Int32 -->
+        <Property Name="Name" Type="Edm.String" MaxLength="200"/>  <!-- 长度冲突：200 vs 100 -->
+        <Property Name="Price" Type="Edm.Double"/>                 <!-- 类型冲突：Double vs Decimal -->
+        <Property Name="Description" Type="Edm.String"/>          <!-- 新增属性 -->
+      </EntityType>
+      
+      <EntityType Name="Supplier">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="ContactEmail" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Address" Type="TestService.Models.Address"/>
+      </EntityType>
+      
+      <!-- 重复定义Address，但属性略有不同 -->
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="150"/>  <!-- 长度冲突 -->
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="15"/> <!-- 长度冲突 -->
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Region" Type="Edm.String" MaxLength="50"/>    <!-- 新增属性 -->
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

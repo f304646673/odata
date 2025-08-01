@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TestService.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Precision="18" Scale="2"/>
+        <Property Name="Category" Type="Edm.String" MaxLength="50"/>
+        <Property Name="CreatedDate" Type="Edm.DateTimeOffset"/>
+      </EntityType>
+      
+      <EntityType Name="Category">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="50"/>
+        <Property Name="Description" Type="Edm.String" MaxLength="255"/>
+      </EntityType>
+      
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="100"/>
+        <Property Name="City" Type="Edm.String" MaxLength="50"/>
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="10"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <EnumType Name="OrderStatus">
+        <Member Name="Pending" Value="0"/>
+        <Member Name="Processing" Value="1"/>
+        <Member Name="Shipped" Value="2"/>
+        <Member Name="Delivered" Value="3"/>
+        <Member Name="Cancelled" Value="4"/>
+      </EnumType>
+      
+      <EntityContainer Name="DefaultContainer">
+        <EntitySet Name="Products" EntityType="TestService.Models.Product"/>
+        <EntitySet Name="Categories" EntityType="TestService.Models.Category"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
