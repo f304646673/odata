@@ -1,9 +1,11 @@
-package org.apache.olingo.xmlprocessor.core.model;
+package org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlAnnotation;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.ExtendedCsdlElement;
 
 /**
  * 抽象基类，提供Extended CSDL元素的通用功能

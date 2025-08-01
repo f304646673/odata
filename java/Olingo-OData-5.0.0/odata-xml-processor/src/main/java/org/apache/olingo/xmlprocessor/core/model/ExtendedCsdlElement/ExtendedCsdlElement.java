@@ -1,12 +1,13 @@
-package org.apache.olingo.xmlprocessor.core.model;
+package org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
-import org.apache.olingo.xmlprocessor.core.dependency.GlobalDependencyManager;
+import org.apache.olingo.xmlprocessor.core.dependency.model.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.DependencyManager;
+import org.apache.olingo.xmlprocessor.parser.context.XmlParsingContext;
 
 /**
  * Extended CSDL element interface for dependency tracking
@@ -43,6 +44,28 @@ public interface ExtendedCsdlElement {
     String getElementPropertyName();
     
     /**
+     * Set parsing context for this element
+     *
+     * @param context parsing context
+     * @return this element for fluent interface
+     */
+    default ExtendedCsdlElement setParsingContext(XmlParsingContext context) {
+        // Default implementation - each concrete class can override if needed
+        return this;
+    }
+
+    /**
+     * Get parsing context for this element
+     *
+     * @return parsing context, may be null if not set
+     */
+    default XmlParsingContext getParsingContext() {
+        // Default implementation returns null - each concrete class should maintain its own context
+        // This is a design choice to keep the interface simple while allowing flexibility
+        return null;
+    }
+
+    /**
      * Add dependency relationship with full parameters
      * 
      * @param propertyName property name that creates the dependency
@@ -50,9 +73,12 @@ public interface ExtendedCsdlElement {
      * @param dependencyType dependency type
      */
     default void addDependency(String propertyName, FullQualifiedName targetFqn, CsdlDependencyNode.DependencyType dependencyType) {
-        // Register the dependency node if needed and add dependency
-        String targetId = targetFqn != null ? targetFqn.toString() : "unknown";
-        GlobalDependencyManager.getInstance().addDependency(getElementId(), targetId);
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            DependencyManager manager = context.getDependencyManager();
+            String targetId = targetFqn != null ? targetFqn.toString() : "unknown";
+            manager.addDependency(getElementId(), targetId);
+        }
     }
     
     /**
@@ -62,12 +88,14 @@ public interface ExtendedCsdlElement {
      * @return true if removed successfully
      */
     default boolean removeDependency(String propertyName) {
-        // For now, we'll remove by property name (simplified)
-        Set<CsdlDependencyNode> dependencies = getDirectDependencies();
-        for (CsdlDependencyNode dep : dependencies) {
-            if (propertyName.equals(dep.getElementId())) {
-                GlobalDependencyManager.getInstance().removeDependency(getElementId(), dep.getElementId());
-                return true;
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            DependencyManager manager = context.getDependencyManager();
+            Set<CsdlDependencyNode> dependencies = getDirectDependencies();
+            for (CsdlDependencyNode dep : dependencies) {
+                if (propertyName.equals(dep.getElementId())) {
+                    return manager.removeDependency(getElementId(), dep.getElementId());
+                }
             }
         }
         return false;
@@ -79,7 +107,11 @@ public interface ExtendedCsdlElement {
      * @return set of directly dependent nodes
      */
     default Set<CsdlDependencyNode> getDirectDependencies() {
-        return GlobalDependencyManager.getInstance().getDirectDependencies(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getDirectDependencies(getElementId());
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -88,7 +120,11 @@ public interface ExtendedCsdlElement {
      * @return set of directly dependent nodes
      */
     default Set<CsdlDependencyNode> getDirectDependents() {
-        return GlobalDependencyManager.getInstance().getDirectDependents(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getDirectDependents(getElementId());
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -97,7 +133,11 @@ public interface ExtendedCsdlElement {
      * @return set of all dependency nodes
      */
     default Set<CsdlDependencyNode> getAllDependencies() {
-        return GlobalDependencyManager.getInstance().getAllDependencies(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getAllDependencies(getElementId());
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -106,7 +146,11 @@ public interface ExtendedCsdlElement {
      * @return set of all dependent nodes
      */
     default Set<CsdlDependencyNode> getAllDependents() {
-        return GlobalDependencyManager.getInstance().getAllDependents(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getAllDependents(getElementId());
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -116,7 +160,11 @@ public interface ExtendedCsdlElement {
      * @return dependency path, or null if not found
      */
     default List<CsdlDependencyNode> getDependencyPath(String targetId) {
-        return GlobalDependencyManager.getInstance().getDependencyPath(getElementId(), targetId);
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getDependencyPath(getElementId(), targetId);
+        }
+        return null;
     }
     
     /**
@@ -125,7 +173,11 @@ public interface ExtendedCsdlElement {
      * @return true if has circular dependency
      */
     default boolean hasCircularDependency() {
-        return GlobalDependencyManager.getInstance().hasCircularDependency(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().hasCircularDependency(getElementId());
+        }
+        return false;
     }
     
     /**
@@ -134,7 +186,11 @@ public interface ExtendedCsdlElement {
      * @return self dependency node
      */
     default CsdlDependencyNode getSelfNode() {
-        return GlobalDependencyManager.getInstance().getElement(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getElement(getElementId());
+        }
+        return null;
     }
     
     /**
@@ -144,7 +200,11 @@ public interface ExtendedCsdlElement {
      * @return set of nodes with specified type
      */
     default Set<CsdlDependencyNode> getDependenciesByType(CsdlDependencyNode.DependencyType dependencyType) {
-        return GlobalDependencyManager.getInstance().getElementsByType(dependencyType);
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getElementsByType(dependencyType);
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -154,7 +214,11 @@ public interface ExtendedCsdlElement {
      * @return set of nodes with specified namespace
      */
     default Set<CsdlDependencyNode> getDependenciesByNamespace(String namespace) {
-        return GlobalDependencyManager.getInstance().getElementsByNamespace(namespace);
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getElementsByNamespace(namespace);
+        }
+        return new HashSet<>();
     }
     
     /**
@@ -179,12 +243,15 @@ public interface ExtendedCsdlElement {
      * Clear all dependency relationships
      */
     default void clearDependencies() {
-        CsdlDependencyNode node = GlobalDependencyManager.getInstance().getElement(getElementId());
-        if (node != null) {
-            // Remove all outgoing dependencies
-            Set<CsdlDependencyNode> dependencies = new HashSet<>(node.getDependencies());
-            for (CsdlDependencyNode dependency : dependencies) {
-                GlobalDependencyManager.getInstance().removeDependency(getElementId(), dependency.getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            DependencyManager manager = context.getDependencyManager();
+            CsdlDependencyNode node = manager.getElement(getElementId());
+            if (node != null) {
+                Set<CsdlDependencyNode> dependencies = new HashSet<>(node.getDependencies());
+                for (CsdlDependencyNode dependency : dependencies) {
+                    manager.removeDependency(getElementId(), dependency.getElementId());
+                }
             }
         }
     }
@@ -224,11 +291,13 @@ public interface ExtendedCsdlElement {
      * @return dependency node object, null if not exists
      */
     default CsdlDependencyNode getDependencyNode() {
-        return GlobalDependencyManager.getInstance().getElement(getElementId());
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            return context.getDependencyManager().getElement(getElementId());
+        }
+        return null;
     }
-    
-    // === Additional methods for test compatibility ===
-    
+
     /**
      * Check if has dependency (using dependsOn logic)
      * 
@@ -255,17 +324,20 @@ public interface ExtendedCsdlElement {
     String getNamespace();
 
     /**
-     * Register element in global dependency manager
+     * Register element in dependency manager
      *
      * @return this element for fluent interface
      */
     default ExtendedCsdlElement registerElement() {
-        GlobalDependencyManager.getInstance().registerElement(
-            getElementId(),
-            getElementFullyQualifiedName(),
-            getElementDependencyType(),
-            getNamespace()
-        );
+        XmlParsingContext context = getParsingContext();
+        if (context != null) {
+            context.getDependencyManager().registerElement(
+                getElementId(),
+                getElementFullyQualifiedName(),
+                getElementDependencyType(),
+                getNamespace()
+            );
+        }
         return this;
     }
     
@@ -277,8 +349,10 @@ public interface ExtendedCsdlElement {
      */
     default boolean addDependency(String namespace) {
         if (namespace != null && !namespace.trim().isEmpty()) {
-            GlobalDependencyManager.getInstance().addDependency(getElementId(), namespace);
-            return true;
+            XmlParsingContext context = getParsingContext();
+            if (context != null) {
+                return context.getDependencyManager().addDependency(getElementId(), namespace);
+            }
         }
         return false;
     }

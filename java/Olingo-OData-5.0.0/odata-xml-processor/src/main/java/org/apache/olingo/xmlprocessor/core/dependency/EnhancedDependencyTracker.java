@@ -1,5 +1,8 @@
 package org.apache.olingo.xmlprocessor.core.dependency;
 
+import org.apache.olingo.xmlprocessor.core.dependency.model.DependencyChain;
+import org.apache.olingo.xmlprocessor.core.dependency.model.DependencyInfo;
+
 import java.util.*;
 
 /**

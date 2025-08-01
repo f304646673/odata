@@ -1,4 +1,4 @@
-package org.apache.olingo.xmlprocessor.core.dependency;
+package org.apache.olingo.xmlprocessor.core.dependency.model;
 
 import java.util.*;
 

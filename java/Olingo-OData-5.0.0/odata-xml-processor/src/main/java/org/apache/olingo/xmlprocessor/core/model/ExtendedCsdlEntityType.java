@@ -10,7 +10,9 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.model.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.ExtendedCsdlElement;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.impl.AbstractExtendedCsdlElement;
 
 /**
  * 扩展的CsdlEntityType，增加依赖关系追踪功能

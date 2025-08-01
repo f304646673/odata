@@ -1,4 +1,6 @@
-package org.apache.olingo.xmlprocessor.core.dependency;
+package org.apache.olingo.xmlprocessor.core.dependency.impl;
+
+import org.apache.olingo.xmlprocessor.core.dependency.DependencyTracker;
 
 import java.util.Collections;
 import java.util.HashSet;

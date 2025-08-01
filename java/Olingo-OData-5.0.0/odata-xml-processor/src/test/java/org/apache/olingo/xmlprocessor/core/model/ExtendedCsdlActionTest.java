@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.apache.olingo.xmlprocessor.core.dependency.model.CsdlDependencyNode;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -178,7 +180,7 @@ class ExtendedCsdlActionTest {
         assertEquals("TestAction", action.getElementFullyQualifiedName().getName());
 
         // 测试ElementDependencyType
-        assertEquals(org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode.DependencyType.ACTION_REFERENCE, 
+        assertEquals(CsdlDependencyNode.DependencyType.ACTION_REFERENCE,
                      action.getElementDependencyType());
 
         // 测试ElementPropertyName

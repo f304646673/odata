@@ -6,7 +6,9 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.model.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.ExtendedCsdlElement;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.impl.AbstractExtendedCsdlElement;
 
 /**
  * 扩展的CsdlTypeDefinition，支持依赖关系跟踪

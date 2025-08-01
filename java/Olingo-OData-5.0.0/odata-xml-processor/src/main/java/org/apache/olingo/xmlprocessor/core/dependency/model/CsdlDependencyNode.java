@@ -1,9 +1,8 @@
-package org.apache.olingo.xmlprocessor.core.dependency;
+package org.apache.olingo.xmlprocessor.core.dependency.model;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**

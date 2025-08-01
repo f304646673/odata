@@ -14,7 +14,9 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
-import org.apache.olingo.xmlprocessor.core.dependency.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.dependency.model.CsdlDependencyNode;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.ExtendedCsdlElement;
+import org.apache.olingo.xmlprocessor.core.model.ExtendedCsdlElement.impl.AbstractExtendedCsdlElement;
 
 /**
  * 扩展的CsdlSchema，支持依赖关系跟踪
