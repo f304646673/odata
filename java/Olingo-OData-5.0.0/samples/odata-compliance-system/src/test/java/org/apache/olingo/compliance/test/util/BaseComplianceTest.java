@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
+import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,11 +21,11 @@ public abstract class BaseComplianceTest {
     
     protected static final Logger logger = LoggerFactory.getLogger(BaseComplianceTest.class);
     
-    protected EnhancedRegistryAwareXmlValidator validator;
+    protected FileValidatorImpl validator;
     
     @BeforeEach
     public void setUp() {
-        validator = new EnhancedRegistryAwareXmlValidator();
+        validator = new FileValidatorImpl();
     }
     
     /**
@@ -42,7 +42,7 @@ public abstract class BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getName());
         
-        XmlComplianceResult result = validator.validateFile(xmlFile);
+        ComplianceResult result = validator.validateFile(xmlFile);
         
         // Verify that validation failed
         assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);
@@ -76,7 +76,7 @@ public abstract class BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getName());
         
-        XmlComplianceResult result = validator.validateFile(xmlFile);
+        ComplianceResult result = validator.validateFile(xmlFile);
         
         // Verify that validation failed
         assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);

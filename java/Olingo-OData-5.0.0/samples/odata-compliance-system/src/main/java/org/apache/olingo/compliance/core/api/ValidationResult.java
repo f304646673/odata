@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * Unified validation result that can represent both file and directory validation outcomes.
- * This replaces the separate XmlComplianceResult and DirectoryValidationResult classes.
+ * This replaces the separate ComplianceResult and DirectoryValidationResult classes.
  */
 public class ValidationResult {
     

@@ -1,14 +1,10 @@
 package org.apache.olingo.compliance.test.validation.single.valid;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,7 +91,7 @@ public class ValidXmlFilesTest extends BaseComplianceTest {
         
         logger.info("Testing file: {} - {}", xmlFile.getFileName(), description);
         
-        XmlComplianceResult result = validator.validateFile(xmlFile.toFile());
+        ComplianceResult result = validator.validateFile(xmlFile.toFile());
         
         // Verify that validation passed
         assertTrue(result.isCompliant(), 

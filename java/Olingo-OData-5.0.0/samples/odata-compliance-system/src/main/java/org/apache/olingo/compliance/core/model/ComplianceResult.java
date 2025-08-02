@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * Contains detailed information about validation success/failure,
  * structured issues (errors and warnings) with types, and metadata about the validated file.
  */
-public class XmlComplianceResult {
+public class ComplianceResult {
     
     private final boolean compliant;
     private final List<ComplianceIssue> issues; // Unified collection for errors and warnings
@@ -21,7 +21,7 @@ public class XmlComplianceResult {
     private final long validationTimeMs;
     
     /**
-     * Constructor for XmlComplianceResult
+     * Constructor for ComplianceResult
      * 
      * @param compliant whether the file is compliant
      * @param issues all validation issues (errors and warnings)
@@ -30,12 +30,12 @@ public class XmlComplianceResult {
      * @param fileName name of the validated file
      * @param validationTimeMs time taken for validation in milliseconds
      */
-    public XmlComplianceResult(boolean compliant, 
-                              List<ComplianceIssue> issues,
-                              Set<String> referencedNamespaces, 
-                              Map<String, Object> metadata,
-                              String fileName, 
-                              long validationTimeMs) {
+    public ComplianceResult(boolean compliant,
+                            List<ComplianceIssue> issues,
+                            Set<String> referencedNamespaces,
+                            Map<String, Object> metadata,
+                            String fileName,
+                            long validationTimeMs) {
         this.compliant = compliant;
         this.issues = issues != null ? new ArrayList<>(issues) : new ArrayList<>();
         this.referencedNamespaces = referencedNamespaces;
@@ -225,7 +225,7 @@ public class XmlComplianceResult {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("XmlComplianceResult{");
+        sb.append("ComplianceResult{");
         sb.append("fileName='").append(fileName).append("'");
         sb.append(", compliant=").append(compliant);
         sb.append(", errors=").append(getErrorCount());

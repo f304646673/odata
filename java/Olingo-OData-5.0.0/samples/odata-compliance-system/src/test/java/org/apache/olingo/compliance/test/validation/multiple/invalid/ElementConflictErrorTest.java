@@ -1,6 +1,8 @@
 package org.apache.olingo.compliance.test.validation.multiple.invalid;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -8,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +29,7 @@ public class ElementConflictErrorTest {
 
     private Path multipleValidationRoot;
     private Path invalidDirectoriesRoot;
-    private DirectoryValidationManager validationManager;
+    private DirectoryValidation validationManager;
 
     /**
      * Test case definition for invalid directory scenarios
@@ -76,7 +77,7 @@ public class ElementConflictErrorTest {
     public void setUp() {
         multipleValidationRoot = Paths.get("src/test/resources/validation/multiple");
         invalidDirectoriesRoot = multipleValidationRoot.resolve("invalid");
-        validationManager = new DirectoryValidationManager();
+        validationManager = new DirectoryValidation();
     }
 
     /**
@@ -96,7 +97,7 @@ public class ElementConflictErrorTest {
         }
 
         // Act
-        DirectoryValidationManager.DirectoryValidationResult result = validationManager.validateSingleDirectory(testDirectory.toString());
+        DirectoryValidation.DirectoryValidationResult result = validationManager.validateSingleDirectory(testDirectory.toString());
 
         // Assert
         assertNotNull(result, "Validation result should not be null for " + testCase.description);
@@ -194,7 +195,7 @@ public class ElementConflictErrorTest {
             return;
         }
 
-        DirectoryValidationManager.DirectoryValidationResult result = validationManager.validateDirectory(testDirectory.toString());
+        DirectoryValidation.DirectoryValidationResult result = validationManager.validateDirectory(testDirectory.toString());
         
         assertNotNull(result, "Validation result should not be null");
         assertFalse(result.isValid(), "Should have validation errors");

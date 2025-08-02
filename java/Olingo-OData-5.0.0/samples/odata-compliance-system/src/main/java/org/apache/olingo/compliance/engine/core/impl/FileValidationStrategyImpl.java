@@ -1,4 +1,4 @@
-package org.apache.olingo.compliance.engine.strategy;
+package org.apache.olingo.compliance.engine.core.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Validation strategy for single file validation.
  */
-public class FileValidationStrategy implements ValidationStrategy {
+public class FileValidationStrategyImpl implements ValidationStrategy {
     
-    private static final Logger logger = LoggerFactory.getLogger(FileValidationStrategy.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileValidationStrategyImpl.class);
     
     @Override
     public String getName() {

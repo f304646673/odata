@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.compliance.engine.core.impl.DefaultValidationServiceImpl;
 
 /**
  * Enhanced validation context that holds all data and state during validation.
@@ -46,7 +47,7 @@ public class ValidationContext {
         this.properties = new ConcurrentHashMap<>();
         
         // Initialize validation service
-        this.validationService = new DefaultValidationService();
+        this.validationService = new DefaultValidationServiceImpl();
         
         // Initialize collections
         this.errors = Collections.synchronizedList(new ArrayList<>());
@@ -234,14 +235,14 @@ public class ValidationContext {
     }
     
     public void setValidationService(ValidationService validationService) { 
-        this.validationService = validationService != null ? validationService : new DefaultValidationService();
+        this.validationService = validationService != null ? validationService : new DefaultValidationServiceImpl();
     }
     
     // Legacy SchemaRegistry access (for backward compatibility)
     @Deprecated
     public SchemaRegistry getSchemaRegistry() { 
-        if (validationService instanceof DefaultValidationService) {
-            return ((DefaultValidationService) validationService).getSchemaRegistry();
+        if (validationService instanceof DefaultValidationServiceImpl) {
+            return ((DefaultValidationServiceImpl) validationService).getSchemaRegistry();
         }
         return null;
     }
@@ -249,7 +250,7 @@ public class ValidationContext {
     @Deprecated
     public void setSchemaRegistry(SchemaRegistry schemaRegistry) { 
         if (schemaRegistry != null) {
-            this.validationService = new DefaultValidationService(schemaRegistry);
+            this.validationService = new DefaultValidationServiceImpl(schemaRegistry);
         }
     }
     

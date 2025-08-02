@@ -45,10 +45,12 @@ public class CrossFileReferenceValidationRule extends AbstractStructuralRule {
     );
     
     // EDM内置类型的命名空间
-    private static final Set<String> BUILTIN_NAMESPACES = Set.of(
-        "Edm",
-        "System",
-        "http://docs.oasis-open.org/odata/ns/edm"
+    private static final Set<String> BUILTIN_NAMESPACES = java.util.Collections.unmodifiableSet(
+            new java.util.HashSet<>(java.util.Arrays.asList(
+                    "Edm",
+                    "System",
+                    "http://docs.oasis-open.org/odata/ns/edm"
+            ))
     );
     
     public CrossFileReferenceValidationRule() {
@@ -308,7 +310,7 @@ public class CrossFileReferenceValidationRule extends AbstractStructuralRule {
         
         if (context.getFilePath() != null) {
             try {
-                return java.nio.file.Files.readString(context.getFilePath());
+                return new String(java.nio.file.Files.readAllBytes(context.getFilePath()), java.nio.charset.StandardCharsets.UTF_8);
             } catch (java.io.IOException e) {
                 // 忽略错误，返回null
             }

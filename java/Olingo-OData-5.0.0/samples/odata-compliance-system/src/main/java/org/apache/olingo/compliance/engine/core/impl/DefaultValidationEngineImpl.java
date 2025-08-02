@@ -1,4 +1,4 @@
-package org.apache.olingo.compliance.engine.core;
+package org.apache.olingo.compliance.engine.core.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +16,9 @@ import java.util.stream.Collectors;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.core.api.ValidationResult;
+import org.apache.olingo.compliance.engine.core.ValidationContext;
+import org.apache.olingo.compliance.engine.core.ValidationEngine;
+import org.apache.olingo.compliance.engine.core.ValidationStrategy;
 import org.apache.olingo.compliance.engine.rule.ValidationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +27,15 @@ import org.slf4j.LoggerFactory;
  * Default implementation of the validation engine.
  * This engine coordinates validation rules and strategies.
  */
-public class DefaultValidationEngine implements ValidationEngine {
+public class DefaultValidationEngineImpl implements ValidationEngine {
     
-    private static final Logger logger = LoggerFactory.getLogger(DefaultValidationEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultValidationEngineImpl.class);
     
     private final Map<String, ValidationRule> rules = new ConcurrentHashMap<>();
     private final List<ValidationStrategy> strategies = new ArrayList<>();
     private final ExecutorService executorService;
     
-    public DefaultValidationEngine() {
+    public DefaultValidationEngineImpl() {
         this.executorService = Executors.newCachedThreadPool(r -> {
             Thread t = new Thread(r, "ValidationEngine-" + System.nanoTime());
             t.setDaemon(true);
@@ -40,7 +43,7 @@ public class DefaultValidationEngine implements ValidationEngine {
         });
     }
     
-    public DefaultValidationEngine(ExecutorService executorService) {
+    public DefaultValidationEngineImpl(ExecutorService executorService) {
         this.executorService = executorService;
     }
     

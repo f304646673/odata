@@ -1,15 +1,14 @@
 package debug;
 
-import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
-import java.nio.file.Paths;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
 
 public class ConflictDetectionDebug {
     public static void main(String[] args) {
-        DirectoryValidationManager manager = new DirectoryValidationManager();
+        DirectoryValidation manager = new DirectoryValidation();
         String testDir = "src/test/resources/validation/multiple/invalid/element-conficts/scenario1-typedefinition-conflicts";
         
         try {
-            DirectoryValidationManager.DirectoryValidationResult result = 
+            DirectoryValidation.DirectoryValidationResult result =
                 manager.validateSingleDirectory(testDir);
             
             System.out.println("Directory: " + testDir);

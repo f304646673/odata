@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Arrays;
 
-import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
+import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -168,8 +166,8 @@ public class TypeErrorTest extends BaseComplianceTest {
             return;
         }
         
-        EnhancedRegistryAwareXmlValidator validator = new EnhancedRegistryAwareXmlValidator();
-        XmlComplianceResult result = validator.validateFile(xmlFile);
+        FileValidatorImpl validator = new FileValidatorImpl();
+        ComplianceResult result = validator.validateFile(xmlFile);
         
         // Check if file is considered valid by validator
         if (result.isCompliant() || !result.hasErrors()) {

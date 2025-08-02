@@ -3,12 +3,12 @@ package org.apache.olingo.compliance.example;
 import java.io.File;
 import java.util.List;
 
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-import org.apache.olingo.compliance.engine.core.DefaultSchemaRegistry;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
+import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
 import org.apache.olingo.compliance.engine.core.SchemaExtractor;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
-import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
+import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
 
 /**
  * 跨文件引用验证功能使用示例
@@ -24,10 +24,10 @@ public class CrossFileReferenceValidationDemo {
     public void incrementalValidationExample(String newSchemaFile, SchemaRegistry baseRegistry) {
         try {
             // 使用增强的验证器进行单文件验证
-            EnhancedRegistryAwareXmlValidator validator = new EnhancedRegistryAwareXmlValidator();
+            FileValidatorImpl validator = new FileValidatorImpl();
             
             File xmlFile = new File(newSchemaFile);
-            XmlComplianceResult result = validator.validateWithRegistry(xmlFile, baseRegistry);
+            ComplianceResult result = validator.validateWithRegistry(xmlFile, baseRegistry);
             
             System.out.println("单文件验证结果:");
             System.out.println("- 文件: " + xmlFile.getName());
@@ -59,9 +59,9 @@ public class CrossFileReferenceValidationDemo {
      */
     public void directoryValidationExample(String schemaDirectory) {
         try {
-            DirectoryValidationManager manager = new DirectoryValidationManager();
+            DirectoryValidation manager = new DirectoryValidation();
             
-            DirectoryValidationManager.DirectoryValidationResult result = manager.validateDirectory(schemaDirectory, true);
+            DirectoryValidation.DirectoryValidationResult result = manager.validateDirectory(schemaDirectory, true);
             
             System.out.println("目录验证结果:");
             System.out.println("- 验证有效性: " + result.isValid());
@@ -69,7 +69,7 @@ public class CrossFileReferenceValidationDemo {
             System.out.println("- 处理时间: " + result.getValidationTimeMs() + "ms");
             
             // 显示统计信息
-            DirectoryValidationManager.DirectoryValidationStatistics stats = manager.getStatistics();
+            DirectoryValidation.DirectoryValidationStatistics stats = manager.getStatistics();
             System.out.println("- 命名空间数: " + stats.getNamespaceCount());
             System.out.println("- 处理文件数: " + stats.getFileCount());
             System.out.println("- Schema数: " + stats.getSchemaCount());
@@ -92,7 +92,7 @@ public class CrossFileReferenceValidationDemo {
     
     private SchemaRegistry extractSchemaFromFile(File xmlFile) throws Exception {
         SchemaExtractor extractor = new SchemaExtractor();
-        SchemaRegistry registry = new DefaultSchemaRegistry();
+        SchemaRegistry registry = new DefaultSchemaRegistryImpl();
         
         List<SchemaRegistry.SchemaDefinition> schemas = extractor.extractSchemas(xmlFile);
         for (SchemaRegistry.SchemaDefinition schema : schemas) {
@@ -118,7 +118,7 @@ public class CrossFileReferenceValidationDemo {
         example.directoryValidationExample(schemaDirectory);
         
         System.out.println("\n2. 增量验证演示:");
-        SchemaRegistry baseRegistry = new DefaultSchemaRegistry(); // 假设已有基础数据
+        SchemaRegistry baseRegistry = new DefaultSchemaRegistryImpl(); // 假设已有基础数据
         example.incrementalValidationExample(newSchemaFile, baseRegistry);
         
         System.out.println("\n=== 演示完成 ===");

@@ -9,9 +9,7 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +29,7 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
     
     private Path multipleValidationRoot;
     private Path validDirectoriesRoot;
-    private DirectoryValidationManager directoryValidator;
+    private DirectoryValidation directoryValidator;
     
     /**
      * Test mapping structure containing directory path and description
@@ -62,7 +60,7 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
         super.setUp();
         multipleValidationRoot = Paths.get("src/test/resources/validation/multiple");
         validDirectoriesRoot = multipleValidationRoot.resolve("valid");
-        directoryValidator = new DirectoryValidationManager();
+        directoryValidator = new DirectoryValidation();
     }
     
     @Test
@@ -130,7 +128,7 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
         logger.info("Testing directory: {} - {}", directoryPath.getFileName(), description);
         
         try {
-            DirectoryValidationManager.DirectoryValidationResult result = directoryValidator.validateSingleDirectory(directoryPath.toString());
+            DirectoryValidation.DirectoryValidationResult result = directoryValidator.validateSingleDirectory(directoryPath.toString());
             
             // Log the result details
             logger.info("Directory validation result: valid={}, files={}, issues={}", 

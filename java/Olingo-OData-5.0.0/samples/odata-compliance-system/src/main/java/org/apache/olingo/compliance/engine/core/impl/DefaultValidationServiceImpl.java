@@ -1,4 +1,4 @@
-package org.apache.olingo.compliance.engine.core;
+package org.apache.olingo.compliance.engine.core.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,13 +9,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
+import org.apache.olingo.compliance.engine.core.ValidationService;
 
 /**
  * Default implementation of ValidationService that uses internal data structures
  * to provide validation operations. This implementation encapsulates all the
  * validation-related data structures and operations.
  */
-public class DefaultValidationService implements ValidationService {
+public class DefaultValidationServiceImpl implements ValidationService {
     
     // Core data structures
     private final SchemaRegistry schemaRegistry;
@@ -34,8 +36,8 @@ public class DefaultValidationService implements ValidationService {
     // State
     private volatile boolean initialized;
     
-    public DefaultValidationService() {
-        this.schemaRegistry = new DefaultSchemaRegistry();
+    public DefaultValidationServiceImpl() {
+        this.schemaRegistry = new DefaultSchemaRegistryImpl();
         this.referencedNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.importedNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.currentSchemaNamespaces = Collections.synchronizedSet(new HashSet<>());
@@ -48,8 +50,8 @@ public class DefaultValidationService implements ValidationService {
         this.initialized = false;
     }
     
-    public DefaultValidationService(SchemaRegistry schemaRegistry) {
-        this.schemaRegistry = schemaRegistry != null ? schemaRegistry : new DefaultSchemaRegistry();
+    public DefaultValidationServiceImpl(SchemaRegistry schemaRegistry) {
+        this.schemaRegistry = schemaRegistry != null ? schemaRegistry : new DefaultSchemaRegistryImpl();
         this.referencedNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.importedNamespaces = Collections.synchronizedSet(new HashSet<>());
         this.currentSchemaNamespaces = Collections.synchronizedSet(new HashSet<>());
@@ -210,8 +212,8 @@ public class DefaultValidationService implements ValidationService {
     @Override
     public void setAllSchemas(List<CsdlSchema> schemas) {
         this.allSchemas = schemas != null ? new ArrayList<>(schemas) : new ArrayList<>();
-        if (this.allSchemas != null && schemaRegistry instanceof DefaultSchemaRegistry) {
-            ((DefaultSchemaRegistry) schemaRegistry).addSchemas(this.allSchemas);
+        if (this.allSchemas != null && schemaRegistry instanceof DefaultSchemaRegistryImpl) {
+            ((DefaultSchemaRegistryImpl) schemaRegistry).addSchemas(this.allSchemas);
         }
     }
     
@@ -306,8 +308,8 @@ public class DefaultValidationService implements ValidationService {
         allSchemas.clear();
         this.initialized = false;
         
-        if (schemaRegistry instanceof DefaultSchemaRegistry) {
-            ((DefaultSchemaRegistry) schemaRegistry).reset();
+        if (schemaRegistry instanceof DefaultSchemaRegistryImpl) {
+            ((DefaultSchemaRegistryImpl) schemaRegistry).reset();
         }
     }
     

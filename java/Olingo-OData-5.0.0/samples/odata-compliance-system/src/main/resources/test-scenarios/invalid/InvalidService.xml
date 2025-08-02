@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="InvalidService" Alias="Invalid">
+
+            <EntityContainer Name="Container">
+                <!-- Error: EntitySet references undefined EntityType -->
+                <EntitySet Name="UndefinedEntities" EntityType="InvalidService.UndefinedEntity"/>
+
+                <!-- Error: Navigation property binding to non-existent target -->
+                <EntitySet Name="Orders" EntityType="InvalidService.Order">
+                    <NavigationPropertyBinding Path="Customer" Target="NonExistentCustomers"/>
+                </EntitySet>
+
+                <!-- Error: Duplicate EntitySet name -->
+                <EntitySet Name="Products" EntityType="InvalidService.Product"/>
+                <EntitySet Name="Products" EntityType="InvalidService.AnotherProduct"/>
+            </EntityContainer>
+
+            <!-- Error: EntityType without Key -->
+            <EntityType Name="InvalidEntity">
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String"/>
+            </EntityType>
+
+            <!-- Error: Property with invalid type -->
+            <EntityType Name="Product">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <!-- Error: Invalid primitive type -->
+                <Property Name="Price" Type="Edm.InvalidType"/>
+                <!-- Error: MaxLength on non-string type -->
+                <Property Name="Quantity" Type="Edm.Int32" MaxLength="10"/>
+            </EntityType>
+
+            <!-- Error: Navigation property with invalid relationship -->
+            <EntityType Name="Order">
+                <Key>
+                    <PropertyRef Name="OrderID"/>
+                </Key>
+                <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+
+                <!-- Error: Referential constraint property doesn't exist -->
+                <NavigationProperty Name="Customer" Type="InvalidService.Customer">
+                    <ReferentialConstraint Property="NonExistentCustomerID" ReferencedProperty="ID"/>
+                </NavigationProperty>
+            </EntityType>
+
+            <!-- Error: Circular inheritance -->
+            <EntityType Name="Customer" BaseType="InvalidService.Person">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+            </EntityType>
+
+            <EntityType Name="Person" BaseType="InvalidService.Customer">
+                <Property Name="Name" Type="Edm.String"/>
+            </EntityType>
+
+            <!-- Error: Function with invalid return type -->
+            <Function Name="InvalidFunction">
+                <ReturnType Type="InvalidService.NonExistentType"/>
+            </Function>
+
+            <!-- Error: Action with duplicate parameter names -->
+            <Action Name="InvalidAction">
+                <Parameter Name="param1" Type="Edm.String"/>
+                <Parameter Name="param1" Type="Edm.Int32"/>
+            </Action>
+
+            <!-- Error: ComplexType with circular reference -->
+            <ComplexType Name="Address">
+                <Property Name="Street" Type="Edm.String"/>
+                <Property Name="NestedAddress" Type="InvalidService.Address"/>
+            </ComplexType>
+
+            <!-- Error: EnumType with duplicate member values -->
+            <EnumType Name="Status">
+                <Member Name="Active" Value="1"/>
+                <Member Name="Inactive" Value="1"/>
+            </EnumType>
+
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
+

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+        <edmx:Include Namespace="Org.OData.Core.V1" Alias="Core"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ECommerceService" Alias="ECommerce">
+
+            <!-- Entity Container -->
+            <EntityContainer Name="Container">
+                <EntitySet Name="Products" EntityType="ECommerceService.Product">
+                    <NavigationPropertyBinding Path="Category" Target="Categories"/>
+                    <NavigationPropertyBinding Path="Supplier" Target="Suppliers"/>
+                    <NavigationPropertyBinding Path="OrderItems" Target="OrderItems"/>
+                </EntitySet>
+
+                <EntitySet Name="Categories" EntityType="ECommerceService.Category">
+                    <NavigationPropertyBinding Path="Products" Target="Products"/>
+                    <NavigationPropertyBinding Path="ParentCategory" Target="Categories"/>
+                    <NavigationPropertyBinding Path="SubCategories" Target="Categories"/>
+                </EntitySet>
+
+                <EntitySet Name="Suppliers" EntityType="ECommerceService.Supplier">
+                    <NavigationPropertyBinding Path="Products" Target="Products"/>
+                    <NavigationPropertyBinding Path="Address" Target="Addresses"/>
+                </EntitySet>
+
+                <EntitySet Name="Customers" EntityType="ECommerceService.Customer">
+                    <NavigationPropertyBinding Path="Orders" Target="Orders"/>
+                    <NavigationPropertyBinding Path="Addresses" Target="Addresses"/>
+                </EntitySet>
+
+                <EntitySet Name="Orders" EntityType="ECommerceService.Order">
+                    <NavigationPropertyBinding Path="Customer" Target="Customers"/>
+                    <NavigationPropertyBinding Path="OrderItems" Target="OrderItems"/>
+                    <NavigationPropertyBinding Path="ShippingAddress" Target="Addresses"/>
+                </EntitySet>
+
+                <EntitySet Name="OrderItems" EntityType="ECommerceService.OrderItem">
+                    <NavigationPropertyBinding Path="Order" Target="Orders"/>
+                    <NavigationPropertyBinding Path="Product" Target="Products"/>
+                </EntitySet>
+
+                <EntitySet Name="Addresses" EntityType="ECommerceService.Address"/>
+
+                <!-- Actions and Functions -->
+                <ActionImport Name="ProcessOrder" Action="ECommerceService.ProcessOrder"/>
+                <FunctionImport Name="GetTopSellingProducts" Function="ECommerceService.GetTopSellingProducts" EntitySet="Products"/>
+                <FunctionImport Name="CalculateOrderTotal" Function="ECommerceService.CalculateOrderTotal"/>
+            </EntityContainer>
+
+            <!-- Entity Types -->
+            <EntityType Name="Product" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ProductID"/>
+                </Key>
+                <Property Name="ProductID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100" Nullable="false"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="500"/>
+                <Property Name="Price" Type="Edm.Decimal" Precision="18" Scale="2" Nullable="false"/>
+                <Property Name="StockQuantity" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="SKU" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="IsActive" Type="Edm.Boolean" DefaultValue="true"/>
+                <Property Name="CreatedDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+                <Property Name="LastModified" Type="Edm.DateTimeOffset"/>
+                <Property Name="Weight" Type="Edm.Double"/>
+                <Property Name="Dimensions" Type="ECommerceService.Dimensions"/>
+
+                <NavigationProperty Name="Category" Type="ECommerceService.Category" Nullable="false">
+                    <ReferentialConstraint Property="CategoryID" ReferencedProperty="CategoryID"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Supplier" Type="ECommerceService.Supplier" Nullable="false">
+                    <ReferentialConstraint Property="SupplierID" ReferencedProperty="SupplierID"/>
+                </NavigationProperty>
+                <NavigationProperty Name="OrderItems" Type="Collection(ECommerceService.OrderItem)"/>
+
+                <Property Name="CategoryID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="SupplierID" Type="Edm.Int32" Nullable="false"/>
+            </EntityType>
+
+            <EntityType Name="Category" HasStream="false">
+                <Key>
+                    <PropertyRef Name="CategoryID"/>
+                </Key>
+                <Property Name="CategoryID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="200"/>
+                <Property Name="ParentCategoryID" Type="Edm.Int32"/>
+                <Property Name="SortOrder" Type="Edm.Int32" DefaultValue="0"/>
+                <Property Name="IsActive" Type="Edm.Boolean" DefaultValue="true"/>
+
+                <NavigationProperty Name="Products" Type="Collection(ECommerceService.Product)"/>
+                <NavigationProperty Name="ParentCategory" Type="ECommerceService.Category">
+                    <ReferentialConstraint Property="ParentCategoryID" ReferencedProperty="CategoryID"/>
+                </NavigationProperty>
+                <NavigationProperty Name="SubCategories" Type="Collection(ECommerceService.Category)"/>
+            </EntityType>
+
+            <EntityType Name="Supplier" HasStream="false">
+                <Key>
+                    <PropertyRef Name="SupplierID"/>
+                </Key>
+                <Property Name="SupplierID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="CompanyName" Type="Edm.String" MaxLength="100" Nullable="false"/>
+                <Property Name="ContactName" Type="Edm.String" MaxLength="50"/>
+                <Property Name="ContactTitle" Type="Edm.String" MaxLength="30"/>
+                <Property Name="Phone" Type="Edm.String" MaxLength="20"/>
+                <Property Name="Email" Type="Edm.String" MaxLength="100"/>
+                <Property Name="Website" Type="Edm.String" MaxLength="200"/>
+                <Property Name="Rating" Type="Edm.Int32"/>
+                <Property Name="IsActive" Type="Edm.Boolean" DefaultValue="true"/>
+
+                <NavigationProperty Name="Products" Type="Collection(ECommerceService.Product)"/>
+                <NavigationProperty Name="Address" Type="ECommerceService.Address"/>
+            </EntityType>
+
+            <EntityType Name="Customer" HasStream="false">
+                <Key>
+                    <PropertyRef Name="CustomerID"/>
+                </Key>
+                <Property Name="CustomerID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="FirstName" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="LastName" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="Email" Type="Edm.String" MaxLength="100" Nullable="false"/>
+                <Property Name="Phone" Type="Edm.String" MaxLength="20"/>
+                <Property Name="DateOfBirth" Type="Edm.Date"/>
+                <Property Name="Gender" Type="ECommerceService.Gender"/>
+                <Property Name="CustomerType" Type="ECommerceService.CustomerType" DefaultValue="Regular"/>
+                <Property Name="RegistrationDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+                <Property Name="LastLoginDate" Type="Edm.DateTimeOffset"/>
+                <Property Name="IsActive" Type="Edm.Boolean" DefaultValue="true"/>
+                <Property Name="CreditLimit" Type="Edm.Decimal" Precision="18" Scale="2"/>
+
+                <NavigationProperty Name="Orders" Type="Collection(ECommerceService.Order)"/>
+                <NavigationProperty Name="Addresses" Type="Collection(ECommerceService.Address)"/>
+            </EntityType>
+
+            <EntityType Name="Order" HasStream="false">
+                <Key>
+                    <PropertyRef Name="OrderID"/>
+                </Key>
+                <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="OrderNumber" Type="Edm.String" MaxLength="20" Nullable="false"/>
+                <Property Name="OrderDate" Type="Edm.DateTimeOffset" Nullable="false"/>
+                <Property Name="RequiredDate" Type="Edm.DateTimeOffset"/>
+                <Property Name="ShippedDate" Type="Edm.DateTimeOffset"/>
+                <Property Name="Status" Type="ECommerceService.OrderStatus" Nullable="false"/>
+                <Property Name="SubTotal" Type="Edm.Decimal" Precision="18" Scale="2" Nullable="false"/>
+                <Property Name="TaxAmount" Type="Edm.Decimal" Precision="18" Scale="2"/>
+                <Property Name="ShippingAmount" Type="Edm.Decimal" Precision="18" Scale="2"/>
+                <Property Name="DiscountAmount" Type="Edm.Decimal" Precision="18" Scale="2"/>
+                <Property Name="TotalAmount" Type="Edm.Decimal" Precision="18" Scale="2" Nullable="false"/>
+                <Property Name="ShippingMethod" Type="Edm.String" MaxLength="50"/>
+                <Property Name="PaymentMethod" Type="ECommerceService.PaymentMethod"/>
+                <Property Name="Notes" Type="Edm.String" MaxLength="500"/>
+
+                <NavigationProperty Name="Customer" Type="ECommerceService.Customer" Nullable="false">
+                    <ReferentialConstraint Property="CustomerID" ReferencedProperty="CustomerID"/>
+                </NavigationProperty>
+                <NavigationProperty Name="OrderItems" Type="Collection(ECommerceService.OrderItem)"/>
+                <NavigationProperty Name="ShippingAddress" Type="ECommerceService.Address"/>
+
+                <Property Name="CustomerID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="ShippingAddressID" Type="Edm.Int32"/>
+            </EntityType>
+
+            <EntityType Name="OrderItem" HasStream="false">
+                <Key>
+                    <PropertyRef Name="OrderItemID"/>
+                </Key>
+                <Property Name="OrderItemID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Quantity" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="UnitPrice" Type="Edm.Decimal" Precision="18" Scale="2" Nullable="false"/>
+                <Property Name="LineTotal" Type="Edm.Decimal" Precision="18" Scale="2" Nullable="false"/>
+                <Property Name="DiscountPercent" Type="Edm.Decimal" Precision="5" Scale="2"/>
+
+                <NavigationProperty Name="Order" Type="ECommerceService.Order" Nullable="false">
+                    <ReferentialConstraint Property="OrderID" ReferencedProperty="OrderID"/>
+                </NavigationProperty>
+                <NavigationProperty Name="Product" Type="ECommerceService.Product" Nullable="false">
+                    <ReferentialConstraint Property="ProductID" ReferencedProperty="ProductID"/>
+                </NavigationProperty>
+
+                <Property Name="OrderID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="ProductID" Type="Edm.Int32" Nullable="false"/>
+            </EntityType>
+
+            <EntityType Name="Address" HasStream="false">
+                <Key>
+                    <PropertyRef Name="AddressID"/>
+                </Key>
+                <Property Name="AddressID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="AddressType" Type="ECommerceService.AddressType" Nullable="false"/>
+                <Property Name="Street" Type="Edm.String" MaxLength="100" Nullable="false"/>
+                <Property Name="Street2" Type="Edm.String" MaxLength="100"/>
+                <Property Name="City" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="State" Type="Edm.String" MaxLength="50"/>
+                <Property Name="PostalCode" Type="Edm.String" MaxLength="20" Nullable="false"/>
+                <Property Name="Country" Type="Edm.String" MaxLength="50" Nullable="false"/>
+                <Property Name="IsDefault" Type="Edm.Boolean" DefaultValue="false"/>
+            </EntityType>
+
+            <!-- Complex Types -->
+            <ComplexType Name="Dimensions">
+                <Property Name="Length" Type="Edm.Double"/>
+                <Property Name="Width" Type="Edm.Double"/>
+                <Property Name="Height" Type="Edm.Double"/>
+                <Property Name="Unit" Type="Edm.String" MaxLength="10" DefaultValue="cm"/>
+            </ComplexType>
+
+            <!-- Enum Types -->
+            <EnumType Name="Gender">
+                <Member Name="Male" Value="0"/>
+                <Member Name="Female" Value="1"/>
+                <Member Name="Other" Value="2"/>
+                <Member Name="PreferNotToSay" Value="3"/>
+            </EnumType>
+
+            <EnumType Name="CustomerType">
+                <Member Name="Regular" Value="0"/>
+                <Member Name="Premium" Value="1"/>
+                <Member Name="VIP" Value="2"/>
+                <Member Name="Corporate" Value="3"/>
+            </EnumType>
+
+            <EnumType Name="OrderStatus">
+                <Member Name="Pending" Value="0"/>
+                <Member Name="Processing" Value="1"/>
+                <Member Name="Shipped" Value="2"/>
+                <Member Name="Delivered" Value="3"/>
+                <Member Name="Cancelled" Value="4"/>
+                <Member Name="Returned" Value="5"/>
+            </EnumType>
+
+            <EnumType Name="PaymentMethod">
+                <Member Name="CreditCard" Value="0"/>
+                <Member Name="DebitCard" Value="1"/>
+                <Member Name="PayPal" Value="2"/>
+                <Member Name="BankTransfer" Value="3"/>
+                <Member Name="Cash" Value="4"/>
+            </EnumType>
+
+            <EnumType Name="AddressType">
+                <Member Name="Billing" Value="0"/>
+                <Member Name="Shipping" Value="1"/>
+                <Member Name="Both" Value="2"/>
+            </EnumType>
+
+            <!-- Actions -->
+            <Action Name="ProcessOrder" IsBound="true">
+                <Parameter Name="order" Type="ECommerceService.Order"/>
+                <ReturnType Type="Edm.Boolean"/>
+            </Action>
+
+            <Action Name="CancelOrder" IsBound="true">
+                <Parameter Name="order" Type="ECommerceService.Order"/>
+                <Parameter Name="reason" Type="Edm.String"/>
+                <ReturnType Type="Edm.Boolean"/>
+            </Action>
+
+            <Action Name="ApplyDiscount" IsBound="true">
+                <Parameter Name="product" Type="ECommerceService.Product"/>
+                <Parameter Name="discountPercent" Type="Edm.Decimal"/>
+                <ReturnType Type="ECommerceService.Product"/>
+            </Action>
+
+            <!-- Functions -->
+            <Function Name="GetTopSellingProducts" IsBound="false">
+                <Parameter Name="count" Type="Edm.Int32" DefaultValue="10"/>
+                <Parameter Name="categoryId" Type="Edm.Int32"/>
+                <ReturnType Type="Collection(ECommerceService.Product)"/>
+            </Function>
+
+            <Function Name="CalculateOrderTotal" IsBound="true">
+                <Parameter Name="order" Type="ECommerceService.Order"/>
+                <ReturnType Type="Edm.Decimal"/>
+            </Function>
+
+            <Function Name="GetCustomersByType" IsBound="false">
+                <Parameter Name="customerType" Type="ECommerceService.CustomerType"/>
+                <ReturnType Type="Collection(ECommerceService.Customer)"/>
+            </Function>
+
+            <!-- Annotations -->
+            <Annotations Target="ECommerceService.Product">
+                <Annotation Term="Core.Description" String="Product entity representing items available for sale"/>
+                <Annotation Term="Capabilities.InsertRestrictions">
+                    <Record>
+                        <PropertyValue Property="Insertable" Bool="true"/>
+                        <PropertyValue Property="NonInsertableNavigationProperties">
+                            <Collection>
+                                <NavigationPropertyPath>OrderItems</NavigationPropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+
+            <Annotations Target="ECommerceService.Customer">
+                <Annotation Term="Core.Description" String="Customer entity representing registered users"/>
+                <Annotation Term="Capabilities.UpdateRestrictions">
+                    <Record>
+                        <PropertyValue Property="Updatable" Bool="true"/>
+                        <PropertyValue Property="NonUpdatableNavigationProperties">
+                            <Collection>
+                                <NavigationPropertyPath>Orders</NavigationPropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
+

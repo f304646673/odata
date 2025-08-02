@@ -1,6 +1,9 @@
 package org.apache.olingo.schema.processor.validation.file;
 
 import org.apache.olingo.schema.processor.validation.file.framework.ModularOlingoXmlValidator;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
+import org.apache.olingo.compliance.engine.core.DefaultSchemaRegistry;
+import org.apache.olingo.compliance.core.model.XmlComplianceResult;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -20,17 +23,17 @@ public class OlingoXmlFileComplianceValidator implements XmlFileComplianceValida
     }
 
     @Override
-    public XmlComplianceResult validateFile(File xmlFile) {
-        return delegate.validateFile(xmlFile);
+    public XmlComplianceResult validateFile(File xmlFile, SchemaRegistry registry) {
+        return delegate.validateFile(xmlFile, registry);
     }
     
     @Override
-    public XmlComplianceResult validateFile(Path xmlPath) {
-        return delegate.validateFile(xmlPath);
+    public XmlComplianceResult validateFile(Path xmlPath, SchemaRegistry registry) {
+        return delegate.validateFile(xmlPath, registry);
     }
     
     @Override
-    public XmlComplianceResult validateContent(String xmlContent, String fileName) {
-        return delegate.validateContent(xmlContent, fileName);
+    public XmlComplianceResult validateContent(String xmlContent, String fileName, SchemaRegistry registry) {
+        return delegate.validateContent(xmlContent, fileName, registry);
     }
 }

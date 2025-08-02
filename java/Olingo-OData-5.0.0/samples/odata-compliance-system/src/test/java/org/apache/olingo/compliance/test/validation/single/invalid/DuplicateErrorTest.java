@@ -10,9 +10,7 @@ import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -179,7 +177,7 @@ public class DuplicateErrorTest extends BaseComplianceTest {
             return;
         }
         
-        XmlComplianceResult result = validator.validateFile(xmlFile.toFile());
+        ComplianceResult result = validator.validateFile(xmlFile.toFile());
         
         // Verify that validation failed
         assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlFile);

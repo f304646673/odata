@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
 import org.apache.olingo.schema.repository.ODataSchemaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,20 +20,20 @@ public class ODataSchemaValidationEngine implements AutoCloseable {
     
     private static final Logger logger = LoggerFactory.getLogger(ODataSchemaValidationEngine.class);
     
-    private final DirectoryValidationManager directoryManager;
+    private final DirectoryValidation directoryManager;
     private final ODataSchemaRepository schemaRepository;
     
     public ODataSchemaValidationEngine() {
-        this.directoryManager = new DirectoryValidationManager();
+        this.directoryManager = new DirectoryValidation();
         this.schemaRepository = new ODataSchemaRepository();
         
         logger.info("OData Schema Validation Engine initialized");
     }
     
-    public ODataSchemaValidationEngine(DirectoryValidationManager directoryManager, 
-                                     ODataSchemaRepository schemaRepository) {
+    public ODataSchemaValidationEngine(DirectoryValidation directoryManager,
+                                       ODataSchemaRepository schemaRepository) {
         if (directoryManager == null) {
-            throw new IllegalArgumentException("DirectoryValidationManager cannot be null");
+            throw new IllegalArgumentException("DirectoryValidation cannot be null");
         }
         if (schemaRepository == null) {
             throw new IllegalArgumentException("ODataSchemaRepository cannot be null");
@@ -64,7 +64,7 @@ public class ODataSchemaValidationEngine implements AutoCloseable {
         try {
             // 步骤1: 使用compliance system验证XML目录
             logger.info("步骤1: 使用compliance system验证XML目录");
-            DirectoryValidationManager.DirectoryValidationResult validationResult = 
+            DirectoryValidation.DirectoryValidationResult validationResult =
                 directoryManager.validateSingleDirectory(directoryPath.toString());
             
             if (!validationResult.isValid()) {

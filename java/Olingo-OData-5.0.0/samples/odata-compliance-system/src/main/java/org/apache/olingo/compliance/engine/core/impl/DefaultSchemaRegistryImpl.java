@@ -1,4 +1,4 @@
-package org.apache.olingo.compliance.engine.core;
+package org.apache.olingo.compliance.engine.core.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,11 +10,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 
 /**
  * Default implementation of SchemaRegistry that provides OData schema management.
  */
-public class DefaultSchemaRegistry implements SchemaRegistry {
+public class DefaultSchemaRegistryImpl implements SchemaRegistry {
     
     // 命名空间到Schema信息的映射
     private final Map<String, SchemaDefinitionImpl> namespaceToSchema = new ConcurrentHashMap<>();
@@ -195,8 +196,8 @@ public class DefaultSchemaRegistry implements SchemaRegistry {
     public void merge(SchemaRegistry other) {
         if (other == null) return;
         
-        if (other instanceof DefaultSchemaRegistry) {
-            DefaultSchemaRegistry defaultOther = (DefaultSchemaRegistry) other;
+        if (other instanceof DefaultSchemaRegistryImpl) {
+            DefaultSchemaRegistryImpl defaultOther = (DefaultSchemaRegistryImpl) other;
             for (SchemaDefinitionImpl schema : defaultOther.namespaceToSchema.values()) {
                 registerSchema(schema);
             }

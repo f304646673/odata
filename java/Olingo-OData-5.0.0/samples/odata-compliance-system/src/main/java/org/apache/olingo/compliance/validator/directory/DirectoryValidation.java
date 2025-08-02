@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.engine.core.SchemaExtractor;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 
@@ -26,12 +26,12 @@ import org.apache.olingo.compliance.engine.core.SchemaRegistry;
  * 目录验证管理器，负责验证多层目录结构中的OData XML文件
  * 基于Schema Registry架构，支持跨文件的类型依赖检查和继承关系验证
  */
-public class DirectoryValidationManager {
+public class DirectoryValidation {
     
     private final Map<String, Set<SchemaInfo>> namespaceToSchemas; // 保留用于冲突检测
     private final Map<String, SchemaInfo> fileToSchema; // 保留用于冲突检测
     
-    public DirectoryValidationManager() {
+    public DirectoryValidation() {
         this.namespaceToSchemas = new ConcurrentHashMap<>();
         this.fileToSchema = new ConcurrentHashMap<>();
     }
@@ -93,7 +93,7 @@ public class DirectoryValidationManager {
             
             long endTime = System.currentTimeMillis();
             
-            XmlComplianceResult xmlResult = new XmlComplianceResult(
+            ComplianceResult xmlResult = new ComplianceResult(
                     allIssues.isEmpty(),
                     allIssues,
                     Collections.emptySet(), // referencedNamespaces
@@ -115,7 +115,7 @@ public class DirectoryValidationManager {
             
             long endTime = System.currentTimeMillis();
             
-            XmlComplianceResult xmlResult = new XmlComplianceResult(
+            ComplianceResult xmlResult = new ComplianceResult(
                     false, 
                     allIssues, 
                     Collections.emptySet(),
@@ -139,20 +139,20 @@ public class DirectoryValidationManager {
     
     // 为了向后兼容，添加旧的类型别名
     /**
-     * @deprecated Use XmlComplianceResult instead
+     * @deprecated Use ComplianceResult instead
      */
     @Deprecated
     public static class DirectoryValidationResult {
-        private final XmlComplianceResult xmlResult;
+        private final ComplianceResult xmlResult;
         
-        public DirectoryValidationResult(XmlComplianceResult xmlResult) {
+        public DirectoryValidationResult(ComplianceResult xmlResult) {
             this.xmlResult = xmlResult;
         }
         
         public DirectoryValidationResult(boolean isValid, List<ComplianceIssue> issues, 
                                        Set<String> referencedNamespaces, Map<String, Object> metadata,
                                        String source, long validationTimeMs) {
-            this.xmlResult = new XmlComplianceResult(isValid, issues, referencedNamespaces, metadata, source, validationTimeMs);
+            this.xmlResult = new ComplianceResult(isValid, issues, referencedNamespaces, metadata, source, validationTimeMs);
         }
         
         // 旧API方法
@@ -799,7 +799,7 @@ public class DirectoryValidationManager {
     private DirectoryValidationResult createEmptyResult(String directoryPath, long startTime) {
         long endTime = System.currentTimeMillis();
         
-        XmlComplianceResult xmlResult = new XmlComplianceResult(
+        ComplianceResult xmlResult = new ComplianceResult(
                 true,
                 Collections.emptyList(),
                 Collections.emptySet(),

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -139,7 +139,7 @@ public class AttributeErrorTest extends BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getFileName());
         
-        XmlComplianceResult result = validator.validateFile(xmlFile.toFile());
+        ComplianceResult result = validator.validateFile(xmlFile.toFile());
         
         // For attribute errors, some files might be considered valid by the current validator
         // In such cases, we skip the test rather than fail it
