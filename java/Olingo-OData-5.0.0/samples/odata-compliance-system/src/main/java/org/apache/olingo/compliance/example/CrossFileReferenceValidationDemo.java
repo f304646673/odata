@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.engine.core.DefaultSchemaRegistry;
 import org.apache.olingo.compliance.engine.core.SchemaExtractor;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
@@ -60,13 +61,18 @@ public class CrossFileReferenceValidationDemo {
         try {
             DirectoryValidationManager manager = new DirectoryValidationManager();
             
-            DirectoryValidationManager.DirectoryValidationResult result = 
-                manager.validateDirectory(schemaDirectory);
+            DirectoryValidationManager.DirectoryValidationResult result = manager.validateDirectory(schemaDirectory, true);
             
             System.out.println("目录验证结果:");
-            System.out.println("- 总文件数: " + result.getTotalFiles());
-            System.out.println("- 有效文件数: " + result.getValidFileCount());
-            System.out.println("- 总问题数: " + result.getTotalIssueCount());
+            System.out.println("- 验证有效性: " + result.isValid());
+            System.out.println("- 总问题数: " + result.getAllIssues().size());
+            System.out.println("- 处理时间: " + result.getValidationTimeMs() + "ms");
+            
+            // 显示统计信息
+            DirectoryValidationManager.DirectoryValidationStatistics stats = manager.getStatistics();
+            System.out.println("- 命名空间数: " + stats.getNamespaceCount());
+            System.out.println("- 处理文件数: " + stats.getFileCount());
+            System.out.println("- Schema数: " + stats.getSchemaCount());
             System.out.println("- 验证时间: " + result.getValidationTimeMs() + "ms");
             
             if (result.isValid()) {
@@ -86,7 +92,7 @@ public class CrossFileReferenceValidationDemo {
     
     private SchemaRegistry extractSchemaFromFile(File xmlFile) throws Exception {
         SchemaExtractor extractor = new SchemaExtractor();
-        SchemaRegistry registry = new SchemaRegistry();
+        SchemaRegistry registry = new DefaultSchemaRegistry();
         
         List<SchemaRegistry.SchemaDefinition> schemas = extractor.extractSchemas(xmlFile);
         for (SchemaRegistry.SchemaDefinition schema : schemas) {
@@ -112,7 +118,7 @@ public class CrossFileReferenceValidationDemo {
         example.directoryValidationExample(schemaDirectory);
         
         System.out.println("\n2. 增量验证演示:");
-        SchemaRegistry baseRegistry = new SchemaRegistry(); // 假设已有基础数据
+        SchemaRegistry baseRegistry = new DefaultSchemaRegistry(); // 假设已有基础数据
         example.incrementalValidationExample(newSchemaFile, baseRegistry);
         
         System.out.println("\n=== 演示完成 ===");

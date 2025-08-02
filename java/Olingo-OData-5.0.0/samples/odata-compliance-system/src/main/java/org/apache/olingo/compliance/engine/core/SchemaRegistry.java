@@ -1,321 +1,142 @@
 package org.apache.olingo.compliance.engine.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * OData Schema注册表，保存和管理Schema信息，支持类型查询和依赖检查
- * 替代原来的ComplianceKnowledgeBase，提供更清晰的Schema管理能力
+ * Schema Registry interface for OData schema management and validation.
+ * Provides schema registration, type lookup, and validation operations.
  */
-public class SchemaRegistry {
-    
-    // 命名空间到Schema信息的映射
-    private final Map<String, SchemaDefinition> namespaceToSchema = new ConcurrentHashMap<>();
-    
-    // 类型全名到定义的映射 (namespace.typename -> TypeDefinition)
-    private final Map<String, TypeDefinition> typeDefinitions = new ConcurrentHashMap<>();
-    
-    // 别名到命名空间的映射
-    private final Map<String, String> aliasToNamespace = new ConcurrentHashMap<>();
-    
-    // 文件路径到Schema的映射
-    private final Map<String, Set<SchemaDefinition>> fileToSchemas = new ConcurrentHashMap<>();
+public interface SchemaRegistry {
     
     /**
-     * 注册一个Schema定义
+     * Register a schema definition
      */
-    public void registerSchema(SchemaDefinition schema) {
-        namespaceToSchema.put(schema.getNamespace(), schema);
-        
-        // 注册别名映射
-        if (schema.getAlias() != null && !schema.getAlias().isEmpty()) {
-            aliasToNamespace.put(schema.getAlias(), schema.getNamespace());
-        }
-        
-        // 注册类型定义
-        for (TypeDefinition type : schema.getTypes()) {
-            String fullTypeName = schema.getNamespace() + "." + type.getName();
-            typeDefinitions.put(fullTypeName, type);
-        }
-        
-        // 注册文件映射
-        fileToSchemas.computeIfAbsent(schema.getFilePath(), k -> ConcurrentHashMap.newKeySet())
-                    .add(schema);
+    void registerSchema(SchemaDefinition schema);
+    
+    /**
+     * Check if a type exists
+     * @param typeName type name, can be "namespace.TypeName" or "alias.TypeName"
+     */
+    boolean isTypeExists(String typeName);
+    
+    /**
+     * Check if a namespace is defined
+     */
+    boolean isNamespaceDefined(String namespace);
+    
+    /**
+     * Check if a type is defined in the given namespace
+     */
+    boolean isTypeDefined(String namespace, String typeName);
+    
+    /**
+     * Check if a file exists
+     */
+    boolean isFileExists(String fileName);
+    
+    /**
+     * Get type definition
+     */
+    TypeDefinition getTypeDefinition(String typeName);
+    
+    /**
+     * Check if base type is valid
+     */
+    boolean isValidBaseType(String typeName, String baseTypeName);
+    
+    /**
+     * Get all namespaces
+     */
+    Set<String> getAllNamespaces();
+    
+    /**
+     * Get all types in a namespace
+     */
+    Set<String> getTypesInNamespace(String namespace);
+    
+    /**
+     * Get all file names
+     */
+    Set<String> getAllFileNames();
+    
+    /**
+     * Get schema definition by namespace
+     */
+    SchemaDefinition getSchema(String namespace);
+    
+    /**
+     * Get schemas for a file
+     */
+    Set<SchemaDefinition> getSchemasForFile(String filePath);
+    
+    /**
+     * Get schema by namespace
+     */
+    SchemaDefinition getSchemaByNamespace(String namespace);
+    
+    /**
+     * Check if schema exists for a file
+     */
+    boolean hasSchemaForFile(String filePath);
+    
+    /**
+     * Check if namespace exists
+     */
+    boolean hasNamespace(String namespace);
+    
+    /**
+     * Add a single schema
+     */
+    void addSchema(SchemaDefinition schema);
+    
+    /**
+     * Merge another registry
+     */
+    void merge(SchemaRegistry other);
+    
+    /**
+     * Get registry statistics
+     */
+    RegistryStatistics getStatistics();
+    
+    /**
+     * Add schemas from a list
+     */
+    void addSchemas(List<org.apache.olingo.commons.api.edm.provider.CsdlSchema> schemas);
+    
+    /**
+     * Reset the registry
+     */
+    void reset();
+    
+    /**
+     * Schema definition interface
+     */
+    interface SchemaDefinition {
+        String getNamespace();
+        String getAlias();
+        String getFilePath();
+        List<TypeDefinition> getTypes();
     }
     
     /**
-     * 检查类型是否存在
-     * @param typeName 类型名，可以是 "namespace.TypeName" 或 "alias.TypeName"
+     * Type definition interface
      */
-    public boolean isTypeExists(String typeName) {
-        if (typeName == null || typeName.isEmpty()) {
-            return false;
-        }
-        
-        // 直接检查完整类型名
-        if (typeDefinitions.containsKey(typeName)) {
-            return true;
-        }
-        
-        // 检查是否使用了别名
-        int dotIndex = typeName.indexOf('.');
-        if (dotIndex > 0) {
-            String prefix = typeName.substring(0, dotIndex);
-            String localName = typeName.substring(dotIndex + 1);
-            
-            // 检查prefix是否是别名
-            String namespace = aliasToNamespace.get(prefix);
-            if (namespace != null) {
-                String fullTypeName = namespace + "." + localName;
-                return typeDefinitions.containsKey(fullTypeName);
-            }
-        }
-        
-        return false;
+    interface TypeDefinition {
+        String getName();
+        String getKind();
+        String getBaseType();
     }
     
     /**
-     * 获取类型定义
+     * Registry statistics interface
      */
-    public TypeDefinition getTypeDefinition(String typeName) {
-        if (typeName == null || typeName.isEmpty()) {
-            return null;
-        }
-        
-        // 直接查找
-        TypeDefinition type = typeDefinitions.get(typeName);
-        if (type != null) {
-            return type;
-        }
-        
-        // 通过别名查找
-        int dotIndex = typeName.indexOf('.');
-        if (dotIndex > 0) {
-            String prefix = typeName.substring(0, dotIndex);
-            String localName = typeName.substring(dotIndex + 1);
-            
-            String namespace = aliasToNamespace.get(prefix);
-            if (namespace != null) {
-                String fullTypeName = namespace + "." + localName;
-                return typeDefinitions.get(fullTypeName);
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * 检查基类型是否有效
-     * @param typeName 类型名
-     * @param baseTypeName 基类型名
-     */
-    public boolean isValidBaseType(String typeName, String baseTypeName) {
-        TypeDefinition type = getTypeDefinition(typeName);
-        TypeDefinition baseType = getTypeDefinition(baseTypeName);
-        
-        if (type == null || baseType == null) {
-            return false;
-        }
-        
-        // ComplexType不能继承EntityType
-        if ("ComplexType".equals(type.getKind()) && "EntityType".equals(baseType.getKind())) {
-            return false;
-        }
-        
-        // EntityType不能继承ComplexType  
-        if ("EntityType".equals(type.getKind()) && "ComplexType".equals(baseType.getKind())) {
-            return false;
-        }
-        
-        // 同类型之间可以继承
-        return type.getKind().equals(baseType.getKind());
-    }
-    
-    /**
-     * 获取所有命名空间
-     */
-    public Set<String> getAllNamespaces() {
-        return new HashSet<>(namespaceToSchema.keySet());
-    }
-    
-    /**
-     * 获取指定命名空间的Schema
-     */
-    public SchemaDefinition getSchema(String namespace) {
-        return namespaceToSchema.get(namespace);
-    }
-    
-    /**
-     * 检查命名空间是否存在
-     */
-    public boolean hasNamespace(String namespace) {
-        return namespaceToSchema.containsKey(namespace);
-    }
-    
-    /**
-     * 检查文件是否有对应的Schema注册
-     */
-    public boolean hasSchemaForFile(String filePath) {
-        return fileToSchemas.containsKey(filePath) && !fileToSchemas.get(filePath).isEmpty();
-    }
-    
-    /**
-     * 获取文件对应的所有Schema
-     */
-    public Set<SchemaDefinition> getSchemasForFile(String filePath) {
-        return fileToSchemas.getOrDefault(filePath, Collections.emptySet());
-    }
-    
-    /**
-     * 获取命名空间对应的Schema
-     */
-    public SchemaDefinition getSchemaByNamespace(String namespace) {
-        return namespaceToSchema.get(namespace);
-    }
-    
-    /**
-     * 合并另一个Registry的内容
-     */
-    public void merge(SchemaRegistry other) {
-        if (other == null) return;
-        
-        for (SchemaDefinition schema : other.namespaceToSchema.values()) {
-            registerSchema(schema);
-        }
-    }
-    
-    /**
-     * 清空所有内容
-     */
-    public void clear() {
-        namespaceToSchema.clear();
-        typeDefinitions.clear();
-        aliasToNamespace.clear();
-        fileToSchemas.clear();
-    }
-    
-    /**
-     * 获取统计信息
-     */
-    public RegistryStatistics getStatistics() {
-        int totalTypes = typeDefinitions.size();
-        int entityTypes = (int) typeDefinitions.values().stream()
-                .filter(t -> "EntityType".equals(t.getKind())).count();
-        int complexTypes = (int) typeDefinitions.values().stream()
-                .filter(t -> "ComplexType".equals(t.getKind())).count();
-        
-        return new RegistryStatistics(
-            namespaceToSchema.size(),
-            totalTypes,
-            entityTypes,
-            complexTypes,
-            fileToSchemas.size()
-        );
-    }
-    
-    /**
-     * Schema定义
-     */
-    public static class SchemaDefinition {
-        private final String namespace;
-        private final String alias;
-        private final String filePath;
-        private final List<TypeDefinition> types;
-        
-        public SchemaDefinition(String namespace, String alias, String filePath, List<TypeDefinition> types) {
-            this.namespace = namespace;
-            this.alias = alias;
-            this.filePath = filePath;
-            this.types = types != null ? new ArrayList<>(types) : new ArrayList<>();
-        }
-        
-        public String getNamespace() { return namespace; }
-        public String getAlias() { return alias; }
-        public String getFilePath() { return filePath; }
-        public List<TypeDefinition> getTypes() { return new ArrayList<>(types); }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            SchemaDefinition that = (SchemaDefinition) o;
-            return Objects.equals(namespace, that.namespace) &&
-                   Objects.equals(filePath, that.filePath);
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(namespace, filePath);
-        }
-    }
-    
-    /**
-     * 类型定义
-     */
-    public static class TypeDefinition {
-        private final String name;
-        private final String kind; // EntityType, ComplexType, EnumType, etc.
-        private final String baseType; // 基类型，可为null
-        
-        public TypeDefinition(String name, String kind, String baseType) {
-            this.name = name;
-            this.kind = kind;
-            this.baseType = baseType;
-        }
-        
-        public String getName() { return name; }
-        public String getKind() { return kind; }
-        public String getBaseType() { return baseType; }
-        
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TypeDefinition that = (TypeDefinition) o;
-            return Objects.equals(name, that.name) && Objects.equals(kind, that.kind);
-        }
-        
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, kind);
-        }
-    }
-    
-    /**
-     * Registry统计信息
-     */
-    public static class RegistryStatistics {
-        private final int namespaceCount;
-        private final int totalTypes;
-        private final int entityTypes;
-        private final int complexTypes;
-        private final int fileCount;
-        
-        public RegistryStatistics(int namespaceCount, int totalTypes, int entityTypes, 
-                                int complexTypes, int fileCount) {
-            this.namespaceCount = namespaceCount;
-            this.totalTypes = totalTypes;
-            this.entityTypes = entityTypes;
-            this.complexTypes = complexTypes;
-            this.fileCount = fileCount;
-        }
-        
-        public int getNamespaceCount() { return namespaceCount; }
-        public int getTotalTypes() { return totalTypes; }
-        public int getEntityTypes() { return entityTypes; }
-        public int getComplexTypes() { return complexTypes; }
-        public int getFileCount() { return fileCount; }
-        
-        @Override
-        public String toString() {
-            return String.format("RegistryStatistics{namespaces=%d, totalTypes=%d, entityTypes=%d, complexTypes=%d, files=%d}",
-                    namespaceCount, totalTypes, entityTypes, complexTypes, fileCount);
-        }
+    interface RegistryStatistics {
+        int getNamespaceCount();
+        int getTotalTypes();
+        int getEntityTypes();
+        int getComplexTypes();
+        int getFileCount();
     }
 }
