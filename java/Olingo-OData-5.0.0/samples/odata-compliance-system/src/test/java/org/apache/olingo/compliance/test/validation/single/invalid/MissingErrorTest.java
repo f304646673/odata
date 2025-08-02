@@ -9,9 +9,12 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
 import org.apache.olingo.compliance.core.model.ComplianceResult;
+import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
+import org.apache.olingo.compliance.validator.ComplianceValidator;
+import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +36,9 @@ public class MissingErrorTest extends BaseComplianceTest {
     private Path singleValidationRoot;
     private Path missingErrorRoot;
     
+    private ComplianceValidator validator;
+    private SchemaRegistry schemaRegistry;
+
     /**
      * Test mapping structure containing file path, error type, and expected error message fragment
      */
@@ -74,6 +80,8 @@ public class MissingErrorTest extends BaseComplianceTest {
         super.setUp();
         singleValidationRoot = Paths.get("src/test/resources/validation/single");
         missingErrorRoot = singleValidationRoot.resolve("invalid/missing");
+        validator = new ComplianceValidatorImpl();
+        schemaRegistry = new DefaultSchemaRegistryImpl();
     }
     
     @Test
@@ -149,9 +157,8 @@ public class MissingErrorTest extends BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getFileName());
         
-        FileValidatorImpl validator = new FileValidatorImpl();
-        ComplianceResult result = validator.validateFile(xmlFile);
-        
+        ComplianceResult result = validator.validateFile(xmlFile, schemaRegistry);
+
         // Check if file is considered valid by validator
         if (result.isCompliant() || !result.hasErrors()) {
             fail("File should have validation errors but none were found: " + xmlFile);

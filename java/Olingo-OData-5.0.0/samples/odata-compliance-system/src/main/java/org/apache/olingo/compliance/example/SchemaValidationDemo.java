@@ -11,8 +11,10 @@ import java.util.stream.Stream;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.ComplianceResult;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
-import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
+import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
+import org.apache.olingo.compliance.validator.ComplianceValidator;
+import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 
 /**
  * Demonstration class showing how to use the refactored OData schema validation code
@@ -20,6 +22,14 @@ import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
  */
 public class SchemaValidationDemo {
     
+    private final ComplianceValidator validator;
+    private final SchemaRegistry schemaRegistry;
+
+    public SchemaValidationDemo() {
+        this.validator = new ComplianceValidatorImpl();
+        this.schemaRegistry = new DefaultSchemaRegistryImpl();
+    }
+
     public static void main(String[] args) {
         SchemaValidationDemo demo = new SchemaValidationDemo();
         
@@ -45,31 +55,21 @@ public class SchemaValidationDemo {
         try {
             List<String> validFiles = getXmlFilesInResourceDirectory("/test-scenarios/valid");
             
-            FileValidatorImpl validator = new FileValidatorImpl();
-            
             for (String filePath : validFiles) {
                 System.out.println("\nValidating: " + filePath);
                 
-                File file = new File(filePath);
-                if (file.exists()) {
-                    ComplianceResult result = validator.validateFile(file, null);
-                    
-                    if (result.isCompliant()) {
-                        System.out.println("  ✓ No issues found - file is valid");
-                    } else {
-                        System.out.println("  ! Issues found:");
-                        for (ComplianceIssue issue : result.getIssues()) {
-                            System.out.printf("    - %s: %s%n", 
-                                issue.getSeverity(), issue.getMessage());
-                        }
+                ComplianceResult result = validator.validateFile(new File(filePath), schemaRegistry);
+
+                System.out.println("Is compliant: " + result.isCompliant());
+                if (!result.getIssues().isEmpty()) {
+                    System.out.println("Issues found:");
+                    for (ComplianceIssue issue : result.getIssues()) {
+                        System.out.println("  - " + issue.getSeverity() + ": " + issue.getMessage());
                     }
-                } else {
-                    System.out.println("  ✗ File not found: " + filePath);
                 }
             }
-            
         } catch (Exception e) {
-            System.err.println("Error during valid scenario demonstration: " + e.getMessage());
+            System.err.println("Error during valid scenarios validation: " + e.getMessage());
         }
     }
     
@@ -83,107 +83,98 @@ public class SchemaValidationDemo {
         try {
             List<String> invalidFiles = getXmlFilesInResourceDirectory("/test-scenarios/invalid");
             
-            FileValidatorImpl validator = new FileValidatorImpl();
-            
             for (String filePath : invalidFiles) {
                 System.out.println("\nValidating: " + filePath);
                 
-                File file = new File(filePath);
-                if (file.exists()) {
-                    ComplianceResult result = validator.validateFile(file, null);
-                    
-                    if (result.isCompliant()) {
-                        System.out.println("  ! Expected errors but file appears valid");
-                    } else {
-                        System.out.println("  ✓ Found expected issues:");
-                        for (ComplianceIssue issue : result.getIssues()) {
-                            System.out.printf("    - %s: %s%n", 
-                                issue.getSeverity(), issue.getMessage());
-                        }
-                    }
-                } else {
-                    System.out.println("  ✗ File not found: " + filePath);
+                ComplianceResult result = validator.validateFile(new File(filePath), schemaRegistry);
+
+                System.out.println("Is compliant: " + result.isCompliant());
+                System.out.println("Issues found: " + result.getIssues().size());
+
+                for (ComplianceIssue issue : result.getIssues()) {
+                    System.out.println("  - " + issue.getSeverity() + ": " + issue.getErrorType() + " - " + issue.getMessage());
                 }
             }
-            
         } catch (Exception e) {
-            System.err.println("Error during invalid scenario demonstration: " + e.getMessage());
+            System.err.println("Error during invalid scenarios validation: " + e.getMessage());
         }
     }
     
     /**
-     * Demonstrate cross-directory validation using DirectoryValidation
+     * Demonstrate cross-directory validation
      */
     public void demonstrateCrossDirectoryValidation() {
         System.out.println("\n\n3. Cross-Directory Validation:");
-        System.out.println("===============================");
-        
+        System.out.println("================================");
+
         try {
-            // Get resource directory paths
-            URL validResourceUrl = SchemaValidationDemo.class.getResource("/test-scenarios/valid");
-            URL invalidResourceUrl = SchemaValidationDemo.class.getResource("/test-scenarios/invalid");
-            
-            if (validResourceUrl != null && invalidResourceUrl != null) {
-                Path validDir = Paths.get(validResourceUrl.toURI());
-                Path invalidDir = Paths.get(invalidResourceUrl.toURI());
-                
-                DirectoryValidation manager = new DirectoryValidation();
-                
-                // Validate valid directory
-                System.out.println("\nValidating valid directory:");
-                DirectoryValidation.DirectoryValidationResult validDirResult =
-                    manager.validateDirectory(validDir.toString());
-                
-                if (validDirResult.isValid()) {
-                    System.out.println("  ✓ No cross-file issues in valid directory");
-                } else {
-                    System.out.println("  ! Cross-file issues in valid directory:");
-                    for (ComplianceIssue issue : validDirResult.getAllIssues()) {
-                        System.out.printf("    - %s: %s%n", 
-                            issue.getSeverity(), issue.getMessage());
-                    }
-                }
-                
-                // Validate invalid directory
-                System.out.println("\nValidating invalid directory:");
-                DirectoryValidation.DirectoryValidationResult invalidDirResult =
-                    manager.validateDirectory(invalidDir.toString());
-                
-                if (invalidDirResult.isValid()) {
-                    System.out.println("  ! Expected cross-file issues but found none");
-                } else {
-                    System.out.println("  ✓ Found expected cross-file issues:");
-                    for (ComplianceIssue issue : invalidDirResult.getAllIssues()) {
-                        System.out.printf("    - %s: %s%n", 
-                            issue.getSeverity(), issue.getMessage());
+            String testDirectory = getResourceDirectory("/test-scenarios/cross-reference");
+
+            if (testDirectory != null) {
+                System.out.println("Validating directory: " + testDirectory);
+
+                ComplianceResult result = validator.validateDirectory(testDirectory, schemaRegistry, true);
+
+                System.out.println("Directory validation completed:");
+                System.out.println("Is compliant: " + result.isCompliant());
+                System.out.println("Total issues: " + result.getIssues().size());
+                System.out.println("Validation time: " + result.getValidationTimeMs() + "ms");
+
+                // Print metadata
+                System.out.println("\nValidation metadata:");
+                result.getMetadata().forEach((key, value) -> {
+                    System.out.println("  " + key + ": " + value);
+                });
+
+                // Print issues
+                if (!result.getIssues().isEmpty()) {
+                    System.out.println("\nIssues found:");
+                    for (ComplianceIssue issue : result.getIssues()) {
+                        System.out.println("  - " + issue.getSeverity() + ": " + issue.getErrorType());
+                        System.out.println("    Message: " + issue.getMessage());
+//                        System.out.println("    Source: " + issue.getSource());
                     }
                 }
             } else {
-                System.out.println("  ✗ Could not locate test scenarios in resources");
+                System.out.println("Cross-reference test directory not found");
             }
-            
         } catch (Exception e) {
             System.err.println("Error during cross-directory validation: " + e.getMessage());
         }
     }
     
     /**
-     * Get XML files in a resource directory
+     * Get XML files from a resource directory
      */
     private List<String> getXmlFilesInResourceDirectory(String resourcePath) throws Exception {
         List<String> xmlFiles = new ArrayList<>();
         
-        URL resourceUrl = SchemaValidationDemo.class.getResource(resourcePath);
+        URL resourceUrl = getClass().getResource(resourcePath);
         if (resourceUrl != null) {
-            Path dir = Paths.get(resourceUrl.toURI());
-            
-            try (Stream<Path> paths = Files.walk(dir)) {
-                paths.filter(Files::isRegularFile)
+            Path resourceDir = Paths.get(resourceUrl.toURI());
+
+            try (Stream<Path> files = Files.walk(resourceDir)) {
+                files.filter(Files::isRegularFile)
                      .filter(path -> path.toString().toLowerCase().endsWith(".xml"))
                      .forEach(path -> xmlFiles.add(path.toString()));
             }
         }
         
         return xmlFiles;
+    }
+
+    /**
+     * Get resource directory path
+     */
+    private String getResourceDirectory(String resourcePath) {
+        try {
+            URL resourceUrl = getClass().getResource(resourcePath);
+            if (resourceUrl != null) {
+                return Paths.get(resourceUrl.toURI()).toString();
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to locate resource directory: " + resourcePath);
+        }
+        return null;
     }
 }

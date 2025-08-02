@@ -9,7 +9,10 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
+import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
+import org.apache.olingo.compliance.validator.ComplianceValidator;
+import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,8 +32,9 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
     
     private Path multipleValidationRoot;
     private Path validDirectoriesRoot;
-    private DirectoryValidation directoryValidator;
-    
+    private ComplianceValidator validator;
+    private SchemaRegistry schemaRegistry;
+
     /**
      * Test mapping structure containing directory path and description
      */
@@ -60,7 +64,8 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
         super.setUp();
         multipleValidationRoot = Paths.get("src/test/resources/validation/multiple");
         validDirectoriesRoot = multipleValidationRoot.resolve("valid");
-        directoryValidator = new DirectoryValidation();
+        validator = new ComplianceValidatorImpl();
+        schemaRegistry = new DefaultSchemaRegistryImpl();
     }
     
     @Test
@@ -128,17 +133,17 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
         logger.info("Testing directory: {} - {}", directoryPath.getFileName(), description);
         
         try {
-            DirectoryValidation.DirectoryValidationResult result = directoryValidator.validateSingleDirectory(directoryPath.toString());
-            
+            ComplianceResult result = validator.validateDirectory(directoryPath.toString(), schemaRegistry, true);
+
             // Log the result details
-            logger.info("Directory validation result: valid={}, files={}, issues={}", 
-                result.isValid(), result.getTotalFiles(), result.getTotalIssueCount());
-            
-            if (result.isValid()) {
+            logger.info("Directory validation result: compliant={}, files={}, issues={}",
+                result.isCompliant(), result.getTotalFiles(), result.getTotalIssueCount());
+
+            if (result.isCompliant()) {
                 logger.info("Directory validation passed: {} files processed", result.getTotalFiles());
             } else {
                 logger.warn("Directory validation failed but was expected to pass: {} - Issues: {}", 
-                    directoryPath, result.getAllIssues().stream()
+                    directoryPath, result.getIssues().stream()
                         .map(ComplianceIssue::getMessage)
                         .collect(Collectors.toList()));
             }

@@ -8,7 +8,9 @@ import java.util.Set;
  * Provides schema registration, type lookup, and validation operations.
  */
 public interface SchemaRegistry {
-    
+
+    boolean isSchemasValid(List<SchemaDefinition> schemas);
+
     /**
      * Register a schema definition
      */

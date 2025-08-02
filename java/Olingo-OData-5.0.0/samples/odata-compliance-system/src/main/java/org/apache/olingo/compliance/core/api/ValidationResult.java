@@ -1,5 +1,6 @@
 package org.apache.olingo.compliance.core.api;
 
+import java.io.FileDescriptor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +36,11 @@ public class ValidationResult {
     private final List<ConflictResult> conflicts;
     private final List<String> globalErrors;
     private final List<String> globalWarnings;
-    
+
+    public static FileDescriptor builder() {
+        return new FileDescriptor();
+    }
+
     // Builder pattern for flexible construction
     public static class Builder {
         private boolean isCompliant = true;

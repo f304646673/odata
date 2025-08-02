@@ -16,7 +16,11 @@ import org.apache.olingo.compliance.engine.core.SchemaRegistry;
  * Default implementation of SchemaRegistry that provides OData schema management.
  */
 public class DefaultSchemaRegistryImpl implements SchemaRegistry {
-    
+
+    public boolean isSchemasValid(List<SchemaDefinition> schemas) {
+        return true;
+    }
+
     // 命名空间到Schema信息的映射
     private final Map<String, SchemaDefinitionImpl> namespaceToSchema = new ConcurrentHashMap<>();
     

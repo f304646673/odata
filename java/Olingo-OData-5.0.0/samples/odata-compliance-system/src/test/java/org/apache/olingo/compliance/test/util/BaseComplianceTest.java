@@ -1,15 +1,18 @@
 package org.apache.olingo.compliance.test.util;
 
 import java.io.File;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.ComplianceResult;
-import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
+import org.apache.olingo.compliance.validator.ComplianceValidator;
+import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
+import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +24,13 @@ public abstract class BaseComplianceTest {
     
     protected static final Logger logger = LoggerFactory.getLogger(BaseComplianceTest.class);
     
-    protected FileValidatorImpl validator;
-    
+    protected ComplianceValidator validator;
+    protected SchemaRegistry schemaRegistry;
+
     @BeforeEach
     public void setUp() {
-        validator = new FileValidatorImpl();
+        validator = new ComplianceValidatorImpl();
+        schemaRegistry = new DefaultSchemaRegistryImpl();
     }
     
     /**
@@ -85,5 +90,27 @@ public abstract class BaseComplianceTest {
         // Check for specific error type
         assertTrue(result.hasErrorOfType(expectedErrorType), 
             "Should have " + expectedErrorType + " error in file: " + xmlPath);
+    }
+
+    /**
+     * Get test file from resources
+     */
+    protected File getTestFile(String resourcePath) {
+        URL resource = getClass().getClassLoader().getResource(resourcePath);
+        if (resource == null) {
+            throw new IllegalArgumentException("Test resource not found: " + resourcePath);
+        }
+        return new File(resource.getFile());
+    }
+
+    /**
+     * Get test resource path
+     */
+    protected String getTestResourcePath(String resourcePath) {
+        URL resource = getClass().getClassLoader().getResource(resourcePath);
+        if (resource == null) {
+            throw new IllegalArgumentException("Test resource not found: " + resourcePath);
+        }
+        return Paths.get(resource.getPath()).toString();
     }
 }

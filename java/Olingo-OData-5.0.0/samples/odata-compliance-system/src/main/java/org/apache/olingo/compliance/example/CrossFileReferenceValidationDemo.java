@@ -7,8 +7,8 @@ import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
 import org.apache.olingo.compliance.engine.core.SchemaExtractor;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
-import org.apache.olingo.compliance.validator.directory.DirectoryValidation;
-import org.apache.olingo.compliance.validator.file.impl.FileValidatorImpl;
+import org.apache.olingo.compliance.validator.ComplianceValidator;
+import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
 
 /**
  * 跨文件引用验证功能使用示例
@@ -24,10 +24,10 @@ public class CrossFileReferenceValidationDemo {
     public void incrementalValidationExample(String newSchemaFile, SchemaRegistry baseRegistry) {
         try {
             // 使用增强的验证器进行单文件验证
-            FileValidatorImpl validator = new FileValidatorImpl();
+            ComplianceValidator validator = new ComplianceValidatorImpl();
             
             File xmlFile = new File(newSchemaFile);
-            ComplianceResult result = validator.validateWithRegistry(xmlFile, baseRegistry);
+            ComplianceResult result = validator.validateFile(xmlFile, baseRegistry);
             
             System.out.println("单文件验证结果:");
             System.out.println("- 文件: " + xmlFile.getName());
@@ -57,29 +57,22 @@ public class CrossFileReferenceValidationDemo {
      * 示例：目录验证
      * 验证整个目录的Schema文件
      */
-    public void directoryValidationExample(String schemaDirectory) {
+    public void directoryValidationExample(String schemaDirectory, SchemaRegistry baseRegistry) {
         try {
-            DirectoryValidation manager = new DirectoryValidation();
-            
-            DirectoryValidation.DirectoryValidationResult result = manager.validateDirectory(schemaDirectory, true);
+            ComplianceValidator manager = new ComplianceValidatorImpl();
+
+            ComplianceResult result = manager.validateDirectory(schemaDirectory, baseRegistry,true);
             
             System.out.println("目录验证结果:");
-            System.out.println("- 验证有效性: " + result.isValid());
-            System.out.println("- 总问题数: " + result.getAllIssues().size());
+            System.out.println("- 验证有效性: " + result.isCompliant());
+            System.out.println("- 总问题数: " + result.getIssues().size());
             System.out.println("- 处理时间: " + result.getValidationTimeMs() + "ms");
-            
-            // 显示统计信息
-            DirectoryValidation.DirectoryValidationStatistics stats = manager.getStatistics();
-            System.out.println("- 命名空间数: " + stats.getNamespaceCount());
-            System.out.println("- 处理文件数: " + stats.getFileCount());
-            System.out.println("- Schema数: " + stats.getSchemaCount());
-            System.out.println("- 验证时间: " + result.getValidationTimeMs() + "ms");
-            
-            if (result.isValid()) {
+
+            if (result.isCompliant()) {
                 System.out.println("目录验证通过，所有跨文件引用都正确");
             } else {
                 System.out.println("发现问题:");
-                result.getAllIssues().forEach(issue -> 
+                result.getIssues().forEach(issue ->
                     System.out.println("  - " + issue.getMessage()));
             }
             
@@ -113,12 +106,13 @@ public class CrossFileReferenceValidationDemo {
         // 使用类加载器获取资源路径
         String schemaDirectory = "/home/fangliang/0802/odata/java/Olingo-OData-5.0.0/samples/odata-compliance-system/src/main/resources/test-scenarios/valid";
         String newSchemaFile = "/home/fangliang/0802/odata/java/Olingo-OData-5.0.0/samples/odata-compliance-system/src/main/resources/test-scenarios/invalid/AnnotationConflict.xml";
-        
+
+        SchemaRegistry baseRegistry = new DefaultSchemaRegistryImpl(); // 假设已有基础数据
+
         System.out.println("1. 目录验证演示:");
-        example.directoryValidationExample(schemaDirectory);
+        example.directoryValidationExample(schemaDirectory, baseRegistry);
         
         System.out.println("\n2. 增量验证演示:");
-        SchemaRegistry baseRegistry = new DefaultSchemaRegistryImpl(); // 假设已有基础数据
         example.incrementalValidationExample(newSchemaFile, baseRegistry);
         
         System.out.println("\n=== 演示完成 ===");
