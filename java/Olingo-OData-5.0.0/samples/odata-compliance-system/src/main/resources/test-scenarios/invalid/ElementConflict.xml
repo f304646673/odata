@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ConflictService" Alias="Conflict">
+            <EntityContainer Name="Container">
+                <EntitySet Name="Items" EntityType="ConflictService.Item"/>
+            </EntityContainer>
+            
+            <!-- Element conflict: Multiple entity types with same name -->
+            <EntityType Name="Item" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+            </EntityType>
+            
+            <!-- Duplicate entity type definition - element conflict -->
+            <EntityType Name="Item" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ItemID"/>
+                </Key>
+                <Property Name="ItemID" Type="Edm.String" Nullable="false"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="200"/>
+            </EntityType>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

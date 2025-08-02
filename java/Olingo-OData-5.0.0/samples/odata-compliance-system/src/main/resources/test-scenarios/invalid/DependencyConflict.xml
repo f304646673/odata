@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="DependencyService" Alias="Dependency">
+            <EntityContainer Name="Container">
+                <EntitySet Name="Orders" EntityType="DependencyService.Order"/>
+            </EntityContainer>
+            
+            <EntityType Name="Order" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <!-- Dependency conflict: Reference to undefined type -->
+                <Property Name="Customer" Type="UndefinedNamespace.Customer"/>
+                <!-- Another dependency conflict: Reference to undefined complex type -->
+                <Property Name="ShippingAddress" Type="MissingNamespace.Address"/>
+            </EntityType>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

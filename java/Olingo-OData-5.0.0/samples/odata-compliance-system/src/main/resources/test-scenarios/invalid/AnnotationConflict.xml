@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="AnnotationConflictService" Alias="AnnConflict">
+            <EntityContainer Name="Container">
+                <EntitySet Name="Products" EntityType="AnnotationConflictService.Product"/>
+            </EntityContainer>
+            
+            <EntityType Name="Product" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+            </EntityType>
+            
+            <!-- Annotation conflict: Same target with conflicting annotations -->
+            <Annotations Target="AnnotationConflictService.Product">
+                <Annotation Term="UI.DisplayName" String="Product Item"/>
+                <Annotation Term="UI.Description" String="Product information"/>
+            </Annotations>
+            
+            <!-- Duplicate annotation for same target - annotation conflict -->
+            <Annotations Target="AnnotationConflictService.Product">
+                <Annotation Term="UI.DisplayName" String="Different Product Name"/>
+                <Annotation Term="UI.Description" String="Different product description"/>
+            </Annotations>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="ProductService" Alias="Product">
+            <EntityContainer Name="Container">
+                <EntitySet Name="Products" EntityType="ProductService.Product"/>
+                <EntitySet Name="Categories" EntityType="ProductService.Category"/>
+            </EntityContainer>
+            
+            <EntityType Name="Product" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="200"/>
+                <Property Name="Price" Type="Edm.Decimal" Precision="10" Scale="2"/>
+                <Property Name="CategoryID" Type="Edm.Int32"/>
+                <NavigationProperty Name="Category" Type="ProductService.Category" Partner="Products"/>
+            </EntityType>
+            
+            <EntityType Name="Category" HasStream="false">
+                <Key>
+                    <PropertyRef Name="ID"/>
+                </Key>
+                <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+                <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+                <NavigationProperty Name="Products" Type="Collection(ProductService.Product)" Partner="Category"/>
+            </EntityType>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

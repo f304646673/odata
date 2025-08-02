@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+    <edmx:DataServices>
+        <!-- Namespace conflict: Same namespace "CustomerService" as in valid/CustomerService.xml -->
+        <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="CustomerService" Alias="Customer">
+            <EntityContainer Name="Container">
+                <EntitySet Name="Customers" EntityType="CustomerService.Customer"/>
+            </EntityContainer>
+            
+            <!-- Element conflict: Same entity type name "Customer" with different definition -->
+            <EntityType Name="Customer" HasStream="false">
+                <Key>
+                    <PropertyRef Name="CustomerID"/>
+                </Key>
+                <Property Name="CustomerID" Type="Edm.String" Nullable="false"/>
+                <Property Name="CompanyName" Type="Edm.String" MaxLength="150"/>
+                <Property Name="ContactName" Type="Edm.String" MaxLength="100"/>
+            </EntityType>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
