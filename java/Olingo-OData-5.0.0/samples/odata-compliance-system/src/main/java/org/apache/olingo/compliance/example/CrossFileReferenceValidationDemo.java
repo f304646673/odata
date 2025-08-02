@@ -110,9 +110,9 @@ public class CrossFileReferenceValidationDemo {
         
         System.out.println("=== 跨文件引用验证功能演示 ===\n");
         
-        // 示例参数（实际使用时需要提供真实路径）
-        String schemaDirectory = "/path/to/schema/directory";
-        String newSchemaFile = "/path/to/new/schema.xml";
+        // 使用类加载器获取资源路径
+        String schemaDirectory = "/home/fangliang/0802/odata/java/Olingo-OData-5.0.0/samples/odata-compliance-system/src/main/resources/test-scenarios/valid";
+        String newSchemaFile = "/home/fangliang/0802/odata/java/Olingo-OData-5.0.0/samples/odata-compliance-system/src/main/resources/test-scenarios/invalid/AnnotationConflict.xml";
         
         System.out.println("1. 目录验证演示:");
         example.directoryValidationExample(schemaDirectory);

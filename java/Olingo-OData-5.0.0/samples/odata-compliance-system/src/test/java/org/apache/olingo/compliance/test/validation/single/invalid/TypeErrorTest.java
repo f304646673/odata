@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
-import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
+import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
 import org.apache.olingo.compliance.core.model.XmlComplianceResult;
 import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
 import org.apache.olingo.compliance.test.util.BaseComplianceTest;
@@ -168,7 +168,7 @@ public class TypeErrorTest extends BaseComplianceTest {
             return;
         }
         
-        ModernXmlFileComplianceValidator validator = new ModernXmlFileComplianceValidator();
+        EnhancedRegistryAwareXmlValidator validator = new EnhancedRegistryAwareXmlValidator();
         XmlComplianceResult result = validator.validateFile(xmlFile);
         
         // Check if file is considered valid by validator

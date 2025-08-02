@@ -1,52 +1,192 @@
-// package org.apache.olingo.compliance.demo;
+package org.apache.olingo.compliance.demo;
 
-// import java.io.File;
-// import java.io.IOException;
-// import java.nio.file.Files;
-// import java.nio.file.Path;
-// import java.nio.file.Paths;
-// import java.util.ArrayList;
-// import java.util.List;
-// import java.util.stream.Stream;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
-// import org.apache.olingo.compliance.engine.core.ComplianceIssue;
-// import org.apache.olingo.compliance.engine.core.DirectoryValidationManager;
-// import org.apache.olingo.compliance.engine.core.SchemaExtractor;
+import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.validator.directory.DirectoryValidationManager;
+import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
 
-// /**
-//  * Demonstration class showing how to use the refactored OData schema validation code
-//  * to load and validate XML files from the test scenarios directory.
-//  */
-// public class SchemaValidationDemo {
+/**
+ * Demonstration class showing how to use the refactored OData schema validation code
+ * to load and validate XML files from the test scenarios directory.
+ */
+public class SchemaValidationDemo {
     
-//     private static final String RESOURCES_BASE = "src/main/resources/test-scenarios";
-//     private static final String VALID_DIR = RESOURCES_BASE + "/valid";
-//     private static final String INVALID_DIR = RESOURCES_BASE + "/invalid";
+    public static void main(String[] args) {
+        SchemaValidationDemo demo = new SchemaValidationDemo();
+        
+        System.out.println("=== OData Schema Validation Demo ===\n");
+        
+        // Demonstrate validation of valid scenarios
+        demo.demonstrateValidScenarios();
+        
+        // Demonstrate validation of invalid scenarios
+        demo.demonstrateInvalidScenarios();
+        
+        // Demonstrate cross-directory validation
+        demo.demonstrateCrossDirectoryValidation();
+    }
     
-//     public static void main(String[] args) {
-//         SchemaValidationDemo demo = new SchemaValidationDemo();
+    /**
+     * Demonstrate validation of valid XML scenarios
+     */
+    public void demonstrateValidScenarios() {
+        System.out.println("1. Validating VALID XML scenarios:");
+        System.out.println("=====================================");
         
-//         System.out.println("=== OData Schema Validation Demo ===\n");
-        
-//         // Demonstrate validation of valid scenarios
-//         demo.demonstrateValidScenarios();
-        
-//         // Demonstrate validation of invalid scenarios
-//         demo.demonstrateInvalidScenarios();
-        
-//         // Demonstrate cross-directory validation
-//         demo.demonstrateCrossDirectoryValidation();
-//     }
+        try {
+            List<String> validFiles = getXmlFilesInResourceDirectory("/test-scenarios/valid");
+            
+            EnhancedRegistryAwareXmlValidator validator = new EnhancedRegistryAwareXmlValidator();
+            
+            for (String filePath : validFiles) {
+                System.out.println("\nValidating: " + filePath);
+                
+                File file = new File(filePath);
+                if (file.exists()) {
+                    XmlComplianceResult result = validator.validateFile(file);
+                    
+                    if (result.isCompliant()) {
+                        System.out.println("  ✓ No issues found - file is valid");
+                    } else {
+                        System.out.println("  ! Issues found:");
+                        for (ComplianceIssue issue : result.getIssues()) {
+                            System.out.printf("    - %s: %s%n", 
+                                issue.getSeverity(), issue.getMessage());
+                        }
+                    }
+                } else {
+                    System.out.println("  ✗ File not found: " + filePath);
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error during valid scenario demonstration: " + e.getMessage());
+        }
+    }
     
-//     /**
-//      * Demonstrate validation of valid XML scenarios
-//      */
-//     public void demonstrateValidScenarios() {
-//         System.out.println("1. Validating VALID XML scenarios:");
-//         System.out.println("=====================================");
+    /**
+     * Demonstrate validation of invalid XML scenarios
+     */
+    public void demonstrateInvalidScenarios() {
+        System.out.println("\n\n2. Validating INVALID XML scenarios:");
+        System.out.println("======================================");
         
-//         try {
-//             List<String> validFiles = getXmlFilesInDirectory(VALID_DIR);
+        try {
+            List<String> invalidFiles = getXmlFilesInResourceDirectory("/test-scenarios/invalid");
+            
+            EnhancedRegistryAwareXmlValidator validator = new EnhancedRegistryAwareXmlValidator();
+            
+            for (String filePath : invalidFiles) {
+                System.out.println("\nValidating: " + filePath);
+                
+                File file = new File(filePath);
+                if (file.exists()) {
+                    XmlComplianceResult result = validator.validateFile(file);
+                    
+                    if (result.isCompliant()) {
+                        System.out.println("  ! Expected errors but file appears valid");
+                    } else {
+                        System.out.println("  ✓ Found expected issues:");
+                        for (ComplianceIssue issue : result.getIssues()) {
+                            System.out.printf("    - %s: %s%n", 
+                                issue.getSeverity(), issue.getMessage());
+                        }
+                    }
+                } else {
+                    System.out.println("  ✗ File not found: " + filePath);
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error during invalid scenario demonstration: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Demonstrate cross-directory validation using DirectoryValidationManager
+     */
+    public void demonstrateCrossDirectoryValidation() {
+        System.out.println("\n\n3. Cross-Directory Validation:");
+        System.out.println("===============================");
+        
+        try {
+            // Get resource directory paths
+            URL validResourceUrl = SchemaValidationDemo.class.getResource("/test-scenarios/valid");
+            URL invalidResourceUrl = SchemaValidationDemo.class.getResource("/test-scenarios/invalid");
+            
+            if (validResourceUrl != null && invalidResourceUrl != null) {
+                Path validDir = Paths.get(validResourceUrl.toURI());
+                Path invalidDir = Paths.get(invalidResourceUrl.toURI());
+                
+                DirectoryValidationManager manager = new DirectoryValidationManager();
+                
+                // Validate valid directory
+                System.out.println("\nValidating valid directory:");
+                DirectoryValidationManager.DirectoryValidationResult validDirResult = 
+                    manager.validateDirectory(validDir.toString());
+                
+                if (validDirResult.isValid()) {
+                    System.out.println("  ✓ No cross-file issues in valid directory");
+                } else {
+                    System.out.println("  ! Cross-file issues in valid directory:");
+                    for (ComplianceIssue issue : validDirResult.getAllIssues()) {
+                        System.out.printf("    - %s: %s%n", 
+                            issue.getSeverity(), issue.getMessage());
+                    }
+                }
+                
+                // Validate invalid directory
+                System.out.println("\nValidating invalid directory:");
+                DirectoryValidationManager.DirectoryValidationResult invalidDirResult = 
+                    manager.validateDirectory(invalidDir.toString());
+                
+                if (invalidDirResult.isValid()) {
+                    System.out.println("  ! Expected cross-file issues but found none");
+                } else {
+                    System.out.println("  ✓ Found expected cross-file issues:");
+                    for (ComplianceIssue issue : invalidDirResult.getAllIssues()) {
+                        System.out.printf("    - %s: %s%n", 
+                            issue.getSeverity(), issue.getMessage());
+                    }
+                }
+            } else {
+                System.out.println("  ✗ Could not locate test scenarios in resources");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error during cross-directory validation: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Get XML files in a resource directory
+     */
+    private List<String> getXmlFilesInResourceDirectory(String resourcePath) throws Exception {
+        List<String> xmlFiles = new ArrayList<>();
+        
+        URL resourceUrl = SchemaValidationDemo.class.getResource(resourcePath);
+        if (resourceUrl != null) {
+            Path dir = Paths.get(resourceUrl.toURI());
+            
+            try (Stream<Path> paths = Files.walk(dir)) {
+                paths.filter(Files::isRegularFile)
+                     .filter(path -> path.toString().toLowerCase().endsWith(".xml"))
+                     .forEach(path -> xmlFiles.add(path.toString()));
+            }
+        }
+        
+        return xmlFiles;
+    }
+}
             
 //             for (String filePath : validFiles) {
 //                 System.out.println("\nValidating: " + new File(filePath).getName());

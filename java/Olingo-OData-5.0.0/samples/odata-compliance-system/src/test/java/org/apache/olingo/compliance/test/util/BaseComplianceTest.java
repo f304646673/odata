@@ -7,8 +7,7 @@ import java.util.stream.Collectors;
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.XmlComplianceResult;
-import org.apache.olingo.compliance.validator.file.ModernXmlFileComplianceValidator;
-import org.apache.olingo.compliance.validator.file.XmlFileComplianceValidator;
+import org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +21,11 @@ public abstract class BaseComplianceTest {
     
     protected static final Logger logger = LoggerFactory.getLogger(BaseComplianceTest.class);
     
-    protected XmlFileComplianceValidator validator;
+    protected EnhancedRegistryAwareXmlValidator validator;
     
     @BeforeEach
     public void setUp() {
-        validator = new ModernXmlFileComplianceValidator();
+        validator = new EnhancedRegistryAwareXmlValidator();
     }
     
     /**

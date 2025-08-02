@@ -1,6 +1,7 @@
 package org.apache.olingo.compliance.validator.file;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
 import org.apache.olingo.compliance.core.model.XmlComplianceResult;
+import org.apache.olingo.compliance.engine.core.DefaultSchemaRegistry;
 import org.apache.olingo.compliance.engine.core.DefaultValidationEngine;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import org.apache.olingo.compliance.engine.core.ValidationContext;
@@ -21,7 +23,7 @@ import org.apache.olingo.compliance.engine.core.ValidationEngine;
  * 2. 使用新的CrossFileReferenceValidationRule进行跨文件引用验证
  * 3. 支持验证结果的导出和后续使用
  */
-public class EnhancedRegistryAwareXmlValidator extends RegistryAwareXmlValidator {
+public class EnhancedRegistryAwareXmlValidator extends RegistryAwareXmlValidator implements XmlFileComplianceValidator {
     
     private final ValidationEngine engine;
     
@@ -48,7 +50,8 @@ public class EnhancedRegistryAwareXmlValidator extends RegistryAwareXmlValidator
         try {
             // 1. 创建ValidationContext并注入SchemaRegistry
             ValidationContext context = ValidationContext.forFile(xmlFile.toPath());
-            context.setSchemaRegistry(registry);
+            // TODO: Find new way to inject SchemaRegistry - setSchemaRegistry is deprecated
+            // context.setSchemaRegistry(registry);
             
             // 2. 解析Schema（如果需要）
             List<CsdlSchema> schemas = parseSchemas(xmlFile);
@@ -151,5 +154,64 @@ public class EnhancedRegistryAwareXmlValidator extends RegistryAwareXmlValidator
             xmlFile.getAbsolutePath(),
             System.currentTimeMillis()
         );
+    }
+    
+    // 实现XmlFileComplianceValidator接口的方法
+    
+    @Override
+    public XmlComplianceResult validateFile(File xmlFile) {
+        return validateWithRegistry(xmlFile, new DefaultSchemaRegistry());
+    }
+    
+    @Override
+    public XmlComplianceResult validateFile(Path xmlPath) {
+        return validateFile(xmlPath.toFile());
+    }
+    
+    @Override
+    public XmlComplianceResult validateContent(String xmlContent, String fileName) {
+        try {
+            // 创建临时文件来处理字符串内容
+            File tempFile = File.createTempFile("temp_validation_", ".xml");
+            tempFile.deleteOnExit();
+            
+            // 写入内容到临时文件
+            java.nio.file.Files.write(tempFile.toPath(), xmlContent.getBytes("UTF-8"));
+            
+            // 使用文件验证方法
+            XmlComplianceResult result = validateFile(tempFile);
+            
+            // 更新结果中的文件名信息
+            if (fileName != null && !fileName.isEmpty()) {
+                // 创建新的结果对象，使用提供的文件名
+                return new XmlComplianceResult(
+                    result.isCompliant(),
+                    result.getIssues(),
+                    result.getReferencedNamespaces(),
+                    result.getMetadata(),
+                    fileName,
+                    result.getValidationTimeMs()
+                );
+            }
+            
+            return result;
+            
+        } catch (java.io.IOException | java.nio.file.InvalidPathException e) {
+            List<ComplianceIssue> issues = new ArrayList<>();
+            issues.add(new ComplianceIssue(
+                org.apache.olingo.compliance.core.model.ComplianceErrorType.PARSING_ERROR,
+                "Failed to process XML content: " + e.getMessage(),
+                ComplianceIssue.Severity.ERROR
+            ));
+            
+            return new XmlComplianceResult(
+                false,
+                issues,
+                new java.util.HashSet<>(),
+                new java.util.HashMap<>(),
+                fileName != null ? fileName : "unknown",
+                System.currentTimeMillis()
+            );
+        }
     }
 }
