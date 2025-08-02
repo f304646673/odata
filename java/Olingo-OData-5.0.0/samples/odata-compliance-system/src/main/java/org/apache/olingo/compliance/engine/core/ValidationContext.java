@@ -27,7 +27,6 @@ public class ValidationContext {
     private final Map<String, Object> properties;
     
     // Parsed schema data
-    private CsdlSchema schema;
     private List<CsdlSchema> allSchemas;
     
     // Validation state
@@ -93,7 +92,8 @@ public class ValidationContext {
     
     public static ValidationContext forSchema(CsdlSchema schema, String fileName) {
         ValidationContext context = new ValidationContext(schema, fileName);
-        context.schema = schema;
+        context.allSchemas = new ArrayList<>();
+        context.allSchemas.add(schema);
         return context;
     }
     
@@ -239,9 +239,6 @@ public class ValidationContext {
     public String getContent() { return content; }
     public InputStream getInputStream() { return inputStream; }
     public Map<String, Object> getProperties() { return Collections.unmodifiableMap(properties); }
-    
-    public CsdlSchema getSchema() { return schema; }
-    public void setSchema(CsdlSchema schema) { this.schema = schema; }
     
     public List<CsdlSchema> getAllSchemas() { return allSchemas; }
     public void setAllSchemas(List<CsdlSchema> schemas) { this.allSchemas = schemas; }

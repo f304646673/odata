@@ -1,8 +1,8 @@
-package org.apache.olingo.compliance.engine.rules.semantic;
+package org.apache.olingo.compliance.engine.rule.semantic;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import org.apache.olingo.compliance.engine.rule.RuleResult;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
@@ -54,29 +54,36 @@ public class AnnotationValidationRule extends AbstractSemanticRule {
     
     @Override
     protected boolean isSemanticApplicable(ValidationContext context, ValidationConfig config) {
-        return context.getSchema() != null;
+        return context.getAllSchemas() != null && !context.getAllSchemas().isEmpty();
     }
     
     @Override
     public RuleResult validate(ValidationContext context, ValidationConfig config) {
         long startTime = System.currentTimeMillis();
         
-        CsdlSchema schema = context.getSchema();
-        if (schema == null) {
+        List<CsdlSchema> schemas = context.getAllSchemas();
+        if (schemas == null || schemas.isEmpty()) {
             return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
         }
         
+        // Validate annotations for all schemas
+        for (CsdlSchema schema : schemas) {
+            String errorMessage = validateSchemaAnnotations(schema, context);
+            if (errorMessage != null) {
+                return RuleResult.fail(getName(), errorMessage, System.currentTimeMillis() - startTime);
+            }
+        }
+        
+        return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
+    }
+    
+    private String validateSchemaAnnotations(CsdlSchema schema, ValidationContext context) {
         // Collect all annotation targets defined in this schema
         Set<String> definedTargets = collectDefinedTargets(schema);
         context.addDefinedTargets(definedTargets);
         
         // Validate annotations
-        String errorMessage = validateAnnotations(schema, context);
-        if (errorMessage != null) {
-            return RuleResult.fail(getName(), errorMessage, System.currentTimeMillis() - startTime);
-        }
-        
-        return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
+        return validateAnnotations(schema, context);
     }
     
     private Set<String> collectDefinedTargets(CsdlSchema schema) {

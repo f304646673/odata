@@ -1,8 +1,8 @@
-package org.apache.olingo.compliance.engine.rules.structural;
+package org.apache.olingo.compliance.engine.rule.structural;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import org.apache.olingo.compliance.engine.rule.RuleResult;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
@@ -42,21 +42,24 @@ public class ElementDefinitionRule extends AbstractStructuralRule {
     
     @Override
     protected boolean isStructurallyApplicable(ValidationContext context, ValidationConfig config) {
-        return context.getSchema() != null;
+        return context.getAllSchemas() != null && !context.getAllSchemas().isEmpty();
     }
     
     @Override
     public RuleResult validate(ValidationContext context, ValidationConfig config) {
         long startTime = System.currentTimeMillis();
         
-        CsdlSchema schema = context.getSchema();
-        if (schema == null) {
+        List<CsdlSchema> schemas = context.getAllSchemas();
+        if (schemas == null || schemas.isEmpty()) {
             return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
         }
         
-        String errorMessage = validateElementDefinitions(schema, context);
-        if (errorMessage != null) {
-            return RuleResult.fail(getName(), errorMessage, System.currentTimeMillis() - startTime);
+        // Validate each schema for element definitions
+        for (CsdlSchema schema : schemas) {
+            String errorMessage = validateElementDefinitions(schema, context);
+            if (errorMessage != null) {
+                return RuleResult.fail(getName(), errorMessage, System.currentTimeMillis() - startTime);
+            }
         }
         
         return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);

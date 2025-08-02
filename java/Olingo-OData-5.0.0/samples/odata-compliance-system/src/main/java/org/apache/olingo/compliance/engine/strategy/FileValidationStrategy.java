@@ -1,20 +1,19 @@
-package org.apache.olingo.compliance.engine.strategies;
+package org.apache.olingo.compliance.engine.strategy;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.olingo.compliance.engine.core.ValidationContext;
-import org.apache.olingo.compliance.engine.core.ValidationEngine;
-import org.apache.olingo.compliance.engine.core.ValidationStrategy;
-import org.apache.olingo.compliance.engine.rule.ValidationRule;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.core.api.ValidationResult;
 import org.apache.olingo.compliance.engine.core.ValidationContext;
+import org.apache.olingo.compliance.engine.core.ValidationEngine;
+import org.apache.olingo.compliance.engine.core.ValidationStrategy;
+import org.apache.olingo.compliance.engine.rule.ValidationRule;
 import org.apache.olingo.server.core.MetadataParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class FileValidationStrategy implements ValidationStrategy {
         return context.getFilePath() != null || 
                context.getContent() != null || 
                context.getInputStream() != null ||
-               context.getSchema() != null;
+               (context.getAllSchemas() != null && !context.getAllSchemas().isEmpty());
     }
     
     @Override
@@ -53,7 +52,7 @@ public class FileValidationStrategy implements ValidationStrategy {
             }
             
             // Parse schema if not already parsed
-            if (context.getSchema() == null) {
+            if (context.getAllSchemas() == null || context.getAllSchemas().isEmpty()) {
                 parseSchema(context);
             }
             
@@ -123,15 +122,13 @@ public class FileValidationStrategy implements ValidationStrategy {
             
             // Get schemas from the EDM provider
             List<CsdlSchema> schemas = edmProvider.getSchemas();
-            
-            // For single file validation, take the first schema
-            CsdlSchema schema = schemas.get(0);
-            context.setSchema(schema);
             context.setAllSchemas(schemas);
             
-            // Add current schema namespace to context
-            if (schema.getNamespace() != null) {
-                context.addCurrentSchemaNamespace(schema.getNamespace());
+            // Add current schema namespaces to context
+            for (CsdlSchema schema : schemas) {
+                if (schema.getNamespace() != null) {
+                    context.addCurrentSchemaNamespace(schema.getNamespace());
+                }
             }
             
         } catch (Exception e) {
@@ -191,8 +188,15 @@ public class FileValidationStrategy implements ValidationStrategy {
         
         // Add metadata
         builder.addMetadata("ruleExecutionTimes", context.getAllRuleExecutionTimes());
-        if (context.getSchema() != null) {
-            builder.addMetadata("schemaNamespace", context.getSchema().getNamespace());
+        if (context.getAllSchemas() != null && !context.getAllSchemas().isEmpty()) {
+            // Add all schema namespaces
+            List<String> namespaces = new ArrayList<>();
+            for (CsdlSchema schema : context.getAllSchemas()) {
+                if (schema.getNamespace() != null) {
+                    namespaces.add(schema.getNamespace());
+                }
+            }
+            builder.addMetadata("schemaNamespaces", namespaces);
         }
         
         // Add file size if available

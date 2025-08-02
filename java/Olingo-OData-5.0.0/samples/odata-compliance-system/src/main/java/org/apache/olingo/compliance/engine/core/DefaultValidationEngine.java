@@ -13,12 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.core.api.ValidationResult;
-import org.apache.olingo.compliance.engine.core.ValidationContext;
-import org.apache.olingo.compliance.engine.core.ValidationEngine;
 import org.apache.olingo.compliance.engine.rule.ValidationRule;
-import org.apache.olingo.compliance.engine.core.ValidationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,8 +265,15 @@ public class DefaultValidationEngine implements ValidationEngine {
         
         // Add metadata
         builder.addMetadata("ruleExecutionTimes", context.getAllRuleExecutionTimes());
-        if (context.getSchema() != null) {
-            builder.addMetadata("schemaNamespace", context.getSchema().getNamespace());
+        if (context.getAllSchemas() != null && !context.getAllSchemas().isEmpty()) {
+            // Add all schema namespaces
+            List<String> namespaces = new ArrayList<>();
+            for (CsdlSchema schema : context.getAllSchemas()) {
+                if (schema.getNamespace() != null) {
+                    namespaces.add(schema.getNamespace());
+                }
+            }
+            builder.addMetadata("schemaNamespaces", namespaces);
         }
         
         return builder.build();

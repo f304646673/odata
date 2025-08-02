@@ -1,6 +1,4 @@
-package org.apache.olingo.compliance.engine.rules.structural;
-import org.apache.olingo.compliance.engine.rule.RuleResult;
-
+package org.apache.olingo.compliance.engine.rule.structural;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.engine.core.ValidationContext;
 import org.apache.olingo.compliance.engine.rule.ValidationRule;

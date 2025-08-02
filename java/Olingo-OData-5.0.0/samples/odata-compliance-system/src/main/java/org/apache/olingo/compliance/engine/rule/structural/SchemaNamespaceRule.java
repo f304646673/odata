@@ -1,6 +1,7 @@
-package org.apache.olingo.compliance.engine.rules.structural;
+package org.apache.olingo.compliance.engine.rule.structural;
 
-import org.apache.olingo.compliance.engine.rule.RuleResult;
+import java.util.List;
+
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.engine.core.ValidationContext;
@@ -18,8 +19,8 @@ public class SchemaNamespaceRule extends AbstractStructuralRule {
     
     @Override
     protected boolean isStructurallyApplicable(ValidationContext context, ValidationConfig config) {
-        // This rule can work with either parsed schema or raw XML content
-        return context.getSchema() != null || 
+        // This rule can work with either parsed schemas or raw XML content
+        return (context.getAllSchemas() != null && !context.getAllSchemas().isEmpty()) || 
                context.getContent() != null || 
                context.getFilePath() != null;
     }
@@ -28,31 +29,44 @@ public class SchemaNamespaceRule extends AbstractStructuralRule {
     public RuleResult validate(ValidationContext context, ValidationConfig config) {
         long startTime = System.currentTimeMillis();
         
-        CsdlSchema schema = context.getSchema();
+        List<CsdlSchema> schemas = context.getAllSchemas();
         
-        // If we don't have a parsed schema, try to validate from raw XML
-        if (schema == null) {
+        // If we don't have parsed schemas, try to validate from raw XML
+        if (schemas == null || schemas.isEmpty()) {
             return validateFromRawXml(context, startTime);
+        }
+        
+        // Validate all schemas for namespace requirements
+        for (CsdlSchema schema : schemas) {
+            String errorMessage = validateSchemaNamespace(schema, context);
+            if (errorMessage != null) {
+                return RuleResult.fail(getName(), errorMessage, System.currentTimeMillis() - startTime);
+            }
+        }
+        
+        return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
+    }
+    
+    private String validateSchemaNamespace(CsdlSchema schema, ValidationContext context) {
+        if (schema == null) {
+            return "Schema cannot be null";
         }
         
         String namespace = schema.getNamespace();
         if (namespace == null || namespace.trim().isEmpty()) {
-            return RuleResult.fail(getName(), "Schema must have a valid namespace", 
-                                 System.currentTimeMillis() - startTime);
+            return "Schema must have a valid namespace";
         }
         
         // Basic namespace format validation
         if (!isValidNamespaceFormat(namespace)) {
-            return RuleResult.fail(getName(), 
-                                 String.format("Invalid namespace format: %s", namespace), 
-                                 System.currentTimeMillis() - startTime);
+            return String.format("Invalid namespace format: %s", namespace);
         }
         
         // Record the namespace for other rules
         context.addCurrentSchemaNamespace(namespace);
         context.addReferencedNamespace(namespace);
         
-        return RuleResult.pass(getName(), System.currentTimeMillis() - startTime);
+        return null; // No errors
     }
     
     private RuleResult validateFromRawXml(ValidationContext context, long startTime) {

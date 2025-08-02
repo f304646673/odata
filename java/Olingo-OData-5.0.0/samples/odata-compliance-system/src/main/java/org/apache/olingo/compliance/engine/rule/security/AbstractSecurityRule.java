@@ -1,6 +1,5 @@
-package org.apache.olingo.compliance.engine.rules.security;
+package org.apache.olingo.compliance.engine.rule.security;
 
-import org.apache.olingo.compliance.engine.rule.RuleResult;
 import org.apache.olingo.compliance.core.api.ValidationConfig;
 import org.apache.olingo.compliance.engine.core.ValidationContext;
 import org.apache.olingo.compliance.engine.rule.ValidationRule;

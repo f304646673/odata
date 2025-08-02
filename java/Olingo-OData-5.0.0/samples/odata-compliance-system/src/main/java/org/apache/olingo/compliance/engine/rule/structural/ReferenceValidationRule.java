@@ -1,6 +1,5 @@
-package org.apache.olingo.compliance.engine.rules.structural;
+package org.apache.olingo.compliance.engine.rule.structural;
 
-import org.apache.olingo.compliance.engine.rule.RuleResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
