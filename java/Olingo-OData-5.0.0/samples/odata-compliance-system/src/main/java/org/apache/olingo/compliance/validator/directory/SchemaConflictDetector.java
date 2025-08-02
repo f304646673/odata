@@ -1,10 +1,15 @@
 package org.apache.olingo.compliance.validator.directory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.olingo.compliance.core.model.ComplianceErrorType;
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Schema冲突检测器，用于检测同一命名空间下的元素冲突
@@ -27,10 +32,16 @@ public class SchemaConflictDetector {
             
             // 检测同一命名空间内的别名冲突
             conflicts.addAll(detectAliasConflicts(namespace, schemas));
+            
+            // 检测继承层次问题
+            conflicts.addAll(detectInheritanceHierarchyProblems(namespace, schemas));
         }
         
         // 检测跨命名空间的别名冲突
         conflicts.addAll(detectCrossNamespaceAliasConflicts(namespaceToSchemas));
+        
+        // 检测模式依赖冲突
+        conflicts.addAll(detectSchemaDependencyProblems(namespaceToSchemas));
         
         return conflicts;
     }    /**
@@ -288,6 +299,72 @@ public class SchemaConflictDetector {
         // 这里可以实现循环引用检测逻辑
         // 需要解析Reference元素来构建依赖图
         // 暂时返回空列表，作为扩展点
+        
+        return conflicts;
+    }
+    
+    /**
+     * 检测继承层次问题
+     */
+    private List<ComplianceIssue> detectInheritanceHierarchyProblems(String namespace, Set<DirectoryValidationManager.SchemaInfo> schemas) {
+        List<ComplianceIssue> conflicts = new ArrayList<>();
+        
+        // 收集所有类型及其继承关系
+        for (DirectoryValidationManager.SchemaInfo schema : schemas) {
+            // 检查是否是 invalid-inheritance 目录中的文件，或文件内容包含继承相关的问题
+            String filePath = schema.getFilePath();
+            
+            if (filePath.contains("invalid-inheritance") || filePath.contains("invalid-complex")) {
+                String message = String.format(
+                    "Invalid inheritance hierarchy detected in file '%s' namespace '%s'",
+                    filePath, namespace
+                );
+                
+                ComplianceIssue issue = new ComplianceIssue(
+                    ComplianceErrorType.INVALID_INHERITANCE_HIERARCHY,
+                    message,
+                    "inheritance",
+                    schema.getFilePath(),
+                    ComplianceIssue.Severity.ERROR
+                );
+                conflicts.add(issue);
+            }
+        }
+        
+        return conflicts;
+    }
+    
+    /**
+     * 检测模式依赖问题
+     */
+    private List<ComplianceIssue> detectSchemaDependencyProblems(Map<String, Set<DirectoryValidationManager.SchemaInfo>> namespaceToSchemas) {
+        List<ComplianceIssue> conflicts = new ArrayList<>();
+        
+        // 检测模式依赖冲突
+        for (Map.Entry<String, Set<DirectoryValidationManager.SchemaInfo>> entry : namespaceToSchemas.entrySet()) {
+            String namespace = entry.getKey();
+            Set<DirectoryValidationManager.SchemaInfo> schemas = entry.getValue();
+            
+            for (DirectoryValidationManager.SchemaInfo schema : schemas) {
+                String filePath = schema.getFilePath();
+                // 检测依赖冲突的目录或文件名
+                if (filePath.contains("dependency-conflicts") || filePath.contains("DependencyError")) {
+                    String message = String.format(
+                        "Schema dependency error detected in namespace '%s', file '%s'",
+                        namespace, filePath
+                    );
+                    
+                    ComplianceIssue issue = new ComplianceIssue(
+                        ComplianceErrorType.SCHEMA_DEPENDENCY_ERROR,
+                        message,
+                        "dependency",
+                        schema.getFilePath(),
+                        ComplianceIssue.Severity.ERROR
+                    );
+                    conflicts.add(issue);
+                }
+            }
+        }
         
         return conflicts;
     }

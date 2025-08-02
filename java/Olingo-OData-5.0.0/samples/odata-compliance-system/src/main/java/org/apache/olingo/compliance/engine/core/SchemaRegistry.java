@@ -1,6 +1,12 @@
 package org.apache.olingo.compliance.engine.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -142,6 +148,34 @@ public class SchemaRegistry {
      * 获取指定命名空间的Schema
      */
     public SchemaDefinition getSchema(String namespace) {
+        return namespaceToSchema.get(namespace);
+    }
+    
+    /**
+     * 检查命名空间是否存在
+     */
+    public boolean hasNamespace(String namespace) {
+        return namespaceToSchema.containsKey(namespace);
+    }
+    
+    /**
+     * 检查文件是否有对应的Schema注册
+     */
+    public boolean hasSchemaForFile(String filePath) {
+        return fileToSchemas.containsKey(filePath) && !fileToSchemas.get(filePath).isEmpty();
+    }
+    
+    /**
+     * 获取文件对应的所有Schema
+     */
+    public Set<SchemaDefinition> getSchemasForFile(String filePath) {
+        return fileToSchemas.getOrDefault(filePath, Collections.emptySet());
+    }
+    
+    /**
+     * 获取命名空间对应的Schema
+     */
+    public SchemaDefinition getSchemaByNamespace(String namespace) {
         return namespaceToSchema.get(namespace);
     }
     

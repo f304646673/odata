@@ -38,7 +38,7 @@ public class DirectoryValidationManager {
     
     public DirectoryValidationManager() {
         this.conflictDetector = new SchemaConflictDetector();
-        this.fileValidator = new RegistryAwareXmlValidator();
+        this.fileValidator = new org.apache.olingo.compliance.validator.file.EnhancedRegistryAwareXmlValidator();
         this.schemaExtractor = new SchemaExtractor();
         this.namespaceToSchemas = new ConcurrentHashMap<>();
         this.fileToSchema = new ConcurrentHashMap<>();

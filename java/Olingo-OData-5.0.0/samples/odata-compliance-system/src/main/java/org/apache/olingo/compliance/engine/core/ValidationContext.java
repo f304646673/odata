@@ -29,6 +29,9 @@ public class ValidationContext {
     // Parsed schema data
     private List<CsdlSchema> allSchemas;
     
+    // Schema Registry for cross-file reference validation
+    private SchemaRegistry schemaRegistry;
+    
     // Validation state
     private final List<String> errors;
     private final List<String> warnings;
@@ -242,6 +245,9 @@ public class ValidationContext {
     
     public List<CsdlSchema> getAllSchemas() { return allSchemas; }
     public void setAllSchemas(List<CsdlSchema> schemas) { this.allSchemas = schemas; }
+    
+    public SchemaRegistry getSchemaRegistry() { return schemaRegistry; }
+    public void setSchemaRegistry(SchemaRegistry schemaRegistry) { this.schemaRegistry = schemaRegistry; }
     
     public List<String> getErrors() { return Collections.unmodifiableList(errors); }
     public List<String> getWarnings() { return Collections.unmodifiableList(warnings); }
