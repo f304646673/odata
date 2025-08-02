@@ -218,58 +218,6 @@ public class DefaultValidationServiceImpl implements ValidationService {
     }
     
     @Override
-    public List<String> validateCrossFileReferences() {
-        List<String> issues = new ArrayList<>();
-        
-        // Validate all referenced namespaces are defined
-        for (String referencedNs : referencedNamespaces) {
-            if (!isNamespaceDefined(referencedNs)) {
-                issues.add("Referenced namespace not found: " + referencedNs);
-            }
-        }
-        
-        // Validate all imported namespaces are available
-        for (String importedNs : importedNamespaces) {
-            if (!isNamespaceDefined(importedNs)) {
-                issues.add("Imported namespace not found: " + importedNs);
-            }
-        }
-        
-        return issues;
-    }
-    
-    @Override
-    public List<String> detectConflicts() {
-        List<String> conflicts = new ArrayList<>();
-        
-        // Check for namespace conflicts
-        Set<String> namespaces = getAllNamespaces();
-        for (String namespace : namespaces) {
-            Set<String> types = getTypesInNamespace(namespace);
-            Set<String> seenTypes = new HashSet<>();
-            for (String type : types) {
-                if (seenTypes.contains(type)) {
-                    conflicts.add("Duplicate type definition: " + namespace + "." + type);
-                } else {
-                    seenTypes.add(type);
-                }
-            }
-        }
-        
-        // Check for target conflicts
-        Set<String> seenTargets = new HashSet<>();
-        for (String target : definedTargets) {
-            if (seenTargets.contains(target)) {
-                conflicts.add("Duplicate target definition: " + target);
-            } else {
-                seenTargets.add(target);
-            }
-        }
-        
-        return conflicts;
-    }
-    
-    @Override
     public void recordRuleExecution(String ruleName, long executionTime) {
         ruleExecutionTimes.put(ruleName, executionTime);
     }

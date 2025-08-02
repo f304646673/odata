@@ -160,18 +160,6 @@ public interface ValidationService {
      */
     void setAllSchemas(List<CsdlSchema> schemas);
     
-    // Cross-file reference validation
-    /**
-     * Validate cross-file references for the current context
-     */
-    List<String> validateCrossFileReferences();
-    
-    // Conflict detection
-    /**
-     * Detect conflicts in the validation scope
-     */
-    List<String> detectConflicts();
-    
     // Rule execution tracking
     /**
      * Record rule execution time
