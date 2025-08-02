@@ -44,6 +44,7 @@
     <module>spring-boot-odata-xml-import</module>
     <module>odata-compliance-system</module>
     <module>odata-schema-validation-engine</module>
+    <module>odata-xml-processor</module>
   </modules>
 
   <properties>
@@ -88,6 +89,7 @@
         <module>odata-compliance-system</module>
         <module>odata-schema-validation-engine</module>
         <module>odata-schema-processor</module>
+        <module>odata-xml-processor</module>
       </modules>
     </profile>
     <profile>
