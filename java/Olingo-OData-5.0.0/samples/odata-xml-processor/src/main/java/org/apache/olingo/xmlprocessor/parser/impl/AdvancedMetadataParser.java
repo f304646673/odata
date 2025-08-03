@@ -34,11 +34,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.server.core.MetadataParser;
 import org.apache.olingo.server.core.ReferenceResolver;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class AdvancedMetadataParser {
     
@@ -207,12 +219,12 @@ public class AdvancedMetadataParser {
                 tempParser.referenceResolver(new FileBasedReferenceResolver(new File(".")));
             }
             
-            // Parse the schema to extract references
-            SchemaBasedEdmProvider tempProvider = tempParser.buildEdmProvider(new InputStreamReader(inputStream));
+            // Parse the schema to extract references using our own XML parsing
+            // to avoid Olingo's deduplication by namespace
+            Set<String> xmlReferences = extractReferencesFromXml(schemaPath);
             
-            // Extract references
-            for (EdmxReference reference : tempProvider.getReferences()) {
-                String refPath = reference.getUri().toString();
+            // Add all found references to dependencies
+            for (String refPath : xmlReferences) {
                 dependencies.add(refPath);
                 
                 // Recursively analyze dependencies
@@ -432,19 +444,341 @@ public class AdvancedMetadataParser {
     
     /**
      * Copy schemas from source provider to target provider using reflection
+     * Merges schemas with the same namespace, detecting conflicts
      */
     private void copySchemas(SchemaBasedEdmProvider source, SchemaBasedEdmProvider target) throws Exception {
-        // Get existing schemas in target to avoid duplicates
-        Set<String> existingNamespaces = new HashSet<>();
+        // Create a map of existing schemas by namespace for efficient lookup
+        Map<String, CsdlSchema> existingSchemas = new HashMap<>();
         for (CsdlSchema existingSchema : target.getSchemas()) {
-            existingNamespaces.add(existingSchema.getNamespace());
+            existingSchemas.put(existingSchema.getNamespace(), existingSchema);
         }
         
-        // Only add schemas that don't already exist
-        for (CsdlSchema schema : source.getSchemas()) {
-            if (!existingNamespaces.contains(schema.getNamespace())) {
-                addSchemaUsingReflection(target, schema);
+        // Process each schema from source
+        for (CsdlSchema sourceSchema : source.getSchemas()) {
+            String namespace = sourceSchema.getNamespace();
+            CsdlSchema existingSchema = existingSchemas.get(namespace);
+            
+            if (existingSchema == null) {
+                // No existing schema with this namespace, add it directly
+                addSchemaUsingReflection(target, sourceSchema);
+                existingSchemas.put(namespace, sourceSchema);
+            } else {
+                // Schema with same namespace exists, check if they are identical or need merging
+                if (areSchemasIdentical(existingSchema, sourceSchema)) {
+                    // Schemas are identical, skip merging (common in circular dependencies)
+                    continue;
+                } else {
+                    // Different schemas with same namespace, merge them
+                    CsdlSchema mergedSchema = mergeSchemas(existingSchema, sourceSchema, namespace);
+                    
+                    // Remove the old schema and add the merged one
+                    removeSchemaUsingReflection(target, existingSchema);
+                    addSchemaUsingReflection(target, mergedSchema);
+                    
+                    // Update our tracking map
+                    existingSchemas.put(namespace, mergedSchema);
+                }
             }
+        }
+    }
+    
+    /**
+     * Check if two schemas are identical (same elements with same definitions)
+     */
+    private boolean areSchemasIdentical(CsdlSchema schema1, CsdlSchema schema2) {
+        // For now, we'll use a simple heuristic: if schemas have same namespace and
+        // same number of each type of element, AND the element names are the same,
+        // we'll do a deeper check of the actual content.
+        
+        // Check entity types
+        int entityCount1 = schema1.getEntityTypes() != null ? schema1.getEntityTypes().size() : 0;
+        int entityCount2 = schema2.getEntityTypes() != null ? schema2.getEntityTypes().size() : 0;
+        if (entityCount1 != entityCount2) {
+            return false;
+        }
+        
+        // Check complex types  
+        int complexCount1 = schema1.getComplexTypes() != null ? schema1.getComplexTypes().size() : 0;
+        int complexCount2 = schema2.getComplexTypes() != null ? schema2.getComplexTypes().size() : 0;
+        if (complexCount1 != complexCount2) {
+            return false;
+        }
+        
+        // If they have the same counts but different element names, they're definitely different
+        if (entityCount1 > 0) {
+            Set<String> names1 = schema1.getEntityTypes().stream().map(CsdlEntityType::getName).collect(java.util.stream.Collectors.toSet());
+            Set<String> names2 = schema2.getEntityTypes().stream().map(CsdlEntityType::getName).collect(java.util.stream.Collectors.toSet());
+            if (!names1.equals(names2)) {
+                return false;
+            }
+        }
+        
+        if (complexCount1 > 0) {
+            Set<String> names1 = schema1.getComplexTypes().stream().map(CsdlComplexType::getName).collect(java.util.stream.Collectors.toSet());
+            Set<String> names2 = schema2.getComplexTypes().stream().map(CsdlComplexType::getName).collect(java.util.stream.Collectors.toSet());
+            if (!names1.equals(names2)) {
+                return false;
+            }
+        }
+        
+        // If counts and names match, we need a deeper comparison.
+        // For now, let's use toString() comparison as a proxy for content equality.
+        // This is not perfect but will catch most differences in structure.
+        String content1 = getSchemaContentSignature(schema1);
+        String content2 = getSchemaContentSignature(schema2);
+        
+        return content1.equals(content2);
+    }
+    
+    /**
+     * Generate a content signature for a schema to help with identity comparison
+     */
+    private String getSchemaContentSignature(CsdlSchema schema) {
+        StringBuilder signature = new StringBuilder();
+        signature.append("namespace:").append(schema.getNamespace()).append(";");
+        
+        // Add entity types with their properties
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                signature.append("entity:").append(entityType.getName()).append("(");
+                if (entityType.getProperties() != null) {
+                    for (org.apache.olingo.commons.api.edm.provider.CsdlProperty prop : entityType.getProperties()) {
+                        signature.append(prop.getName()).append(":").append(prop.getType()).append(",");
+                    }
+                }
+                signature.append(");");
+            }
+        }
+        
+        // Add complex types with their properties
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                signature.append("complex:").append(complexType.getName()).append("(");
+                if (complexType.getProperties() != null) {
+                    for (org.apache.olingo.commons.api.edm.provider.CsdlProperty prop : complexType.getProperties()) {
+                        signature.append(prop.getName()).append(":").append(prop.getType()).append(",");
+                    }
+                }
+                signature.append(");");
+            }
+        }
+        
+        return signature.toString();
+    }
+    
+    /**
+     * Merge two schemas with the same namespace, detecting conflicts
+     */
+    private CsdlSchema mergeSchemas(CsdlSchema existing, CsdlSchema source, String namespace) throws Exception {
+        // Create a new schema to hold merged content
+        CsdlSchema merged = new CsdlSchema();
+        merged.setNamespace(namespace);
+        merged.setAlias(existing.getAlias() != null ? existing.getAlias() : source.getAlias());
+        
+        // Track element names to detect conflicts
+        Set<String> entityTypeNames = new HashSet<>();
+        Set<String> complexTypeNames = new HashSet<>();
+        Set<String> enumTypeNames = new HashSet<>();
+        Set<String> typeDefinitionNames = new HashSet<>();
+        Set<String> actionNames = new HashSet<>();
+        Set<String> functionNames = new HashSet<>();
+        Set<String> containerNames = new HashSet<>();
+        
+        // Copy all elements from existing schema
+        if (existing.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : existing.getEntityTypes()) {
+                merged.getEntityTypes().add(entityType);
+                entityTypeNames.add(entityType.getName());
+            }
+        }
+        
+        if (existing.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : existing.getComplexTypes()) {
+                merged.getComplexTypes().add(complexType);
+                complexTypeNames.add(complexType.getName());
+            }
+        }
+        
+        if (existing.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : existing.getEnumTypes()) {
+                merged.getEnumTypes().add(enumType);
+                enumTypeNames.add(enumType.getName());
+            }
+        }
+        
+        if (existing.getTypeDefinitions() != null) {
+            for (CsdlTypeDefinition typeDef : existing.getTypeDefinitions()) {
+                merged.getTypeDefinitions().add(typeDef);
+                typeDefinitionNames.add(typeDef.getName());
+            }
+        }
+        
+        if (existing.getActions() != null) {
+            for (CsdlAction action : existing.getActions()) {
+                merged.getActions().add(action);
+                actionNames.add(action.getName());
+            }
+        }
+        
+        if (existing.getFunctions() != null) {
+            for (CsdlFunction function : existing.getFunctions()) {
+                merged.getFunctions().add(function);
+                functionNames.add(function.getName());
+            }
+        }
+        
+        if (existing.getEntityContainer() != null) {
+            merged.setEntityContainer(existing.getEntityContainer());
+            containerNames.add(existing.getEntityContainer().getName());
+        }
+        
+        // Add elements from source schema, checking for conflicts
+        if (source.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : source.getEntityTypes()) {
+                if (entityTypeNames.contains(entityType.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting EntityType '%s' found in namespace '%s' during schema merge",
+                        entityType.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalArgumentException(error);
+                }
+                merged.getEntityTypes().add(entityType);
+                entityTypeNames.add(entityType.getName());
+            }
+        }
+        
+        if (source.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : source.getComplexTypes()) {
+                if (complexTypeNames.contains(complexType.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting ComplexType '%s' found in namespace '%s' during schema merge",
+                        complexType.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalArgumentException(error);
+                }
+                merged.getComplexTypes().add(complexType);
+                complexTypeNames.add(complexType.getName());
+            }
+        }
+        
+        if (source.getEnumTypes() != null) {
+            for (CsdlEnumType enumType : source.getEnumTypes()) {
+                if (enumTypeNames.contains(enumType.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting EnumType '%s' found in namespace '%s' during schema merge",
+                        enumType.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalStateException(error);
+                }
+                merged.getEnumTypes().add(enumType);
+                enumTypeNames.add(enumType.getName());
+            }
+        }
+        
+        if (source.getTypeDefinitions() != null) {
+            for (CsdlTypeDefinition typeDef : source.getTypeDefinitions()) {
+                if (typeDefinitionNames.contains(typeDef.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting TypeDefinition '%s' found in namespace '%s' during schema merge",
+                        typeDef.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalStateException(error);
+                }
+                merged.getTypeDefinitions().add(typeDef);
+                typeDefinitionNames.add(typeDef.getName());
+            }
+        }
+        
+        if (source.getActions() != null) {
+            for (CsdlAction action : source.getActions()) {
+                if (actionNames.contains(action.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting Action '%s' found in namespace '%s' during schema merge",
+                        action.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalStateException(error);
+                }
+                merged.getActions().add(action);
+                actionNames.add(action.getName());
+            }
+        }
+        
+        if (source.getFunctions() != null) {
+            for (CsdlFunction function : source.getFunctions()) {
+                if (functionNames.contains(function.getName())) {
+                    statistics.incrementError("schema_merge_conflict");
+                    String error = String.format(
+                        "Conflicting Function '%s' found in namespace '%s' during schema merge",
+                        function.getName(), namespace);
+                    errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                    throw new IllegalStateException(error);
+                }
+                merged.getFunctions().add(function);
+                functionNames.add(function.getName());
+            }
+        }
+        
+        if (source.getEntityContainer() != null) {
+            if (containerNames.contains(source.getEntityContainer().getName())) {
+                statistics.incrementError("schema_merge_conflict");
+                String error = String.format(
+                    "Conflicting EntityContainer '%s' found in namespace '%s' during schema merge",
+                    source.getEntityContainer().getName(), namespace);
+                errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
+                throw new IllegalStateException(error);
+            }
+            // If there's no existing container, set this one
+            // If there is an existing container, we would need to merge them (complex scenario)
+            if (merged.getEntityContainer() == null) {
+                merged.setEntityContainer(source.getEntityContainer());
+            }
+        }
+        
+        return merged;
+    }
+    
+    /**
+     * Remove schema using reflection to access internal schema list
+     */
+    private void removeSchemaUsingReflection(SchemaBasedEdmProvider provider, CsdlSchema schema) 
+            throws Exception {
+        try {
+            // Try different possible field names for the schemas list
+            java.lang.reflect.Field schemasField = null;
+            String[] possibleFieldNames = {"schemas", "schemaList", "csdlSchemas", "edmSchemas"};
+            
+            for (String fieldName : possibleFieldNames) {
+                try {
+                    schemasField = SchemaBasedEdmProvider.class.getDeclaredField(fieldName);
+                    break;
+                } catch (NoSuchFieldException e) {
+                    // Try next field name
+                }
+            }
+            
+            if (schemasField == null) {
+                // If we can't find the field, let's list all fields for debugging
+                java.lang.reflect.Field[] allFields = SchemaBasedEdmProvider.class.getDeclaredFields();
+                StringBuilder fieldNames = new StringBuilder();
+                for (java.lang.reflect.Field field : allFields) {
+                    if (fieldNames.length() > 0) fieldNames.append(", ");
+                    fieldNames.append(field.getName() + ":" + field.getType().getSimpleName());
+                }
+                throw new IllegalStateException("Could not find schemas field. Available fields: " + fieldNames.toString());
+            }
+            
+            schemasField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            List<CsdlSchema> schemas = (List<CsdlSchema>) schemasField.get(provider);
+            schemas.remove(schema);
+        } catch (Exception e) {
+            // Fallback: create new provider without the schema (not ideal but works)
+            throw new IllegalStateException("Could not remove schema during merge: " + e.getMessage(), e);
         }
     }
     
@@ -724,5 +1058,43 @@ public class AdvancedMetadataParser {
             }
             return null;
         }
+    }
+    
+    /**
+     * Extract edmx:Reference elements directly from XML to avoid Olingo's deduplication by namespace
+     */
+    private Set<String> extractReferencesFromXml(String schemaPath) throws Exception {
+        Set<String> references = new HashSet<>();
+        
+        try {
+            InputStream inputStream = resolveReference(schemaPath);
+            if (inputStream == null) {
+                return references;
+            }
+            
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(inputStream);
+            
+            // Find all edmx:Reference elements
+            NodeList referenceNodes = doc.getElementsByTagNameNS("http://docs.oasis-open.org/odata/ns/edmx", "Reference");
+            
+            for (int i = 0; i < referenceNodes.getLength(); i++) {
+                Element refElement = (Element) referenceNodes.item(i);
+                String uri = refElement.getAttribute("Uri");
+                if (uri != null && !uri.trim().isEmpty()) {
+                    references.add(uri);
+                }
+            }
+            
+            inputStream.close();
+            
+        } catch (Exception e) {
+            // If XML parsing fails, fall back to empty set
+            // Let other parts of the system handle the error
+        }
+        
+        return references;
     }
 }

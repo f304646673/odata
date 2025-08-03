@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/namespace-conflicts/real-conflict-1.xml">
+    <edmx:Include Namespace="Test.RealConflict"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="schemas/namespace-conflicts/real-conflict-2.xml">
+    <edmx:Include Namespace="Test.RealConflict"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.RealConflictMain" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- This should cause a conflict since ConflictingType is defined differently in both files -->
+        <Property Name="ConflictingProperty" Type="Test.RealConflict.ConflictingType"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

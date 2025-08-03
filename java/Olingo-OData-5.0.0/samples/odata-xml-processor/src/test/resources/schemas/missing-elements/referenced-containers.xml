@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Containers" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="ExistingEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Value" Type="Edm.String"/>
+      </EntityType>
+      
+      <EntityContainer Name="ExistingContainer">
+        <EntitySet Name="ExistingEntitySet" EntityType="Test.Containers.ExistingEntity"/>
+        <Singleton Name="ExistingSingleton" Type="Test.Containers.ExistingEntity"/>
+        <!-- Note: NonExistentEntitySet, NonExistentSingleton are NOT defined here -->
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

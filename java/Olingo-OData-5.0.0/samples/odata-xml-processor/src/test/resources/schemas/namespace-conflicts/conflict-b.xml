@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.ConflictB" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- Same type name but different definition - this should cause a conflict -->
+      <ComplexType Name="SameType">
+        <Property Name="FieldFromB" Type="Edm.String"/>
+        <Property Name="ValueFromB" Type="Edm.Double"/>
+        <Property Name="ExtraField" Type="Edm.Boolean"/>
+      </ComplexType>
+      
+      <!-- Same entity type name but different definition - this should cause a conflict -->
+      <EntityType Name="SameEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="NameFromB" Type="Edm.String"/>
+        <Property Name="ExtraProperty" Type="Edm.DateTime"/>
+      </EntityType>
+      
+      <EnumType Name="UniqueToB">
+        <Member Name="Value10" Value="10"/>
+        <Member Name="Value20" Value="20"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

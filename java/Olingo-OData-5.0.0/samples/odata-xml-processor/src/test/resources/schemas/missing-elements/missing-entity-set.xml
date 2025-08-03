@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/missing-elements/referenced-containers.xml">
+    <edmx:Include Namespace="Test.Containers"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.MissingEntitySet" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="LocalEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <!-- This references a non-existent entity set from another container -->
+        <NavigationProperty Name="ExternalEntities" Type="Collection(Test.Containers.NonExistentEntitySet)"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

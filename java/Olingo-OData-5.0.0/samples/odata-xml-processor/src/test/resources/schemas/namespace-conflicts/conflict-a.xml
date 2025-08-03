@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.ConflictA" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- Same type name but different definition -->
+      <ComplexType Name="SameType">
+        <Property Name="FieldFromA" Type="Edm.String"/>
+        <Property Name="ValueFromA" Type="Edm.Int32"/>
+      </ComplexType>
+      
+      <!-- Same entity type name but different definition -->
+      <EntityType Name="SameEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="NameFromA" Type="Edm.String"/>
+      </EntityType>
+      
+      <EnumType Name="UniqueToA">
+        <Member Name="Value1" Value="1"/>
+        <Member Name="Value2" Value="2"/>
+      </EnumType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

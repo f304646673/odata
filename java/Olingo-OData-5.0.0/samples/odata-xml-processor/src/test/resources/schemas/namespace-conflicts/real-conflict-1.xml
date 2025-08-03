@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.RealConflict" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <!-- Same type name but different definition -->
+      <ComplexType Name="ConflictingType">
+        <Property Name="FieldFromFile1" Type="Edm.String"/>
+        <Property Name="ValueFromFile1" Type="Edm.Int32"/>
+      </ComplexType>
+      
+      <!-- Same entity type name but different definition -->
+      <EntityType Name="ConflictingEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="NameFromFile1" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
