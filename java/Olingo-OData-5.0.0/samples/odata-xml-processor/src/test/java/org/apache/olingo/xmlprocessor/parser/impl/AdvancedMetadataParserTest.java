@@ -458,8 +458,8 @@ public class AdvancedMetadataParserTest {
         
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
         Map<AdvancedMetadataParser.ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(AdvancedMetadataParser.ErrorType.SCHEMA_NOT_FOUND) || 
-                  errorCounts.containsKey(AdvancedMetadataParser.ErrorType.PARSING_ERROR));
+        assertTrue(errorCounts.containsKey(AdvancedMetadataParser.ErrorType.FILE_NOT_FOUND), 
+                  "Should report FILE_NOT_FOUND error for non-existent files");
     }
 
     // ========================================
@@ -1054,6 +1054,34 @@ public class AdvancedMetadataParserTest {
         });
     }
 
+    @Test
+    @DisplayName("Test missing Annotation reference")
+    void testMissingAnnotation() {
+        String schemaPath = testResourcesPath + "/missing-elements/missing-annotation.xml";
+        
+        assertDoesNotThrow(() -> {
+            SchemaBasedEdmProvider provider = parser.buildEdmProvider(schemaPath);
+            assertNotNull(provider);
+            assertNotNull(provider.getSchemas());
+            
+            // Verify the schema is parsed correctly despite missing annotation
+            boolean foundMainSchema = false;
+            for (CsdlSchema schema : provider.getSchemas()) {
+                if ("Test.MissingAnnotation".equals(schema.getNamespace())) {
+                    foundMainSchema = true;
+                    assertNotNull(schema.getEntityTypes());
+                    assertEquals(1, schema.getEntityTypes().size());
+                    CsdlEntityType mainEntity = schema.getEntityTypes().get(0);
+                    assertEquals("MainEntity", mainEntity.getName());
+                    // The entity referencing missing annotation should still exist
+                    assertNotNull(mainEntity.getProperties());
+                    assertEquals(2, mainEntity.getProperties().size()); // ID, Name
+                }
+            }
+            assertTrue(foundMainSchema, "Main schema should be parsed");
+        });
+    }
+
     // ========================================
     // 9. Schema Merging Tests
     // ========================================
@@ -1114,8 +1142,10 @@ public class AdvancedMetadataParserTest {
         // Verify that elements from both schema-a.xml and schema-b.xml are present
         // Note: There might be an issue with our merging logic, so let's be flexible for now
         assertNotNull(sharedSchema.getComplexTypes());
-        assertTrue(sharedSchema.getComplexTypes().size() >= 1, "Should have at least 1 complex type");
-        
+        assertEquals(2, sharedSchema.getComplexTypes().size(), "Should have 2 complex types from both schemas");
+        assertEquals(2, sharedSchema.getEnumTypes().size(), "Should have 2 enum types from both schemas");
+        assertEquals(2, sharedSchema.getEntityTypes().size(), "Should have 1 entity type from main schema");
+
         // Check for specific types
         boolean hasTypeFromA = false;
         boolean hasTypeFromB = false;

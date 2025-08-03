@@ -31,18 +31,32 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.server.core.MetadataParser;
@@ -160,6 +174,7 @@ public class AdvancedMetadataParser {
      */
     public enum ErrorType {
         PARSING_ERROR("parsing_error", "General parsing error"),
+        FILE_NOT_FOUND("file_not_found", "File does not exist"),
         SCHEMA_NOT_FOUND("schema_not_found", "Schema file could not be found"),
         DEPENDENCY_ANALYSIS_ERROR("dependency_analysis_error", "Error analyzing schema dependencies"),
         SCHEMA_RESOLUTION_FAILED("schema_resolution_failed", "Failed to resolve schema reference"),
@@ -170,7 +185,8 @@ public class AdvancedMetadataParser {
         INVALID_REFERENCE("invalid_reference", "Invalid reference URI or format"),
         XML_PARSING_ERROR("xml_parsing_error", "Error parsing XML content"),
         REFLECTION_ERROR("reflection_error", "Error using reflection to access internal methods"),
-        CONFIGURATION_ERROR("configuration_error", "Configuration or setup error");
+        CONFIGURATION_ERROR("configuration_error", "Configuration or setup error"),
+        MISSING_ANNOTATION("missing_annotation", "Required annotation is missing");
         
         private final String legacyKey;
         private final String description;
@@ -345,6 +361,13 @@ public class AdvancedMetadataParser {
         long startTime = System.currentTimeMillis();
         
         try {
+            // Check if main schema file exists first
+            File mainSchemaFile = new File(mainSchemaPath);
+            if (!mainSchemaFile.exists()) {
+                statistics.addError(ErrorType.FILE_NOT_FOUND, "File does not exist", mainSchemaPath);
+                throw new IllegalArgumentException("File not found: " + mainSchemaPath);
+            }
+            
             // Clear state for new parsing operation
             clearState();
             
@@ -683,84 +706,369 @@ public class AdvancedMetadataParser {
      * Check if two schemas are identical (same elements with same definitions)
      */
     private boolean areSchemasIdentical(CsdlSchema schema1, CsdlSchema schema2) {
-        // For now, we'll use a simple heuristic: if schemas have same namespace and
-        // same number of each type of element, AND the element names are the same,
-        // we'll do a deeper check of the actual content.
-        
-        // Check entity types
-        int entityCount1 = schema1.getEntityTypes() != null ? schema1.getEntityTypes().size() : 0;
-        int entityCount2 = schema2.getEntityTypes() != null ? schema2.getEntityTypes().size() : 0;
-        if (entityCount1 != entityCount2) {
+        // Check if schemas are truly identical by comparing all their elements
+        if (!Objects.equals(schema1.getNamespace(), schema2.getNamespace())) {
             return false;
         }
         
-        // Check complex types  
-        int complexCount1 = schema1.getComplexTypes() != null ? schema1.getComplexTypes().size() : 0;
-        int complexCount2 = schema2.getComplexTypes() != null ? schema2.getComplexTypes().size() : 0;
-        if (complexCount1 != complexCount2) {
+        // Check EntityTypes - compare by name and properties
+        if (!areEntityTypesIdentical(schema1.getEntityTypes(), schema2.getEntityTypes())) {
             return false;
         }
         
-        // If they have the same counts but different element names, they're definitely different
-        if (entityCount1 > 0) {
-            Set<String> names1 = schema1.getEntityTypes().stream().map(CsdlEntityType::getName).collect(java.util.stream.Collectors.toSet());
-            Set<String> names2 = schema2.getEntityTypes().stream().map(CsdlEntityType::getName).collect(java.util.stream.Collectors.toSet());
-            if (!names1.equals(names2)) {
-                return false;
-            }
+        // Check ComplexTypes - compare by name and properties
+        if (!areComplexTypesIdentical(schema1.getComplexTypes(), schema2.getComplexTypes())) {
+            return false;
         }
         
-        if (complexCount1 > 0) {
-            Set<String> names1 = schema1.getComplexTypes().stream().map(CsdlComplexType::getName).collect(java.util.stream.Collectors.toSet());
-            Set<String> names2 = schema2.getComplexTypes().stream().map(CsdlComplexType::getName).collect(java.util.stream.Collectors.toSet());
-            if (!names1.equals(names2)) {
-                return false;
-            }
+        // Check EnumTypes - compare by name and members
+        if (!areEnumTypesIdentical(schema1.getEnumTypes(), schema2.getEnumTypes())) {
+            return false;
         }
         
-        // If counts and names match, we need a deeper comparison.
-        // For now, let's use toString() comparison as a proxy for content equality.
-        // This is not perfect but will catch most differences in structure.
-        String content1 = getSchemaContentSignature(schema1);
-        String content2 = getSchemaContentSignature(schema2);
+        // Check TypeDefinitions - compare by name and underlying type
+        if (!areTypeDefinitionsIdentical(schema1.getTypeDefinitions(), schema2.getTypeDefinitions())) {
+            return false;
+        }
         
-        return content1.equals(content2);
+        // Check Actions - compare by name and parameters (actions don't support overloading)
+        if (!areActionsIdentical(schema1.getActions(), schema2.getActions())) {
+            return false;
+        }
+        
+        // Check Functions - compare by name, parameters, and return type (functions support overloading)
+        if (!areFunctionsIdentical(schema1.getFunctions(), schema2.getFunctions())) {
+            return false;
+        }
+        
+        // Check EntityContainers - compare by name and contents
+        if (!areEntityContainersIdentical(schema1.getEntityContainer(), schema2.getEntityContainer())) {
+            return false;
+        }
+        
+        return true;
     }
     
-    /**
-     * Generate a content signature for a schema to help with identity comparison
-     */
-    private String getSchemaContentSignature(CsdlSchema schema) {
-        StringBuilder signature = new StringBuilder();
-        signature.append("namespace:").append(schema.getNamespace()).append(";");
+    private boolean areEntityTypesIdentical(List<CsdlEntityType> types1, List<CsdlEntityType> types2) {
+        if ((types1 == null) != (types2 == null)) return false;
+        if (types1 == null) return true;
         
-        // Add entity types with their properties
-        if (schema.getEntityTypes() != null) {
-            for (CsdlEntityType entityType : schema.getEntityTypes()) {
-                signature.append("entity:").append(entityType.getName()).append("(");
-                if (entityType.getProperties() != null) {
-                    for (org.apache.olingo.commons.api.edm.provider.CsdlProperty prop : entityType.getProperties()) {
-                        signature.append(prop.getName()).append(":").append(prop.getType()).append(",");
-                    }
-                }
-                signature.append(");");
+        if (types1.size() != types2.size()) return false;
+        
+        Map<String, CsdlEntityType> map1 = types1.stream()
+            .collect(Collectors.toMap(CsdlEntityType::getName, Function.identity()));
+        Map<String, CsdlEntityType> map2 = types2.stream()
+            .collect(Collectors.toMap(CsdlEntityType::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areEntityTypeDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
             }
         }
+        return true;
+    }
+    
+    private boolean areEntityTypeDetailsIdentical(CsdlEntityType type1, CsdlEntityType type2) {
+        if (!Objects.equals(type1.getName(), type2.getName())) return false;
+        if (!Objects.equals(type1.getBaseType(), type2.getBaseType())) return false;
+        if (!Objects.equals(type1.isAbstract(), type2.isAbstract())) return false;
+        if (!Objects.equals(type1.isOpenType(), type2.isOpenType())) return false;
         
-        // Add complex types with their properties
-        if (schema.getComplexTypes() != null) {
-            for (CsdlComplexType complexType : schema.getComplexTypes()) {
-                signature.append("complex:").append(complexType.getName()).append("(");
-                if (complexType.getProperties() != null) {
-                    for (org.apache.olingo.commons.api.edm.provider.CsdlProperty prop : complexType.getProperties()) {
-                        signature.append(prop.getName()).append(":").append(prop.getType()).append(",");
-                    }
-                }
-                signature.append(");");
+        // Compare properties
+        if (!arePropertiesIdentical(type1.getProperties(), type2.getProperties())) return false;
+        
+        // Compare navigation properties
+        if (!areNavigationPropertiesIdentical(type1.getNavigationProperties(), type2.getNavigationProperties())) return false;
+        
+        // Compare keys
+        if (!areKeysIdentical(type1.getKey(), type2.getKey())) return false;
+        
+        return true;
+    }
+    
+    private boolean areComplexTypesIdentical(List<CsdlComplexType> types1, List<CsdlComplexType> types2) {
+        if ((types1 == null) != (types2 == null)) return false;
+        if (types1 == null) return true;
+        
+        if (types1.size() != types2.size()) return false;
+        
+        Map<String, CsdlComplexType> map1 = types1.stream()
+            .collect(Collectors.toMap(CsdlComplexType::getName, Function.identity()));
+        Map<String, CsdlComplexType> map2 = types2.stream()
+            .collect(Collectors.toMap(CsdlComplexType::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areComplexTypeDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
             }
         }
+        return true;
+    }
+    
+    private boolean areComplexTypeDetailsIdentical(CsdlComplexType type1, CsdlComplexType type2) {
+        if (!Objects.equals(type1.getName(), type2.getName())) return false;
+        if (!Objects.equals(type1.getBaseType(), type2.getBaseType())) return false;
+        if (!Objects.equals(type1.isAbstract(), type2.isAbstract())) return false;
+        if (!Objects.equals(type1.isOpenType(), type2.isOpenType())) return false;
         
-        return signature.toString();
+        return arePropertiesIdentical(type1.getProperties(), type2.getProperties());
+    }
+    
+    private boolean areEnumTypesIdentical(List<CsdlEnumType> types1, List<CsdlEnumType> types2) {
+        if ((types1 == null) != (types2 == null)) return false;
+        if (types1 == null) return true;
+        
+        if (types1.size() != types2.size()) return false;
+        
+        Map<String, CsdlEnumType> map1 = types1.stream()
+            .collect(Collectors.toMap(CsdlEnumType::getName, Function.identity()));
+        Map<String, CsdlEnumType> map2 = types2.stream()
+            .collect(Collectors.toMap(CsdlEnumType::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areEnumTypeDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areEnumTypeDetailsIdentical(CsdlEnumType type1, CsdlEnumType type2) {
+        if (!Objects.equals(type1.getName(), type2.getName())) return false;
+        if (!Objects.equals(type1.getUnderlyingType(), type2.getUnderlyingType())) return false;
+        if (!Objects.equals(type1.isFlags(), type2.isFlags())) return false;
+        
+        List<CsdlEnumMember> members1 = type1.getMembers();
+        List<CsdlEnumMember> members2 = type2.getMembers();
+        
+        if ((members1 == null) != (members2 == null)) return false;
+        if (members1 == null) return true;
+        if (members1.size() != members2.size()) return false;
+        
+        for (int i = 0; i < members1.size(); i++) {
+            CsdlEnumMember m1 = members1.get(i);
+            CsdlEnumMember m2 = members2.get(i);
+            if (!Objects.equals(m1.getName(), m2.getName()) || !Objects.equals(m1.getValue(), m2.getValue())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areTypeDefinitionsIdentical(List<CsdlTypeDefinition> types1, List<CsdlTypeDefinition> types2) {
+        if ((types1 == null) != (types2 == null)) return false;
+        if (types1 == null) return true;
+        
+        if (types1.size() != types2.size()) return false;
+        
+        Map<String, CsdlTypeDefinition> map1 = types1.stream()
+            .collect(Collectors.toMap(CsdlTypeDefinition::getName, Function.identity()));
+        Map<String, CsdlTypeDefinition> map2 = types2.stream()
+            .collect(Collectors.toMap(CsdlTypeDefinition::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            CsdlTypeDefinition t1 = map1.get(name);
+            CsdlTypeDefinition t2 = map2.get(name);
+            if (!Objects.equals(t1.getUnderlyingType(), t2.getUnderlyingType())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areActionsIdentical(List<CsdlAction> actions1, List<CsdlAction> actions2) {
+        if ((actions1 == null) != (actions2 == null)) return false;
+        if (actions1 == null) return true;
+        
+        if (actions1.size() != actions2.size()) return false;
+        
+        // Actions don't support overloading, so we can use simple name-based comparison
+        Map<String, CsdlAction> map1 = actions1.stream()
+            .collect(Collectors.toMap(CsdlAction::getName, Function.identity()));
+        Map<String, CsdlAction> map2 = actions2.stream()
+            .collect(Collectors.toMap(CsdlAction::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areActionDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areFunctionsIdentical(List<CsdlFunction> functions1, List<CsdlFunction> functions2) {
+        if ((functions1 == null) != (functions2 == null)) return false;
+        if (functions1 == null) return true;
+        
+        if (functions1.size() != functions2.size()) return false;
+        
+        // Functions support overloading, so we need to compare by signature (name + parameter types)
+        Map<String, CsdlFunction> map1 = functions1.stream()
+            .collect(Collectors.toMap(this::getFunctionSignature, Function.identity()));
+        Map<String, CsdlFunction> map2 = functions2.stream()
+            .collect(Collectors.toMap(this::getFunctionSignature, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String signature : map1.keySet()) {
+            if (!areFunctionDetailsIdentical(map1.get(signature), map2.get(signature))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private String getFunctionSignature(CsdlFunction function) {
+        StringBuilder sig = new StringBuilder(function.getName()).append("(");
+        if (function.getParameters() != null) {
+            for (CsdlParameter param : function.getParameters()) {
+                sig.append(param.getType()).append(",");
+            }
+        }
+        sig.append(")");
+        return sig.toString();
+    }
+    
+    private boolean areActionDetailsIdentical(CsdlAction action1, CsdlAction action2) {
+        if (!Objects.equals(action1.getName(), action2.getName())) return false;
+        if (!Objects.equals(action1.isBound(), action2.isBound())) return false;
+        
+        return areParametersIdentical(action1.getParameters(), action2.getParameters());
+    }
+    
+    private boolean areFunctionDetailsIdentical(CsdlFunction function1, CsdlFunction function2) {
+        if (!Objects.equals(function1.getName(), function2.getName())) return false;
+        if (!Objects.equals(function1.isBound(), function2.isBound())) return false;
+        if (!Objects.equals(function1.isComposable(), function2.isComposable())) return false;
+        
+        // Compare return type
+        if (!areReturnTypesIdentical(function1.getReturnType(), function2.getReturnType())) return false;
+        
+        return areParametersIdentical(function1.getParameters(), function2.getParameters());
+    }
+    
+    private boolean areEntityContainersIdentical(CsdlEntityContainer container1, CsdlEntityContainer container2) {
+        if ((container1 == null) != (container2 == null)) return false;
+        if (container1 == null) return true;
+        
+        if (!Objects.equals(container1.getName(), container2.getName())) return false;
+        // Note: CsdlEntityContainer doesn't have getExtends() method in this version
+        
+        // Compare entity sets, action imports, function imports, singletons
+        // This is a simplified comparison
+        return areEntitySetsIdentical(container1.getEntitySets(), container2.getEntitySets()) &&
+               areActionImportsIdentical(container1.getActionImports(), container2.getActionImports()) &&
+               areFunctionImportsIdentical(container1.getFunctionImports(), container2.getFunctionImports()) &&
+               areSingletonsIdentical(container1.getSingletons(), container2.getSingletons());
+    }
+    
+    // Helper methods for detailed comparisons (simplified implementations)
+    private boolean arePropertiesIdentical(List<CsdlProperty> props1, List<CsdlProperty> props2) {
+        if ((props1 == null) != (props2 == null)) return false;
+        if (props1 == null) return true;
+        if (props1.size() != props2.size()) return false;
+        
+        Map<String, CsdlProperty> map1 = props1.stream()
+            .collect(Collectors.toMap(CsdlProperty::getName, Function.identity()));
+        Map<String, CsdlProperty> map2 = props2.stream()
+            .collect(Collectors.toMap(CsdlProperty::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            CsdlProperty p1 = map1.get(name);
+            CsdlProperty p2 = map2.get(name);
+            if (!Objects.equals(p1.getType(), p2.getType()) ||
+                !Objects.equals(p1.isNullable(), p2.isNullable()) ||
+                !Objects.equals(p1.getMaxLength(), p2.getMaxLength()) ||
+                !Objects.equals(p1.getPrecision(), p2.getPrecision()) ||
+                !Objects.equals(p1.getScale(), p2.getScale())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areNavigationPropertiesIdentical(List<CsdlNavigationProperty> navProps1, List<CsdlNavigationProperty> navProps2) {
+        // Simplified comparison
+        if ((navProps1 == null) != (navProps2 == null)) return false;
+        if (navProps1 == null) return true;
+        return navProps1.size() == navProps2.size();
+    }
+    
+    private boolean areKeysIdentical(List<CsdlPropertyRef> keys1, List<CsdlPropertyRef> keys2) {
+        if ((keys1 == null) != (keys2 == null)) return false;
+        if (keys1 == null) return true;
+        if (keys1.size() != keys2.size()) return false;
+        
+        Set<String> keyNames1 = keys1.stream().map(CsdlPropertyRef::getName).collect(Collectors.toSet());
+        Set<String> keyNames2 = keys2.stream().map(CsdlPropertyRef::getName).collect(Collectors.toSet());
+        
+        return keyNames1.equals(keyNames2);
+    }
+    
+    private boolean areParametersIdentical(List<CsdlParameter> params1, List<CsdlParameter> params2) {
+        if ((params1 == null) != (params2 == null)) return false;
+        if (params1 == null) return true;
+        if (params1.size() != params2.size()) return false;
+        
+        for (int i = 0; i < params1.size(); i++) {
+            CsdlParameter p1 = params1.get(i);
+            CsdlParameter p2 = params2.get(i);
+            if (!Objects.equals(p1.getName(), p2.getName()) ||
+                !Objects.equals(p1.getType(), p2.getType()) ||
+                !Objects.equals(p1.isNullable(), p2.isNullable())) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean areReturnTypesIdentical(CsdlReturnType ret1, CsdlReturnType ret2) {
+        if ((ret1 == null) != (ret2 == null)) return false;
+        if (ret1 == null) return true;
+        
+        return Objects.equals(ret1.getType(), ret2.getType()) &&
+               Objects.equals(ret1.isNullable(), ret2.isNullable()) &&
+               Objects.equals(ret1.isCollection(), ret2.isCollection());
+    }
+    
+    private boolean areEntitySetsIdentical(List<CsdlEntitySet> sets1, List<CsdlEntitySet> sets2) {
+        // Simplified comparison
+        if ((sets1 == null) != (sets2 == null)) return false;
+        if (sets1 == null) return true;
+        return sets1.size() == sets2.size();
+    }
+    
+    private boolean areActionImportsIdentical(List<CsdlActionImport> imports1, List<CsdlActionImport> imports2) {
+        // Simplified comparison
+        if ((imports1 == null) != (imports2 == null)) return false;
+        if (imports1 == null) return true;
+        return imports1.size() == imports2.size();
+    }
+    
+    private boolean areFunctionImportsIdentical(List<CsdlFunctionImport> imports1, List<CsdlFunctionImport> imports2) {
+        // Simplified comparison
+        if ((imports1 == null) != (imports2 == null)) return false;
+        if (imports1 == null) return true;
+        return imports1.size() == imports2.size();
+    }
+    
+    private boolean areSingletonsIdentical(List<CsdlSingleton> singletons1, List<CsdlSingleton> singletons2) {
+        // Simplified comparison
+        if ((singletons1 == null) != (singletons2 == null)) return false;
+        if (singletons1 == null) return true;
+        return singletons1.size() == singletons2.size();
     }
     
     /**
