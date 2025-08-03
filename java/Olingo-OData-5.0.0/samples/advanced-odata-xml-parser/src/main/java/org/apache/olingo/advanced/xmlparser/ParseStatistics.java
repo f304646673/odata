@@ -1,7 +1,5 @@
 package org.apache.olingo.advanced.xmlparser;
 
-import org.apache.olingo.advanced.xmlparser.ErrorInfo;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
