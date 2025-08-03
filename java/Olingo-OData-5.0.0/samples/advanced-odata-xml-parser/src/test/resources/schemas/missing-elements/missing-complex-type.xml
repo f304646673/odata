@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/missing-elements/referenced-types.xml">
+    <edmx:Include Namespace="Test.Referenced"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.MissingComplexType" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- This references a non-existent complex type -->
+        <Property Name="MissingComplex" Type="Test.Referenced.NonExistentComplex"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/dependencies/core-types.xml">
+    <edmx:Include Namespace="Test.Core"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="schemas/dependencies/business-entities.xml">
+    <edmx:Include Namespace="Test.Business"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Service" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Employee">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Test.Core.ID" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Status" Type="Test.Core.EntityState"/>
+        <NavigationProperty Name="Company" Type="Test.Business.Company"/>
+      </EntityType>
+      
+      <EntityContainer Name="ServiceContainer">
+        <EntitySet Name="Employees" EntityType="Test.Service.Employee"/>
+        <EntitySet Name="Companies" EntityType="Test.Business.Company"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

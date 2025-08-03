@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/deep/level1.xml">
+    <edmx:Include Namespace="Test.Level1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Level2" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="ExtendedType" BaseType="Test.Level1.BaseType">
+        <Property Name="Name" Type="Edm.String"/>
+      </ComplexType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="EnumTestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+
+      <EnumType Name="Priority">
+        <Member Name="Low" Value="1"/>
+        <Member Name="Medium" Value="2"/>
+        <Member Name="High" Value="3"/>
+        <Member Name="Critical" Value="4"/>
+      </EnumType>
+
+      <EnumType Name="Status" UnderlyingType="Edm.Int32">
+        <Member Name="Active" Value="0"/>
+        <Member Name="Inactive" Value="1"/>
+        <Member Name="Suspended" Value="2"/>
+      </EnumType>
+
+      <EntityType Name="Task">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Title" Type="Edm.String"/>
+        <Property Name="TaskPriority" Type="EnumTestService.Priority"/>
+        <Property Name="TaskStatus" Type="EnumTestService.Status"/>
+      </EntityType>
+
+      <EntityContainer Name="EnumContainer">
+        <EntitySet Name="Tasks" EntityType="EnumTestService.Task"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

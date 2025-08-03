@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.MissingAnnotation" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="255"/>
+        <!-- This entity would reference a missing annotation term, but since annotations 
+             are not strictly enforced during parsing, this should still parse successfully -->
+      </EntityType>
+      
+      <!-- Reference to a non-existent annotation term -->
+      <Annotations Target="Test.MissingAnnotation.MainEntity/Name">
+        <Annotation Term="Test.NonExistent.RequiredAnnotation" String="This annotation term doesn't exist"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

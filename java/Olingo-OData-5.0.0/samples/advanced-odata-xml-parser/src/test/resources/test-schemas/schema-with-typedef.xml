@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="TypeDefTestService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+
+      <TypeDefinition Name="EmailAddress" UnderlyingType="Edm.String" MaxLength="254"/>
+      <TypeDefinition Name="PhoneNumber" UnderlyingType="Edm.String" MaxLength="20"/>
+      <TypeDefinition Name="ZipCode" UnderlyingType="Edm.String" MaxLength="10"/>
+
+      <EntityType Name="Contact">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Email" Type="TypeDefTestService.EmailAddress"/>
+        <Property Name="Phone" Type="TypeDefTestService.PhoneNumber"/>
+        <Property Name="PostalCode" Type="TypeDefTestService.ZipCode"/>
+      </EntityType>
+
+      <EntityContainer Name="TypeDefContainer">
+        <EntitySet Name="Contacts" EntityType="TypeDefTestService.Contact"/>
+      </EntityContainer>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

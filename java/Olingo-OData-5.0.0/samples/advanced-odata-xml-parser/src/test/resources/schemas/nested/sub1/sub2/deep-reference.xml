@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/nested/root-types.xml">
+    <edmx:Include Namespace="Test.Nested.Root"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Nested.Sub1" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="ExtendedType" BaseType="Test.Nested.Root.BaseType">
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="Category" Type="Edm.String"/>
+      </ComplexType>
+      
+      <EntityType Name="SubEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Extended" Type="Test.Nested.Sub1.ExtendedType"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

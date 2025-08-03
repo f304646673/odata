@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <!-- First Schema -->
+    <Schema Namespace="Test.Multi.First" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Price" Type="Edm.Decimal"/>
+      </EntityType>
+      
+      <EntityContainer Name="FirstContainer">
+        <EntitySet Name="Products" EntityType="Test.Multi.First.Product"/>
+      </EntityContainer>
+    </Schema>
+    
+    <!-- Second Schema -->
+    <Schema Namespace="Test.Multi.Second" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Date" Type="Edm.DateTimeOffset"/>
+        <Property Name="Total" Type="Edm.Decimal"/>
+      </EntityType>
+      
+      <ComplexType Name="OrderDetail">
+        <Property Name="ProductID" Type="Edm.Int32"/>
+        <Property Name="Quantity" Type="Edm.Int32"/>
+        <Property Name="UnitPrice" Type="Edm.Decimal"/>
+      </ComplexType>
+      
+      <EntityContainer Name="SecondContainer">
+        <EntitySet Name="Orders" EntityType="Test.Multi.Second.Order"/>
+      </EntityContainer>
+    </Schema>
+    
+    <!-- Third Schema -->
+    <Schema Namespace="Test.Multi.Third" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EnumType Name="Status">
+        <Member Name="Active" Value="1"/>
+        <Member Name="Inactive" Value="2"/>
+        <Member Name="Pending" Value="3"/>
+      </EnumType>
+      
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <Property Name="Status" Type="Test.Multi.Third.Status"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

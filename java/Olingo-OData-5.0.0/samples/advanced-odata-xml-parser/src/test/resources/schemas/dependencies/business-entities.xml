@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/dependencies/core-types.xml">
+    <edmx:Include Namespace="Test.Core"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Business" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="ContactInfo" BaseType="Test.Core.BaseAddress">
+        <Property Name="PostalCode" Type="Edm.String" MaxLength="20"/>
+        <Property Name="Country" Type="Edm.String" MaxLength="50"/>
+      </ComplexType>
+      
+      <EntityType Name="Company">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Test.Core.ID" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Status" Type="Test.Core.EntityState"/>
+        <Property Name="Address" Type="Test.Business.ContactInfo"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Shared" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="TypeFromB">
+        <Property Name="FieldB1" Type="Edm.String"/>
+        <Property Name="FieldB2" Type="Edm.Double"/>
+      </ComplexType>
+      
+      <EnumType Name="EnumFromB">
+        <Member Name="ValueB1" Value="10"/>
+        <Member Name="ValueB2" Value="20"/>
+      </EnumType>
+      
+      <EntityType Name="EntityFromB">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="NameB" Type="Edm.String"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

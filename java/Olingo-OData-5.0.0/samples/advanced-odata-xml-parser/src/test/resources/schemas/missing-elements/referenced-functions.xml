@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Functions" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Function Name="ExistingFunction">
+        <Parameter Name="input" Type="Edm.String"/>
+        <ReturnType Type="Edm.String"/>
+      </Function>
+      
+      <Action Name="ExistingAction">
+        <Parameter Name="input" Type="Edm.String"/>
+        <ReturnType Type="Edm.String"/>
+      </Action>
+      
+      <!-- Note: NonExistentFunction and NonExistentAction are NOT defined here -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

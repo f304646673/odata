@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.MissingEntityType">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- This references a missing entity type -->
+        <NavigationProperty Name="Related" Type="Test.MissingEntityType.MissingOtherEntity"/>
+      </EntityType>
+
+      <EntityContainer Name="Container">
+        <EntitySet Name="MainEntities" EntityType="Test.MissingEntityType.MainEntity"/>
+        <!-- This also references the missing entity type -->
+        <EntitySet Name="MissingEntities" EntityType="Test.MissingEntityType.MissingOtherEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/deep/level3.xml">
+    <edmx:Include Namespace="Test.Level3"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Level4" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="DeepEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Data" Type="Test.Level3.FinalType"/>
+      </EntityType>
+      
+      <EntityContainer Name="DeepContainer">
+        <EntitySet Name="DeepEntities" EntityType="Test.Level4.DeepEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

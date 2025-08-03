@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/namespace-merging/schema-a.xml">
+    <edmx:Include Namespace="Test.Shared"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="schemas/namespace-merging/schema-b.xml">
+    <edmx:Include Namespace="Test.Shared"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Main" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+        <!-- Use types from both schema files with same namespace -->
+        <Property Name="TypeFromA" Type="Test.Shared.TypeFromA"/>
+        <Property Name="TypeFromB" Type="Test.Shared.TypeFromB"/>
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
