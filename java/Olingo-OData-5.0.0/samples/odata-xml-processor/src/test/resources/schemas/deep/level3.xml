@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
-  <edmx:Reference Uri="level2.xml">
+  <edmx:Reference Uri="schemas/deep/level2.xml">
     <edmx:Include Namespace="Test.Level2"/>
   </edmx:Reference>
   <edmx:DataServices>

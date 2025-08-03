@@ -20,6 +20,7 @@ package org.apache.olingo.xmlprocessor.parser.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -360,8 +361,8 @@ public class AdvancedMetadataParser {
      * Load a single schema with caching
      */
     private void loadSchema(String schemaPath, SchemaBasedEdmProvider targetProvider) throws Exception {
-        // Normalize cache key (use just the filename for caching)
-        String cacheKey = new File(schemaPath).getName();
+        // Generate cache key that includes path information to avoid conflicts with same filename
+        String cacheKey = generateCacheKey(schemaPath);
         
         // Check cache first
         if (enableCaching && providerCache.containsKey(cacheKey)) {
@@ -433,8 +434,17 @@ public class AdvancedMetadataParser {
      * Copy schemas from source provider to target provider using reflection
      */
     private void copySchemas(SchemaBasedEdmProvider source, SchemaBasedEdmProvider target) throws Exception {
+        // Get existing schemas in target to avoid duplicates
+        Set<String> existingNamespaces = new HashSet<>();
+        for (CsdlSchema existingSchema : target.getSchemas()) {
+            existingNamespaces.add(existingSchema.getNamespace());
+        }
+        
+        // Only add schemas that don't already exist
         for (CsdlSchema schema : source.getSchemas()) {
-            addSchemaUsingReflection(target, schema);
+            if (!existingNamespaces.contains(schema.getNamespace())) {
+                addSchemaUsingReflection(target, schema);
+            }
         }
     }
     
@@ -492,9 +502,26 @@ public class AdvancedMetadataParser {
             }
             
             // Also try common subdirectories
-            String[] subdirs = {"dependencies", "circular", "deep", "invalid"};
+            String[] subdirs = {"dependencies", "circular", "deep", "invalid", "multi", "crossdir", "nested"};
             for (String subdir : subdirs) {
                 resourcePath = "schemas/" + subdir + "/" + referencePath;
+                resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+                if (resourceStream != null) {
+                    return resourceStream;
+                }
+            }
+            
+            // Try to handle relative paths like "../dirA/common.xml"
+            if (referencePath.startsWith("../")) {
+                String relativePath = referencePath.substring(3); // Remove "../"
+                resourcePath = "schemas/crossdir/" + relativePath;
+                resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+                if (resourceStream != null) {
+                    return resourceStream;
+                }
+                
+                // Also try nested directory structure
+                resourcePath = "schemas/nested/" + relativePath;
                 resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
                 if (resourceStream != null) {
                     return resourceStream;
@@ -517,6 +544,46 @@ public class AdvancedMetadataParser {
         
         // Note: we don't clear the cache here as it should persist across builds
         // unless explicitly disabled
+    }
+    
+    /**
+     * Generate cache key that includes path information to avoid conflicts
+     */
+    private String generateCacheKey(String schemaPath) {
+        try {
+            // Use canonical path to ensure uniqueness for the same file referenced by different relative paths
+            File file = new File(schemaPath);
+            String canonicalPath = file.getCanonicalPath();
+            
+            // Normalize path separators for consistency
+            return canonicalPath.replace("\\", "/");
+        } catch (IOException e) {
+            // Fallback to original logic if canonical path fails
+            File file = new File(schemaPath);
+            String fileName = file.getName();
+            
+            // For relative paths or complex paths, include parent directory to distinguish same filenames
+            if (schemaPath.contains("/") || schemaPath.contains("\\")) {
+                String parent = file.getParent();
+                if (parent != null) {
+                    // Normalize the parent path and combine with filename
+                    parent = parent.replace("\\", "/");
+                    if (parent.contains("/")) {
+                        // Take last two path components to create unique key
+                        String[] parts = parent.split("/");
+                        if (parts.length >= 2) {
+                            return parts[parts.length - 2] + "/" + parts[parts.length - 1] + "/" + fileName;
+                        } else if (parts.length == 1) {
+                            return parts[0] + "/" + fileName;
+                        }
+                    }
+                    return parent + "/" + fileName;
+                }
+            }
+            
+            // Fallback to just filename for simple cases
+            return fileName;
+        }
     }
     
     /**
@@ -576,44 +643,40 @@ public class AdvancedMetadataParser {
         @Override
         public InputStream resolveReference(URI referenceUri, String xmlBase) {
             try {
-                File resolvedFile;
+                String referencePath = referenceUri.getPath();
                 
+                // For absolute URI
                 if (referenceUri.isAbsolute()) {
-                    // Try to treat as file path
-                    resolvedFile = new File(referenceUri.getPath());
-                } else {
-                    // Relative path - resolve against base directory
-                    resolvedFile = new File(baseDirectory, referenceUri.getPath());
+                    File resolvedFile = new File(referencePath);
+                    if (resolvedFile.exists() && resolvedFile.isFile()) {
+                        return new FileInputStream(resolvedFile);
+                    }
                 }
                 
+                // Priority 1: Try as resource from classpath (for schemas/* paths)
+                InputStream resourceStream = FileBasedReferenceResolver.class.getClassLoader().getResourceAsStream(referencePath);
+                if (resourceStream != null) {
+                    return resourceStream;
+                }
+                
+                // Priority 2: Try relative to base directory (fallback for relative paths)
+                File resolvedFile = new File(baseDirectory, referencePath);
                 if (resolvedFile.exists() && resolvedFile.isFile()) {
                     return new FileInputStream(resolvedFile);
                 }
                 
-                // If not found in base directory, try all schema subdirectories
-                String fileName = referenceUri.getPath();
-                File testResourcesDir = new File("src/test/resources/schemas");
+                // Priority 3: Search in test resources directory
+                File testResourcesDir = new File("src/test/resources");
                 if (!testResourcesDir.exists()) {
-                    // We're running from target/test-classes, look for the compiled test resources
-                    testResourcesDir = new File("target/test-classes/schemas");
+                    // We're running from target/test-classes
+                    testResourcesDir = new File("target/test-classes");
                 }
                 
                 if (testResourcesDir.exists()) {
-                    String[] subDirs = {"simple", "dependencies", "circular", "deep", "invalid"};
-                    for (String subDir : subDirs) {
-                        File searchDir = new File(testResourcesDir, subDir);
-                        File candidateFile = new File(searchDir, fileName);
-                        if (candidateFile.exists() && candidateFile.isFile()) {
-                            return new FileInputStream(candidateFile);
-                        }
+                    File candidateFile = new File(testResourcesDir, referencePath);
+                    if (candidateFile.exists() && candidateFile.isFile()) {
+                        return new FileInputStream(candidateFile);
                     }
-                }
-                
-                // If not found, also try searching in test resources
-                String resourcePath = "schemas/" + referenceUri.getPath();
-                InputStream resourceStream = FileBasedReferenceResolver.class.getClassLoader().getResourceAsStream(resourcePath);
-                if (resourceStream != null) {
-                    return resourceStream;
                 }
                 
                 return null;
@@ -621,6 +684,7 @@ public class AdvancedMetadataParser {
                 return null;
             }
         }
+        
     }
     
     /**

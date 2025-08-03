@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/nested/sub1/sub2/deep-reference.xml">
+    <edmx:Include Namespace="Test.Nested.Sub1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="schemas/nested/root-types.xml">
+    <edmx:Include Namespace="Test.Nested.Root"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.Nested.Final" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="FinalEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="RootInfo" Type="Test.Nested.Root.BaseType"/>
+        <Property Name="SubInfo" Type="Test.Nested.Sub1.ExtendedType"/>
+      </EntityType>
+      
+      <EntityContainer Name="FinalContainer">
+        <EntitySet Name="FinalEntities" EntityType="Test.Nested.Final.FinalEntity"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

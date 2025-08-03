@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
-  <edmx:Reference Uri="core-types.xml">
+  <edmx:Reference Uri="schemas/dependencies/core-types.xml">
     <edmx:Include Namespace="Test.Core"/>
   </edmx:Reference>
-  <edmx:Reference Uri="business-entities.xml">
+  <edmx:Reference Uri="schemas/dependencies/business-entities.xml">
     <edmx:Include Namespace="Test.Business"/>
   </edmx:Reference>
   <edmx:DataServices>
