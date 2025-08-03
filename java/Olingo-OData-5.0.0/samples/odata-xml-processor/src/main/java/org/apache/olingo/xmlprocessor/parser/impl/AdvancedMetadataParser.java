@@ -52,6 +52,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
+import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
@@ -1050,32 +1051,173 @@ public class AdvancedMetadataParser {
                Objects.equals(ret1.isCollection(), ret2.isCollection());
     }
     
+    /**
+     * Compare EntitySets according to OData 4.0 specification.
+     * EntitySets are considered identical if they have the same Name, EntityType, and NavigationPropertyBindings.
+     */
     private boolean areEntitySetsIdentical(List<CsdlEntitySet> sets1, List<CsdlEntitySet> sets2) {
-        // Simplified comparison
         if ((sets1 == null) != (sets2 == null)) return false;
         if (sets1 == null) return true;
-        return sets1.size() == sets2.size();
+        if (sets1.size() != sets2.size()) return false;
+        
+        // Create maps for efficient lookup by name
+        Map<String, CsdlEntitySet> map1 = sets1.stream()
+            .collect(Collectors.toMap(CsdlEntitySet::getName, Function.identity()));
+        Map<String, CsdlEntitySet> map2 = sets2.stream()
+            .collect(Collectors.toMap(CsdlEntitySet::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areEntitySetDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
     }
     
+    /**
+     * Compare detailed EntitySet properties according to OData 4.0 specification.
+     */
+    private boolean areEntitySetDetailsIdentical(CsdlEntitySet set1, CsdlEntitySet set2) {
+        if (!Objects.equals(set1.getName(), set2.getName())) return false;
+        if (!Objects.equals(set1.getType(), set2.getType())) return false;
+        if (!Objects.equals(set1.isIncludeInServiceDocument(), set2.isIncludeInServiceDocument())) return false;
+        
+        // Compare NavigationPropertyBindings
+        return areNavigationPropertyBindingsIdentical(
+            set1.getNavigationPropertyBindings(), 
+            set2.getNavigationPropertyBindings()
+        );
+    }
+    
+    /**
+     * Compare NavigationPropertyBindings according to OData 4.0 specification.
+     */
+    private boolean areNavigationPropertyBindingsIdentical(
+            List<CsdlNavigationPropertyBinding> bindings1, 
+            List<CsdlNavigationPropertyBinding> bindings2) {
+        if ((bindings1 == null) != (bindings2 == null)) return false;
+        if (bindings1 == null) return true;
+        if (bindings1.size() != bindings2.size()) return false;
+        
+        // Create maps for efficient lookup by path
+        Map<String, String> map1 = bindings1.stream()
+            .collect(Collectors.toMap(CsdlNavigationPropertyBinding::getPath, 
+                                    CsdlNavigationPropertyBinding::getTarget));
+        Map<String, String> map2 = bindings2.stream()
+            .collect(Collectors.toMap(CsdlNavigationPropertyBinding::getPath, 
+                                    CsdlNavigationPropertyBinding::getTarget));
+        
+        return map1.equals(map2);
+    }
+    
+    /**
+     * Compare ActionImports according to OData 4.0 specification.
+     * ActionImports are considered identical if they have the same Name, Action, and EntitySet.
+     */
     private boolean areActionImportsIdentical(List<CsdlActionImport> imports1, List<CsdlActionImport> imports2) {
-        // Simplified comparison
         if ((imports1 == null) != (imports2 == null)) return false;
         if (imports1 == null) return true;
-        return imports1.size() == imports2.size();
+        if (imports1.size() != imports2.size()) return false;
+        
+        // Create maps for efficient lookup by name (ActionImports are uniquely identified by name)
+        Map<String, CsdlActionImport> map1 = imports1.stream()
+            .collect(Collectors.toMap(CsdlActionImport::getName, Function.identity()));
+        Map<String, CsdlActionImport> map2 = imports2.stream()
+            .collect(Collectors.toMap(CsdlActionImport::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areActionImportDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
     }
     
+    /**
+     * Compare detailed ActionImport properties according to OData 4.0 specification.
+     */
+    private boolean areActionImportDetailsIdentical(CsdlActionImport import1, CsdlActionImport import2) {
+        if (!Objects.equals(import1.getName(), import2.getName())) return false;
+        if (!Objects.equals(import1.getAction(), import2.getAction())) return false;
+        return Objects.equals(import1.getEntitySet(), import2.getEntitySet());
+    }
+    
+    /**
+     * Compare FunctionImports according to OData 4.0 specification.
+     * FunctionImports are considered identical if they have the same Name, Function, EntitySet, and IncludeInServiceDocument.
+     */
     private boolean areFunctionImportsIdentical(List<CsdlFunctionImport> imports1, List<CsdlFunctionImport> imports2) {
-        // Simplified comparison
         if ((imports1 == null) != (imports2 == null)) return false;
         if (imports1 == null) return true;
-        return imports1.size() == imports2.size();
+        if (imports1.size() != imports2.size()) return false;
+        
+        // Create maps for efficient lookup by name (FunctionImports are uniquely identified by name)
+        Map<String, CsdlFunctionImport> map1 = imports1.stream()
+            .collect(Collectors.toMap(CsdlFunctionImport::getName, Function.identity()));
+        Map<String, CsdlFunctionImport> map2 = imports2.stream()
+            .collect(Collectors.toMap(CsdlFunctionImport::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areFunctionImportDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
     }
     
+    /**
+     * Compare detailed FunctionImport properties according to OData 4.0 specification.
+     */
+    private boolean areFunctionImportDetailsIdentical(CsdlFunctionImport import1, CsdlFunctionImport import2) {
+        if (!Objects.equals(import1.getName(), import2.getName())) return false;
+        if (!Objects.equals(import1.getFunction(), import2.getFunction())) return false;
+        if (!Objects.equals(import1.getEntitySet(), import2.getEntitySet())) return false;
+        return Objects.equals(import1.isIncludeInServiceDocument(), import2.isIncludeInServiceDocument());
+    }
+    
+    /**
+     * Compare Singletons according to OData 4.0 specification.
+     * Singletons are considered identical if they have the same Name, Type, and NavigationPropertyBindings.
+     */
     private boolean areSingletonsIdentical(List<CsdlSingleton> singletons1, List<CsdlSingleton> singletons2) {
-        // Simplified comparison
         if ((singletons1 == null) != (singletons2 == null)) return false;
         if (singletons1 == null) return true;
-        return singletons1.size() == singletons2.size();
+        if (singletons1.size() != singletons2.size()) return false;
+        
+        // Create maps for efficient lookup by name (Singletons are uniquely identified by name)
+        Map<String, CsdlSingleton> map1 = singletons1.stream()
+            .collect(Collectors.toMap(CsdlSingleton::getName, Function.identity()));
+        Map<String, CsdlSingleton> map2 = singletons2.stream()
+            .collect(Collectors.toMap(CsdlSingleton::getName, Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) return false;
+        
+        for (String name : map1.keySet()) {
+            if (!areSingletonDetailsIdentical(map1.get(name), map2.get(name))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Compare detailed Singleton properties according to OData 4.0 specification.
+     */
+    private boolean areSingletonDetailsIdentical(CsdlSingleton singleton1, CsdlSingleton singleton2) {
+        if (!Objects.equals(singleton1.getName(), singleton2.getName())) return false;
+        if (!Objects.equals(singleton1.getType(), singleton2.getType())) return false;
+        
+        // Compare NavigationPropertyBindings
+        return areNavigationPropertyBindingsIdentical(
+            singleton1.getNavigationPropertyBindings(), 
+            singleton2.getNavigationPropertyBindings()
+        );
     }
     
     /**
