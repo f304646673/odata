@@ -426,10 +426,10 @@ public class AdvancedMetadataParserTest {
         
         // Verify error is reported in statistics
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        Map<String, Integer> errorCounts = stats.getErrorCounts();
-        assertTrue(errorCounts.containsKey("schema_not_found") || 
-                  errorCounts.containsKey("dependency_analysis_error") ||
-                  errorCounts.containsKey("schema_resolution_failed"));
+        Map<AdvancedMetadataParser.ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(AdvancedMetadataParser.ErrorType.SCHEMA_NOT_FOUND) || 
+                  errorCounts.containsKey(AdvancedMetadataParser.ErrorType.DEPENDENCY_ANALYSIS_ERROR) ||
+                  errorCounts.containsKey(AdvancedMetadataParser.ErrorType.SCHEMA_RESOLUTION_FAILED));
         
         // Verify error report
         Map<String, List<String>> errors = parser.getErrorReport();
@@ -447,9 +447,9 @@ public class AdvancedMetadataParserTest {
         });
         
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        Map<String, Integer> errorCounts = stats.getErrorCounts();
-        assertTrue(errorCounts.containsKey("schema_not_found") || 
-                  errorCounts.containsKey("parsing_error"));
+        Map<AdvancedMetadataParser.ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(AdvancedMetadataParser.ErrorType.SCHEMA_NOT_FOUND) || 
+                  errorCounts.containsKey(AdvancedMetadataParser.ErrorType.PARSING_ERROR));
     }
 
     // ========================================
@@ -477,7 +477,7 @@ public class AdvancedMetadataParserTest {
         assertEquals(0, stats.getCachedFilesReused(), "Should not reuse cache on first call");
         
         // Error counts should be initialized
-        assertNotNull(stats.getErrorCounts());
+        assertNotNull(stats.getErrorTypeCounts());
         
         // Parse again to test cache statistics
         parser.buildEdmProvider(schemaPath);

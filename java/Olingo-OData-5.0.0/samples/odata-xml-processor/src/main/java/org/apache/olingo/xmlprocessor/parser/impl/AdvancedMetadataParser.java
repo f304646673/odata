@@ -76,7 +76,7 @@ public class AdvancedMetadataParser {
         private int circularDependenciesDetected = 0;
         private int maxDepthReached = 0;
         private long totalParsingTime = 0;
-        private final Map<String, Integer> errorCounts = new HashMap<>();
+        private final List<ErrorInfo> errors = new ArrayList<>();
         
         // Getters
         public int getTotalFilesProcessed() { return totalFilesProcessed; }
@@ -84,14 +84,209 @@ public class AdvancedMetadataParser {
         public int getCircularDependenciesDetected() { return circularDependenciesDetected; }
         public int getMaxDepthReached() { return maxDepthReached; }
         public long getTotalParsingTime() { return totalParsingTime; }
-        public Map<String, Integer> getErrorCounts() { return errorCounts; }
+        
+        /**
+         * Get all error information
+         */
+        public List<ErrorInfo> getErrors() { return new ArrayList<>(errors); }
+        
+        /**
+         * Get error counts by type (computed from errors list)
+         */
+        public Map<ErrorType, Integer> getErrorTypeCounts() { 
+            Map<ErrorType, Integer> counts = new HashMap<>();
+            for (ErrorInfo error : errors) {
+                counts.put(error.getType(), counts.getOrDefault(error.getType(), 0) + 1);
+            }
+            return counts;
+        }
+        
+        /**
+         * Get errors by type
+         */
+        public List<ErrorInfo> getErrorsByType(ErrorType type) {
+            return errors.stream()
+                    .filter(error -> error.getType() == type)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        
+        /**
+         * Check if there are any errors of a specific type (computed from errors list)
+         */
+        public boolean hasErrorType(ErrorType type) {
+            return errors.stream().anyMatch(error -> error.getType() == type);
+        }
+        
+        /**
+         * Get total error count
+         */
+        public int getTotalErrorCount() {
+            return errors.size();
+        }
         
         void incrementFilesProcessed() { totalFilesProcessed++; }
         void incrementCachedReused() { cachedFilesReused++; }
         void incrementCircularDetected() { circularDependenciesDetected++; }
         void updateMaxDepth(int depth) { maxDepthReached = Math.max(maxDepthReached, depth); }
         void addParsingTime(long time) { totalParsingTime += time; }
-        void incrementError(String errorType) { errorCounts.put(errorType, errorCounts.getOrDefault(errorType, 0) + 1); }
+        
+        /**
+         * Add error with type and description
+         */
+        void addError(ErrorType type, String description) {
+            ErrorInfo error = new ErrorInfo(type, description);
+            errors.add(error);
+        }
+        
+        /**
+         * Add error with type, description and context
+         */
+        void addError(ErrorType type, String description, String context) {
+            ErrorInfo error = new ErrorInfo(type, description, context);
+            errors.add(error);
+        }
+        
+        /**
+         * Add error with type, description, context and caused by exception
+         */
+        void addError(ErrorType type, String description, String context, Throwable cause) {
+            ErrorInfo error = new ErrorInfo(type, description, context, cause);
+            errors.add(error);
+        }
+    }
+    
+    /**
+     * Enumeration of all possible error types
+     */
+    public enum ErrorType {
+        PARSING_ERROR("parsing_error", "General parsing error"),
+        SCHEMA_NOT_FOUND("schema_not_found", "Schema file could not be found"),
+        DEPENDENCY_ANALYSIS_ERROR("dependency_analysis_error", "Error analyzing schema dependencies"),
+        SCHEMA_RESOLUTION_FAILED("schema_resolution_failed", "Failed to resolve schema reference"),
+        SCHEMA_LOADING_ERROR("schema_loading_error", "Error loading schema"),
+        SCHEMA_MERGE_CONFLICT("schema_merge_conflict", "Conflict detected during schema merging"),
+        CIRCULAR_DEPENDENCY("circular_dependency", "Circular dependency detected"),
+        MAX_DEPTH_EXCEEDED("max_depth_exceeded", "Maximum dependency depth exceeded"),
+        INVALID_REFERENCE("invalid_reference", "Invalid reference URI or format"),
+        XML_PARSING_ERROR("xml_parsing_error", "Error parsing XML content"),
+        REFLECTION_ERROR("reflection_error", "Error using reflection to access internal methods"),
+        CONFIGURATION_ERROR("configuration_error", "Configuration or setup error");
+        
+        private final String legacyKey;
+        private final String description;
+        
+        ErrorType(String legacyKey, String description) {
+            this.legacyKey = legacyKey;
+            this.description = description;
+        }
+        
+        public String getLegacyKey() { return legacyKey; }
+        public String getDescription() { return description; }
+        
+        /**
+         * Convert legacy string key to ErrorType
+         */
+        public static ErrorType fromLegacyKey(String legacyKey) {
+            for (ErrorType type : ErrorType.values()) {
+                if (type.legacyKey.equals(legacyKey)) {
+                    return type;
+                }
+            }
+            return PARSING_ERROR; // Default fallback
+        }
+    }
+    
+    /**
+     * Comprehensive error information structure
+     */
+    public static class ErrorInfo {
+        private final ErrorType type;
+        private final String description;
+        private final String context;
+        private final Throwable cause;
+        private final long timestamp;
+        private final String threadName;
+        
+        /**
+         * Create error info with type and description
+         */
+        public ErrorInfo(ErrorType type, String description) {
+            this(type, description, null, null);
+        }
+        
+        /**
+         * Create error info with type, description and context
+         */
+        public ErrorInfo(ErrorType type, String description, String context) {
+            this(type, description, context, null);
+        }
+        
+        /**
+         * Create error info with all details
+         */
+        public ErrorInfo(ErrorType type, String description, String context, Throwable cause) {
+            this.type = type;
+            this.description = description;
+            this.context = context;
+            this.cause = cause;
+            this.timestamp = System.currentTimeMillis();
+            this.threadName = Thread.currentThread().getName();
+        }
+        
+        // Getters
+        public ErrorType getType() { return type; }
+        public String getDescription() { return description; }
+        public String getContext() { return context; }
+        public Throwable getCause() { return cause; }
+        public long getTimestamp() { return timestamp; }
+        public String getThreadName() { return threadName; }
+        
+        /**
+         * Get formatted error message
+         */
+        public String getFormattedMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[").append(type.name()).append("] ");
+            sb.append(description);
+            if (context != null && !context.trim().isEmpty()) {
+                sb.append(" (Context: ").append(context).append(")");
+            }
+            if (cause != null) {
+                sb.append(" - Caused by: ").append(cause.getMessage());
+            }
+            return sb.toString();
+        }
+        
+        /**
+         * Get detailed error information including timestamp and thread
+         */
+        public String getDetailedMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[").append(new java.util.Date(timestamp)).append("] ");
+            sb.append("[Thread: ").append(threadName).append("] ");
+            sb.append(getFormattedMessage());
+            return sb.toString();
+        }
+        
+        @Override
+        public String toString() {
+            return getFormattedMessage();
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            ErrorInfo errorInfo = (ErrorInfo) obj;
+            return type == errorInfo.type &&
+                   java.util.Objects.equals(description, errorInfo.description) &&
+                   java.util.Objects.equals(context, errorInfo.context);
+        }
+        
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash(type, description, context);
+        }
     }
     
     private final ParseStatistics statistics = new ParseStatistics();
@@ -174,7 +369,7 @@ public class AdvancedMetadataParser {
             return result;
             
         } catch (Exception e) {
-            statistics.incrementError("parsing_error");
+            statistics.addError(ErrorType.PARSING_ERROR, "Failed to parse schema", mainSchemaPath, e);
             throw e;
         } finally {
             statistics.addParsingTime(System.currentTimeMillis() - startTime);
@@ -202,7 +397,7 @@ public class AdvancedMetadataParser {
             // Load the schema to analyze its references
             InputStream inputStream = resolveReference(schemaPath);
             if (inputStream == null) {
-                statistics.incrementError("schema_not_found");
+                statistics.addError(ErrorType.SCHEMA_NOT_FOUND, "Schema file not found", schemaPath);
                 throw new IllegalArgumentException("Schema not found: " + schemaPath);
             }
             
@@ -232,7 +427,7 @@ public class AdvancedMetadataParser {
             }
             
         } catch (Exception e) {
-            statistics.incrementError("dependency_analysis_error");
+            statistics.addError(ErrorType.DEPENDENCY_ANALYSIS_ERROR, "Dependency analysis failed", schemaPath, e);
             errorReport.put(schemaPath, Arrays.asList("Dependency analysis failed: " + e.getMessage()));
             throw e;
         }
@@ -395,7 +590,7 @@ public class AdvancedMetadataParser {
             // Resolve and load schema
             InputStream inputStream = resolveReference(schemaPath);
             if (inputStream == null) {
-                statistics.incrementError("schema_resolution_failed");
+                statistics.addError(ErrorType.SCHEMA_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
                 throw new IllegalArgumentException("Could not resolve schema: " + schemaPath);
             }
 
@@ -418,7 +613,9 @@ public class AdvancedMetadataParser {
                 .referenceResolver(new FileBasedReferenceResolver(schemaDir));
             
             // Parse schema using configured parser
-            SchemaBasedEdmProvider schemaProvider = parser.buildEdmProvider(new InputStreamReader(inputStream));            // Cache the provider
+            SchemaBasedEdmProvider schemaProvider = parser.buildEdmProvider(new InputStreamReader(inputStream));
+            
+            // Cache the provider
             if (enableCaching) {
                 providerCache.put(cacheKey, schemaProvider);
             }
@@ -434,7 +631,7 @@ public class AdvancedMetadataParser {
             statistics.incrementFilesProcessed();
             
         } catch (Exception e) {
-            statistics.incrementError("schema_loading_error");
+            statistics.addError(ErrorType.SCHEMA_LOADING_ERROR, "Schema loading failed", schemaPath, e);
             errorReport.put(schemaPath, Arrays.asList("Schema loading failed: " + e.getMessage()));
             throw e;
         } finally {
@@ -636,10 +833,10 @@ public class AdvancedMetadataParser {
         if (source.getEntityTypes() != null) {
             for (CsdlEntityType entityType : source.getEntityTypes()) {
                 if (entityTypeNames.contains(entityType.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting EntityType '%s' found in namespace '%s' during schema merge",
                         entityType.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -651,10 +848,10 @@ public class AdvancedMetadataParser {
         if (source.getComplexTypes() != null) {
             for (CsdlComplexType complexType : source.getComplexTypes()) {
                 if (complexTypeNames.contains(complexType.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting ComplexType '%s' found in namespace '%s' during schema merge",
                         complexType.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -666,10 +863,10 @@ public class AdvancedMetadataParser {
         if (source.getEnumTypes() != null) {
             for (CsdlEnumType enumType : source.getEnumTypes()) {
                 if (enumTypeNames.contains(enumType.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting EnumType '%s' found in namespace '%s' during schema merge",
                         enumType.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalStateException(error);
                 }
@@ -681,10 +878,10 @@ public class AdvancedMetadataParser {
         if (source.getTypeDefinitions() != null) {
             for (CsdlTypeDefinition typeDef : source.getTypeDefinitions()) {
                 if (typeDefinitionNames.contains(typeDef.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting TypeDefinition '%s' found in namespace '%s' during schema merge",
                         typeDef.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalStateException(error);
                 }
@@ -696,10 +893,10 @@ public class AdvancedMetadataParser {
         if (source.getActions() != null) {
             for (CsdlAction action : source.getActions()) {
                 if (actionNames.contains(action.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting Action '%s' found in namespace '%s' during schema merge",
                         action.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalStateException(error);
                 }
@@ -711,10 +908,10 @@ public class AdvancedMetadataParser {
         if (source.getFunctions() != null) {
             for (CsdlFunction function : source.getFunctions()) {
                 if (functionNames.contains(function.getName())) {
-                    statistics.incrementError("schema_merge_conflict");
                     String error = String.format(
                         "Conflicting Function '%s' found in namespace '%s' during schema merge",
                         function.getName(), namespace);
+                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalStateException(error);
                 }
@@ -725,10 +922,10 @@ public class AdvancedMetadataParser {
         
         if (source.getEntityContainer() != null) {
             if (containerNames.contains(source.getEntityContainer().getName())) {
-                statistics.incrementError("schema_merge_conflict");
                 String error = String.format(
                     "Conflicting EntityContainer '%s' found in namespace '%s' during schema merge",
                     source.getEntityContainer().getName(), namespace);
+                statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                 errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                 throw new IllegalStateException(error);
             }
@@ -767,7 +964,7 @@ public class AdvancedMetadataParser {
                 StringBuilder fieldNames = new StringBuilder();
                 for (java.lang.reflect.Field field : allFields) {
                     if (fieldNames.length() > 0) fieldNames.append(", ");
-                    fieldNames.append(field.getName() + ":" + field.getType().getSimpleName());
+                    fieldNames.append(field.getName()).append(":").append(field.getType().getSimpleName());
                 }
                 throw new IllegalStateException("Could not find schemas field. Available fields: " + fieldNames.toString());
             }
