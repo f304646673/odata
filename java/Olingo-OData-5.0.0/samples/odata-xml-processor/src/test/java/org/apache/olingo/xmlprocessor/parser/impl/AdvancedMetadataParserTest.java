@@ -120,7 +120,7 @@ public class AdvancedMetadataParserTest {
         
         // Verify statistics
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        assertTrue(stats.getTotalFilesProcessed() >= 1);
+        assertEquals(1, stats.getTotalFilesProcessed());
         assertTrue(stats.getTotalParsingTime() > 0);
         assertEquals(0, stats.getCircularDependenciesDetected());
         
@@ -148,7 +148,7 @@ public class AdvancedMetadataParserTest {
         assertNotNull(schema.getAnnotationGroups());
         
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        assertTrue(stats.getTotalFilesProcessed() >= 1);
+        assertEquals(1, stats.getTotalFilesProcessed());
     }
 
     // ========================================
@@ -179,13 +179,13 @@ public class AdvancedMetadataParserTest {
         
         // Verify references are loaded
         List<EdmxReference> references = provider.getReferences();
-        assertTrue(references.size() >= 2);
+        assertEquals(2, references.size());
         
         // Verify statistics show multiple files processed
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        assertTrue(stats.getTotalFilesProcessed() >= 3);
+        assertEquals(3, stats.getTotalFilesProcessed());
         assertEquals(0, stats.getCircularDependenciesDetected());
-        assertTrue(stats.getMaxDepthReached() >= 2);
+        assertEquals(2, stats.getMaxDepthReached());
     }
 
     @Test
@@ -214,8 +214,8 @@ public class AdvancedMetadataParserTest {
         
         // Verify statistics show deep dependency
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        assertTrue(stats.getTotalFilesProcessed() >= 4);
-        assertTrue(stats.getMaxDepthReached() >= 3);
+        assertEquals(4, stats.getTotalFilesProcessed());
+        assertEquals(3, stats.getMaxDepthReached(), "Should reach depth of 3 in dependency chain");
     }
 
     // ========================================
@@ -263,7 +263,7 @@ public class AdvancedMetadataParserTest {
         
         // Should still detect the circular dependency in statistics
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        assertTrue(stats.getCircularDependenciesDetected() > 0);
+        assertEquals(1, stats.getCircularDependenciesDetected());
         
         // Should have schemas loaded despite circular dependency
         List<CsdlSchema> schemas = provider.getSchemas();
@@ -293,6 +293,16 @@ public class AdvancedMetadataParserTest {
         // Statistics should not show circular dependencies detected
         AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
         assertEquals(0, stats.getCircularDependenciesDetected());
+
+        // Should have schemas loaded despite circular dependency
+        List<CsdlSchema> schemas = provider.getSchemas();
+        assertEquals(2, schemas.size(), "Should have exactly 2 schemas: Test.CircularA and Test.CircularB");
+        
+        // Verify both circular schemas are loaded
+        boolean hasCircularA = schemas.stream().anyMatch(s -> "Test.CircularA".equals(s.getNamespace()));
+        boolean hasCircularB = schemas.stream().anyMatch(s -> "Test.CircularB".equals(s.getNamespace()));
+        assertTrue(hasCircularA, "Should load Test.CircularA schema");
+        assertTrue(hasCircularB, "Should load Test.CircularB schema");
     }
 
     // ========================================
