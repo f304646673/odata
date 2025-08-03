@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Test.Annotated" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotations Target="Test.Annotated.Product">
+        <Annotation Term="Core.Description" String="Product entity with comprehensive annotations"/>
+      </Annotations>
+      
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="100"/>
+        <Property Name="Price" Type="Edm.Decimal" Scale="2"/>
+      </EntityType>
+      
+      <EntityContainer Name="AnnotatedContainer">
+        <EntitySet Name="Products" EntityType="Test.Annotated.Product"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
