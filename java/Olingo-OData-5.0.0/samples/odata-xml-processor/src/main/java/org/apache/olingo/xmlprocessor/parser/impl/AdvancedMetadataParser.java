@@ -42,6 +42,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
@@ -186,7 +187,10 @@ public class AdvancedMetadataParser {
         XML_PARSING_ERROR("xml_parsing_error", "Error parsing XML content"),
         REFLECTION_ERROR("reflection_error", "Error using reflection to access internal methods"),
         CONFIGURATION_ERROR("configuration_error", "Configuration or setup error"),
-        MISSING_ANNOTATION("missing_annotation", "Required annotation is missing");
+        MISSING_ANNOTATION("missing_annotation", "Required annotation is missing"),
+        MISSING_TYPE_REFERENCE("missing_type_reference", "Referenced type does not exist"),
+        MISSING_ANNOTATION_TARGET("missing_annotation_target", "Annotation target does not exist"),
+        UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved");
         
         private final String legacyKey;
         private final String description;
@@ -388,6 +392,9 @@ public class AdvancedMetadataParser {
             
             // Load schemas in dependency order
             SchemaBasedEdmProvider result = loadSchemasInOrder(loadOrder, mainSchemaPath);
+            
+            // Validate references after all schemas are loaded
+            validateReferences(result);
             
             return result;
             
@@ -1601,5 +1608,390 @@ public class AdvancedMetadataParser {
         }
         
         return references;
+    }
+    
+    /**
+     * Validate all references in the loaded schemas
+     */
+    private void validateReferences(SchemaBasedEdmProvider provider) {
+        try {
+            if (provider == null || provider.getSchemas() == null) {
+                return;
+            }
+            
+            // Build a registry of all available types across all schemas
+            TypeRegistry typeRegistry = new TypeRegistry(provider.getSchemas());
+            
+            // Validate each schema
+            for (CsdlSchema schema : provider.getSchemas()) {
+                validateSchemaReferences(schema, typeRegistry);
+            }
+        } catch (Exception e) {
+            statistics.addError(ErrorType.PARSING_ERROR,
+                "Error during reference validation: " + e.getMessage(),
+                "validateReferences");
+        }
+    }
+    
+    /**
+     * Validate references within a single schema
+     */
+    private void validateSchemaReferences(CsdlSchema schema, TypeRegistry typeRegistry) {
+        String namespace = schema.getNamespace();
+        
+        // Validate entity types
+        if (schema.getEntityTypes() != null) {
+            for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                validateEntityTypeReferences(entityType, namespace, typeRegistry);
+            }
+        }
+        
+        // Validate complex types
+        if (schema.getComplexTypes() != null) {
+            for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                validateComplexTypeReferences(complexType, namespace, typeRegistry);
+            }
+        }
+        
+        // Validate function references
+        if (schema.getFunctions() != null) {
+            for (CsdlFunction function : schema.getFunctions()) {
+                validateFunctionReferences(function, namespace, typeRegistry);
+            }
+        }
+        
+        // Validate action references
+        if (schema.getActions() != null) {
+            for (CsdlAction action : schema.getActions()) {
+                validateActionReferences(action, namespace, typeRegistry);
+            }
+        }
+        
+        // Validate entity container references
+        if (schema.getEntityContainer() != null) {
+            validateEntityContainerReferences(schema.getEntityContainer(), namespace, typeRegistry);
+        }
+        
+        // Validate annotation targets
+        if (schema.getAnnotationGroups() != null) {
+            for (CsdlAnnotations annotations : schema.getAnnotationGroups()) {
+                validateAnnotationTargets(annotations, namespace, typeRegistry);
+            }
+        }
+    }
+    
+    private void validateEntityTypeReferences(CsdlEntityType entityType, String namespace, TypeRegistry typeRegistry) {
+        String typeName = namespace + "." + entityType.getName();
+        
+        // Validate base type
+        if (entityType.getBaseType() != null) {
+            if (!typeRegistry.hasEntityType(entityType.getBaseType())) {
+                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE, 
+                    "Entity type base type not found: " + entityType.getBaseType(), 
+                    typeName);
+            }
+        }
+        
+        // Validate property types
+        if (entityType.getProperties() != null) {
+            for (CsdlProperty property : entityType.getProperties()) {
+                validatePropertyType(property, typeName, typeRegistry);
+            }
+        }
+        
+        // Validate navigation property types
+        if (entityType.getNavigationProperties() != null) {
+            for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
+                if (!typeRegistry.hasEntityType(navProp.getType())) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Navigation property type not found: " + navProp.getType(),
+                        typeName + "." + navProp.getName());
+                }
+            }
+        }
+    }
+    
+    private void validateComplexTypeReferences(CsdlComplexType complexType, String namespace, TypeRegistry typeRegistry) {
+        String typeName = namespace + "." + complexType.getName();
+        
+        // Validate base type
+        if (complexType.getBaseType() != null) {
+            if (!typeRegistry.hasComplexType(complexType.getBaseType())) {
+                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    "Complex type base type not found: " + complexType.getBaseType(),
+                    typeName);
+            }
+        }
+        
+        // Validate property types
+        if (complexType.getProperties() != null) {
+            for (CsdlProperty property : complexType.getProperties()) {
+                validatePropertyType(property, typeName, typeRegistry);
+            }
+        }
+    }
+    
+    private void validatePropertyType(CsdlProperty property, String ownerTypeName, TypeRegistry typeRegistry) {
+        String propertyType = property.getType();
+        
+        // Skip primitive types (start with Edm.)
+        if (propertyType.startsWith("Edm.")) {
+            return;
+        }
+        
+        // Check if the type exists
+        if (!typeRegistry.hasType(propertyType)) {
+            statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                "Property type not found: " + propertyType,
+                ownerTypeName + "." + property.getName());
+        }
+    }
+    
+    private void validateFunctionReferences(CsdlFunction function, String namespace, TypeRegistry typeRegistry) {
+        String functionName = namespace + "." + function.getName();
+        
+        // Validate return type
+        if (function.getReturnType() != null && function.getReturnType().getType() != null) {
+            String returnType = function.getReturnType().getType();
+            if (!returnType.startsWith("Edm.") && !typeRegistry.hasType(returnType)) {
+                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    "Function return type not found: " + returnType,
+                    functionName);
+            }
+        }
+        
+        // Validate parameter types
+        if (function.getParameters() != null) {
+            for (CsdlParameter parameter : function.getParameters()) {
+                String paramType = parameter.getType();
+                if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Function parameter type not found: " + paramType,
+                        functionName + "." + parameter.getName());
+                }
+            }
+        }
+    }
+    
+    private void validateActionReferences(CsdlAction action, String namespace, TypeRegistry typeRegistry) {
+        String actionName = namespace + "." + action.getName();
+        
+        // Validate parameter types
+        if (action.getParameters() != null) {
+            for (CsdlParameter parameter : action.getParameters()) {
+                String paramType = parameter.getType();
+                if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Action parameter type not found: " + paramType,
+                        actionName + "." + parameter.getName());
+                }
+            }
+        }
+    }
+    
+    private void validateEntityContainerReferences(CsdlEntityContainer container, String namespace, TypeRegistry typeRegistry) {
+        String containerName = namespace + "." + container.getName();
+        
+        // Validate entity sets
+        if (container.getEntitySets() != null) {
+            for (CsdlEntitySet entitySet : container.getEntitySets()) {
+                if (!typeRegistry.hasEntityType(entitySet.getType())) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Entity set type not found: " + entitySet.getType(),
+                        containerName + "." + entitySet.getName());
+                }
+            }
+        }
+        
+        // Validate singletons
+        if (container.getSingletons() != null) {
+            for (CsdlSingleton singleton : container.getSingletons()) {
+                if (!typeRegistry.hasEntityType(singleton.getType())) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Singleton type not found: " + singleton.getType(),
+                        containerName + "." + singleton.getName());
+                }
+            }
+        }
+        
+        // Validate function imports
+        if (container.getFunctionImports() != null) {
+            for (CsdlFunctionImport functionImport : container.getFunctionImports()) {
+                if (!typeRegistry.hasFunction(functionImport.getFunction())) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Function import function not found: " + functionImport.getFunction(),
+                        containerName + "." + functionImport.getName());
+                }
+            }
+        }
+        
+        // Validate action imports
+        if (container.getActionImports() != null) {
+            for (CsdlActionImport actionImport : container.getActionImports()) {
+                if (!typeRegistry.hasAction(actionImport.getAction())) {
+                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                        "Action import action not found: " + actionImport.getAction(),
+                        containerName + "." + actionImport.getName());
+                }
+            }
+        }
+    }
+    
+    private void validateAnnotationTargets(CsdlAnnotations annotations, String namespace, TypeRegistry typeRegistry) {
+        String target = annotations.getTarget();
+        
+        // Parse and validate annotation target
+        if (target != null && !target.isEmpty()) {
+            if (!typeRegistry.hasTarget(target)) {
+                statistics.addError(ErrorType.MISSING_ANNOTATION_TARGET,
+                    "Annotation target not found: " + target,
+                    namespace);
+            }
+        }
+    }
+    
+    /**
+     * Registry of all available types across all schemas
+     */
+    private static class TypeRegistry {
+        private final Set<String> entityTypes = new HashSet<>();
+        private final Set<String> complexTypes = new HashSet<>();
+        private final Set<String> enumTypes = new HashSet<>();
+        private final Set<String> typeDefinitions = new HashSet<>();
+        private final Set<String> functions = new HashSet<>();
+        private final Set<String> actions = new HashSet<>();
+        private final Set<String> containers = new HashSet<>();
+        private final Set<String> targets = new HashSet<>();
+        
+        public TypeRegistry(List<CsdlSchema> schemas) {
+            for (CsdlSchema schema : schemas) {
+                registerSchemaTypes(schema);
+            }
+        }
+        
+        private void registerSchemaTypes(CsdlSchema schema) {
+            String namespace = schema.getNamespace();
+            
+            // Register entity types
+            if (schema.getEntityTypes() != null) {
+                for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                    String fullName = namespace + "." + entityType.getName();
+                    entityTypes.add(fullName);
+                    targets.add(fullName);
+                    
+                    // Register properties as potential targets
+                    if (entityType.getProperties() != null) {
+                        for (CsdlProperty property : entityType.getProperties()) {
+                            targets.add(fullName + "/" + property.getName());
+                        }
+                    }
+                    
+                    // Register navigation properties as potential targets
+                    if (entityType.getNavigationProperties() != null) {
+                        for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
+                            targets.add(fullName + "/" + navProp.getName());
+                        }
+                    }
+                }
+            }
+            
+            // Register complex types
+            if (schema.getComplexTypes() != null) {
+                for (CsdlComplexType complexType : schema.getComplexTypes()) {
+                    String fullName = namespace + "." + complexType.getName();
+                    complexTypes.add(fullName);
+                    targets.add(fullName);
+                    
+                    // Register properties as potential targets
+                    if (complexType.getProperties() != null) {
+                        for (CsdlProperty property : complexType.getProperties()) {
+                            targets.add(fullName + "/" + property.getName());
+                        }
+                    }
+                }
+            }
+            
+            // Register enum types
+            if (schema.getEnumTypes() != null) {
+                for (CsdlEnumType enumType : schema.getEnumTypes()) {
+                    String fullName = namespace + "." + enumType.getName();
+                    enumTypes.add(fullName);
+                    targets.add(fullName);
+                }
+            }
+            
+            // Register type definitions
+            if (schema.getTypeDefinitions() != null) {
+                for (CsdlTypeDefinition typeDef : schema.getTypeDefinitions()) {
+                    String fullName = namespace + "." + typeDef.getName();
+                    typeDefinitions.add(fullName);
+                    targets.add(fullName);
+                }
+            }
+            
+            // Register functions
+            if (schema.getFunctions() != null) {
+                for (CsdlFunction function : schema.getFunctions()) {
+                    String fullName = namespace + "." + function.getName();
+                    functions.add(fullName);
+                    targets.add(fullName);
+                }
+            }
+            
+            // Register actions
+            if (schema.getActions() != null) {
+                for (CsdlAction action : schema.getActions()) {
+                    String fullName = namespace + "." + action.getName();
+                    actions.add(fullName);
+                    targets.add(fullName);
+                }
+            }
+            
+            // Register entity container
+            if (schema.getEntityContainer() != null) {
+                String fullName = namespace + "." + schema.getEntityContainer().getName();
+                containers.add(fullName);
+                targets.add(fullName);
+            }
+        }
+        
+        public boolean hasEntityType(String typeName) {
+            return entityTypes.contains(typeName);
+        }
+        
+        public boolean hasComplexType(String typeName) {
+            return complexTypes.contains(typeName);
+        }
+        
+        public boolean hasEnumType(String typeName) {
+            return enumTypes.contains(typeName);
+        }
+        
+        public boolean hasTypeDefinition(String typeName) {
+            return typeDefinitions.contains(typeName);
+        }
+        
+        public boolean hasFunction(String functionName) {
+            return functions.contains(functionName);
+        }
+        
+        public boolean hasAction(String actionName) {
+            return actions.contains(actionName);
+        }
+        
+        public boolean hasContainer(String containerName) {
+            return containers.contains(containerName);
+        }
+        
+        public boolean hasTarget(String targetName) {
+            return targets.contains(targetName);
+        }
+        
+        public boolean hasType(String typeName) {
+            return hasEntityType(typeName) || 
+                   hasComplexType(typeName) || 
+                   hasEnumType(typeName) || 
+                   hasTypeDefinition(typeName);
+        }
     }
 }

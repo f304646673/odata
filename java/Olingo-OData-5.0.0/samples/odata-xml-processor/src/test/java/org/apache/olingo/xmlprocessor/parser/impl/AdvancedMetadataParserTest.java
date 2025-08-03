@@ -921,8 +921,7 @@ public class AdvancedMetadataParserTest {
     void testMissingEntityType() {
         String schemaPath = testResourcesPath + "/missing-elements/missing-entity-type.xml";
         
-        // This should not throw an exception during parsing, but the missing type
-        // might cause issues during EDM validation (not parser's responsibility)
+        // Should successfully parse but report missing type reference errors
         assertDoesNotThrow(() -> {
             SchemaBasedEdmProvider provider = parser.buildEdmProvider(schemaPath);
             assertNotNull(provider);
@@ -943,6 +942,19 @@ public class AdvancedMetadataParserTest {
                 }
             }
             assertTrue(foundMainSchema, "Main schema should be parsed");
+            
+            // Check that missing type reference errors are detected
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type references");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
+            
+            // Verify specific missing type is reported - just check that some type is reported as missing
+            boolean foundMissingEntityTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getDescription().contains("not found"));
+            assertTrue(foundMissingEntityTypeError, "Should report error for missing entity type");
         });
     }
 
@@ -971,6 +983,19 @@ public class AdvancedMetadataParserTest {
                 }
             }
             assertTrue(foundMainSchema, "Main schema should be parsed");
+            
+            // Check that missing type reference errors are detected
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type references");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
+            
+            // Verify specific missing type is reported
+            boolean foundMissingComplexTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getDescription().contains("not found"));
+            assertTrue(foundMissingComplexTypeError, "Should report error for missing complex type");
         });
     }
 
@@ -999,6 +1024,19 @@ public class AdvancedMetadataParserTest {
                 }
             }
             assertTrue(foundMainSchema, "Main schema should be parsed");
+            
+            // Check that missing type reference errors are detected
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing enum type references");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
+            
+            // Verify specific missing type is reported
+            boolean foundMissingEnumTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getDescription().contains("not found"));
+            assertTrue(foundMissingEnumTypeError, "Should report error for missing enum type");
         });
     }
 
@@ -1025,6 +1063,19 @@ public class AdvancedMetadataParserTest {
                 }
             }
             assertTrue(foundMainSchema, "Main schema should be parsed");
+            
+            // Check that missing function reference errors are detected
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function references");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
+            
+            // Verify specific missing function is reported
+            boolean foundMissingFunctionError = stats.getErrors().stream()
+                .anyMatch(error -> error.getDescription().contains("not found"));
+            assertTrue(foundMissingFunctionError, "Should report error for missing function");
         });
     }
 
@@ -1051,6 +1102,19 @@ public class AdvancedMetadataParserTest {
                 }
             }
             assertTrue(foundMainSchema, "Main schema should be parsed");
+            
+            // Check that missing action reference errors are detected
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing action references");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
+            
+            // Verify specific missing action is reported
+            boolean foundMissingActionError = stats.getErrors().stream()
+                .anyMatch(error -> error.getDescription().contains("not found"));
+            assertTrue(foundMissingActionError, "Should report error for missing action");
         });
     }
 
@@ -1264,7 +1328,177 @@ public class AdvancedMetadataParserTest {
                 assertNotNull(provider, "Provider should not be null for " + testSchema);
                 assertNotNull(provider.getSchemas(), "Schemas should not be null for " + testSchema);
                 assertFalse(provider.getSchemas().isEmpty(), "Should have at least one schema for " + testSchema);
+                
+                // Check that missing reference errors are detected
+                AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+                assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing references in " + testSchema);
+                
+                boolean hasMissingTypeError = stats.getErrors().stream()
+                    .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error in " + testSchema);
+                
             }, "Should be able to parse " + testSchema + " even with missing references");
+        }
+    }
+
+    @Test
+    public void testMissingEntityTypeReference() throws Exception {
+        // Test with a schema that references a non-existent entity type
+        String testSchema = 
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
+            "  <edmx:DataServices>\n" +
+            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
+            "            Namespace=\"Test.Missing\">\n" +
+            "      <EntityType Name=\"Product\">\n" +
+            "        <Key>\n" +
+            "          <PropertyRef Name=\"ID\"/>\n" +
+            "        </Key>\n" +
+            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
+            "        <NavigationProperty Name=\"Category\" Type=\"Test.Missing.NonExistentCategory\"/>\n" +
+            "      </EntityType>\n" +
+            "      <EntityContainer Name=\"Container\">\n" +
+            "        <EntitySet Name=\"Products\" EntityType=\"Test.Missing.Product\"/>\n" +
+            "        <EntitySet Name=\"Categories\" EntityType=\"Test.Missing.NonExistentCategory\"/>\n" +
+            "      </EntityContainer>\n" +
+            "    </Schema>\n" +
+            "  </edmx:DataServices>\n" +
+            "</edmx:Edmx>";
+        
+        File tempFile = File.createTempFile("missing-entity-type", ".xml");
+        tempFile.deleteOnExit();
+        
+        try {
+            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
+            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            
+            // Should have errors for missing entity type references
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type");
+            
+            // Check for specific error types
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
+            
+        } finally {
+            tempFile.delete();
+        }
+    }
+    
+    @Test
+    public void testMissingComplexTypeReference() throws Exception {
+        String testSchema = 
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
+            "  <edmx:DataServices>\n" +
+            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
+            "            Namespace=\"Test.Missing\">\n" +
+            "      <EntityType Name=\"Product\">\n" +
+            "        <Key>\n" +
+            "          <PropertyRef Name=\"ID\"/>\n" +
+            "        </Key>\n" +
+            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
+            "        <Property Name=\"Details\" Type=\"Test.Missing.NonExistentDetails\"/>\n" +
+            "      </EntityType>\n" +
+            "    </Schema>\n" +
+            "  </edmx:DataServices>\n" +
+            "</edmx:Edmx>";
+        
+        File tempFile = File.createTempFile("missing-complex-type", ".xml");
+        tempFile.deleteOnExit();
+        
+        try {
+            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
+            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            
+            // Should have errors for missing complex type references
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
+            
+        } finally {
+            tempFile.delete();
+        }
+    }
+    
+    @Test 
+    public void testMissingAnnotationTarget() throws Exception {
+        String testSchema = 
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
+            "  <edmx:DataServices>\n" +
+            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
+            "            Namespace=\"Test.Annotation\">\n" +
+            "      <EntityType Name=\"Product\">\n" +
+            "        <Key>\n" +
+            "          <PropertyRef Name=\"ID\"/>\n" +
+            "        </Key>\n" +
+            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
+            "      </EntityType>\n" +
+            "      <Annotations Target=\"Test.Annotation.NonExistentType\">\n" +
+            "        <Annotation Term=\"Core.Description\" String=\"Description for non-existent type\"/>\n" +
+            "      </Annotations>\n" +
+            "    </Schema>\n" +
+            "  </edmx:DataServices>\n" +
+            "</edmx:Edmx>";
+        
+        File tempFile = File.createTempFile("missing-annotation-target", ".xml");
+        tempFile.deleteOnExit();
+        
+        try {
+            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
+            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            
+            // Should have errors for missing annotation target
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing annotation target");
+            
+            boolean hasMissingTargetError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_ANNOTATION_TARGET);
+            assertTrue(hasMissingTargetError, "Should have MISSING_ANNOTATION_TARGET error");
+            
+        } finally {
+            tempFile.delete();
+        }
+    }
+    
+    @Test
+    public void testMissingFunctionImportReference() throws Exception {
+        String testSchema = 
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
+            "  <edmx:DataServices>\n" +
+            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
+            "            Namespace=\"Test.Missing\">\n" +
+            "      <EntityContainer Name=\"Container\">\n" +
+            "        <FunctionImport Name=\"GetProducts\" Function=\"Test.Missing.NonExistentFunction\"/>\n" +
+            "        <ActionImport Name=\"CreateProduct\" Action=\"Test.Missing.NonExistentAction\"/>\n" +
+            "      </EntityContainer>\n" +
+            "    </Schema>\n" +
+            "  </edmx:DataServices>\n" +
+            "</edmx:Edmx>";
+        
+        File tempFile = File.createTempFile("missing-function-import", ".xml");
+        tempFile.deleteOnExit();
+        
+        try {
+            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
+            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            
+            // Should have errors for missing function/action references
+            AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
+            
+            boolean hasMissingTypeError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
+            
+        } finally {
+            tempFile.delete();
         }
     }
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/missing-elements/referenced-types.xml">
+    <edmx:Include Namespace="Test.Referenced"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.MissingFunction" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityContainer Name="Container">
+        <EntitySet Name="MainEntities" EntityType="Test.MissingFunction.MainEntity"/>
+        <!-- This references a non-existent function -->
+        <FunctionImport Name="GetData" Function="Test.Referenced.NonExistentFunction"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

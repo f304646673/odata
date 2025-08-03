@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="schemas/missing-elements/referenced-types.xml">
+    <edmx:Include Namespace="Test.Referenced"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="Test.MissingAction" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="MainEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+
+      <EntityContainer Name="Container">
+        <EntitySet Name="MainEntities" EntityType="Test.MissingAction.MainEntity"/>
+        <!-- This references a non-existent action -->
+        <ActionImport Name="ProcessData" Action="Test.Referenced.NonExistentAction"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
