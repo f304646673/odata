@@ -14,6 +14,12 @@ public class ParseStatistics {
     private int circularDependenciesDetected = 0;
     private int maxDepthReached = 0;
     private long totalParsingTime = 0;
+    private long startTime = 0;
+    private long endTime = 0;
+    private int schemasProcessed = 0;
+    private int schemasLoaded = 0;
+    private long totalTime = 0;
+    private List<String> loadOrder = new ArrayList<>();
     private final List<ErrorInfo> errors = new ArrayList<>();
     
     // Getters
@@ -22,6 +28,10 @@ public class ParseStatistics {
     public int getCircularDependenciesDetected() { return circularDependenciesDetected; }
     public int getMaxDepthReached() { return maxDepthReached; }
     public long getTotalParsingTime() { return totalParsingTime; }
+    public int getSchemasProcessed() { return schemasProcessed; }
+    public int getSchemasLoaded() { return schemasLoaded; }
+    public long getTotalTime() { return totalTime; }
+    public List<String> getLoadOrder() { return new ArrayList<>(loadOrder); }
     
     /**
      * Get all error information
@@ -65,8 +75,18 @@ public class ParseStatistics {
     void incrementFilesProcessed() { totalFilesProcessed++; }
     void incrementCachedReused() { cachedFilesReused++; }
     void incrementCircularDetected() { circularDependenciesDetected++; }
-    void updateMaxDepth(int depth) { maxDepthReached = Math.max(maxDepthReached, depth); }
-    void addParsingTime(long time) { totalParsingTime += time; }
+    void updateMaxDepth(int depth) { 
+        maxDepthReached = Math.max(maxDepthReached, depth); 
+    }
+    public void addParsingTime(long time) { totalParsingTime += time; }
+    
+    // Additional methods for ModularAdvancedMetadataParser
+    public void recordStart() { startTime = System.currentTimeMillis(); }
+    public void recordEnd() { endTime = System.currentTimeMillis(); }
+    public void incrementSchemasProcessed() { schemasProcessed++; }
+    public void incrementSchemasLoaded() { schemasLoaded++; }
+    public void setTotalTime(long time) { totalTime = time; }
+    public void setLoadOrder(List<String> order) { loadOrder = new ArrayList<>(order); }
     
     /**
      * Add error with type and description

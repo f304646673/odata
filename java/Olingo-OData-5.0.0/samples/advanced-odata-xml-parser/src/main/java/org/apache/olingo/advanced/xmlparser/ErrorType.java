@@ -13,6 +13,8 @@ public enum ErrorType {
     SCHEMA_MERGE_CONFLICT("schema_merge_conflict", "Conflict detected during schema merging"),
     CIRCULAR_DEPENDENCY("circular_dependency", "Circular dependency detected"),
     MAX_DEPTH_EXCEEDED("max_depth_exceeded", "Maximum dependency depth exceeded"),
+    DEPENDENCY_DEPTH_EXCEEDED("dependency_depth_exceeded", "Maximum dependency depth exceeded"),
+    REFERENCE_NOT_FOUND("reference_not_found", "Reference could not be found"),
     INVALID_REFERENCE("invalid_reference", "Invalid reference URI or format"),
     XML_PARSING_ERROR("xml_parsing_error", "Error parsing XML content"),
     REFLECTION_ERROR("reflection_error", "Error using reflection to access internal methods"),
