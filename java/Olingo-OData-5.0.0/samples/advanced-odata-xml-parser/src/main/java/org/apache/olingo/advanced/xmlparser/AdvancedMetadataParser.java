@@ -191,8 +191,9 @@ public class AdvancedMetadataParser {
         MISSING_ANNOTATION("missing_annotation", "Required annotation is missing"),
         MISSING_TYPE_REFERENCE("missing_type_reference", "Referenced type does not exist"),
         MISSING_ANNOTATION_TARGET("missing_annotation_target", "Annotation target does not exist"),
-        UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved");
-        
+        UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved"),
+        MISSING_FUNCTION_REFERENCE("missing_function_reference",  "Referenced function does not exist");
+
         private final String legacyKey;
         private final String description;
         

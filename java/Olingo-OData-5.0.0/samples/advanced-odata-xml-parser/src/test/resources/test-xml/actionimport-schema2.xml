@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Actions">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+      </EntityType>
+      <Action Name="CreateProduct">
+        <Parameter Name="Name" Type="Edm.String"/>
+        <ReturnType Type="Test.Actions.Product"/>
+      </Action>
+      <Action Name="UpdateProduct">
+        <Parameter Name="ID" Type="Edm.Int32"/>
+        <Parameter Name="Name" Type="Edm.String"/>
+      </Action>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Products" EntityType="Test.Actions.Product"/>
+        <ActionImport Name="CreateProduct" Action="Test.Actions.CreateProduct" EntitySet="Products"/>
+        <ActionImport Name="UpdateProduct" Action="Test.Actions.UpdateProduct"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

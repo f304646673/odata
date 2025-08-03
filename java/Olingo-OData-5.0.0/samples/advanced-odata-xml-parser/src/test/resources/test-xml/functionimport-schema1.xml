@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Functions">
+      <EntityType Name="Product">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String"/>
+      </EntityType>
+      <Function Name="GetProductsByCategory">
+        <Parameter Name="CategoryID" Type="Edm.Int32"/>
+        <ReturnType Type="Collection(Test.Functions.Product)"/>
+      </Function>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Products" EntityType="Test.Functions.Product"/>
+        <FunctionImport Name="GetProductsByCategory" Function="Test.Functions.GetProductsByCategory" EntitySet="Products" IncludeInServiceDocument="true"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

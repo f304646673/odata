@@ -9,7 +9,7 @@
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
+ * Unless required by applicable law or agreed in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  * KIND, either express or implied.  See the License for the
@@ -1330,27 +1330,8 @@ public class AdvancedMetadataParserTest {
     @Test
     public void testMissingEntityTypeReference() throws Exception {
         // Test with a schema that references a non-existent entity type
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "        <NavigationProperty Name=\"Category\" Type=\"Test.Missing.NonExistentCategory\"/>\n" +
-            "      </EntityType>\n" +
-            "      <EntityContainer Name=\"Container\">\n" +
-            "        <EntitySet Name=\"Products\" EntityType=\"Test.Missing.Product\"/>\n" +
-            "        <EntitySet Name=\"Categories\" EntityType=\"Test.Missing.NonExistentCategory\"/>\n" +
-            "      </EntityContainer>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-entity-type-reference.xml");
+
         File tempFile = File.createTempFile("missing-entity-type", ".xml");
         tempFile.deleteOnExit();
         
@@ -1374,23 +1355,8 @@ public class AdvancedMetadataParserTest {
     
     @Test
     public void testMissingComplexTypeReference() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "        <Property Name=\"Details\" Type=\"Test.Missing.NonExistentDetails\"/>\n" +
-            "      </EntityType>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-complex-type-reference.xml");
+
         File tempFile = File.createTempFile("missing-complex-type", ".xml");
         tempFile.deleteOnExit();
         
@@ -1413,25 +1379,8 @@ public class AdvancedMetadataParserTest {
     
     @Test 
     public void testMissingAnnotationTarget() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Annotation\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "      </EntityType>\n" +
-            "      <Annotations Target=\"Test.Annotation.NonExistentType\">\n" +
-            "        <Annotation Term=\"Core.Description\" String=\"Description for non-existent type\"/>\n" +
-            "      </Annotations>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-annotation-target.xml");
+
         File tempFile = File.createTempFile("missing-annotation-target", ".xml");
         tempFile.deleteOnExit();
         
@@ -1454,20 +1403,8 @@ public class AdvancedMetadataParserTest {
     
     @Test
     public void testMissingFunctionImportReference() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityContainer Name=\"Container\">\n" +
-            "        <FunctionImport Name=\"GetProducts\" Function=\"Test.Missing.NonExistentFunction\"/>\n" +
-            "        <ActionImport Name=\"CreateProduct\" Action=\"Test.Missing.NonExistentAction\"/>\n" +
-            "      </EntityContainer>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-function-import-reference.xml");
+
         File tempFile = File.createTempFile("missing-function-import", ".xml");
         tempFile.deleteOnExit();
         
@@ -1479,10 +1416,10 @@ public class AdvancedMetadataParserTest {
             AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
             
-            boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
-            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
-            
+            boolean hasMissingFunctionError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_FUNCTION_REFERENCE);
+            assertTrue(hasMissingFunctionError, "Should have MISSING_FUNCTION_REFERENCE error");
+
         } finally {
             tempFile.delete();
         }
@@ -1491,4 +1428,10 @@ public class AdvancedMetadataParserTest {
     // ========================================
     // Helper Methods
     // ========================================
+
+    private String loadXmlFromResource(String resourcePath) throws Exception {
+        return new String(java.nio.file.Files.readAllBytes(
+            java.nio.file.Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI())
+        ));
+    }
 }

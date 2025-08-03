@@ -1,5 +1,12 @@
 package org.apache.olingo.advanced.xmlparser;
 
+import org.apache.olingo.advanced.xmlparser.ErrorInfo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Statistics and metrics
  */
@@ -26,7 +33,7 @@ public class ParseStatistics {
     /**
      * Get error counts by type (computed from errors list)
      */
-    public Map<ErrorType, Integer> getErrorTypeCounts() { 
+    public Map<ErrorType, Integer> getErrorTypeCounts() {
         Map<ErrorType, Integer> counts = new HashMap<>();
         for (ErrorInfo error : errors) {
             counts.put(error.getType(), counts.getOrDefault(error.getType(), 0) + 1);

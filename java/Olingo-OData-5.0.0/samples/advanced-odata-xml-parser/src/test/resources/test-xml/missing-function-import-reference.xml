@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Missing">
+      <EntityContainer Name="Container">
+        <FunctionImport Name="GetProducts" Function="Test.Missing.NonExistentFunction"/>
+        <ActionImport Name="CreateProduct" Action="Test.Missing.NonExistentAction"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
+

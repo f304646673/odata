@@ -105,7 +105,7 @@ public class ModularAdvancedMetadataParserTest {
         assertEquals(1, container.getEntitySets().size());
         
         // Verify statistics
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(1, stats.getTotalFilesProcessed());
         assertTrue(stats.getTotalParsingTime() > 0);
         assertEquals(0, stats.getCircularDependenciesDetected());
@@ -133,7 +133,7 @@ public class ModularAdvancedMetadataParserTest {
         // Verify annotations are parsed (structure depends on Olingo's implementation)
         assertNotNull(schema.getAnnotationGroups());
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(1, stats.getTotalFilesProcessed());
     }
 
@@ -168,7 +168,7 @@ public class ModularAdvancedMetadataParserTest {
         assertEquals(2, references.size());
         
         // Verify statistics show multiple files processed
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(3, stats.getTotalFilesProcessed());
         assertEquals(0, stats.getCircularDependenciesDetected());
         assertEquals(2, stats.getMaxDepthReached());
@@ -199,7 +199,7 @@ public class ModularAdvancedMetadataParserTest {
         assertTrue(hasLevel4, "Should load Test.Level4 schema");
         
         // Verify statistics show deep dependency
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(4, stats.getTotalFilesProcessed());
         assertEquals(3, stats.getMaxDepthReached(), "Should reach depth of 3 in dependency chain");
     }
@@ -224,7 +224,7 @@ public class ModularAdvancedMetadataParserTest {
         assertTrue(exception.getMessage().contains("Circular dependencies detected"));
         
         // Verify statistics show circular dependency detected
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertTrue(stats.getCircularDependenciesDetected() > 0);
         
         // Verify error report contains circular dependency info
@@ -248,7 +248,7 @@ public class ModularAdvancedMetadataParserTest {
         assertNotNull(provider);
         
         // Should still detect the circular dependency in statistics
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(1, stats.getCircularDependenciesDetected());
         
         // Should have schemas loaded despite circular dependency
@@ -277,7 +277,7 @@ public class ModularAdvancedMetadataParserTest {
         assertNotNull(provider);
         
         // Statistics should not show circular dependencies detected
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertEquals(0, stats.getCircularDependenciesDetected());
 
         // Should have schemas loaded despite circular dependency
@@ -306,7 +306,7 @@ public class ModularAdvancedMetadataParserTest {
         SchemaBasedEdmProvider provider1 = parser.buildEdmProvider(schemaPath);
         
         assertNotNull(provider1);
-        ModularAdvancedMetadataParser.ParseStatistics stats1 = parser.getStatistics();
+        ParseStatistics stats1 = parser.getStatistics();
         int filesProcessed1 = stats1.getTotalFilesProcessed();
         int cachedReused1 = stats1.getCachedFilesReused();
         
@@ -314,7 +314,7 @@ public class ModularAdvancedMetadataParserTest {
         SchemaBasedEdmProvider provider2 = parser.buildEdmProvider(schemaPath);
         
         assertNotNull(provider2);
-        ModularAdvancedMetadataParser.ParseStatistics stats2 = parser.getStatistics();
+        ParseStatistics stats2 = parser.getStatistics();
         int filesProcessed2 = stats2.getTotalFilesProcessed();
         int cachedReused2 = stats2.getCachedFilesReused();
         
@@ -340,7 +340,7 @@ public class ModularAdvancedMetadataParserTest {
         
         // Parse and cache
         parser.buildEdmProvider(schemaPath);
-        ModularAdvancedMetadataParser.ParseStatistics stats1 = parser.getStatistics();
+        ParseStatistics stats1 = parser.getStatistics();
         int cachedReused1 = stats1.getCachedFilesReused();
         
         // Clear cache
@@ -348,7 +348,7 @@ public class ModularAdvancedMetadataParserTest {
         
         // Parse again (should not use cache)
         parser.buildEdmProvider(schemaPath);
-        ModularAdvancedMetadataParser.ParseStatistics stats2 = parser.getStatistics();
+        ParseStatistics stats2 = parser.getStatistics();
         int cachedReused2 = stats2.getCachedFilesReused();
         
         // Should not have reused additional cached files after clearing
@@ -366,7 +366,7 @@ public class ModularAdvancedMetadataParserTest {
         parser.buildEdmProvider(schemaPath);
         parser.buildEdmProvider(schemaPath);
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         
         // Should not have reused any cached files
         assertEquals(0, stats.getCachedFilesReused(), "Should not use cache when disabled");
@@ -421,11 +421,11 @@ public class ModularAdvancedMetadataParserTest {
         });
         
         // Verify error is reported in statistics
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        Map<ModularAdvancedMetadataParser.ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(ModularAdvancedMetadataParser.ErrorType.SCHEMA_NOT_FOUND) || 
-                  errorCounts.containsKey(ModularAdvancedMetadataParser.ErrorType.DEPENDENCY_ANALYSIS_ERROR) ||
-                  errorCounts.containsKey(ModularAdvancedMetadataParser.ErrorType.SCHEMA_RESOLUTION_FAILED));
+        ParseStatistics stats = parser.getStatistics();
+        Map<ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(ErrorType.SCHEMA_NOT_FOUND) || 
+                  errorCounts.containsKey(ErrorType.DEPENDENCY_ANALYSIS_ERROR) ||
+                  errorCounts.containsKey(ErrorType.SCHEMA_RESOLUTION_FAILED));
         
         // Verify error report
         Map<String, List<String>> errors = parser.getErrorReport();
@@ -442,9 +442,9 @@ public class ModularAdvancedMetadataParserTest {
             parser.buildEdmProvider(schemaPath);
         });
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
-        Map<ModularAdvancedMetadataParser.ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(ModularAdvancedMetadataParser.ErrorType.FILE_NOT_FOUND), 
+        ParseStatistics stats = parser.getStatistics();
+        Map<ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(ErrorType.FILE_NOT_FOUND), 
                   "Should report FILE_NOT_FOUND error for non-existent files");
     }
 
@@ -463,7 +463,7 @@ public class ModularAdvancedMetadataParserTest {
         SchemaBasedEdmProvider provider = parser.buildEdmProvider(schemaPath);
         assertNotNull(provider);
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         
         // Verify all statistics are collected
         assertTrue(stats.getTotalFilesProcessed() > 0, "Should process files");
@@ -477,7 +477,7 @@ public class ModularAdvancedMetadataParserTest {
         
         // Parse again to test cache statistics
         parser.buildEdmProvider(schemaPath);
-        ModularAdvancedMetadataParser.ParseStatistics stats2 = parser.getStatistics();
+        ParseStatistics stats2 = parser.getStatistics();
         
         assertTrue(stats2.getCachedFilesReused() > 0, "Should have reused cache on second call");
         assertEquals(stats.getTotalFilesProcessed(), stats2.getTotalFilesProcessed(),
@@ -566,7 +566,7 @@ public class ModularAdvancedMetadataParserTest {
         // Performance assertion (should complete in reasonable time)
         assertTrue(duration < 10000, "Should complete parsing within 10 seconds");
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertTrue(stats.getTotalParsingTime() > 0);
         assertTrue(stats.getTotalParsingTime() <= duration);
     }
@@ -593,7 +593,7 @@ public class ModularAdvancedMetadataParserTest {
         assertTrue(thirdParseTime <= firstParseTime || thirdParseTime < 100,
                   "Cached parse should be faster or very quick");
         
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertTrue(stats.getCachedFilesReused() > 0, "Should have reused cached files");
     }
 
@@ -640,7 +640,7 @@ public class ModularAdvancedMetadataParserTest {
         parser.buildEdmProvider(complexSchema);
         
         // Verify comprehensive statistics
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertTrue(stats.getTotalFilesProcessed() > 5, "Should have processed multiple files");
         assertTrue(stats.getCachedFilesReused() > 0, "Should have reused cached files");
         assertTrue(stats.getMaxDepthReached() >= 3, "Should have reached significant depth");
@@ -652,7 +652,7 @@ public class ModularAdvancedMetadataParserTest {
         
         // Parse again
         parser.buildEdmProvider(simpleSchema);
-        ModularAdvancedMetadataParser.ParseStatistics statsAfterClear = parser.getStatistics();
+        ParseStatistics statsAfterClear = parser.getStatistics();
         
         // Should not have increased cached reused count significantly
         assertTrue(statsAfterClear.getCachedFilesReused() <= cachedBefore + 1);
@@ -854,7 +854,7 @@ public class ModularAdvancedMetadataParserTest {
         assertEquals("FinalEntities", finalSchema.getEntityContainer().getEntitySets().get(0).getName());
         
         // Verify statistics show correct depth and file processing
-        ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+        ParseStatistics stats = parser.getStatistics();
         assertTrue(stats.getTotalFilesProcessed() >= 3, "Should process at least 3 files");
         assertTrue(stats.getMaxDepthReached() >= 2, "Should reach depth of at least 2");
     }
@@ -869,14 +869,14 @@ public class ModularAdvancedMetadataParserTest {
         SchemaBasedEdmProvider provider1 = parser.buildEdmProvider(integrationPath);
         assertNotNull(provider1);
         
-        ModularAdvancedMetadataParser.ParseStatistics stats1 = parser.getStatistics();
+        ParseStatistics stats1 = parser.getStatistics();
         int cachedReused1 = stats1.getCachedFilesReused();
         
         // Parse again (should use cache for common.xml files)
         SchemaBasedEdmProvider provider2 = parser.buildEdmProvider(integrationPath);
         assertNotNull(provider2);
         
-        ModularAdvancedMetadataParser.ParseStatistics stats2 = parser.getStatistics();
+        ParseStatistics stats2 = parser.getStatistics();
         int cachedReused2 = stats2.getCachedFilesReused();
         
         // Should have reused cached files
@@ -930,11 +930,11 @@ public class ModularAdvancedMetadataParserTest {
             assertTrue(foundMainSchema, "Main schema should be parsed");
             
             // Check that missing type reference errors are detected
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported - just check that some type is reported as missing
@@ -971,11 +971,11 @@ public class ModularAdvancedMetadataParserTest {
             assertTrue(foundMainSchema, "Main schema should be parsed");
             
             // Check that missing type reference errors are detected
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1012,11 +1012,11 @@ public class ModularAdvancedMetadataParserTest {
             assertTrue(foundMainSchema, "Main schema should be parsed");
             
             // Check that missing type reference errors are detected
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing enum type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1051,13 +1051,13 @@ public class ModularAdvancedMetadataParserTest {
             assertTrue(foundMainSchema, "Main schema should be parsed");
             
             // Check that missing function reference errors are detected
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
-            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
-            
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_FUNCTION_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should have MISSING_FUNCTION_REFERENCE error");
+
             // Verify specific missing function is reported
             boolean foundMissingFunctionError = stats.getErrors().stream()
                 .anyMatch(error -> error.getDescription().contains("not found"));
@@ -1090,13 +1090,13 @@ public class ModularAdvancedMetadataParserTest {
             assertTrue(foundMainSchema, "Main schema should be parsed");
             
             // Check that missing action reference errors are detected
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing action references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
-            assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
-            
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
+
             // Verify specific missing action is reported
             boolean foundMissingActionError = stats.getErrors().stream()
                 .anyMatch(error -> error.getDescription().contains("not found"));
@@ -1316,11 +1316,11 @@ public class ModularAdvancedMetadataParserTest {
                 assertFalse(provider.getSchemas().isEmpty(), "Should have at least one schema for " + testSchema);
                 
                 // Check that missing reference errors are detected
-                ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+                ParseStatistics stats = parser.getStatistics();
                 assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing references in " + testSchema);
                 
                 boolean hasMissingTypeError = stats.getErrors().stream()
-                    .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                    .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
                 assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error in " + testSchema);
                 
             }, "Should be able to parse " + testSchema + " even with missing references");
@@ -1330,27 +1330,8 @@ public class ModularAdvancedMetadataParserTest {
     @Test
     public void testMissingEntityTypeReference() throws Exception {
         // Test with a schema that references a non-existent entity type
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "        <NavigationProperty Name=\"Category\" Type=\"Test.Missing.NonExistentCategory\"/>\n" +
-            "      </EntityType>\n" +
-            "      <EntityContainer Name=\"Container\">\n" +
-            "        <EntitySet Name=\"Products\" EntityType=\"Test.Missing.Product\"/>\n" +
-            "        <EntitySet Name=\"Categories\" EntityType=\"Test.Missing.NonExistentCategory\"/>\n" +
-            "      </EntityContainer>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-entity-type-reference.xml");
+
         File tempFile = File.createTempFile("missing-entity-type", ".xml");
         tempFile.deleteOnExit();
         
@@ -1359,12 +1340,12 @@ public class ModularAdvancedMetadataParserTest {
             parser.buildEdmProvider(tempFile.getAbsolutePath());
             
             // Should have errors for missing entity type references
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type");
             
             // Check for specific error types
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1374,23 +1355,8 @@ public class ModularAdvancedMetadataParserTest {
     
     @Test
     public void testMissingComplexTypeReference() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "        <Property Name=\"Details\" Type=\"Test.Missing.NonExistentDetails\"/>\n" +
-            "      </EntityType>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-complex-type-reference.xml");
+
         File tempFile = File.createTempFile("missing-complex-type", ".xml");
         tempFile.deleteOnExit();
         
@@ -1399,11 +1365,11 @@ public class ModularAdvancedMetadataParserTest {
             parser.buildEdmProvider(tempFile.getAbsolutePath());
             
             // Should have errors for missing complex type references
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1413,25 +1379,8 @@ public class ModularAdvancedMetadataParserTest {
     
     @Test 
     public void testMissingAnnotationTarget() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Annotation\">\n" +
-            "      <EntityType Name=\"Product\">\n" +
-            "        <Key>\n" +
-            "          <PropertyRef Name=\"ID\"/>\n" +
-            "        </Key>\n" +
-            "        <Property Name=\"ID\" Type=\"Edm.Int32\" Nullable=\"false\"/>\n" +
-            "      </EntityType>\n" +
-            "      <Annotations Target=\"Test.Annotation.NonExistentType\">\n" +
-            "        <Annotation Term=\"Core.Description\" String=\"Description for non-existent type\"/>\n" +
-            "      </Annotations>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-annotation-target.xml");
+
         File tempFile = File.createTempFile("missing-annotation-target", ".xml");
         tempFile.deleteOnExit();
         
@@ -1440,11 +1389,11 @@ public class ModularAdvancedMetadataParserTest {
             parser.buildEdmProvider(tempFile.getAbsolutePath());
             
             // Should have errors for missing annotation target
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing annotation target");
             
             boolean hasMissingTargetError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_ANNOTATION_TARGET);
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_ANNOTATION_TARGET);
             assertTrue(hasMissingTargetError, "Should have MISSING_ANNOTATION_TARGET error");
             
         } finally {
@@ -1454,20 +1403,8 @@ public class ModularAdvancedMetadataParserTest {
     
     @Test
     public void testMissingFunctionImportReference() throws Exception {
-        String testSchema = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">\n" +
-            "  <edmx:DataServices>\n" +
-            "    <Schema xmlns=\"http://docs.oasis-open.org/odata/ns/edm\" " +
-            "            Namespace=\"Test.Missing\">\n" +
-            "      <EntityContainer Name=\"Container\">\n" +
-            "        <FunctionImport Name=\"GetProducts\" Function=\"Test.Missing.NonExistentFunction\"/>\n" +
-            "        <ActionImport Name=\"CreateProduct\" Action=\"Test.Missing.NonExistentAction\"/>\n" +
-            "      </EntityContainer>\n" +
-            "    </Schema>\n" +
-            "  </edmx:DataServices>\n" +
-            "</edmx:Edmx>";
-        
+        String testSchema = loadXmlFromResource("test-xml/missing-function-import-reference.xml");
+
         File tempFile = File.createTempFile("missing-function-import", ".xml");
         tempFile.deleteOnExit();
         
@@ -1476,13 +1413,13 @@ public class ModularAdvancedMetadataParserTest {
             parser.buildEdmProvider(tempFile.getAbsolutePath());
             
             // Should have errors for missing function/action references
-            ModularAdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
+            ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
             
-            boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ModularAdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
-            assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
-            
+            boolean hasMissingFunctionError = stats.getErrors().stream()
+                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingFunctionError, "Should have MISSING_TYPE_REFERENCE error");
+
         } finally {
             tempFile.delete();
         }
@@ -1491,4 +1428,10 @@ public class ModularAdvancedMetadataParserTest {
     // ========================================
     // Helper Methods
     // ========================================
+
+    private String loadXmlFromResource(String resourcePath) throws Exception {
+        return new String(java.nio.file.Files.readAllBytes(
+            java.nio.file.Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI())
+        ));
+    }
 }
