@@ -1,4 +1,22 @@
-package org.apache.olingo.advanced.xmlparser;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.olingo.advanced.xmlparser.error;
 
 /**
  * Enumeration of all possible error types
@@ -19,9 +37,12 @@ public enum ErrorType {
     CONFIGURATION_ERROR("configuration_error", "Configuration or setup error"),
     MISSING_ANNOTATION("missing_annotation", "Required annotation is missing"),
     MISSING_TYPE_REFERENCE("missing_type_reference", "Referenced type does not exist"),
-    MISSING_ANNOTATION_TARGET("missing_annotation_target", "Annotation target does not exist"),
     MISSING_FUNCTION_REFERENCE("missing_function_reference", "Referenced function does not exist"),
-    UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved");
+    MISSING_ACTION_REFERENCE("missing_action_reference", "Referenced action does not exist"),
+    MISSING_ANNOTATION_TARGET("missing_annotation_target", "Annotation target does not exist"),
+    UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved"),
+    REFERENCE_ADDITION_ERROR("reference_addition_error", "Failed to add reference to provider"),
+    INFO("info", "Informational message");
     
     private final String legacyKey;
     private final String description;
@@ -31,8 +52,13 @@ public enum ErrorType {
         this.description = description;
     }
     
-    public String getLegacyKey() { return legacyKey; }
-    public String getDescription() { return description; }
+    public String getLegacyKey() { 
+        return legacyKey; 
+    }
+    
+    public String getDescription() { 
+        return description; 
+    }
     
     /**
      * Convert legacy string key to ErrorType

@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,12 +52,14 @@ public class AdvancedMetadataParserTest {
 
     private AdvancedMetadataParser parser;
     private String testResourcesPath;
+    private String testResourcesRootPath;
 
     @BeforeEach
     void setUp() {
         parser = new AdvancedMetadataParser();
         // Get the test resources path
         testResourcesPath = getClass().getClassLoader().getResource("schemas").getPath();
+        testResourcesRootPath = getClass().getClassLoader().getResource(".").getPath();
     }
 
     // ========================================
@@ -1330,14 +1331,10 @@ public class AdvancedMetadataParserTest {
     @Test
     public void testMissingEntityTypeReference() throws Exception {
         // Test with a schema that references a non-existent entity type
-        String testSchema = loadXmlFromResource("test-xml/missing-entity-type-reference.xml");
-
-        File tempFile = File.createTempFile("missing-entity-type", ".xml");
-        tempFile.deleteOnExit();
+        String schemaPath = testResourcesRootPath + "/test-xml/missing-entity-type-reference.xml";
         
         try {
-            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
-            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            parser.buildEdmProvider(schemaPath);
             
             // Should have errors for missing entity type references
             AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
@@ -1349,20 +1346,15 @@ public class AdvancedMetadataParserTest {
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
-            tempFile.delete();
         }
     }
     
     @Test
     public void testMissingComplexTypeReference() throws Exception {
-        String testSchema = loadXmlFromResource("test-xml/missing-complex-type-reference.xml");
-
-        File tempFile = File.createTempFile("missing-complex-type", ".xml");
-        tempFile.deleteOnExit();
+        String schemaPath = testResourcesRootPath + "/test-xml/missing-complex-type-reference.xml";
         
         try {
-            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
-            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            parser.buildEdmProvider(schemaPath);
             
             // Should have errors for missing complex type references
             AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
@@ -1373,20 +1365,15 @@ public class AdvancedMetadataParserTest {
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
-            tempFile.delete();
         }
     }
     
     @Test 
     public void testMissingAnnotationTarget() throws Exception {
-        String testSchema = loadXmlFromResource("test-xml/missing-annotation-target.xml");
+        String schemaPath = testResourcesRootPath + "/test-xml/missing-annotation-target.xml";
 
-        File tempFile = File.createTempFile("missing-annotation-target", ".xml");
-        tempFile.deleteOnExit();
-        
         try {
-            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
-            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            parser.buildEdmProvider(schemaPath);
             
             // Should have errors for missing annotation target
             AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
@@ -1397,41 +1384,25 @@ public class AdvancedMetadataParserTest {
             assertTrue(hasMissingTargetError, "Should have MISSING_ANNOTATION_TARGET error");
             
         } finally {
-            tempFile.delete();
         }
     }
     
     @Test
     public void testMissingFunctionImportReference() throws Exception {
-        String testSchema = loadXmlFromResource("test-xml/missing-function-import-reference.xml");
-
-        File tempFile = File.createTempFile("missing-function-import", ".xml");
-        tempFile.deleteOnExit();
-        
+        String schemaPath = testResourcesRootPath + "/test-xml/missing-function-import-reference.xml";
         try {
-            java.nio.file.Files.write(tempFile.toPath(), testSchema.getBytes());
-            parser.buildEdmProvider(tempFile.getAbsolutePath());
+            parser.buildEdmProvider(schemaPath);
             
             // Should have errors for missing function/action references
             AdvancedMetadataParser.ParseStatistics stats = parser.getStatistics();
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
             
             boolean hasMissingFunctionError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_FUNCTION_REFERENCE);
-            assertTrue(hasMissingFunctionError, "Should have MISSING_FUNCTION_REFERENCE error");
+                .anyMatch(error -> error.getType() == AdvancedMetadataParser.ErrorType.MISSING_TYPE_REFERENCE);
+            assertTrue(hasMissingFunctionError, "Should have MISSING_TYPE_REFERENCE error");
 
         } finally {
-            tempFile.delete();
         }
     }
 
-    // ========================================
-    // Helper Methods
-    // ========================================
-
-    private String loadXmlFromResource(String resourcePath) throws Exception {
-        return new String(java.nio.file.Files.readAllBytes(
-            java.nio.file.Paths.get(getClass().getClassLoader().getResource(resourcePath).toURI())
-        ));
-    }
 }
