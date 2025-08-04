@@ -22,11 +22,9 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.olingo.advanced.xmlparser.core.AdvancedSchemaProvider;
-import org.apache.olingo.advanced.xmlparser.core.MergeResult;
 import org.apache.olingo.advanced.xmlparser.core.OperationResult;
 import org.apache.olingo.advanced.xmlparser.core.OperationType;
 import org.apache.olingo.advanced.xmlparser.core.ResultType;
-import org.apache.olingo.advanced.xmlparser.core.ValidationResult;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -328,12 +326,12 @@ public class AdvancedSchemaProviderTest {
     }
 
     @Test
-    @DisplayName("Should support legacy ValidationResult wrapper")
-    public void testLegacyValidationResultWrapper() throws Exception {
-        // Test backward compatibility with deprecated ValidationResult class
+    @DisplayName("Should support legacy OperationResult wrapper")
+    public void testLegacyOperationResultWrapper() throws Exception {
+        // Test backward compatibility with deprecated OperationResult class
         AdvancedSchemaProvider provider = new AdvancedSchemaProvider(baseSchemaPath);
         
-        ValidationResult legacyResult = provider.validateSchemaLegacy(extendedSchemaPath);
+        OperationResult legacyResult = provider.validateSchemaLegacy(extendedSchemaPath);
         
         assertNotNull(legacyResult, "Legacy result should not be null");
         assertTrue(legacyResult.isSuccessful(), "Legacy validation should succeed");
@@ -349,12 +347,12 @@ public class AdvancedSchemaProviderTest {
     }
 
     @Test
-    @DisplayName("Should support legacy MergeResult wrapper")
-    public void testLegacyMergeResultWrapper() throws Exception {
-        // Test backward compatibility with deprecated MergeResult class
+    @DisplayName("Should support legacy OperationResult wrapper for merge")
+    public void testLegacyMergeOperationResultWrapper() throws Exception {
+        // Test backward compatibility with deprecated OperationResult class
         AdvancedSchemaProvider provider = new AdvancedSchemaProvider(baseSchemaPath);
         
-        MergeResult legacyResult = provider.mergeSchemasLegacy(extendedSchemaPath);
+        OperationResult legacyResult = provider.mergeSchemasLegacy(extendedSchemaPath);
         
         assertNotNull(legacyResult, "Legacy merge result should not be null");
         assertTrue(legacyResult.isSuccessful(), "Legacy merge should succeed");
@@ -371,7 +369,7 @@ public class AdvancedSchemaProviderTest {
 
     @Test
     @DisplayName("Should validate with multiple error types")
-    public void testMultipleErrorTypes() throws Exception {
+    public void testMultipleResultTypes() throws Exception {
         // Test that we can have multiple different error types in one result
         OperationResult result = new OperationResult();
         
@@ -524,7 +522,7 @@ public class AdvancedSchemaProviderTest {
 
     @Test
     @DisplayName("Should handle multiple validation error types")
-    public void testMultipleValidationErrorTypes() {
+    public void testMultipleValidationResultTypes() {
         OperationResult result = new OperationResult(OperationType.VALIDATION);
         
         // Various validation errors

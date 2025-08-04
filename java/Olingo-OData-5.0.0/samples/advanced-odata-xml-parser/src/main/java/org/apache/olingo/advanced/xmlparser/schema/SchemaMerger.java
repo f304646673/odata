@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.olingo.advanced.xmlparser.core.ResultType;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
-import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -87,7 +87,7 @@ public class SchemaMerger implements ISchemaMerger {
                         // If merge fails, it's a conflict
                         String error = String.format("Schema merge conflict in namespace '%s': %s", 
                             namespace, e.getMessage());
-                        statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                        statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                         errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                         throw e;
                     }
@@ -181,7 +181,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting EntityType '%s' found in namespace '%s' during schema merge",
                         entityType.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -196,7 +196,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting ComplexType '%s' found in namespace '%s' during schema merge",
                         complexType.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -211,7 +211,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting EnumType '%s' found in namespace '%s' during schema merge",
                         enumType.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -226,7 +226,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting TypeDefinition '%s' found in namespace '%s' during schema merge",
                         typeDef.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -241,7 +241,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting Action '%s' found in namespace '%s' during schema merge",
                         action.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -256,7 +256,7 @@ public class SchemaMerger implements ISchemaMerger {
                     String error = String.format(
                         "Conflicting Function '%s' found in namespace '%s' during schema merge",
                         function.getName(), namespace);
-                    statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                    statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                     throw new IllegalArgumentException(error);
                 }
@@ -270,7 +270,7 @@ public class SchemaMerger implements ISchemaMerger {
                 String error = String.format(
                     "Conflicting EntityContainer '%s' found in namespace '%s' during schema merge",
                     source.getEntityContainer().getName(), namespace);
-                statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
+                statistics.addError(ResultType.SCHEMA_MERGE_CONFLICT, error, namespace);
                 errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
                 throw new IllegalArgumentException(error);
             }

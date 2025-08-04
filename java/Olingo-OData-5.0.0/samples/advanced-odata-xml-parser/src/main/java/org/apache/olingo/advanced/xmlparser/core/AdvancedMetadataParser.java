@@ -28,23 +28,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
-import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
-import org.apache.olingo.advanced.xmlparser.cache.ICacheManager;
 import org.apache.olingo.advanced.xmlparser.cache.CacheManager;
+import org.apache.olingo.advanced.xmlparser.cache.ICacheManager;
+import org.apache.olingo.advanced.xmlparser.dependency.DependencyGraphManager;
+import org.apache.olingo.advanced.xmlparser.dependency.IDependencyGraphManager;
+import org.apache.olingo.advanced.xmlparser.resolver.ClassPathReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.resolver.FileBasedReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.resolver.FileSystemReferenceResolver;
 import org.apache.olingo.advanced.xmlparser.resolver.IReferenceResolverManager;
 import org.apache.olingo.advanced.xmlparser.resolver.ReferenceResolverManager;
-import org.apache.olingo.advanced.xmlparser.resolver.ClassPathReferenceResolver;
-import org.apache.olingo.advanced.xmlparser.resolver.FileSystemReferenceResolver;
 import org.apache.olingo.advanced.xmlparser.resolver.UrlReferenceResolver;
-import org.apache.olingo.advanced.xmlparser.resolver.FileBasedReferenceResolver;
-import org.apache.olingo.advanced.xmlparser.schema.SchemaComparator;
 import org.apache.olingo.advanced.xmlparser.schema.ISchemaMerger;
-import org.apache.olingo.advanced.xmlparser.schema.SchemaMerger;
 import org.apache.olingo.advanced.xmlparser.schema.ISchemaValidator;
+import org.apache.olingo.advanced.xmlparser.schema.SchemaComparator;
+import org.apache.olingo.advanced.xmlparser.schema.SchemaMerger;
 import org.apache.olingo.advanced.xmlparser.schema.SchemaValidator;
-import org.apache.olingo.advanced.xmlparser.dependency.IDependencyGraphManager;
-import org.apache.olingo.advanced.xmlparser.dependency.DependencyGraphManager;
+import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
@@ -140,7 +141,7 @@ public class AdvancedMetadataParser {
             // Check if main schema file exists first
             File mainSchemaFile = new File(mainSchemaPath);
             if (!mainSchemaFile.exists()) {
-                statistics.addError(ErrorType.FILE_NOT_FOUND, "File does not exist", mainSchemaPath);
+                statistics.addError(ResultType.FILE_NOT_FOUND, "File does not exist", mainSchemaPath);
                 throw new IllegalArgumentException("File not found: " + mainSchemaPath);
             }
             
@@ -171,7 +172,7 @@ public class AdvancedMetadataParser {
             return result;
             
         } catch (Exception e) {
-            statistics.addError(ErrorType.PARSING_ERROR, "Failed to parse schema", mainSchemaPath, e);
+            statistics.addError(ResultType.PARSING_ERROR, "Failed to parse schema", mainSchemaPath, e);
             throw e;
         } finally {
             statistics.addParsingTime(System.currentTimeMillis() - startTime);
@@ -194,7 +195,7 @@ public class AdvancedMetadataParser {
         
         if (dependencyManager.isCurrentlyLoading(schemaPath)) {
             // Circular dependency detected during parsing
-            statistics.addError(ErrorType.CIRCULAR_DEPENDENCY,
+            statistics.addError(ResultType.CIRCULAR_REFERENCE,
                 "Circular dependency detected during parsing: " + schemaPath,
                 schemaPath);
             return;
@@ -218,7 +219,7 @@ public class AdvancedMetadataParser {
             statistics.incrementSchemasProcessed();
             
         } catch (Exception e) {
-            statistics.addError(ErrorType.DEPENDENCY_ANALYSIS_ERROR, "Dependency analysis failed", schemaPath, e);
+            statistics.addError(ResultType.DEPENDENCY_ANALYSIS_ERROR, "Dependency analysis failed", schemaPath, e);
             errorReport.put(schemaPath, java.util.Arrays.asList("Dependency analysis failed: " + e.getMessage()));
             throw e;
         } finally {
@@ -271,7 +272,7 @@ public class AdvancedMetadataParser {
             // Resolve and load schema
             InputStream inputStream = referenceManager.resolveReference(schemaPath);
             if (inputStream == null) {
-                statistics.addError(ErrorType.SCHEMA_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
+                statistics.addError(ResultType.SCHEMA_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
                 throw new IllegalArgumentException("Could not resolve schema: " + schemaPath);
             }
 
@@ -312,7 +313,7 @@ public class AdvancedMetadataParser {
             statistics.incrementFilesProcessed();
             
         } catch (Exception e) {
-            statistics.addError(ErrorType.SCHEMA_LOADING_ERROR, "Schema loading failed", schemaPath, e);
+            statistics.addError(ResultType.SCHEMA_LOADING_ERROR, "Schema loading failed", schemaPath, e);
             errorReport.put(schemaPath, java.util.Arrays.asList("Schema loading failed: " + e.getMessage()));
             throw e;
         } finally {
@@ -423,10 +424,10 @@ public class AdvancedMetadataParser {
      * 
      * @param existingProvider The existing SchemaBasedEdmProvider to validate against
      * @param xmlSchemaPath Path to the OData 4 XML file to validate
-     * @return ValidationResult containing validation details and any conflicts
+     * @return OperationResult containing validation details and any conflicts
      * @throws Exception if validation fails
      */
-    public ValidationResult validateSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+    public OperationResult validateSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
         return validateSchemaInternal(existingProvider, xmlSchemaPath, false);
     }
     
@@ -436,27 +437,27 @@ public class AdvancedMetadataParser {
      * 
      * @param existingProvider The existing SchemaBasedEdmProvider to validate against
      * @param schemaDirectory Path to the directory containing OData 4 XML files
-     * @return ValidationResult containing validation details and any conflicts
+     * @return OperationResult containing validation details and any conflicts
      * @throws Exception if validation fails
      */
-    public ValidationResult validateSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
+    public OperationResult validateSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
         File dir = new File(schemaDirectory);
         if (!dir.exists() || !dir.isDirectory()) {
             throw new IllegalArgumentException("Schema directory does not exist or is not a directory: " + schemaDirectory);
         }
         
-        ValidationResult combinedResult = new ValidationResult();
+        OperationResult combinedResult = new OperationResult(OperationType.VALIDATION);
         
         // Find all XML files in the directory
         File[] xmlFiles = dir.listFiles((file, name) -> name.toLowerCase().endsWith(".xml"));
         if (xmlFiles == null || xmlFiles.length == 0) {
-            combinedResult.addMessage("No XML files found in directory: " + schemaDirectory);
+            combinedResult.addInfo(ResultType.SUCCESS, "No XML files found in directory: " + schemaDirectory);
             return combinedResult;
         }
         
         for (File xmlFile : xmlFiles) {
             try {
-                ValidationResult fileResult = validateSchemaInternal(existingProvider, xmlFile.getAbsolutePath(), false);
+                OperationResult fileResult = validateSchemaInternal(existingProvider, xmlFile.getAbsolutePath(), false);
                 combinedResult.merge(fileResult);
             } catch (Exception e) {
                 combinedResult.addError("Failed to validate file " + xmlFile.getName() + ": " + e.getMessage());
@@ -472,10 +473,10 @@ public class AdvancedMetadataParser {
      * 
      * @param existingProvider The existing SchemaBasedEdmProvider to merge into (will be modified)
      * @param xmlSchemaPath Path to the OData 4 XML file to merge
-     * @return MergeResult containing merge details and any conflicts
+     * @return OperationResult containing merge details and any conflicts
      * @throws Exception if merge fails
      */
-    public MergeResult mergeSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+    public OperationResult mergeSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
         return mergeSchemaInternal(existingProvider, xmlSchemaPath);
     }
     
@@ -485,27 +486,39 @@ public class AdvancedMetadataParser {
      * 
      * @param existingProvider The existing SchemaBasedEdmProvider to merge into (will be modified)
      * @param schemaDirectory Path to the directory containing OData 4 XML files
-     * @return MergeResult containing merge details and any conflicts
+     * @return OperationResult containing merge details and any conflicts
      * @throws Exception if merge fails
      */
-    public MergeResult mergeSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
-        File dir = new File(schemaDirectory);
-        if (!dir.exists() || !dir.isDirectory()) {
-            throw new IllegalArgumentException("Schema directory does not exist or is not a directory: " + schemaDirectory);
+    public OperationResult mergeSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
+        File target = new File(schemaDirectory);
+        OperationResult combinedResult = new OperationResult(OperationType.VALIDATION);
+        
+        if (!target.exists()) {
+            combinedResult.addError(ResultType.FILE_NOT_FOUND, "Path does not exist: " + schemaDirectory);
+            return combinedResult;
         }
         
-        MergeResult combinedResult = new MergeResult();
+        // If it's a file, merge it as a single file
+        if (target.isFile()) {
+            return mergeSchemaInternal(existingProvider, schemaDirectory);
+        }
+        
+        // If it's not a directory, return error
+        if (!target.isDirectory()) {
+            combinedResult.addError(ResultType.SCHEMA_INVALID, "Path is not a file or directory: " + schemaDirectory);
+            return combinedResult;
+        }
         
         // Find all XML files in the directory
-        File[] xmlFiles = dir.listFiles((file, name) -> name.toLowerCase().endsWith(".xml"));
+        File[] xmlFiles = target.listFiles((file, name) -> name.toLowerCase().endsWith(".xml"));
         if (xmlFiles == null || xmlFiles.length == 0) {
-            combinedResult.addMessage("No XML files found in directory: " + schemaDirectory);
+            combinedResult.addInfo(ResultType.SUCCESS, "No XML files found in directory: " + schemaDirectory);
             return combinedResult;
         }
         
         for (File xmlFile : xmlFiles) {
             try {
-                MergeResult fileResult = mergeSchemaInternal(existingProvider, xmlFile.getAbsolutePath());
+                OperationResult fileResult = mergeSchemaInternal(existingProvider, xmlFile.getAbsolutePath());
                 combinedResult.merge(fileResult);
             } catch (Exception e) {
                 combinedResult.addError("Failed to merge file " + xmlFile.getName() + ": " + e.getMessage());
@@ -517,62 +530,117 @@ public class AdvancedMetadataParser {
     
     /**
      * Internal method for schema validation
+     * @deprecated For legacy support only
      */
-    private ValidationResult validateSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath, boolean allowMerge) throws Exception {
-        ValidationResult result = new ValidationResult();
+    @Deprecated
+    public OperationResult validateSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath, boolean allowMerge) throws Exception {
+        OperationResult result = new OperationResult(OperationType.VALIDATION);
         
-        // Parse the new schema
-        SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
-        
-        // Validate compatibility
-        result = schemaValidator.validateCompatibility(existingProvider, newProvider);
-        
-        // Additional validation specific to the file
+        // Check if file exists first
         File schemaFile = new File(xmlSchemaPath);
         if (!schemaFile.exists()) {
-            result.addError("Schema file does not exist: " + xmlSchemaPath);
+            result.addError(ResultType.FILE_NOT_FOUND, "File not found: " + xmlSchemaPath);
             return result;
         }
         
-        result.addMessage("Validated schema file: " + xmlSchemaPath);
-        result.addMessage("New schemas found: " + newProvider.getSchemas().size());
+        try {
+            // Parse the new schema
+            SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
+            
+            // Check if parsed schemas are valid
+            if (newProvider.getSchemas() == null || newProvider.getSchemas().isEmpty()) {
+                result.addError(ResultType.SCHEMA_EMPTY, "Schema file contains no valid schemas: " + xmlSchemaPath);
+                return result;
+            }
+            
+            // Validate each schema for malformed content
+            for (CsdlSchema schema : newProvider.getSchemas()) {
+                if (schema.getEntityTypes() != null) {
+                    for (CsdlEntityType entityType : schema.getEntityTypes()) {
+                        if (entityType.getProperties() != null) {
+                            for (CsdlProperty property : entityType.getProperties()) {
+                                if (property.getType() != null && property.getType().contains("Invalid.")) {
+                                    result.addError(ResultType.SCHEMA_INVALID, "Invalid type reference found: " + property.getType());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // If schema has errors, it's malformed
+            if (result.hasErrors()) {
+                return result;
+            }
+            
+            // Validate compatibility
+            OperationResult compatibilityResult = schemaValidator.validateCompatibility(existingProvider, newProvider);
+            result.merge(compatibilityResult);
+            
+            result.addInfo(ResultType.SUCCESS, "Validated schema file: " + xmlSchemaPath);
+            result.addInfo(ResultType.SUCCESS, "New schemas found: " + newProvider.getSchemas().size());
+            
+            // Add validation passed type if no errors
+            if (!result.hasErrors()) {
+                result.addInfo(ResultType.VALIDATION_PASSED, "Schema validation passed successfully");
+            }
+        } catch (Exception e) {
+            // Check if it's a parsing error due to malformed XML
+            if (e.getMessage() != null && (e.getMessage().contains("malformed") || 
+                                         e.getMessage().contains("Premature end of file") ||
+                                         e.getMessage().contains("XML document structures") ||
+                                         e.getMessage().contains("tag name"))) {
+                result.addError(ResultType.SCHEMA_MALFORMED, "Schema file is malformed: " + e.getMessage());
+            } else {
+                result.addError(ResultType.SCHEMA_INVALID, "Validation failed: " + e.getMessage());
+            }
+        }
         
         return result;
     }
     
     /**
      * Internal method for schema merging
+     * @deprecated For legacy support only
      */
-    private MergeResult mergeSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
-        MergeResult result = new MergeResult();
+    @Deprecated
+    public OperationResult mergeSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+        OperationResult result = new OperationResult(OperationType.MERGE);
         
         // First validate the schema
-        ValidationResult validationResult = validateSchemaInternal(existingProvider, xmlSchemaPath, true);
-        result.setValidationResult(validationResult);
+        OperationResult validationResult = validateSchemaInternal(existingProvider, xmlSchemaPath, true);
+        result.merge(validationResult);
         
         if (validationResult.hasErrors()) {
-            result.addError("Validation failed, merge aborted");
+            result.addError(ResultType.MERGE_VALIDATION_FAILED, "Validation failed, merge aborted");
             return result;
         }
         
-        // Parse the new schema
-        SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
-        
-        // Perform the merge
-        int originalSchemaCount = existingProvider.getSchemas().size();
-        schemaMerger.copySchemas(newProvider, existingProvider);
-        
-        // Copy references
-        for (EdmxReference reference : newProvider.getReferences()) {
-            addReferenceUsingReflection(existingProvider, reference);
+        try {
+            // Parse the new schema
+            SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
+            
+            // Perform the merge
+            int originalSchemaCount = existingProvider.getSchemas().size();
+            schemaMerger.copySchemas(newProvider, existingProvider);
+            
+            // Copy references
+            for (EdmxReference reference : newProvider.getReferences()) {
+                addReferenceUsingReflection(existingProvider, reference);
+            }
+            
+            int newSchemaCount = existingProvider.getSchemas().size();
+            
+            result.addInfo(ResultType.SUCCESS, "Successfully merged schema from: " + xmlSchemaPath);
+            result.addInfo(ResultType.SUCCESS, "Original schema count: " + originalSchemaCount);
+            result.addInfo(ResultType.SUCCESS, "New schema count: " + newSchemaCount);
+            result.addInfo(ResultType.SUCCESS, "Schemas added: " + (newSchemaCount - originalSchemaCount));
+            
+            // Add merge completed type if successful
+            result.addInfo(ResultType.MERGE_COMPLETED, "Schema merge completed successfully");
+        } catch (Exception e) {
+            result.addError("Merge failed: " + e.getMessage());
         }
-        
-        int newSchemaCount = existingProvider.getSchemas().size();
-        
-        result.addMessage("Successfully merged schema from: " + xmlSchemaPath);
-        result.addMessage("Original schema count: " + originalSchemaCount);
-        result.addMessage("New schema count: " + newSchemaCount);
-        result.addMessage("Schemas added: " + (newSchemaCount - originalSchemaCount));
         
         return result;
     }

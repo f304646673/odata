@@ -18,7 +18,7 @@
  */
 package org.apache.olingo.advanced.xmlparser.schema;
 
-import org.apache.olingo.advanced.xmlparser.core.ValidationResult;
+import org.apache.olingo.advanced.xmlparser.core.OperationResult;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 
 /**
@@ -34,5 +34,5 @@ public interface ISchemaValidator {
     /**
      * Validate compatibility between existing and new schema providers
      */
-    ValidationResult validateCompatibility(SchemaBasedEdmProvider existingProvider, SchemaBasedEdmProvider newProvider);
+    OperationResult validateCompatibility(SchemaBasedEdmProvider existingProvider, SchemaBasedEdmProvider newProvider);
 }

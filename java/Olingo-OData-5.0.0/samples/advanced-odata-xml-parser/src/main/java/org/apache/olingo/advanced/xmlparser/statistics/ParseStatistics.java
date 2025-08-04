@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.advanced.xmlparser.core.ResultType;
+
 /**
  * Statistics and metrics
  */
@@ -41,8 +43,8 @@ public class ParseStatistics {
     /**
      * Get error counts by type (computed from errors list)
      */
-    public Map<ErrorType, Integer> getErrorTypeCounts() {
-        Map<ErrorType, Integer> counts = new HashMap<>();
+    public Map<ResultType, Integer> getErrorTypeCounts() {
+        Map<ResultType, Integer> counts = new HashMap<>();
         for (ErrorInfo error : errors) {
             counts.put(error.getType(), counts.getOrDefault(error.getType(), 0) + 1);
         }
@@ -50,9 +52,25 @@ public class ParseStatistics {
     }
     
     /**
+     * Get errors of specific type
+     */
+    public List<ErrorInfo> getErrorsOfType(ResultType type) {
+        return errors.stream()
+                .filter(error -> error.getType() == type)
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * Check if errors of specific type exist
+     */
+    public boolean hasErrorsOfType(ResultType type) {
+        return errors.stream().anyMatch(error -> error.getType() == type);
+    }
+    
+    /**
      * Get errors by type
      */
-    public List<ErrorInfo> getErrorsByType(ErrorType type) {
+    public List<ErrorInfo> getErrorsByType(ResultType type) {
         return errors.stream()
                 .filter(error -> error.getType() == type)
                 .collect(java.util.stream.Collectors.toList());
@@ -61,7 +79,7 @@ public class ParseStatistics {
     /**
      * Check if there are any errors of a specific type (computed from errors list)
      */
-    public boolean hasErrorType(ErrorType type) {
+    public boolean hasErrorType(ResultType type) {
         return errors.stream().anyMatch(error -> error.getType() == type);
     }
     
@@ -91,7 +109,7 @@ public class ParseStatistics {
     /**
      * Add error with type and description
      */
-    public void addError(ErrorType type, String description) {
+    public void addError(ResultType type, String description) {
         ErrorInfo error = new ErrorInfo(type, description);
         errors.add(error);
     }
@@ -99,7 +117,7 @@ public class ParseStatistics {
     /**
      * Add error with type, description and context
      */
-    public void addError(ErrorType type, String description, String context) {
+    public void addError(ResultType type, String description, String context) {
         ErrorInfo error = new ErrorInfo(type, description, context);
         errors.add(error);
     }
@@ -107,7 +125,7 @@ public class ParseStatistics {
     /**
      * Add error with type, description, context and caused by exception
      */
-    public void addError(ErrorType type, String description, String context, Throwable cause) {
+    public void addError(ResultType type, String description, String context, Throwable cause) {
         ErrorInfo error = new ErrorInfo(type, description, context, cause);
         errors.add(error);
     }

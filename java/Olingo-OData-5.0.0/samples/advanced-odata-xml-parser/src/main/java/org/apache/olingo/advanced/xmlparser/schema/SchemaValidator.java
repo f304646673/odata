@@ -19,13 +19,12 @@
 package org.apache.olingo.advanced.xmlparser.schema;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.olingo.advanced.xmlparser.core.ValidationResult;
+import org.apache.olingo.advanced.xmlparser.core.OperationResult;
+import org.apache.olingo.advanced.xmlparser.core.OperationType;
+import org.apache.olingo.advanced.xmlparser.core.ResultType;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
-import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
@@ -69,7 +68,7 @@ public class SchemaValidator implements ISchemaValidator {
                 validateSchemaReferences(schema, typeRegistry);
             }
         } catch (Exception e) {
-            statistics.addError(ErrorType.PARSING_ERROR,
+            statistics.addError(ResultType.PARSING_ERROR,
                 "Error during reference validation: " + e.getMessage(),
                 "validateReferences");
         }
@@ -128,7 +127,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Validate base type
         if (entityType.getBaseType() != null) {
             if (!typeRegistry.hasEntityType(entityType.getBaseType())) {
-                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE, 
+                statistics.addError(ResultType.MISSING_TYPE_REFERENCE, 
                     "Entity type base type not found: " + entityType.getBaseType(), 
                     typeName);
             }
@@ -145,7 +144,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (entityType.getNavigationProperties() != null) {
             for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
                 if (!typeRegistry.hasEntityType(navProp.getType())) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Navigation property type not found: " + navProp.getType(),
                         typeName + "." + navProp.getName());
                 }
@@ -159,7 +158,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Validate base type
         if (complexType.getBaseType() != null) {
             if (!typeRegistry.hasComplexType(complexType.getBaseType())) {
-                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                     "Complex type base type not found: " + complexType.getBaseType(),
                     typeName);
             }
@@ -183,7 +182,7 @@ public class SchemaValidator implements ISchemaValidator {
         
         // Check if the type exists
         if (!typeRegistry.hasType(propertyType)) {
-            statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+            statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                 "Property type not found: " + propertyType,
                 ownerTypeName + "." + property.getName());
         }
@@ -196,7 +195,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (function.getReturnType() != null && function.getReturnType().getType() != null) {
             String returnType = function.getReturnType().getType();
             if (!returnType.startsWith("Edm.") && !typeRegistry.hasType(returnType)) {
-                statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                     "Function return type not found: " + returnType,
                     functionName);
             }
@@ -207,7 +206,7 @@ public class SchemaValidator implements ISchemaValidator {
             for (CsdlParameter parameter : function.getParameters()) {
                 String paramType = parameter.getType();
                 if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Function parameter type not found: " + paramType,
                         functionName + "." + parameter.getName());
                 }
@@ -223,7 +222,7 @@ public class SchemaValidator implements ISchemaValidator {
             for (CsdlParameter parameter : action.getParameters()) {
                 String paramType = parameter.getType();
                 if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Action parameter type not found: " + paramType,
                         actionName + "." + parameter.getName());
                 }
@@ -238,7 +237,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getEntitySets() != null) {
             for (CsdlEntitySet entitySet : container.getEntitySets()) {
                 if (!typeRegistry.hasEntityType(entitySet.getType())) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Entity set type not found: " + entitySet.getType(),
                         containerName + "." + entitySet.getName());
                 }
@@ -249,7 +248,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getSingletons() != null) {
             for (CsdlSingleton singleton : container.getSingletons()) {
                 if (!typeRegistry.hasEntityType(singleton.getType())) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Singleton type not found: " + singleton.getType(),
                         containerName + "." + singleton.getName());
                 }
@@ -260,7 +259,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getFunctionImports() != null) {
             for (CsdlFunctionImport functionImport : container.getFunctionImports()) {
                 if (!typeRegistry.hasFunction(functionImport.getFunction())) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Function import function not found: " + functionImport.getFunction(),
                         containerName + "." + functionImport.getName());
                 }
@@ -271,7 +270,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getActionImports() != null) {
             for (CsdlActionImport actionImport : container.getActionImports()) {
                 if (!typeRegistry.hasAction(actionImport.getAction())) {
-                    statistics.addError(ErrorType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
                         "Action import action not found: " + actionImport.getAction(),
                         containerName + "." + actionImport.getName());
                 }
@@ -285,7 +284,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Parse and validate annotation target
         if (target != null && !target.isEmpty()) {
             if (!typeRegistry.hasTarget(target)) {
-                statistics.addError(ErrorType.MISSING_ANNOTATION_TARGET,
+                statistics.addError(ResultType.MISSING_ANNOTATION_TARGET,
                     "Annotation target not found: " + target,
                     namespace);
             }
@@ -296,8 +295,8 @@ public class SchemaValidator implements ISchemaValidator {
      * Validate compatibility between existing and new schema providers
      */
     @Override
-    public ValidationResult validateCompatibility(SchemaBasedEdmProvider existingProvider, SchemaBasedEdmProvider newProvider) {
-        ValidationResult result = new ValidationResult();
+    public OperationResult validateCompatibility(SchemaBasedEdmProvider existingProvider, SchemaBasedEdmProvider newProvider) {
+        OperationResult result = new OperationResult(OperationType.VALIDATION);
         
         try {
             // Build maps of existing schemas by namespace
@@ -316,13 +315,13 @@ public class SchemaValidator implements ISchemaValidator {
                     validateSchemaCompatibility(existingSchema, newSchema, result);
                 } else {
                     // New schema namespace, validate internal consistency
-                    result.addMessage("New schema namespace found: " + namespace);
+                    result.addInfo(ResultType.SUCCESS, "New schema namespace found: " + namespace);
                     validateNewSchemaConsistency(newSchema, result);
                 }
             }
             
         } catch (Exception e) {
-            result.addError("Compatibility validation failed: " + e.getMessage());
+            result.addError(ResultType.VALIDATION_FAILED, "Compatibility validation failed: " + e.getMessage());
         }
         
         return result;
@@ -331,14 +330,21 @@ public class SchemaValidator implements ISchemaValidator {
     /**
      * Validate compatibility between two schemas with the same namespace
      */
-    private void validateSchemaCompatibility(CsdlSchema existing, CsdlSchema newSchema, ValidationResult result) {
+    private void validateSchemaCompatibility(CsdlSchema existing, CsdlSchema newSchema, OperationResult result) {
         String namespace = existing.getNamespace();
+        boolean hasConflicts = false;
         
         // Check entity types
         if (newSchema.getEntityTypes() != null) {
             for (CsdlEntityType newEntityType : newSchema.getEntityTypes()) {
                 if (hasEntityType(existing, newEntityType.getName())) {
-                    result.addWarning("Entity type '" + newEntityType.getName() + "' already exists in namespace " + namespace);
+                    CsdlEntityType existingType = getEntityType(existing, newEntityType.getName());
+                    if (!areEntityTypesCompatible(existingType, newEntityType)) {
+                        result.addError(ResultType.TYPE_MISMATCH, "Entity type '" + newEntityType.getName() + "' has incompatible definition in namespace " + namespace);
+                        hasConflicts = true;
+                    } else {
+                        result.addWarning(ResultType.TYPE_OVERRIDDEN, "Entity type '" + newEntityType.getName() + "' already exists in namespace " + namespace);
+                    }
                 }
             }
         }
@@ -347,7 +353,13 @@ public class SchemaValidator implements ISchemaValidator {
         if (newSchema.getComplexTypes() != null) {
             for (CsdlComplexType newComplexType : newSchema.getComplexTypes()) {
                 if (hasComplexType(existing, newComplexType.getName())) {
-                    result.addWarning("Complex type '" + newComplexType.getName() + "' already exists in namespace " + namespace);
+                    CsdlComplexType existingType = getComplexType(existing, newComplexType.getName());
+                    if (!areComplexTypesCompatible(existingType, newComplexType)) {
+                        result.addError(ResultType.TYPE_MISMATCH, "Complex type '" + newComplexType.getName() + "' has incompatible definition in namespace " + namespace);
+                        hasConflicts = true;
+                    } else {
+                        result.addWarning(ResultType.TYPE_OVERRIDDEN, "Complex type '" + newComplexType.getName() + "' already exists in namespace " + namespace);
+                    }
                 }
             }
         }
@@ -356,7 +368,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (newSchema.getEnumTypes() != null) {
             for (org.apache.olingo.commons.api.edm.provider.CsdlEnumType newEnumType : newSchema.getEnumTypes()) {
                 if (hasEnumType(existing, newEnumType.getName())) {
-                    result.addWarning("Enum type '" + newEnumType.getName() + "' already exists in namespace " + namespace);
+                    result.addWarning(ResultType.DUPLICATE_ELEMENT, "Enum type '" + newEnumType.getName() + "' already exists in namespace " + namespace);
                 }
             }
         }
@@ -365,9 +377,16 @@ public class SchemaValidator implements ISchemaValidator {
         if (newSchema.getActions() != null) {
             for (CsdlAction newAction : newSchema.getActions()) {
                 if (hasAction(existing, newAction.getName())) {
-                    result.addWarning("Action '" + newAction.getName() + "' already exists in namespace " + namespace);
+                    result.addWarning(ResultType.DUPLICATE_ELEMENT, "Action '" + newAction.getName() + "' already exists in namespace " + namespace);
                 }
             }
+        }
+        
+        // Add overall compatibility warning if conflicts were found
+        if (hasConflicts) {
+            result.addError(ResultType.MERGE_CONFLICT, "Schema merge conflict detected in namespace " + namespace);
+        } else if (result.hasWarnings()) {
+            result.addWarning(ResultType.COMPATIBILITY_WARNING, "Schema compatibility warnings found in namespace " + namespace);
         }
         
         // Check functions
@@ -382,7 +401,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Check entity container
         if (newSchema.getEntityContainer() != null) {
             if (existing.getEntityContainer() != null) {
-                result.addError("Entity container already exists in namespace " + namespace + ". Only one entity container per namespace is allowed.");
+                result.addError(ResultType.VALIDATION_FAILED, "Entity container already exists in namespace " + namespace + ". Only one entity container per namespace is allowed.");
             }
         }
     }
@@ -390,16 +409,29 @@ public class SchemaValidator implements ISchemaValidator {
     /**
      * Validate internal consistency of a new schema
      */
-    private void validateNewSchemaConsistency(CsdlSchema schema, ValidationResult result) {
+    private void validateNewSchemaConsistency(CsdlSchema schema, OperationResult result) {
         String namespace = schema.getNamespace();
+        
+        // Check if schema is empty
+        boolean isEmpty = (schema.getEntityTypes() == null || schema.getEntityTypes().isEmpty()) &&
+                         (schema.getComplexTypes() == null || schema.getComplexTypes().isEmpty()) &&
+                         (schema.getEnumTypes() == null || schema.getEnumTypes().isEmpty()) &&
+                         (schema.getActions() == null || schema.getActions().isEmpty()) &&
+                         (schema.getFunctions() == null || schema.getFunctions().isEmpty()) &&
+                         (schema.getEntityContainer() == null);
+        
+        if (isEmpty) {
+            result.addError(ResultType.SCHEMA_EMPTY, "Schema " + namespace + " is empty and contains no types or operations");
+            return;
+        }
         
         // Use existing type registry validation logic
         try {
             TypeRegistry typeRegistry = new TypeRegistry(java.util.Arrays.asList(schema));
             validateSchemaReferences(schema, typeRegistry);
-            result.addMessage("Schema " + namespace + " passed internal consistency validation");
+            result.addInfo(ResultType.SUCCESS, "Schema " + namespace + " passed internal consistency validation");
         } catch (Exception e) {
-            result.addError("Schema " + namespace + " failed internal consistency validation: " + e.getMessage());
+            result.addError(ResultType.VALIDATION_FAILED, "Schema " + namespace + " failed internal consistency validation: " + e.getMessage());
         }
     }
     
@@ -427,5 +459,41 @@ public class SchemaValidator implements ISchemaValidator {
     private boolean hasFunction(CsdlSchema schema, String name) {
         return schema.getFunctions() != null && 
                schema.getFunctions().stream().anyMatch(f -> f.getName().equals(name));
+    }
+    
+    // Helper methods to get types by name
+    private CsdlEntityType getEntityType(CsdlSchema schema, String name) {
+        if (schema.getEntityTypes() == null) return null;
+        return schema.getEntityTypes().stream()
+                    .filter(et -> et.getName().equals(name))
+                    .findFirst()
+                    .orElse(null);
+    }
+    
+    private CsdlComplexType getComplexType(CsdlSchema schema, String name) {
+        if (schema.getComplexTypes() == null) return null;
+        return schema.getComplexTypes().stream()
+                    .filter(ct -> ct.getName().equals(name))
+                    .findFirst()
+                    .orElse(null);
+    }
+    
+    // Helper methods to check type compatibility
+    private boolean areEntityTypesCompatible(CsdlEntityType existing, CsdlEntityType newType) {
+        // Simple compatibility check - just check if both have keys or both don't
+        if (existing.getKey() == null && newType.getKey() == null) return true;
+        if (existing.getKey() == null || newType.getKey() == null) return false;
+        
+        // For simplicity, consider them compatible if both have keys
+        // A more sophisticated check would compare property names, types, etc.
+        return true;
+    }
+    
+    private boolean areComplexTypesCompatible(CsdlComplexType existing, CsdlComplexType newType) {
+        // Simple compatibility check - just check if they have the same base type
+        if (existing.getBaseType() == null && newType.getBaseType() == null) return true;
+        if (existing.getBaseType() == null || newType.getBaseType() == null) return false;
+        
+        return existing.getBaseType().equals(newType.getBaseType());
     }
 }

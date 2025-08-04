@@ -1,10 +1,12 @@
 package org.apache.olingo.advanced.xmlparser.statistics;
 
+import org.apache.olingo.advanced.xmlparser.core.ResultType;
+
 /**
  * Comprehensive error information structure
  */
 public class ErrorInfo {
-    private final ErrorType type;
+    private final ResultType type;
     private final String description;
     private final String context;
     private final Throwable cause;
@@ -14,21 +16,21 @@ public class ErrorInfo {
     /**
      * Create error info with type and description
      */
-    public ErrorInfo(ErrorType type, String description) {
+    public ErrorInfo(ResultType type, String description) {
         this(type, description, null, null);
     }
 
     /**
      * Create error info with type, description and context
      */
-    public ErrorInfo(ErrorType type, String description, String context) {
+    public ErrorInfo(ResultType type, String description, String context) {
         this(type, description, context, null);
     }
 
     /**
      * Create error info with all details
      */
-    public ErrorInfo(ErrorType type, String description, String context, Throwable cause) {
+    public ErrorInfo(ResultType type, String description, String context, Throwable cause) {
         this.type = type;
         this.description = description;
         this.context = context;
@@ -38,7 +40,7 @@ public class ErrorInfo {
     }
 
     // Getters
-    public ErrorType getType() { return type; }
+    public ResultType getType() { return type; }
     public String getDescription() { return description; }
     public String getContext() { return context; }
     public Throwable getCause() { return cause; }

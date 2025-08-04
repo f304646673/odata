@@ -1,6 +1,9 @@
 package org.apache.olingo.advanced.xmlparser.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -204,6 +207,49 @@ public class OperationResult {
             this.items.addAll(other.items);
             this.metadata.putAll(other.metadata);
         }
+    }
+
+    // 兼容方法 - 用于替代 MergeResult 和 ValidationResult
+    public List<String> getErrorMessages() {
+        return getErrors().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getWarningMessages() {
+        return getWarnings().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getMessages() {
+        return getInfos().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+    }
+
+    // 为了向后兼容 ValidationResult 的构造和方法
+    public static OperationResult createValidationResult() {
+        return new OperationResult(OperationType.VALIDATION);
+    }
+
+    // 为了向后兼容 MergeResult 的构造和方法
+    public static OperationResult createMergeResult() {
+        return new OperationResult(OperationType.MERGE);
+    }
+
+    // 支持 ValidationResult 的特定功能
+    private OperationResult validationResult;
+
+    public void setValidationResult(OperationResult validationResult) {
+        this.validationResult = validationResult;
+        if (validationResult != null && validationResult.hasErrors()) {
+            addError(ResultType.MERGE_VALIDATION_FAILED, "Pre-merge validation failed");
+        }
+    }
+
+    public OperationResult getValidationResult() {
+        return validationResult;
     }
 
     // 摘要信息

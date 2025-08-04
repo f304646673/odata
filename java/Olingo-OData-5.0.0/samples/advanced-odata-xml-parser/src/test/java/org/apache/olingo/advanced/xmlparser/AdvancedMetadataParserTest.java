@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.olingo.advanced.xmlparser.core.AdvancedMetadataParser;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
-import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
+import org.apache.olingo.advanced.xmlparser.core.ResultType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -562,10 +562,10 @@ public class AdvancedMetadataParserTest {
         
         // Verify error is reported in statistics
         ParseStatistics stats = parser.getStatistics();
-        Map<ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(ErrorType.SCHEMA_NOT_FOUND) || 
-                  errorCounts.containsKey(ErrorType.DEPENDENCY_ANALYSIS_ERROR) ||
-                  errorCounts.containsKey(ErrorType.SCHEMA_RESOLUTION_FAILED));
+        Map<ResultType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(ResultType.SCHEMA_NOT_FOUND) || 
+                  errorCounts.containsKey(ResultType.DEPENDENCY_ANALYSIS_ERROR) ||
+                  errorCounts.containsKey(ResultType.SCHEMA_RESOLUTION_FAILED));
         
         // Verify error report
         Map<String, List<String>> errors = parser.getErrorReport();
@@ -583,8 +583,8 @@ public class AdvancedMetadataParserTest {
         });
         
         ParseStatistics stats = parser.getStatistics();
-        Map<ErrorType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(ErrorType.FILE_NOT_FOUND), 
+        Map<ResultType, Integer> errorCounts = stats.getErrorTypeCounts();
+        assertTrue(errorCounts.containsKey(ResultType.FILE_NOT_FOUND), 
                   "Should report FILE_NOT_FOUND error for non-existent files");
     }
 
@@ -1074,7 +1074,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported - just check that some type is reported as missing
@@ -1115,7 +1115,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1156,7 +1156,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing enum type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1198,7 +1198,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
 
             // For now, just verify that parsing succeeded
@@ -1240,7 +1240,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing action references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
 
             // Verify specific missing action is reported
@@ -1466,7 +1466,7 @@ public class AdvancedMetadataParserTest {
                 assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing references in " + testSchema);
                 
                 boolean hasMissingTypeError = stats.getErrors().stream()
-                    .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                    .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
                 assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error in " + testSchema);
                 
             }, "Should be able to parse " + testSchema + " even with missing references");
@@ -1487,7 +1487,7 @@ public class AdvancedMetadataParserTest {
             
             // Check for specific error types
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1506,7 +1506,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1525,7 +1525,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing annotation target");
             
             boolean hasMissingTargetError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_ANNOTATION_TARGET);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_ANNOTATION_TARGET);
             assertTrue(hasMissingTargetError, "Should have MISSING_ANNOTATION_TARGET error");
             
         } finally {
@@ -1541,7 +1541,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
             
             boolean hasMissingFunctionError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ErrorType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
             assertTrue(hasMissingFunctionError, "Should have MISSING_TYPE_REFERENCE error");
 
         } finally {
