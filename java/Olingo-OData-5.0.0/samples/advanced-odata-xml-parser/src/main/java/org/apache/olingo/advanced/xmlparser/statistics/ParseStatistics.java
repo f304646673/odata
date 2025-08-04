@@ -1,4 +1,4 @@
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.statistics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,10 +72,10 @@ public class ParseStatistics {
         return errors.size();
     }
     
-    void incrementFilesProcessed() { totalFilesProcessed++; }
-    void incrementCachedReused() { cachedFilesReused++; }
-    void incrementCircularDetected() { circularDependenciesDetected++; }
-    void updateMaxDepth(int depth) { 
+    public void incrementFilesProcessed() { totalFilesProcessed++; }
+    public void incrementCachedReused() { cachedFilesReused++; }
+    public void incrementCircularDetected() { circularDependenciesDetected++; }
+    public void updateMaxDepth(int depth) { 
         maxDepthReached = Math.max(maxDepthReached, depth); 
     }
     public void addParsingTime(long time) { totalParsingTime += time; }
@@ -91,7 +91,7 @@ public class ParseStatistics {
     /**
      * Add error with type and description
      */
-    void addError(ErrorType type, String description) {
+    public void addError(ErrorType type, String description) {
         ErrorInfo error = new ErrorInfo(type, description);
         errors.add(error);
     }
@@ -99,7 +99,7 @@ public class ParseStatistics {
     /**
      * Add error with type, description and context
      */
-    void addError(ErrorType type, String description, String context) {
+    public void addError(ErrorType type, String description, String context) {
         ErrorInfo error = new ErrorInfo(type, description, context);
         errors.add(error);
     }
@@ -107,7 +107,7 @@ public class ParseStatistics {
     /**
      * Add error with type, description, context and caused by exception
      */
-    void addError(ErrorType type, String description, String context, Throwable cause) {
+    public void addError(ErrorType type, String description, String context, Throwable cause) {
         ErrorInfo error = new ErrorInfo(type, description, context, cause);
         errors.add(error);
     }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.dependency;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Manages dependency graphs for schema loading and circular dependency detection.
  * Uses the verified business logic from AdvancedMetadataParser.
  */
-public class DependencyGraphManager {
+public class DependencyGraphManager implements IDependencyGraphManager {
     private final Map<String, Set<String>> dependencyGraph = new ConcurrentHashMap<>();
     private final Set<String> currentlyLoading = ConcurrentHashMap.newKeySet();
     private final Set<String> processedSchemas = ConcurrentHashMap.newKeySet();

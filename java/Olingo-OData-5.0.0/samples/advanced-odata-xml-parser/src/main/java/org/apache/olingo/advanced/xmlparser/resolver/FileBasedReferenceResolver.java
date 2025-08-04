@@ -1,4 +1,4 @@
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.resolver;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.resolver;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -37,7 +37,7 @@ import org.w3c.dom.NodeList;
  * Manages reference resolution using multiple strategies and extracts references from XML.
  * Uses verified business logic from AdvancedMetadataParser.
  */
-public class ReferenceResolverManager {
+public class ReferenceResolverManager implements IReferenceResolverManager {
     private final List<ReferenceResolver> referenceResolvers = new ArrayList<>();
     
     /**

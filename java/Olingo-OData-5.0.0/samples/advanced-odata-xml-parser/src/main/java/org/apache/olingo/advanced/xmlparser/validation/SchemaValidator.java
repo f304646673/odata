@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.validation;
 
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
+import org.apache.olingo.advanced.xmlparser.statistics.ErrorInfo;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
+import org.apache.olingo.advanced.xmlparser.schema.TypeRegistry;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;

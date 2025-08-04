@@ -1,4 +1,4 @@
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.statistics;
 
 /**
  * Comprehensive error information structure

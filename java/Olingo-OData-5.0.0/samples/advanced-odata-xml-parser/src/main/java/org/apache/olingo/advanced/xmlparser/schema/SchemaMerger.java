@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.schema;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 /**
  * Handles merging of schemas and copying schemas between providers.
  */
-public class SchemaMerger {
+public class SchemaMerger implements ISchemaMerger {
     private final SchemaComparator comparator;
     private final ParseStatistics statistics;
     private final Map<String, List<String>> errorReport;

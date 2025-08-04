@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.schema;
 
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
@@ -39,7 +39,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 /**
  * Validates schema references and types to ensure all dependencies are satisfied.
  */
-public class SchemaValidator {
+public class SchemaValidator implements ISchemaValidator {
     private final ParseStatistics statistics;
     
     public SchemaValidator(ParseStatistics statistics) {

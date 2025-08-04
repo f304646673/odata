@@ -1,4 +1,4 @@
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.schema;
 
 import java.util.HashSet;
 import java.util.List;

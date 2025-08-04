@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.dependency;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,72 +24,56 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
+import org.apache.olingo.advanced.xmlparser.core.DependencyManager;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorInfo;
+import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.olingo.advanced.xmlparser.core.DependencyManager;
+import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
+
 /**
- * Manages dependency graphs for schema loading and circular dependency detection.
- * Uses the verified business logic from AdvancedMetadataParser.
+ * Implementation of dependency graph management using verified logic from AdvancedMetadataParser
  */
-public class DependencyGraphManager {
+public class DependencyGraphManagerImpl implements DependencyManager {
     private final Map<String, Set<String>> dependencyGraph = new ConcurrentHashMap<>();
     private final Set<String> currentlyLoading = ConcurrentHashMap.newKeySet();
     private final Set<String> processedSchemas = ConcurrentHashMap.newKeySet();
     private final ParseStatistics statistics;
     private final Map<String, List<String>> errorReport;
     
-    public DependencyGraphManager(ParseStatistics statistics, Map<String, List<String>> errorReport) {
+    public DependencyGraphManagerImpl(ParseStatistics statistics, Map<String, List<String>> errorReport) {
         this.statistics = statistics;
         this.errorReport = errorReport;
     }
     
-    /**
-     * Add dependency to the graph
-     */
+    @Override
     public void addDependency(String source, String target) {
         dependencyGraph.computeIfAbsent(source, k -> new HashSet<>()).add(target);
     }
     
-    /**
-     * Check if schema is currently being loaded (to detect circular dependencies)
-     */
+    @Override
+    public boolean containsSchema(String schemaPath) {
+        return dependencyGraph.containsKey(schemaPath);
+    }
+    
+    @Override
     public boolean isCurrentlyLoading(String schemaPath) {
         return currentlyLoading.contains(schemaPath);
     }
     
-    /**
-     * Mark schema as currently loading
-     */
+    @Override
     public void markLoading(String schemaPath) {
         currentlyLoading.add(schemaPath);
     }
     
-    /**
-     * Mark schema as finished loading
-     */
+    @Override
     public void markFinished(String schemaPath) {
         currentlyLoading.remove(schemaPath);
         processedSchemas.add(schemaPath);
     }
     
-    /**
-     * Check if dependency graph contains a schema (has been processed)
-     */
-    public boolean containsSchema(String schemaPath) {
-        return dependencyGraph.containsKey(schemaPath);
-    }
-    
-    /**
-     * Get all dependency relationships
-     */
-    public Map<String, Set<String>> getAllDependencies() {
-        return new java.util.HashMap<>(dependencyGraph);
-    }
-    
-    /**
-     * Detect circular dependencies using DFS (verified logic from AdvancedMetadataParser)
-     */
+    @Override
     public List<List<String>> detectCircularDependencies() {
         List<List<String>> cycles = new ArrayList<>();
         Set<String> visited = new HashSet<>();
@@ -141,10 +125,8 @@ public class DependencyGraphManager {
         return false;
     }
     
-    /**
-     * Handle circular dependencies based on configuration (verified logic from AdvancedMetadataParser)
-     */
-    public void handleCircularDependencies(List<List<String>> cycles, boolean allowCircularDependencies) throws Exception {
+    @Override
+    public void handleCircularDependencies(List<List<String>> cycles, boolean allowCircularDependencies) {
         for (List<String> cycle : cycles) {
             errorReport.put("circular_dependency", cycle);
         }
@@ -154,9 +136,7 @@ public class DependencyGraphManager {
         }
     }
     
-    /**
-     * Calculate load order using topological sorting (verified logic from AdvancedMetadataParser)
-     */
+    @Override
     public List<String> calculateLoadOrder() {
         List<String> loadOrder = new ArrayList<>();
         Set<String> visited = new HashSet<>();
@@ -199,9 +179,12 @@ public class DependencyGraphManager {
         loadOrder.add(node);
     }
     
-    /**
-     * Clear internal state
-     */
+    @Override
+    public Map<String, Set<String>> getAllDependencies() {
+        return new java.util.HashMap<>(dependencyGraph);
+    }
+    
+    @Override
     public void clearState() {
         dependencyGraph.clear();
         currentlyLoading.clear();

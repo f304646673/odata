@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.cache;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
  * Manages caching of parsed schema providers with unique key generation.
  * Uses verified business logic from AdvancedMetadataParser.
  */
-public class CacheManager {
+public class CacheManager implements ICacheManager {
     private final ConcurrentHashMap<String, SchemaBasedEdmProvider> providerCache = new ConcurrentHashMap<>();
     private final boolean enableCaching;
     
@@ -60,6 +60,7 @@ public class CacheManager {
     /**
      * Clear cache
      */
+    @Override
     public void clearCache() {
         providerCache.clear();
     }
@@ -67,6 +68,7 @@ public class CacheManager {
     /**
      * Get cache size
      */
+    @Override
     public int getCacheSize() {
         return providerCache.size();
     }
@@ -82,6 +84,7 @@ public class CacheManager {
      * Set caching enabled/disabled (for configuration changes)
      * Note: This is for compatibility, but actual enableCaching is final
      */
+    @Override
     public void setEnabled(boolean enabled) {
         // This method exists for API compatibility but the actual
         // enableCaching field is final and set in constructor
@@ -94,6 +97,7 @@ public class CacheManager {
     /**
      * Generate cache key that includes path information to avoid conflicts (verified logic from AdvancedMetadataParser)
      */
+    @Override
     public String generateCacheKey(String schemaPath) {
         try {
             // Use canonical path to ensure uniqueness for the same file referenced by different relative paths
@@ -134,7 +138,18 @@ public class CacheManager {
     /**
      * Check if cache contains key
      */
+    @Override
     public boolean containsKey(String cacheKey) {
         return enableCaching && providerCache.containsKey(cacheKey);
+    }
+    
+    @Override
+    public boolean isCached(String filePath) {
+        return containsKey(generateCacheKey(filePath));
+    }
+    
+    @Override
+    public boolean isEnabled() {
+        return enableCaching;
     }
 }

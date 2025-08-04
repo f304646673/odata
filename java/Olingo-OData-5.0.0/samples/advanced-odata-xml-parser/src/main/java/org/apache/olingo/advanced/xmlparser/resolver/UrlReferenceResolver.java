@@ -1,4 +1,4 @@
-package org.apache.olingo.advanced.xmlparser;
+package org.apache.olingo.advanced.xmlparser.resolver;
 
 import java.io.InputStream;
 import java.net.URI;

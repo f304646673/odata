@@ -28,6 +28,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
+import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
+import org.apache.olingo.advanced.xmlparser.cache.ICacheManager;
+import org.apache.olingo.advanced.xmlparser.cache.CacheManager;
+import org.apache.olingo.advanced.xmlparser.resolver.IReferenceResolverManager;
+import org.apache.olingo.advanced.xmlparser.resolver.ReferenceResolverManager;
+import org.apache.olingo.advanced.xmlparser.resolver.ClassPathReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.resolver.FileSystemReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.resolver.UrlReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.resolver.FileBasedReferenceResolver;
+import org.apache.olingo.advanced.xmlparser.schema.SchemaComparator;
+import org.apache.olingo.advanced.xmlparser.schema.ISchemaMerger;
+import org.apache.olingo.advanced.xmlparser.schema.SchemaMerger;
+import org.apache.olingo.advanced.xmlparser.schema.ISchemaValidator;
+import org.apache.olingo.advanced.xmlparser.schema.SchemaValidator;
+import org.apache.olingo.advanced.xmlparser.schema.TypeRegistry;
+import org.apache.olingo.advanced.xmlparser.dependency.IDependencyGraphManager;
+import org.apache.olingo.advanced.xmlparser.dependency.DependencyGraphManager;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
@@ -51,12 +69,12 @@ public class ModularAdvancedMetadataParser {
     private final MetadataParser underlyingParser;
     
     // Modular components
-    private final DependencyGraphManager dependencyManager;
+    private final IDependencyGraphManager dependencyManager;
     private final SchemaComparator schemaComparator;
-    private final SchemaMerger schemaMerger;
-    private final ReferenceResolverManager referenceManager;
-    private final SchemaValidator schemaValidator;
-    private final CacheManager cacheManager;
+    private final ISchemaMerger schemaMerger;
+    private final IReferenceResolverManager referenceManager;
+    private final ISchemaValidator schemaValidator;
+    private final ICacheManager cacheManager;
     
     /**
      * Constructor
