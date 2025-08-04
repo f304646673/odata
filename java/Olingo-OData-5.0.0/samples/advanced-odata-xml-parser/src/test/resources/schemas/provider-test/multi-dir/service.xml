@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.MultiDir.Service">
+      
+      <EntityType Name="ServiceEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="ServiceData" Type="Test.MultiDir.Core.CoreType"/>
+        <Property Name="ServiceEnum" Type="Test.MultiDir.Core.CoreEnum"/>
+      </EntityType>
+      
+      <EntityContainer Name="ServiceContainer">
+        <EntitySet Name="ServiceEntities" EntityType="Test.MultiDir.Service.ServiceEntity"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

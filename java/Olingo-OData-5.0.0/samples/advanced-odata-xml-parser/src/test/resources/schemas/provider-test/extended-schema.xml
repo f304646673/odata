@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Extended">
+      
+      <!-- Extended entity type -->
+      <EntityType Name="ExtendedEntity" BaseType="Test.Base.BaseEntity">
+        <Property Name="Description" Type="Edm.String"/>
+        <Property Name="Priority" Type="Edm.Int32"/>
+        <Property Name="Address" Type="Test.Base.Address"/>
+        <Property Name="Status" Type="Test.Base.Status"/>
+      </EntityType>
+      
+      <!-- New complex type -->
+      <ComplexType Name="ContactInfo">
+        <Property Name="Email" Type="Edm.String"/>
+        <Property Name="Phone" Type="Edm.String"/>
+        <Property Name="Website" Type="Edm.String"/>
+      </ComplexType>
+      
+      <!-- Entity container extension -->
+      <EntityContainer Name="ExtendedContainer" Extends="Test.Base.Container">
+        <EntitySet Name="ExtendedEntities" EntityType="Test.Extended.ExtendedEntity"/>
+      </EntityContainer>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Base">
+      
+      <!-- Conflicting entity type with same name but different structure -->
+      <EntityType Name="ConflictEntity">
+        <Key>
+          <PropertyRef Name="ID"/>
+        </Key>
+        <Property Name="ID" Type="Edm.String" Nullable="false"/>
+        <Property Name="ConflictField" Type="Edm.String"/>
+      </EntityType>
+      
+      <!-- Conflicting complex type -->
+      <ComplexType Name="Address">
+        <Property Name="FullAddress" Type="Edm.String"/>
+        <!-- Different structure from base Address -->
+      </ComplexType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

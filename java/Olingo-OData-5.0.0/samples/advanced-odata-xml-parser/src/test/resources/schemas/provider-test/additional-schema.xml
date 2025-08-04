@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Additional">
+      
+      <!-- Additional entity type -->
+      <EntityType Name="AdditionalEntity">
+        <Key>
+          <PropertyRef Name="Code"/>
+        </Key>
+        <Property Name="Code" Type="Edm.String" Nullable="false"/>
+        <Property Name="Label" Type="Edm.String"/>
+        <Property Name="Value" Type="Edm.Decimal"/>
+      </EntityType>
+      
+      <!-- Additional complex type -->
+      <ComplexType Name="Metadata">
+        <Property Name="Version" Type="Edm.String"/>
+        <Property Name="LastModified" Type="Edm.DateTimeOffset"/>
+        <Property Name="Author" Type="Edm.String"/>
+      </ComplexType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

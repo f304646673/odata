@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.MultiDir.Core">
+      
+      <ComplexType Name="CoreType">
+        <Property Name="CoreField" Type="Edm.String"/>
+      </ComplexType>
+      
+      <EnumType Name="CoreEnum">
+        <Member Name="Option1" Value="0"/>
+        <Member Name="Option2" Value="1"/>
+      </EnumType>
+      
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
