@@ -18,6 +18,12 @@
  */
 package org.apache.olingo.advanced.xmlparser.schema;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.olingo.advanced.xmlparser.core.ValidationResult;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
@@ -284,5 +290,142 @@ public class SchemaValidator implements ISchemaValidator {
                     namespace);
             }
         }
+    }
+    
+    /**
+     * Validate compatibility between existing and new schema providers
+     */
+    @Override
+    public ValidationResult validateCompatibility(SchemaBasedEdmProvider existingProvider, SchemaBasedEdmProvider newProvider) {
+        ValidationResult result = new ValidationResult();
+        
+        try {
+            // Build maps of existing schemas by namespace
+            Map<String, CsdlSchema> existingSchemas = new HashMap<>();
+            for (CsdlSchema schema : existingProvider.getSchemas()) {
+                existingSchemas.put(schema.getNamespace(), schema);
+            }
+            
+            // Validate each new schema against existing ones
+            for (CsdlSchema newSchema : newProvider.getSchemas()) {
+                String namespace = newSchema.getNamespace();
+                
+                if (existingSchemas.containsKey(namespace)) {
+                    // Schema with same namespace exists, check for conflicts
+                    CsdlSchema existingSchema = existingSchemas.get(namespace);
+                    validateSchemaCompatibility(existingSchema, newSchema, result);
+                } else {
+                    // New schema namespace, validate internal consistency
+                    result.addMessage("New schema namespace found: " + namespace);
+                    validateNewSchemaConsistency(newSchema, result);
+                }
+            }
+            
+        } catch (Exception e) {
+            result.addError("Compatibility validation failed: " + e.getMessage());
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Validate compatibility between two schemas with the same namespace
+     */
+    private void validateSchemaCompatibility(CsdlSchema existing, CsdlSchema newSchema, ValidationResult result) {
+        String namespace = existing.getNamespace();
+        
+        // Check entity types
+        if (newSchema.getEntityTypes() != null) {
+            for (CsdlEntityType newEntityType : newSchema.getEntityTypes()) {
+                if (hasEntityType(existing, newEntityType.getName())) {
+                    result.addWarning("Entity type '" + newEntityType.getName() + "' already exists in namespace " + namespace);
+                }
+            }
+        }
+        
+        // Check complex types
+        if (newSchema.getComplexTypes() != null) {
+            for (CsdlComplexType newComplexType : newSchema.getComplexTypes()) {
+                if (hasComplexType(existing, newComplexType.getName())) {
+                    result.addWarning("Complex type '" + newComplexType.getName() + "' already exists in namespace " + namespace);
+                }
+            }
+        }
+        
+        // Check enum types
+        if (newSchema.getEnumTypes() != null) {
+            for (org.apache.olingo.commons.api.edm.provider.CsdlEnumType newEnumType : newSchema.getEnumTypes()) {
+                if (hasEnumType(existing, newEnumType.getName())) {
+                    result.addWarning("Enum type '" + newEnumType.getName() + "' already exists in namespace " + namespace);
+                }
+            }
+        }
+        
+        // Check actions
+        if (newSchema.getActions() != null) {
+            for (CsdlAction newAction : newSchema.getActions()) {
+                if (hasAction(existing, newAction.getName())) {
+                    result.addWarning("Action '" + newAction.getName() + "' already exists in namespace " + namespace);
+                }
+            }
+        }
+        
+        // Check functions
+        if (newSchema.getFunctions() != null) {
+            for (CsdlFunction newFunction : newSchema.getFunctions()) {
+                if (hasFunction(existing, newFunction.getName())) {
+                    result.addWarning("Function '" + newFunction.getName() + "' already exists in namespace " + namespace);
+                }
+            }
+        }
+        
+        // Check entity container
+        if (newSchema.getEntityContainer() != null) {
+            if (existing.getEntityContainer() != null) {
+                result.addError("Entity container already exists in namespace " + namespace + ". Only one entity container per namespace is allowed.");
+            }
+        }
+    }
+    
+    /**
+     * Validate internal consistency of a new schema
+     */
+    private void validateNewSchemaConsistency(CsdlSchema schema, ValidationResult result) {
+        String namespace = schema.getNamespace();
+        
+        // Use existing type registry validation logic
+        try {
+            TypeRegistry typeRegistry = new TypeRegistry(java.util.Arrays.asList(schema));
+            validateSchemaReferences(schema, typeRegistry);
+            result.addMessage("Schema " + namespace + " passed internal consistency validation");
+        } catch (Exception e) {
+            result.addError("Schema " + namespace + " failed internal consistency validation: " + e.getMessage());
+        }
+    }
+    
+    // Helper methods to check existence of types
+    private boolean hasEntityType(CsdlSchema schema, String name) {
+        return schema.getEntityTypes() != null && 
+               schema.getEntityTypes().stream().anyMatch(et -> et.getName().equals(name));
+    }
+    
+    private boolean hasComplexType(CsdlSchema schema, String name) {
+        return schema.getComplexTypes() != null && 
+               schema.getComplexTypes().stream().anyMatch(ct -> ct.getName().equals(name));
+    }
+    
+    private boolean hasEnumType(CsdlSchema schema, String name) {
+        return schema.getEnumTypes() != null && 
+               schema.getEnumTypes().stream().anyMatch(et -> et.getName().equals(name));
+    }
+    
+    private boolean hasAction(CsdlSchema schema, String name) {
+        return schema.getActions() != null && 
+               schema.getActions().stream().anyMatch(a -> a.getName().equals(name));
+    }
+    
+    private boolean hasFunction(CsdlSchema schema, String name) {
+        return schema.getFunctions() != null && 
+               schema.getFunctions().stream().anyMatch(f -> f.getName().equals(name));
     }
 }

@@ -417,4 +417,164 @@ public class ModularAdvancedMetadataParser {
     public void clearCache() {
         cacheManager.clearCache();
     }
+    
+    /**
+     * Validate an OData 4 XML file against an existing SchemaBasedEdmProvider.
+     * This method does not modify the existing provider.
+     * 
+     * @param existingProvider The existing SchemaBasedEdmProvider to validate against
+     * @param xmlSchemaPath Path to the OData 4 XML file to validate
+     * @return ValidationResult containing validation details and any conflicts
+     * @throws Exception if validation fails
+     */
+    public ValidationResult validateSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+        return validateSchemaInternal(existingProvider, xmlSchemaPath, false);
+    }
+    
+    /**
+     * Validate schemas in a directory against an existing SchemaBasedEdmProvider.
+     * This method does not modify the existing provider.
+     * 
+     * @param existingProvider The existing SchemaBasedEdmProvider to validate against
+     * @param schemaDirectory Path to the directory containing OData 4 XML files
+     * @return ValidationResult containing validation details and any conflicts
+     * @throws Exception if validation fails
+     */
+    public ValidationResult validateSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
+        File dir = new File(schemaDirectory);
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IllegalArgumentException("Schema directory does not exist or is not a directory: " + schemaDirectory);
+        }
+        
+        ValidationResult combinedResult = new ValidationResult();
+        
+        // Find all XML files in the directory
+        File[] xmlFiles = dir.listFiles((file, name) -> name.toLowerCase().endsWith(".xml"));
+        if (xmlFiles == null || xmlFiles.length == 0) {
+            combinedResult.addMessage("No XML files found in directory: " + schemaDirectory);
+            return combinedResult;
+        }
+        
+        for (File xmlFile : xmlFiles) {
+            try {
+                ValidationResult fileResult = validateSchemaInternal(existingProvider, xmlFile.getAbsolutePath(), false);
+                combinedResult.merge(fileResult);
+            } catch (Exception e) {
+                combinedResult.addError("Failed to validate file " + xmlFile.getName() + ": " + e.getMessage());
+            }
+        }
+        
+        return combinedResult;
+    }
+    
+    /**
+     * Merge an OData 4 XML file into an existing SchemaBasedEdmProvider.
+     * This method modifies the existing provider by adding new schemas.
+     * 
+     * @param existingProvider The existing SchemaBasedEdmProvider to merge into (will be modified)
+     * @param xmlSchemaPath Path to the OData 4 XML file to merge
+     * @return MergeResult containing merge details and any conflicts
+     * @throws Exception if merge fails
+     */
+    public MergeResult mergeSchema(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+        return mergeSchemaInternal(existingProvider, xmlSchemaPath);
+    }
+    
+    /**
+     * Merge schemas from a directory into an existing SchemaBasedEdmProvider.
+     * This method modifies the existing provider by adding new schemas.
+     * 
+     * @param existingProvider The existing SchemaBasedEdmProvider to merge into (will be modified)
+     * @param schemaDirectory Path to the directory containing OData 4 XML files
+     * @return MergeResult containing merge details and any conflicts
+     * @throws Exception if merge fails
+     */
+    public MergeResult mergeSchemaDirectory(SchemaBasedEdmProvider existingProvider, String schemaDirectory) throws Exception {
+        File dir = new File(schemaDirectory);
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IllegalArgumentException("Schema directory does not exist or is not a directory: " + schemaDirectory);
+        }
+        
+        MergeResult combinedResult = new MergeResult();
+        
+        // Find all XML files in the directory
+        File[] xmlFiles = dir.listFiles((file, name) -> name.toLowerCase().endsWith(".xml"));
+        if (xmlFiles == null || xmlFiles.length == 0) {
+            combinedResult.addMessage("No XML files found in directory: " + schemaDirectory);
+            return combinedResult;
+        }
+        
+        for (File xmlFile : xmlFiles) {
+            try {
+                MergeResult fileResult = mergeSchemaInternal(existingProvider, xmlFile.getAbsolutePath());
+                combinedResult.merge(fileResult);
+            } catch (Exception e) {
+                combinedResult.addError("Failed to merge file " + xmlFile.getName() + ": " + e.getMessage());
+            }
+        }
+        
+        return combinedResult;
+    }
+    
+    /**
+     * Internal method for schema validation
+     */
+    private ValidationResult validateSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath, boolean allowMerge) throws Exception {
+        ValidationResult result = new ValidationResult();
+        
+        // Parse the new schema
+        SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
+        
+        // Validate compatibility
+        result = schemaValidator.validateCompatibility(existingProvider, newProvider);
+        
+        // Additional validation specific to the file
+        File schemaFile = new File(xmlSchemaPath);
+        if (!schemaFile.exists()) {
+            result.addError("Schema file does not exist: " + xmlSchemaPath);
+            return result;
+        }
+        
+        result.addMessage("Validated schema file: " + xmlSchemaPath);
+        result.addMessage("New schemas found: " + newProvider.getSchemas().size());
+        
+        return result;
+    }
+    
+    /**
+     * Internal method for schema merging
+     */
+    private MergeResult mergeSchemaInternal(SchemaBasedEdmProvider existingProvider, String xmlSchemaPath) throws Exception {
+        MergeResult result = new MergeResult();
+        
+        // First validate the schema
+        ValidationResult validationResult = validateSchemaInternal(existingProvider, xmlSchemaPath, true);
+        result.setValidationResult(validationResult);
+        
+        if (validationResult.hasErrors()) {
+            result.addError("Validation failed, merge aborted");
+            return result;
+        }
+        
+        // Parse the new schema
+        SchemaBasedEdmProvider newProvider = buildEdmProvider(xmlSchemaPath);
+        
+        // Perform the merge
+        int originalSchemaCount = existingProvider.getSchemas().size();
+        schemaMerger.copySchemas(newProvider, existingProvider);
+        
+        // Copy references
+        for (EdmxReference reference : newProvider.getReferences()) {
+            addReferenceUsingReflection(existingProvider, reference);
+        }
+        
+        int newSchemaCount = existingProvider.getSchemas().size();
+        
+        result.addMessage("Successfully merged schema from: " + xmlSchemaPath);
+        result.addMessage("Original schema count: " + originalSchemaCount);
+        result.addMessage("New schema count: " + newSchemaCount);
+        result.addMessage("Schemas added: " + (newSchemaCount - originalSchemaCount));
+        
+        return result;
+    }
 }
