@@ -12,17 +12,8 @@ public enum ErrorType {
     SCHEMA_LOADING_ERROR("schema_loading_error", "Error loading schema"),
     SCHEMA_MERGE_CONFLICT("schema_merge_conflict", "Conflict detected during schema merging"),
     CIRCULAR_DEPENDENCY("circular_dependency", "Circular dependency detected"),
-    MAX_DEPTH_EXCEEDED("max_depth_exceeded", "Maximum dependency depth exceeded"),
-    DEPENDENCY_DEPTH_EXCEEDED("dependency_depth_exceeded", "Maximum dependency depth exceeded"),
-    REFERENCE_NOT_FOUND("reference_not_found", "Reference could not be found"),
-    INVALID_REFERENCE("invalid_reference", "Invalid reference URI or format"),
-    XML_PARSING_ERROR("xml_parsing_error", "Error parsing XML content"),
-    REFLECTION_ERROR("reflection_error", "Error using reflection to access internal methods"),
-    CONFIGURATION_ERROR("configuration_error", "Configuration or setup error"),
-    MISSING_ANNOTATION("missing_annotation", "Required annotation is missing"),
     MISSING_TYPE_REFERENCE("missing_type_reference", "Referenced type does not exist"),
     MISSING_ANNOTATION_TARGET("missing_annotation_target", "Annotation target does not exist"),
-    MISSING_FUNCTION_REFERENCE("missing_function_reference", "Referenced function does not exist"),
     UNRESOLVED_TYPE_REFERENCE("unresolved_type_reference", "Type reference cannot be resolved");
     
     private final String legacyKey;
