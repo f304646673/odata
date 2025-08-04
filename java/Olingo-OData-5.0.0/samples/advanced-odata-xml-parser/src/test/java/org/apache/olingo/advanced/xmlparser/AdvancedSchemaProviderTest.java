@@ -207,7 +207,7 @@ public class AdvancedSchemaProviderTest {
             assertTrue(result.hasErrors(), "Should have errors for conflicting schema");
             assertTrue(result.hasResultType(ResultType.TYPE_MISMATCH) || 
                       result.hasResultType(ResultType.DUPLICATE_ELEMENT) ||
-                      result.hasResultType(ResultType.MERGE_CONFLICT), 
+                      result.hasResultType(ResultType.SCHEMA_MERGE_CONFLICT), 
                       "Should have conflict-related error type");
         } else {
             // If validation succeeds, there should be warnings about conflicts
@@ -249,7 +249,7 @@ public class AdvancedSchemaProviderTest {
         // Conflicting schemas should either fail merge or succeed with warnings
         if (!mergeResult.isSuccessful()) {
             assertTrue(mergeResult.hasErrors(), "Should have errors for conflicting schemas");
-            assertTrue(mergeResult.hasResultType(ResultType.MERGE_CONFLICT) ||
+            assertTrue(mergeResult.hasResultType(ResultType.SCHEMA_MERGE_CONFLICT) ||
                       mergeResult.hasResultType(ResultType.SCHEMA_INCOMPATIBLE) ||
                       mergeResult.hasResultType(ResultType.TYPE_MISMATCH), 
                       "Should have merge conflict error type");
@@ -550,7 +550,7 @@ public class AdvancedSchemaProviderTest {
         // Test error types
         assertTrue(ResultType.FILE_NOT_FOUND.isError(), "FILE_NOT_FOUND should be error");
         assertTrue(ResultType.VALIDATION_FAILED.isError(), "VALIDATION_FAILED should be error");
-        assertTrue(ResultType.MERGE_CONFLICT.isError(), "MERGE_CONFLICT should be error");
+        assertTrue(ResultType.SCHEMA_MERGE_CONFLICT.isError(), "MERGE_CONFLICT should be error");
         
         // Test warning types
         assertTrue(ResultType.SCHEMA_WARNING.isWarning(), "SCHEMA_WARNING should be warning");

@@ -127,7 +127,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Validate base type
         if (entityType.getBaseType() != null) {
             if (!typeRegistry.hasEntityType(entityType.getBaseType())) {
-                statistics.addError(ResultType.MISSING_TYPE_REFERENCE, 
+                statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE, 
                     "Entity type base type not found: " + entityType.getBaseType(), 
                     typeName);
             }
@@ -144,7 +144,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (entityType.getNavigationProperties() != null) {
             for (CsdlNavigationProperty navProp : entityType.getNavigationProperties()) {
                 if (!typeRegistry.hasEntityType(navProp.getType())) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Navigation property type not found: " + navProp.getType(),
                         typeName + "." + navProp.getName());
                 }
@@ -158,7 +158,7 @@ public class SchemaValidator implements ISchemaValidator {
         // Validate base type
         if (complexType.getBaseType() != null) {
             if (!typeRegistry.hasComplexType(complexType.getBaseType())) {
-                statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                     "Complex type base type not found: " + complexType.getBaseType(),
                     typeName);
             }
@@ -182,7 +182,7 @@ public class SchemaValidator implements ISchemaValidator {
         
         // Check if the type exists
         if (!typeRegistry.hasType(propertyType)) {
-            statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+            statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                 "Property type not found: " + propertyType,
                 ownerTypeName + "." + property.getName());
         }
@@ -195,7 +195,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (function.getReturnType() != null && function.getReturnType().getType() != null) {
             String returnType = function.getReturnType().getType();
             if (!returnType.startsWith("Edm.") && !typeRegistry.hasType(returnType)) {
-                statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                     "Function return type not found: " + returnType,
                     functionName);
             }
@@ -206,7 +206,7 @@ public class SchemaValidator implements ISchemaValidator {
             for (CsdlParameter parameter : function.getParameters()) {
                 String paramType = parameter.getType();
                 if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Function parameter type not found: " + paramType,
                         functionName + "." + parameter.getName());
                 }
@@ -222,7 +222,7 @@ public class SchemaValidator implements ISchemaValidator {
             for (CsdlParameter parameter : action.getParameters()) {
                 String paramType = parameter.getType();
                 if (!paramType.startsWith("Edm.") && !typeRegistry.hasType(paramType)) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Action parameter type not found: " + paramType,
                         actionName + "." + parameter.getName());
                 }
@@ -237,7 +237,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getEntitySets() != null) {
             for (CsdlEntitySet entitySet : container.getEntitySets()) {
                 if (!typeRegistry.hasEntityType(entitySet.getType())) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Entity set type not found: " + entitySet.getType(),
                         containerName + "." + entitySet.getName());
                 }
@@ -248,7 +248,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getSingletons() != null) {
             for (CsdlSingleton singleton : container.getSingletons()) {
                 if (!typeRegistry.hasEntityType(singleton.getType())) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Singleton type not found: " + singleton.getType(),
                         containerName + "." + singleton.getName());
                 }
@@ -259,7 +259,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getFunctionImports() != null) {
             for (CsdlFunctionImport functionImport : container.getFunctionImports()) {
                 if (!typeRegistry.hasFunction(functionImport.getFunction())) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Function import function not found: " + functionImport.getFunction(),
                         containerName + "." + functionImport.getName());
                 }
@@ -270,7 +270,7 @@ public class SchemaValidator implements ISchemaValidator {
         if (container.getActionImports() != null) {
             for (CsdlActionImport actionImport : container.getActionImports()) {
                 if (!typeRegistry.hasAction(actionImport.getAction())) {
-                    statistics.addError(ResultType.MISSING_TYPE_REFERENCE,
+                    statistics.addError(ResultType.UNRESOLVED_TYPE_REFERENCE,
                         "Action import action not found: " + actionImport.getAction(),
                         containerName + "." + actionImport.getName());
                 }
@@ -384,7 +384,7 @@ public class SchemaValidator implements ISchemaValidator {
         
         // Add overall compatibility warning if conflicts were found
         if (hasConflicts) {
-            result.addError(ResultType.MERGE_CONFLICT, "Schema merge conflict detected in namespace " + namespace);
+            result.addError(ResultType.SCHEMA_MERGE_CONFLICT, "Schema merge conflict detected in namespace " + namespace);
         } else if (result.hasWarnings()) {
             result.addWarning(ResultType.COMPATIBILITY_WARNING, "Schema compatibility warnings found in namespace " + namespace);
         }

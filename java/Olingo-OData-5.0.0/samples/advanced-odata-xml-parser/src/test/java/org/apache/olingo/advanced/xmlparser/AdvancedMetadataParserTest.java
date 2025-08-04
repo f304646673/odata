@@ -437,9 +437,9 @@ public class AdvancedMetadataParserTest {
         // Verify error is reported in statistics
         ParseStatistics stats = parser.getStatistics();
         Map<ResultType, Integer> errorCounts = stats.getErrorTypeCounts();
-        assertTrue(errorCounts.containsKey(ResultType.SCHEMA_NOT_FOUND) || 
+        assertTrue(errorCounts.containsKey(ResultType.FILE_NOT_FOUND) || 
                   errorCounts.containsKey(ResultType.DEPENDENCY_ANALYSIS_ERROR) ||
-                  errorCounts.containsKey(ResultType.SCHEMA_RESOLUTION_FAILED));
+                  errorCounts.containsKey(ResultType.DEPENDENCY_RESOLUTION_FAILED));
         
         // Verify error report
         Map<String, List<String>> errors = parser.getErrorReport();
@@ -948,7 +948,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing entity type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported - just check that some type is reported as missing
@@ -989,7 +989,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1030,7 +1030,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing enum type references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error");
             
             // Verify specific missing type is reported
@@ -1072,7 +1072,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
 
             // For now, just verify that parsing succeeded
@@ -1114,7 +1114,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing action references");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
 
             // Verify specific missing action is reported
@@ -1340,7 +1340,7 @@ public class AdvancedMetadataParserTest {
                 assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing references in " + testSchema);
                 
                 boolean hasMissingTypeError = stats.getErrors().stream()
-                    .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                    .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
                 assertTrue(hasMissingTypeError, "Should detect MISSING_TYPE_REFERENCE error in " + testSchema);
                 
             }, "Should be able to parse " + testSchema + " even with missing references");
@@ -1361,7 +1361,7 @@ public class AdvancedMetadataParserTest {
             
             // Check for specific error types
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1380,7 +1380,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing complex type");
             
             boolean hasMissingTypeError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingTypeError, "Should have MISSING_TYPE_REFERENCE error");
             
         } finally {
@@ -1415,7 +1415,7 @@ public class AdvancedMetadataParserTest {
             assertFalse(stats.getErrors().isEmpty(), "Should have errors for missing function/action");
             
             boolean hasMissingFunctionError = stats.getErrors().stream()
-                .anyMatch(error -> error.getType() == ResultType.MISSING_TYPE_REFERENCE);
+                .anyMatch(error -> error.getType() == ResultType.UNRESOLVED_TYPE_REFERENCE);
             assertTrue(hasMissingFunctionError, "Should have MISSING_TYPE_REFERENCE error");
 
         } finally {

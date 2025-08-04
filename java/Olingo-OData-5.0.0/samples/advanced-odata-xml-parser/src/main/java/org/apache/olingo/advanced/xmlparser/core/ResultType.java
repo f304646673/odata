@@ -19,74 +19,90 @@
 package org.apache.olingo.advanced.xmlparser.core;
 
 /**
- * Enumeration of result types for validation and merge operations
+ * Enumeration of result types for validation and merge operations.
+ * Organized by category with clear, non-overlapping semantics.
  * @deprecated Use OperationType instead
  */
 @Deprecated
 public enum ResultType {
-    // File/IO related errors
-    FILE_NOT_FOUND("File not found"),
+    // ========================================
+    // File/IO Errors
+    // ========================================
+    FILE_NOT_FOUND("File or schema not found"),
     FILE_READ_ERROR("File read error"),
     FILE_WRITE_ERROR("File write error"),
     PERMISSION_DENIED("Permission denied"),
     
-    // Schema structure errors
+    // ========================================
+    // Schema Structure Errors
+    // ========================================
     SCHEMA_INVALID("Invalid schema structure"),
-    SCHEMA_MALFORMED("Malformed schema"),
-    SCHEMA_EMPTY("Empty schema"),
-    SCHEMA_TOO_LARGE("Schema too large"),
-    SCHEMA_NOT_FOUND("Schema file could not be found"),
+    SCHEMA_MALFORMED("Malformed schema syntax"),
+    SCHEMA_EMPTY("Empty schema content"),
+    SCHEMA_TOO_LARGE("Schema exceeds size limits"),
     SCHEMA_LOADING_ERROR("Error loading schema"),
     
-    // Parsing errors
+    // ========================================
+    // Parsing Errors
+    // ========================================
     PARSING_ERROR("General parsing error"),
     
-    // Validation specific errors
+    // ========================================
+    // Validation Errors
+    // ========================================
     VALIDATION_FAILED("Validation failed"),
     MISSING_REQUIRED_ELEMENT("Missing required element"),
     INVALID_ELEMENT_TYPE("Invalid element type"),
     INVALID_ATTRIBUTE("Invalid attribute"),
     DUPLICATE_ELEMENT("Duplicate element"),
-    CIRCULAR_REFERENCE("Circular reference detected"),
     TYPE_MISMATCH("Type mismatch"),
     CONSTRAINT_VIOLATION("Constraint violation"),
     
-    // Cross-file reference errors
-    REFERENCE_NOT_FOUND("Reference not found"),
+    // ========================================
+    // Reference/Dependency Errors
+    // ========================================
+    CIRCULAR_REFERENCE("Circular reference detected"),
+    REFERENCE_NOT_FOUND("Reference target not found"),
     REFERENCE_AMBIGUOUS("Ambiguous reference"),
-    REFERENCE_CIRCULAR("Circular reference"),
     REFERENCE_INVALID("Invalid reference"),
-    MISSING_TYPE_REFERENCE("Referenced type does not exist"),
-    MISSING_ANNOTATION_TARGET("Annotation target does not exist"),
+    DEPENDENCY_NOT_FOUND("Dependency not found"),
+    DEPENDENCY_RESOLUTION_FAILED("Dependency resolution failed"),
+    DEPENDENCY_ANALYSIS_ERROR("Error analyzing dependencies"),
     UNRESOLVED_TYPE_REFERENCE("Type reference cannot be resolved"),
+    MISSING_ANNOTATION_TARGET("Annotation target does not exist"),
     
-    // Merge specific errors
-    MERGE_CONFLICT("Merge conflict"),
+    // ========================================
+    // Merge/Schema Compatibility Errors
+    // ========================================
+    SCHEMA_MERGE_CONFLICT("Schema merge conflict detected"),
     MERGE_VALIDATION_FAILED("Pre-merge validation failed"),
     SCHEMA_INCOMPATIBLE("Schemas incompatible for merge"),
-    SCHEMA_MERGE_CONFLICT("Conflict detected during schema merging"),
     VERSION_MISMATCH("Version mismatch"),
     NAMESPACE_CONFLICT("Namespace conflict"),
     
-    // Network/dependency errors
+    // ========================================
+    // Network/System Errors
+    // ========================================
     NETWORK_ERROR("Network error"),
-    DEPENDENCY_NOT_FOUND("Dependency not found"),
-    DEPENDENCY_RESOLUTION_FAILED("Dependency resolution failed"),
-    DEPENDENCY_ANALYSIS_ERROR("Error analyzing schema dependencies"),
-    SCHEMA_RESOLUTION_FAILED("Failed to resolve schema reference"),
     
-    // Configuration errors
+    // ========================================
+    // Configuration Errors
+    // ========================================
     CONFIGURATION_ERROR("Configuration error"),
     INVALID_PARAMETER("Invalid parameter"),
     
+    // ========================================
     // Warnings
+    // ========================================
     SCHEMA_WARNING("Schema warning"),
     TYPE_OVERRIDDEN("Type overridden"),
     DEPRECATED_FEATURE("Deprecated feature used"),
     PERFORMANCE_WARNING("Performance warning"),
     COMPATIBILITY_WARNING("Compatibility warning"),
     
+    // ========================================
     // Info/Success
+    // ========================================
     SUCCESS("Operation successful"),
     SCHEMA_LOADED("Schema loaded successfully"),
     VALIDATION_PASSED("Validation passed"),

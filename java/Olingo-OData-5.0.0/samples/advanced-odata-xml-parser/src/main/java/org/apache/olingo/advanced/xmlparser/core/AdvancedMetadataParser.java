@@ -274,7 +274,7 @@ public class AdvancedMetadataParser {
             // Resolve and load schema
             InputStream inputStream = referenceManager.resolveReference(schemaPath);
             if (inputStream == null) {
-                statistics.addError(ResultType.SCHEMA_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
+                statistics.addError(ResultType.DEPENDENCY_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
                 throw new IllegalArgumentException("Could not resolve schema: " + schemaPath);
             }
 
