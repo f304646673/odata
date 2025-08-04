@@ -177,8 +177,8 @@ public class DuplicateErrorTest extends BaseComplianceTest {
             return;
         }
         
-        ComplianceResult result = validator.validateFile(xmlFile.toFile());
-        
+        ComplianceResult result = validator.validateFile(xmlFile.toFile(), schemaRegistry);
+
         // Verify that validation failed
         assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlFile);
         assertTrue(result.hasErrors(), "XML file should have errors: " + xmlFile);

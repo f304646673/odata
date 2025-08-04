@@ -91,8 +91,8 @@ public class ValidXmlFilesTest extends BaseComplianceTest {
         
         logger.info("Testing file: {} - {}", xmlFile.getFileName(), description);
         
-        ComplianceResult result = validator.validateFile(xmlFile.toFile());
-        
+        ComplianceResult result = validator.validateFile(xmlFile.toFile(), schemaRegistry);
+
         // Verify that validation passed
         assertTrue(result.isCompliant(), 
             "XML file should be valid: " + xmlFile + " - " + description);

@@ -14,6 +14,7 @@ import org.apache.olingo.compliance.validator.ComplianceValidator;
 import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
 import org.apache.olingo.compliance.engine.core.SchemaRegistry;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,24 +48,24 @@ public abstract class BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getName());
         
-        ComplianceResult result = validator.validateFile(xmlFile);
-        
+        ComplianceResult result = validator.validateFile(xmlFile, schemaRegistry);
+
         // Verify that validation failed
-        assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);
-        assertTrue(result.hasErrors(), "XML file should have errors: " + xmlPath);
-        
+        Assertions.assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);
+        Assertions.assertTrue(result.hasErrors(), "XML file should have errors: " + xmlPath);
+
         // Check for specific error type
-        assertTrue(result.hasErrorOfType(expectedErrorType), 
+        Assertions.assertTrue(result.hasErrorOfType(expectedErrorType),
             "Should have " + expectedErrorType + " error in file: " + xmlPath);
         
         // Verify specific error message contains expected fragment
         List<ComplianceIssue> errors = result.getErrorsOfType(expectedErrorType);
-        assertTrue(errors.size() > 0, "Should have at least one " + expectedErrorType + " error");
-        
+        Assertions.assertTrue(errors.size() > 0, "Should have at least one " + expectedErrorType + " error");
+
         boolean foundExpectedMessage = errors.stream()
             .anyMatch(issue -> issue.getMessage().contains(expectedMessageFragment));
-        assertTrue(foundExpectedMessage, 
-            "Expected error message containing '" + expectedMessageFragment + "' but found: " + 
+        Assertions.assertTrue(foundExpectedMessage,
+            "Expected error message containing '" + expectedMessageFragment + "' but found: " +
             errors.stream().map(ComplianceIssue::getMessage).collect(Collectors.toList()));
     }
     
@@ -81,14 +82,14 @@ public abstract class BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getName());
         
-        ComplianceResult result = validator.validateFile(xmlFile);
-        
+        ComplianceResult result = validator.validateFile(xmlFile, schemaRegistry);
+
         // Verify that validation failed
-        assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);
-        assertTrue(result.hasErrors(), "XML file should have errors: " + xmlPath);
-        
+        Assertions.assertFalse(result.isCompliant(), "XML file should be invalid: " + xmlPath);
+        Assertions.assertTrue(result.hasErrors(), "XML file should have errors: " + xmlPath);
+
         // Check for specific error type
-        assertTrue(result.hasErrorOfType(expectedErrorType), 
+        Assertions.assertTrue(result.hasErrorOfType(expectedErrorType),
             "Should have " + expectedErrorType + " error in file: " + xmlPath);
     }
 

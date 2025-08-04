@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.Arrays;
 
 import org.apache.olingo.compliance.core.model.ComplianceIssue;
+import org.apache.olingo.compliance.core.model.ComplianceResult;
 import org.apache.olingo.compliance.engine.core.impl.DefaultSchemaRegistryImpl;
 import org.apache.olingo.compliance.validator.ComplianceValidator;
 import org.apache.olingo.compliance.validator.impl.ComplianceValidatorImpl;
@@ -136,11 +137,11 @@ public class ValidXmlDirectoriesTest extends BaseComplianceTest {
             ComplianceResult result = validator.validateDirectory(directoryPath.toString(), schemaRegistry, true);
 
             // Log the result details
-            logger.info("Directory validation result: compliant={}, files={}, issues={}",
-                result.isCompliant(), result.getTotalFiles(), result.getTotalIssueCount());
+            logger.info("Directory validation result: compliant={}, issues={}",
+                result.isCompliant(), result.getIssues().size());
 
             if (result.isCompliant()) {
-                logger.info("Directory validation passed: {} files processed", result.getTotalFiles());
+                logger.info("Directory validation passed");
             } else {
                 logger.warn("Directory validation failed but was expected to pass: {} - Issues: {}", 
                     directoryPath, result.getIssues().stream()

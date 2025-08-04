@@ -139,8 +139,8 @@ public class AttributeErrorTest extends BaseComplianceTest {
         
         logger.info("Testing file: {}", xmlFile.getFileName());
         
-        ComplianceResult result = validator.validateFile(xmlFile.toFile());
-        
+        ComplianceResult result = validator.validateFile(xmlFile.toFile(), schemaRegistry);
+
         // For attribute errors, some files might be considered valid by the current validator
         // In such cases, we skip the test rather than fail it
         if (result.isCompliant() || !result.hasErrors()) {

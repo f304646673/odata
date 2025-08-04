@@ -23,7 +23,7 @@ public class ConflictDetectionDebug {
             result.getIssues().forEach(issue -> {
                 System.out.println("Issue: " + issue.getErrorType() + " - " + issue.getMessage());
                 System.out.println("  Severity: " + issue.getSeverity());
-                System.out.println("  Source: " + issue.getSource());
+                System.out.println("  Location: " + issue.getLocation());
             });
 
             // 打印元数据信息
