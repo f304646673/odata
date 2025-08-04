@@ -274,6 +274,11 @@ public class AdvancedMetadataParserTest {
         boolean hasCircularB = schemas.stream().anyMatch(s -> "Test.CircularB".equals(s.getNamespace()));
         assertTrue(hasCircularA, "Should load Test.CircularA schema");
         assertTrue(hasCircularB, "Should load Test.CircularB schema");
+
+        assertEquals("Business", schemas.get(0).getAnnotations().get(0).getQualifier(),
+                "Should have correct annotation qualifier for circular schema");
+        assertEquals("Business", schemas.get(1).getAnnotations().get(0).getQualifier(),
+                "Should have correct annotation qualifier for circular schema");
     }
 
     @Test
