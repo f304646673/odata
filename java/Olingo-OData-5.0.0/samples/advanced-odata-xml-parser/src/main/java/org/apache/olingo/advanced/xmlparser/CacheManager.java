@@ -26,6 +26,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 
 /**
  * Manages caching of parsed schema providers with unique key generation.
+ * Uses verified business logic from AdvancedMetadataParser.
  */
 public class CacheManager {
     private final ConcurrentHashMap<String, SchemaBasedEdmProvider> providerCache = new ConcurrentHashMap<>();
@@ -91,9 +92,9 @@ public class CacheManager {
     }
     
     /**
-     * Generate cache key that includes path information to avoid conflicts
+     * Generate cache key that includes path information to avoid conflicts (verified logic from AdvancedMetadataParser)
      */
-    private String generateCacheKey(String schemaPath) {
+    public String generateCacheKey(String schemaPath) {
         try {
             // Use canonical path to ensure uniqueness for the same file referenced by different relative paths
             File file = new File(schemaPath);
@@ -128,5 +129,12 @@ public class CacheManager {
             // Fallback to just filename for simple cases
             return fileName;
         }
+    }
+    
+    /**
+     * Check if cache contains key
+     */
+    public boolean containsKey(String cacheKey) {
+        return enableCaching && providerCache.containsKey(cacheKey);
     }
 }

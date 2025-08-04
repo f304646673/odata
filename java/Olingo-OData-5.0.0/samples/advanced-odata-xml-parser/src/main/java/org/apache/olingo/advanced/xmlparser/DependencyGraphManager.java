@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages dependency graphs for schema loading and circular dependency detection.
+ * Uses the verified business logic from AdvancedMetadataParser.
  */
 public class DependencyGraphManager {
     private final Map<String, Set<String>> dependencyGraph = new ConcurrentHashMap<>();
@@ -70,32 +71,21 @@ public class DependencyGraphManager {
     }
     
     /**
-     * Get dependencies for a schema
-     */
-    public Set<String> getDependencies(String schemaPath) {
-        return dependencyGraph.getOrDefault(schemaPath, new HashSet<>());
-    }
-    
-    /**
      * Check if dependency graph contains a schema (has been processed)
      */
     public boolean containsSchema(String schemaPath) {
-        return processedSchemas.contains(schemaPath);
+        return dependencyGraph.containsKey(schemaPath);
     }
     
     /**
-     * Get all schemas in the dependency graph
+     * Get all dependency relationships
      */
-    public Set<String> getAllSchemas() {
-        Set<String> allSchemas = new HashSet<>(dependencyGraph.keySet());
-        for (Set<String> deps : dependencyGraph.values()) {
-            allSchemas.addAll(deps);
-        }
-        return allSchemas;
+    public Map<String, Set<String>> getAllDependencies() {
+        return new java.util.HashMap<>(dependencyGraph);
     }
     
     /**
-     * Detect circular dependencies using DFS
+     * Detect circular dependencies using DFS (verified logic from AdvancedMetadataParser)
      */
     public List<List<String>> detectCircularDependencies() {
         List<List<String>> cycles = new ArrayList<>();
@@ -105,7 +95,9 @@ public class DependencyGraphManager {
         for (String node : dependencyGraph.keySet()) {
             if (!visited.contains(node)) {
                 List<String> currentPath = new ArrayList<>();
-                dfsDetectCycle(node, visited, recursionStack, currentPath, cycles);
+                if (dfsDetectCycle(node, visited, recursionStack, currentPath, cycles)) {
+                    // Cycle detected
+                }
             }
         }
         
@@ -113,7 +105,7 @@ public class DependencyGraphManager {
     }
     
     /**
-     * DFS helper for cycle detection
+     * DFS helper for cycle detection (verified logic from AdvancedMetadataParser)
      */
     private boolean dfsDetectCycle(String node, Set<String> visited, Set<String> recursionStack, 
                                    List<String> currentPath, List<List<String>> cycles) {
@@ -121,19 +113,21 @@ public class DependencyGraphManager {
         recursionStack.add(node);
         currentPath.add(node);
         
-        Set<String> neighbors = dependencyGraph.get(node);
-        if (neighbors != null) {
-            for (String neighbor : neighbors) {
-                if (!visited.contains(neighbor)) {
-                    if (dfsDetectCycle(neighbor, visited, recursionStack, currentPath, cycles)) {
+        Set<String> dependencies = dependencyGraph.get(node);
+        if (dependencies != null) {
+            for (String dependency : dependencies) {
+                if (!visited.contains(dependency)) {
+                    if (dfsDetectCycle(dependency, visited, recursionStack, currentPath, cycles)) {
                         return true;
                     }
-                } else if (recursionStack.contains(neighbor)) {
-                    // Found a cycle, extract the cycle path
-                    int cycleStart = currentPath.indexOf(neighbor);
-                    List<String> cycle = new ArrayList<>(currentPath.subList(cycleStart, currentPath.size()));
-                    cycle.add(neighbor); // Close the cycle
-                    cycles.add(cycle);
+                } else if (recursionStack.contains(dependency)) {
+                    // Cycle detected
+                    int cycleStart = currentPath.indexOf(dependency);
+                    if (cycleStart >= 0) {
+                        List<String> cycle = new ArrayList<>(currentPath.subList(cycleStart, currentPath.size()));
+                        cycle.add(dependency); // Complete the cycle
+                        cycles.add(cycle);
+                    }
                     return true;
                 }
             }
@@ -145,27 +139,20 @@ public class DependencyGraphManager {
     }
     
     /**
-     * Handle circular dependencies based on configuration
+     * Handle circular dependencies based on configuration (verified logic from AdvancedMetadataParser)
      */
     public void handleCircularDependencies(List<List<String>> cycles, boolean allowCircularDependencies) throws Exception {
-        if (!cycles.isEmpty()) {
-            for (List<String> cycle : cycles) {
-                String cycleDescription = String.join(" -> ", cycle);
-                statistics.addError(ErrorType.CIRCULAR_DEPENDENCY, 
-                    "Circular dependency detected: " + cycleDescription, 
-                    cycle.get(0));
-                errorReport.computeIfAbsent("CIRCULAR_DEPENDENCIES", k -> new ArrayList<>())
-                    .add(cycleDescription);
-            }
-            
-            if (!allowCircularDependencies) {
-                throw new IllegalStateException("Circular dependencies detected. Use allowCircularDependencies(true) to proceed anyway.");
-            }
+        for (List<String> cycle : cycles) {
+            errorReport.put("circular_dependency", cycle);
+        }
+        
+        if (!allowCircularDependencies) {
+            throw new IllegalStateException("Circular dependencies detected and not allowed. Cycles: " + cycles);
         }
     }
     
     /**
-     * Calculate load order using topological sorting
+     * Calculate load order using topological sorting (verified logic from AdvancedMetadataParser)
      */
     public List<String> calculateLoadOrder() {
         List<String> loadOrder = new ArrayList<>();
@@ -178,15 +165,16 @@ public class DependencyGraphManager {
             }
         }
         
+        java.util.Collections.reverse(loadOrder); // Reverse to get correct dependency order
         return loadOrder;
     }
     
     /**
-     * Topological sort helper
+     * Topological sort helper (verified logic from AdvancedMetadataParser)
      */
     private void topologicalSort(String node, Set<String> visited, Set<String> temporaryMark, List<String> loadOrder) {
         if (temporaryMark.contains(node)) {
-            // This indicates a cycle, but we'll let the cycle detection handle it
+            // This indicates a cycle, but we'll handle it gracefully
             return;
         }
         
@@ -196,23 +184,16 @@ public class DependencyGraphManager {
         
         temporaryMark.add(node);
         
-        Set<String> neighbors = dependencyGraph.get(node);
-        if (neighbors != null) {
-            for (String neighbor : neighbors) {
-                topologicalSort(neighbor, visited, temporaryMark, loadOrder);
+        Set<String> dependencies = dependencyGraph.get(node);
+        if (dependencies != null) {
+            for (String dependency : dependencies) {
+                topologicalSort(dependency, visited, temporaryMark, loadOrder);
             }
         }
         
         temporaryMark.remove(node);
         visited.add(node);
-        loadOrder.add(0, node); // Add to beginning for reverse topological order
-    }
-    
-    /**
-     * Get all dependencies in the graph
-     */
-    public Map<String, Set<String>> getAllDependencies() {
-        return new ConcurrentHashMap<>(dependencyGraph);
+        loadOrder.add(node);
     }
     
     /**

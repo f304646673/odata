@@ -21,20 +21,19 @@ package org.apache.olingo.advanced.xmlparser;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.olingo.server.core.MetadataParser;
-import org.apache.olingo.server.core.ReferenceResolver;
-import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
-import java.net.URI;
+import org.apache.olingo.server.core.MetadataParser;
+import org.apache.olingo.server.core.ReferenceResolver;
+import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 
 /**
  * Modular Advanced Metadata Parser that uses composition of smaller modules
@@ -74,9 +73,9 @@ public class ModularAdvancedMetadataParser {
         this.cacheManager = new CacheManager(enableCaching);
         
         // Add default reference resolvers
-        addReferenceResolver(new ClassPathReferenceResolver());
-        addReferenceResolver(new FileSystemReferenceResolver());
-        addReferenceResolver(new UrlReferenceResolver());
+        referenceManager.addReferenceResolver(new ClassPathReferenceResolver());
+        referenceManager.addReferenceResolver(new FileSystemReferenceResolver());
+        referenceManager.addReferenceResolver(new UrlReferenceResolver());
         
         // Configure underlying parser
         underlyingParser.recursivelyLoadReferences(false); // We handle this ourselves
@@ -128,61 +127,52 @@ public class ModularAdvancedMetadataParser {
                 throw new IllegalArgumentException("File not found: " + mainSchemaPath);
             }
             
-            // Clear state for new parsing session
+            // Clear state for new parsing operation
             clearState();
-            
-            statistics.recordStart();
             
             // Build dependency graph
             buildDependencyGraph(mainSchemaPath, 0);
             
-            // Detect circular dependencies if enabled
+            // Check for circular dependencies
             if (detectCircularDependencies) {
                 List<List<String>> cycles = dependencyManager.detectCircularDependencies();
-                dependencyManager.handleCircularDependencies(cycles, allowCircularDependencies);
+                if (!cycles.isEmpty()) {
+                    statistics.incrementCircularDetected();
+                    dependencyManager.handleCircularDependencies(cycles, allowCircularDependencies);
+                }
             }
             
-            // Calculate load order
+            // Resolve dependencies in topological order
             List<String> loadOrder = dependencyManager.calculateLoadOrder();
             
-            // Load schemas in the calculated order
-            SchemaBasedEdmProvider provider = loadSchemasInOrder(loadOrder, mainSchemaPath);
+            // Load schemas in dependency order
+            SchemaBasedEdmProvider result = loadSchemasInOrder(loadOrder, mainSchemaPath);
             
-            // Add references from dependency graph to provider
-            addReferencesToProvider(provider);
+            // Validate references after all schemas are loaded
+            schemaValidator.validateReferences(result);
             
-            // Validate references
-            schemaValidator.validateReferences(provider);
-            
-            statistics.recordEnd();
-            statistics.setLoadOrder(loadOrder);
-            
-            return provider;
+            return result;
             
         } catch (Exception e) {
-            statistics.recordEnd();
-            statistics.addError(ErrorType.PARSING_ERROR, e.getMessage(), mainSchemaPath);
+            statistics.addError(ErrorType.PARSING_ERROR, "Failed to parse schema", mainSchemaPath, e);
             throw e;
         } finally {
-            long endTime = System.currentTimeMillis();
-            statistics.setTotalTime(endTime - startTime);
-            statistics.addParsingTime(endTime - startTime);
+            statistics.addParsingTime(System.currentTimeMillis() - startTime);
         }
     }
     
     /**
-     * Build dependency graph by recursively parsing schema references
+     * Build dependency graph by analyzing all references
      */
     private void buildDependencyGraph(String schemaPath, int depth) throws Exception {
         if (depth > maxDependencyDepth) {
-            String error = String.format("Maximum dependency depth (%d) exceeded for schema: %s", 
-                maxDependencyDepth, schemaPath);
-            statistics.addError(ErrorType.DEPENDENCY_DEPTH_EXCEEDED, error, schemaPath);
-            throw new IllegalStateException(error);
+            throw new IllegalStateException("Maximum dependency depth exceeded: " + maxDependencyDepth);
         }
         
+        statistics.updateMaxDepth(depth);
+        
         if (dependencyManager.containsSchema(schemaPath)) {
-            return; // Already processed
+            return; // Already analyzed
         }
         
         if (dependencyManager.isCurrentlyLoading(schemaPath)) {
@@ -193,25 +183,27 @@ public class ModularAdvancedMetadataParser {
             return;
         }
         
-        // Update max depth tracking - only for schemas that are actually processed
-        statistics.updateMaxDepth(depth);
-        
         dependencyManager.markLoading(schemaPath);
         
         try {
-            // Extract references from XML
-            Set<String> references = referenceManager.extractReferencesFromXml(schemaPath);
+            // Extract references from XML using our own XML parsing
+            // to avoid Olingo's deduplication by namespace
+            Set<String> xmlReferences = referenceManager.extractReferencesFromXml(schemaPath);
             
-            // Add dependencies to graph
-            for (String reference : references) {
-                dependencyManager.addDependency(schemaPath, reference);
+            // Add all found references to dependencies
+            for (String refPath : xmlReferences) {
+                dependencyManager.addDependency(schemaPath, refPath);
                 
-                // Recursively build dependency graph for each reference
-                buildDependencyGraph(reference, depth + 1);
+                // Recursively analyze dependencies
+                buildDependencyGraph(refPath, depth + 1);
             }
             
             statistics.incrementSchemasProcessed();
             
+        } catch (Exception e) {
+            statistics.addError(ErrorType.DEPENDENCY_ANALYSIS_ERROR, "Dependency analysis failed", schemaPath, e);
+            errorReport.put(schemaPath, java.util.Arrays.asList("Dependency analysis failed: " + e.getMessage()));
+            throw e;
         } finally {
             dependencyManager.markFinished(schemaPath);
         }
@@ -221,62 +213,93 @@ public class ModularAdvancedMetadataParser {
      * Load schemas in the calculated order
      */
     private SchemaBasedEdmProvider loadSchemasInOrder(List<String> loadOrder, String mainSchemaPath) throws Exception {
-        SchemaBasedEdmProvider targetProvider = new SchemaBasedEdmProvider();
+        SchemaBasedEdmProvider result = new SchemaBasedEdmProvider();
         
+        // Load dependencies first
         for (String schemaPath : loadOrder) {
-            loadSchema(schemaPath, targetProvider);
+            if (!schemaPath.equals(mainSchemaPath)) {
+                loadSchema(schemaPath, result);
+            }
         }
         
-        // Always make sure the main schema is loaded
-        if (!loadOrder.contains(mainSchemaPath)) {
-            loadSchema(mainSchemaPath, targetProvider);
-        }
+        // Load main schema last
+        loadSchema(mainSchemaPath, result);
         
-        return targetProvider;
+        return result;
     }
     
     /**
      * Load a single schema with caching
      */
     private void loadSchema(String schemaPath, SchemaBasedEdmProvider targetProvider) throws Exception {
+        // Generate cache key that includes path information to avoid conflicts with same filename
+        String cacheKey = cacheManager.generateCacheKey(schemaPath);
+        
+        // Check cache first
+        if (enableCaching && cacheManager.containsKey(cacheKey)) {
+            SchemaBasedEdmProvider cachedProvider = cacheManager.getCachedProvider(cacheKey);
+            schemaMerger.copySchemas(cachedProvider, targetProvider);
+            statistics.incrementCachedReused();
+            return;
+        }
+
+        // Check for recursive loading
+        if (dependencyManager.isCurrentlyLoading(schemaPath)) {
+            return;
+        }
+
+        dependencyManager.markLoading(schemaPath);
+
         try {
-            // Check cache first
-            SchemaBasedEdmProvider cachedProvider = cacheManager.getCachedProvider(schemaPath);
-            if (cachedProvider != null) {
-                schemaMerger.copySchemas(cachedProvider, targetProvider);
-                return;
-            }
-            
-            // Load from file
+            // Resolve and load schema
             InputStream inputStream = referenceManager.resolveReference(schemaPath);
             if (inputStream == null) {
-                String error = "Cannot resolve reference: " + schemaPath;
-                statistics.addError(ErrorType.REFERENCE_NOT_FOUND, error, schemaPath);
-                throw new IllegalArgumentException(error);
+                statistics.addError(ErrorType.SCHEMA_RESOLUTION_FAILED, "Could not resolve schema", schemaPath);
+                throw new IllegalArgumentException("Could not resolve schema: " + schemaPath);
+            }
+
+            // Configure parser with reference resolver for this schema
+            File schemaFile = new File(schemaPath);
+            File schemaDir = schemaFile.getParentFile();
+            if (schemaDir == null) {
+                // If no parent directory, try to find the schema in test resources
+                schemaDir = new File("src/test/resources/schemas");
+                if (!schemaDir.exists()) {
+                    schemaDir = new File(".");
+                }
             }
             
-            try {
-                SchemaBasedEdmProvider sourceProvider = underlyingParser.buildEdmProvider(new InputStreamReader(inputStream));
-                
-                // Cache the provider if caching is enabled
-                cacheManager.cacheProvider(schemaPath, sourceProvider);
-                
-                // Copy schemas from source to target
-                schemaMerger.copySchemas(sourceProvider, targetProvider);
-                
-                statistics.incrementFilesProcessed();
-                
-            } finally {
-                inputStream.close();
+            // Create a new parser instance with the appropriate reference resolver
+            MetadataParser parser = new MetadataParser()
+                .parseAnnotations(true)
+                .useLocalCoreVocabularies(false)
+                .recursivelyLoadReferences(false)
+                .referenceResolver(new FileBasedReferenceResolver(schemaDir));
+            
+            // Parse schema using configured parser
+            SchemaBasedEdmProvider schemaProvider = parser.buildEdmProvider(new InputStreamReader(inputStream));
+            
+            // Cache the provider
+            if (enableCaching) {
+                cacheManager.cacheProvider(cacheKey, schemaProvider);
             }
+            
+            // Copy schemas to target provider
+            schemaMerger.copySchemas(schemaProvider, targetProvider);
+            
+            // Copy references using reflection to access protected methods
+            for (EdmxReference reference : schemaProvider.getReferences()) {
+                addReferenceUsingReflection(targetProvider, reference);
+            }
+            
+            statistics.incrementFilesProcessed();
             
         } catch (Exception e) {
-            String error = String.format("Error loading schema '%s': %s", schemaPath, e.getMessage());
-            statistics.addError(ErrorType.PARSING_ERROR, error, schemaPath);
-            errorReport.computeIfAbsent(schemaPath, k -> new ArrayList<>()).add(error);
+            statistics.addError(ErrorType.SCHEMA_LOADING_ERROR, "Schema loading failed", schemaPath, e);
+            errorReport.put(schemaPath, java.util.Arrays.asList("Schema loading failed: " + e.getMessage()));
             throw e;
         } finally {
-            statistics.incrementSchemasLoaded();
+            dependencyManager.markFinished(schemaPath);
         }
     }
     

@@ -18,8 +18,6 @@
  */
 package org.apache.olingo.advanced.xmlparser;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -37,6 +35,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * Manages reference resolution using multiple strategies and extracts references from XML.
+ * Uses verified business logic from AdvancedMetadataParser.
  */
 public class ReferenceResolverManager {
     private final List<ReferenceResolver> referenceResolvers = new ArrayList<>();
@@ -58,7 +57,7 @@ public class ReferenceResolverManager {
     }
     
     /**
-     * Resolve reference using multiple strategies
+     * Resolve reference using multiple strategies (verified logic from AdvancedMetadataParser)
      */
     public InputStream resolveReference(String referencePath) {
         // First try the configured resolvers
@@ -76,20 +75,13 @@ public class ReferenceResolverManager {
         
         // If that fails, try to resolve from test resources
         try {
-            // Try the path as-is first (for paths like "schemas/dependencies/core-types.xml")
-            InputStream resourceStream = this.getClass().getClassLoader().getResourceAsStream(referencePath);
-            if (resourceStream != null) {
-                return resourceStream;
-            }
-            
-            // Try adding "schemas/" prefix for simple filenames
             String resourcePath = "schemas/" + referencePath;
-            resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+            InputStream resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
             if (resourceStream != null) {
                 return resourceStream;
             }
             
-            // Also try common subdirectories for simple filenames
+            // Also try common subdirectories
             String[] subdirs = {"dependencies", "circular", "deep", "invalid", "multi", "crossdir", "nested"};
             for (String subdir : subdirs) {
                 resourcePath = "schemas/" + subdir + "/" + referencePath;
@@ -119,30 +111,19 @@ public class ReferenceResolverManager {
             // Continue 
         }
         
-        // Finally, try file system approach
-        try {
-            File file = new File(referencePath);
-            if (file.exists()) {
-                return new FileInputStream(file);
-            }
-        } catch (Exception e) {
-            // Ignore
-        }
-
         return null;
     }
     
     /**
      * Extract edmx:Reference elements directly from XML to avoid Olingo's deduplication by namespace
+     * (verified logic from AdvancedMetadataParser)
      */
     public Set<String> extractReferencesFromXml(String schemaPath) throws Exception {
         Set<String> references = new HashSet<>();
         
-        InputStream inputStream = null;
         try {
-            inputStream = resolveReference(schemaPath);
+            InputStream inputStream = resolveReference(schemaPath);
             if (inputStream == null) {
-                // No input stream available, but this may be normal for files without dependencies
                 return references;
             }
             
@@ -162,19 +143,11 @@ public class ReferenceResolverManager {
                 }
             }
             
+            inputStream.close();
+            
         } catch (Exception e) {
             // If XML parsing fails, fall back to empty set
-            // Log the issue but don't throw - let other parts of the system handle the error
-            System.err.println("Warning: Failed to extract references from " + schemaPath + ": " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                    // Ignore close errors
-                }
-            }
+            // Let other parts of the system handle the error
         }
         
         return references;

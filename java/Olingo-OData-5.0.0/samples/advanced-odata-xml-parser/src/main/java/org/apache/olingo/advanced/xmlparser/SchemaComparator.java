@@ -103,8 +103,58 @@ public class SchemaComparator {
         if (types1 == null || types2 == null) {
             return false;
         }
-        return types1.size() == types2.size();
-        // For now, just compare sizes. Can be enhanced for deeper comparison
+        if (types1.size() != types2.size()) {
+            return false;
+        }
+        
+        // Compare by structure, not just size
+        @SuppressWarnings("unchecked")
+        List<org.apache.olingo.commons.api.edm.provider.CsdlEntityType> entityTypes1 = 
+            (List<org.apache.olingo.commons.api.edm.provider.CsdlEntityType>) types1;
+        @SuppressWarnings("unchecked") 
+        List<org.apache.olingo.commons.api.edm.provider.CsdlEntityType> entityTypes2 = 
+            (List<org.apache.olingo.commons.api.edm.provider.CsdlEntityType>) types2;
+            
+        Map<String, org.apache.olingo.commons.api.edm.provider.CsdlEntityType> map1 = 
+            entityTypes1.stream().collect(Collectors.toMap(
+                org.apache.olingo.commons.api.edm.provider.CsdlEntityType::getName, 
+                Function.identity()));
+        Map<String, org.apache.olingo.commons.api.edm.provider.CsdlEntityType> map2 = 
+            entityTypes2.stream().collect(Collectors.toMap(
+                org.apache.olingo.commons.api.edm.provider.CsdlEntityType::getName, 
+                Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) {
+            return false;
+        }
+        
+        // Check if the EntityTypes with same names have same structure
+        for (String typeName : map1.keySet()) {
+            org.apache.olingo.commons.api.edm.provider.CsdlEntityType type1 = map1.get(typeName);
+            org.apache.olingo.commons.api.edm.provider.CsdlEntityType type2 = map2.get(typeName);
+            
+            // Compare property count
+            int props1 = type1.getProperties() != null ? type1.getProperties().size() : 0;
+            int props2 = type2.getProperties() != null ? type2.getProperties().size() : 0;
+            if (props1 != props2) {
+                return false;
+            }
+            
+            // Compare property names
+            if (type1.getProperties() != null && type2.getProperties() != null) {
+                java.util.Set<String> propNames1 = type1.getProperties().stream()
+                    .map(org.apache.olingo.commons.api.edm.provider.CsdlProperty::getName)
+                    .collect(Collectors.toSet());
+                java.util.Set<String> propNames2 = type2.getProperties().stream()
+                    .map(org.apache.olingo.commons.api.edm.provider.CsdlProperty::getName)
+                    .collect(Collectors.toSet());
+                if (!propNames1.equals(propNames2)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
     private boolean areComplexTypesIdentical(List<?> types1, List<?> types2) {
@@ -114,8 +164,58 @@ public class SchemaComparator {
         if (types1 == null || types2 == null) {
             return false;
         }
-        return types1.size() == types2.size();
-        // For now, just compare sizes. Can be enhanced for deeper comparison
+        if (types1.size() != types2.size()) {
+            return false;
+        }
+        
+        // Compare by structure, not just size
+        @SuppressWarnings("unchecked")
+        List<org.apache.olingo.commons.api.edm.provider.CsdlComplexType> complexTypes1 = 
+            (List<org.apache.olingo.commons.api.edm.provider.CsdlComplexType>) types1;
+        @SuppressWarnings("unchecked") 
+        List<org.apache.olingo.commons.api.edm.provider.CsdlComplexType> complexTypes2 = 
+            (List<org.apache.olingo.commons.api.edm.provider.CsdlComplexType>) types2;
+            
+        Map<String, org.apache.olingo.commons.api.edm.provider.CsdlComplexType> map1 = 
+            complexTypes1.stream().collect(Collectors.toMap(
+                org.apache.olingo.commons.api.edm.provider.CsdlComplexType::getName, 
+                Function.identity()));
+        Map<String, org.apache.olingo.commons.api.edm.provider.CsdlComplexType> map2 = 
+            complexTypes2.stream().collect(Collectors.toMap(
+                org.apache.olingo.commons.api.edm.provider.CsdlComplexType::getName, 
+                Function.identity()));
+        
+        if (!map1.keySet().equals(map2.keySet())) {
+            return false;
+        }
+        
+        // Check if the ComplexTypes with same names have same structure
+        for (String typeName : map1.keySet()) {
+            org.apache.olingo.commons.api.edm.provider.CsdlComplexType type1 = map1.get(typeName);
+            org.apache.olingo.commons.api.edm.provider.CsdlComplexType type2 = map2.get(typeName);
+            
+            // Compare property count
+            int props1 = type1.getProperties() != null ? type1.getProperties().size() : 0;
+            int props2 = type2.getProperties() != null ? type2.getProperties().size() : 0;
+            if (props1 != props2) {
+                return false;
+            }
+            
+            // Compare property names
+            if (type1.getProperties() != null && type2.getProperties() != null) {
+                java.util.Set<String> propNames1 = type1.getProperties().stream()
+                    .map(org.apache.olingo.commons.api.edm.provider.CsdlProperty::getName)
+                    .collect(Collectors.toSet());
+                java.util.Set<String> propNames2 = type2.getProperties().stream()
+                    .map(org.apache.olingo.commons.api.edm.provider.CsdlProperty::getName)
+                    .collect(Collectors.toSet());
+                if (!propNames1.equals(propNames2)) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
     private boolean areEnumTypesIdentical(List<CsdlEnumType> types1, List<CsdlEnumType> types2) {

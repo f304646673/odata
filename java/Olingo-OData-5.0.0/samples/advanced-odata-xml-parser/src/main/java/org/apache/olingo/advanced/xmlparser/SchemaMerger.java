@@ -68,7 +68,8 @@ public class SchemaMerger {
                 CsdlSchema existingSchema = existingSchemas.get(namespace);
                 
                 // Check if schemas are identical
-                if (comparator.areSchemasIdentical(existingSchema, sourceSchema)) {
+                boolean identical = comparator.areSchemasIdentical(existingSchema, sourceSchema);
+                if (identical) {
                     // Schemas are identical, skip adding
                     continue;
                 } else {
@@ -210,7 +211,7 @@ public class SchemaMerger {
                         enumType.getName(), namespace);
                     statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
-                    throw new IllegalStateException(error);
+                    throw new IllegalArgumentException(error);
                 }
                 merged.getEnumTypes().add(enumType);
                 enumTypeNames.add(enumType.getName());
@@ -225,7 +226,7 @@ public class SchemaMerger {
                         typeDef.getName(), namespace);
                     statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
-                    throw new IllegalStateException(error);
+                    throw new IllegalArgumentException(error);
                 }
                 merged.getTypeDefinitions().add(typeDef);
                 typeDefinitionNames.add(typeDef.getName());
@@ -240,7 +241,7 @@ public class SchemaMerger {
                         action.getName(), namespace);
                     statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
-                    throw new IllegalStateException(error);
+                    throw new IllegalArgumentException(error);
                 }
                 merged.getActions().add(action);
                 actionNames.add(action.getName());
@@ -255,7 +256,7 @@ public class SchemaMerger {
                         function.getName(), namespace);
                     statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                     errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
-                    throw new IllegalStateException(error);
+                    throw new IllegalArgumentException(error);
                 }
                 merged.getFunctions().add(function);
                 functionNames.add(function.getName());
@@ -269,7 +270,7 @@ public class SchemaMerger {
                     source.getEntityContainer().getName(), namespace);
                 statistics.addError(ErrorType.SCHEMA_MERGE_CONFLICT, error, namespace);
                 errorReport.computeIfAbsent(namespace, k -> new ArrayList<>()).add(error);
-                throw new IllegalStateException(error);
+                throw new IllegalArgumentException(error);
             }
             // If there's no existing container, set this one
             // If there is an existing container, we would need to merge them (complex scenario)
