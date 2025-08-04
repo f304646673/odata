@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import org.apache.olingo.advanced.xmlparser.core.ModularAdvancedMetadataParser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

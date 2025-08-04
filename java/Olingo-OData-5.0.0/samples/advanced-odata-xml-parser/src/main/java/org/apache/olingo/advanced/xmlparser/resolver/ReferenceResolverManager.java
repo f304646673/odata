@@ -21,17 +21,12 @@ package org.apache.olingo.advanced.xmlparser.resolver;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import org.apache.olingo.advanced.xmlparser.xml.IXmlReferenceExtractor;
+import org.apache.olingo.advanced.xmlparser.xml.XmlReferenceExtractor;
 import org.apache.olingo.server.core.ReferenceResolver;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  * Manages reference resolution using multiple strategies and extracts references from XML.
@@ -39,6 +34,7 @@ import org.w3c.dom.NodeList;
  */
 public class ReferenceResolverManager implements IReferenceResolverManager {
     private final List<ReferenceResolver> referenceResolvers = new ArrayList<>();
+    private final IXmlReferenceExtractor xmlExtractor = new XmlReferenceExtractor();
     
     /**
      * Add a reference resolver
@@ -119,37 +115,18 @@ public class ReferenceResolverManager implements IReferenceResolverManager {
      * (verified logic from AdvancedMetadataParser)
      */
     public Set<String> extractReferencesFromXml(String schemaPath) throws Exception {
-        Set<String> references = new HashSet<>();
-        
         try {
             InputStream inputStream = resolveReference(schemaPath);
             if (inputStream == null) {
-                return references;
+                return new java.util.HashSet<>();
             }
             
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(inputStream);
-            
-            // Find all edmx:Reference elements
-            NodeList referenceNodes = doc.getElementsByTagNameNS("http://docs.oasis-open.org/odata/ns/edmx", "Reference");
-            
-            for (int i = 0; i < referenceNodes.getLength(); i++) {
-                Element refElement = (Element) referenceNodes.item(i);
-                String uri = refElement.getAttribute("Uri");
-                if (uri != null && !uri.trim().isEmpty()) {
-                    references.add(uri);
-                }
-            }
-            
-            inputStream.close();
+            return xmlExtractor.extractReferencesFromXml(inputStream);
             
         } catch (Exception e) {
             // If XML parsing fails, fall back to empty set
             // Let other parts of the system handle the error
+            return new java.util.HashSet<>();
         }
-        
-        return references;
     }
 }

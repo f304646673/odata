@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.advanced.xmlparser.core.ModularAdvancedMetadataParser;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
