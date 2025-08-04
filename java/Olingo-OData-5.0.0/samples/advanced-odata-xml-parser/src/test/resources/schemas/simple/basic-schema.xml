@@ -3,6 +3,7 @@
   <edmx:DataServices>
     <Schema Namespace="Test.Basic" xmlns="http://docs.oasis-open.org/odata/ns/edm">
       <EntityType Name="Customer">
+        <Annotation Term="Test.Basic.Info" Qualifier="Business" String="客户的正式商业名称" />
         <Key>
           <PropertyRef Name="ID"/>
         </Key>
@@ -23,6 +24,10 @@
         <Member Name="Pending" Value="3"/>
       </EnumType>
       
+      <Term Name="Info" Type="Edm.String">
+        <Annotation Term="Core.Description" String="用于提供额外信息的术语" />
+      </Term>
+
       <EntityContainer Name="BasicContainer">
         <EntitySet Name="Customers" EntityType="Test.Basic.Customer"/>
       </EntityContainer>

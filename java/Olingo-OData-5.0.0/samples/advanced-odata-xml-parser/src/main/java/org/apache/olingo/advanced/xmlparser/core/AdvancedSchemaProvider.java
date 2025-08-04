@@ -143,6 +143,19 @@ public class AdvancedSchemaProvider extends SchemaBasedEdmProvider {
     public ValidationResult validateSchema(String xmlSchemaPath) throws Exception {
         return parser.validateSchema(delegateProvider, xmlSchemaPath);
     }
+
+    /**
+     * Validate an OData 4 XML file against this provider using new OperationResult.
+     * This method does not modify this provider.
+     * 
+     * @param xmlSchemaPath Path to the OData 4 XML file to validate
+     * @return OperationResult containing validation details and any conflicts
+     * @throws Exception if validation fails
+     */
+    public OperationResult validateSchemaNew(String xmlSchemaPath) throws Exception {
+        ValidationResult oldResult = parser.validateSchema(delegateProvider, xmlSchemaPath);
+        return convertValidationResult(oldResult);
+    }
     
     /**
      * Validate schemas in a directory against this provider.
@@ -188,6 +201,46 @@ public class AdvancedSchemaProvider extends SchemaBasedEdmProvider {
             refreshFromDelegate();
         }
         return result;
+    }
+
+    /**
+     * Merge schemas from a directory using new OperationResult.
+     * This method modifies this provider by adding new schemas.
+     * 
+     * @param schemaDirectory Path to the directory containing OData 4 XML files
+     * @return OperationResult containing merge details and any conflicts
+     * @throws Exception if merge fails
+     */
+    public OperationResult mergeSchemas(String schemaDirectory) throws Exception {
+        MergeResult oldResult = mergeSchemaDirectory(schemaDirectory);
+        return convertMergeResult(oldResult);
+    }
+
+    /**
+     * Merge a single schema file using new OperationResult.
+     * This method modifies this provider by adding new schemas.
+     * 
+     * @param xmlSchemaPath Path to the OData 4 XML file to merge
+     * @return OperationResult containing merge details and any conflicts
+     * @throws Exception if merge fails
+     */
+    public OperationResult mergeSchemaFile(String xmlSchemaPath) throws Exception {
+        MergeResult oldResult = mergeSchema(xmlSchemaPath);
+        return convertMergeResult(oldResult);
+    }
+
+    /**
+     * Legacy support method for tests - validates schema and returns MergeResult wrapper
+     */
+    public ValidationResult validateSchemaLegacy(String xmlSchemaPath) throws Exception {
+        return validateSchema(xmlSchemaPath);
+    }
+
+    /**
+     * Legacy support method for tests - merges schemas and returns MergeResult wrapper
+     */
+    public MergeResult mergeSchemasLegacy(String xmlSchemaPath) throws Exception {
+        return mergeSchema(xmlSchemaPath);
     }
     
     /**
@@ -276,5 +329,61 @@ public class AdvancedSchemaProvider extends SchemaBasedEdmProvider {
     @Override
     public CsdlTerm getTerm(FullQualifiedName termName) throws ODataException {
         return delegateProvider.getTerm(termName);
+    }
+
+    /**
+     * Convert ValidationResult to OperationResult
+     */
+    private OperationResult convertValidationResult(ValidationResult validationResult) {
+        OperationResult operationResult = new OperationResult(OperationType.VALIDATION);
+        
+        // Convert errors
+        for (String error : validationResult.getErrorMessages()) {
+            operationResult.addError(ResultType.VALIDATION_FAILED, error);
+        }
+        
+        // Convert warnings
+        for (String warning : validationResult.getWarningMessages()) {
+            operationResult.addWarning(ResultType.SCHEMA_WARNING, warning);
+        }
+        
+        // Convert info messages - add VALIDATION_PASSED if successful
+        if (validationResult.isSuccessful()) {
+            operationResult.addInfo(ResultType.VALIDATION_PASSED, "Schema validation completed successfully");
+        }
+        
+        for (String info : validationResult.getMessages()) {
+            operationResult.addInfo(ResultType.SUCCESS, info);
+        }
+        
+        return operationResult;
+    }
+
+    /**
+     * Convert MergeResult to OperationResult
+     */
+    private OperationResult convertMergeResult(MergeResult mergeResult) {
+        OperationResult operationResult = new OperationResult(OperationType.MERGE);
+        
+        // Convert errors
+        for (String error : mergeResult.getErrorMessages()) {
+            operationResult.addError(ResultType.MERGE_CONFLICT, error);
+        }
+        
+        // Convert warnings
+        for (String warning : mergeResult.getWarningMessages()) {
+            operationResult.addWarning(ResultType.SCHEMA_WARNING, warning);
+        }
+        
+        // Convert info messages - add MERGE_COMPLETED if successful
+        if (mergeResult.isSuccessful()) {
+            operationResult.addInfo(ResultType.MERGE_COMPLETED, "Schema merge completed successfully");
+        }
+        
+        for (String info : mergeResult.getMessages()) {
+            operationResult.addInfo(ResultType.SUCCESS, info);
+        }
+        
+        return operationResult;
     }
 }

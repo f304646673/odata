@@ -18,128 +18,87 @@
  */
 package org.apache.olingo.advanced.xmlparser.core;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Result of schema validation operation
+ * @deprecated Use OperationResult instead
  */
-public class ValidationResult {
-    private final List<String> errors = new ArrayList<>();
-    private final List<String> warnings = new ArrayList<>();
-    private final List<String> messages = new ArrayList<>();
-    private boolean isValid = true;
+@Deprecated
+public class ValidationResult extends OperationResult {
+    
+    public ValidationResult() {
+        super(OperationType.VALIDATION);
+    }
     
     /**
      * Add an error message
+     * @deprecated Use addError(ResultType, String) instead
      */
+    @Deprecated
     public void addError(String error) {
-        errors.add(error);
-        isValid = false;
+        addError(ResultType.SCHEMA_INVALID, error);
     }
     
     /**
      * Add a warning message
+     * @deprecated Use addWarning(ResultType, String) instead
      */
+    @Deprecated
     public void addWarning(String warning) {
-        warnings.add(warning);
+        addWarning(ResultType.SCHEMA_WARNING, warning);
     }
     
     /**
      * Add an informational message
+     * @deprecated Use addInfo(String) instead
      */
+    @Deprecated
     public void addMessage(String message) {
-        messages.add(message);
+        addInfo(message);
     }
     
     /**
-     * Check if validation has errors
+     * Get error messages as strings
+     * @deprecated Use getErrors() and access ResultItem objects instead
      */
-    public boolean hasErrors() {
-        return !errors.isEmpty();
+    @Deprecated
+    public List<String> getErrorMessages() {
+        return getErrors().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
     }
     
     /**
-     * Check if validation has warnings
+     * Get warning messages as strings
+     * @deprecated Use getWarnings() and access ResultItem objects instead
      */
-    public boolean hasWarnings() {
-        return !warnings.isEmpty();
+    @Deprecated
+    public List<String> getWarningMessages() {
+        return getWarnings().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
     }
     
     /**
-     * Check if validation is successful
+     * Get informational messages as strings
+     * @deprecated Use getItems() and filter for non-error/non-warning items instead
      */
-    public boolean isValid() {
-        return isValid && errors.isEmpty();
-    }
-    
-    /**
-     * Get all error messages
-     */
-    public List<String> getErrors() {
-        return new ArrayList<>(errors);
-    }
-    
-    /**
-     * Get all warning messages
-     */
-    public List<String> getWarnings() {
-        return new ArrayList<>(warnings);
-    }
-    
-    /**
-     * Get all informational messages
-     */
+    @Deprecated
     public List<String> getMessages() {
-        return new ArrayList<>(messages);
+        return getItems().stream()
+                .filter(item -> !item.isError() && !item.isWarning())
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
     }
     
     /**
      * Merge another validation result into this one
+     * @deprecated Use merge(OperationResult) instead
      */
+    @Deprecated
     public void merge(ValidationResult other) {
-        this.errors.addAll(other.errors);
-        this.warnings.addAll(other.warnings);
-        this.messages.addAll(other.messages);
-        this.isValid = this.isValid && other.isValid;
-    }
-    
-    /**
-     * Get a summary of the validation result
-     */
-    public String getSummary() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Validation Result: ").append(isValid() ? "SUCCESS" : "FAILED").append("\n");
-        sb.append("Errors: ").append(errors.size()).append("\n");
-        sb.append("Warnings: ").append(warnings.size()).append("\n");
-        sb.append("Messages: ").append(messages.size()).append("\n");
-        
-        if (!errors.isEmpty()) {
-            sb.append("\nErrors:\n");
-            for (String error : errors) {
-                sb.append("  - ").append(error).append("\n");
-            }
-        }
-        
-        if (!warnings.isEmpty()) {
-            sb.append("\nWarnings:\n");
-            for (String warning : warnings) {
-                sb.append("  - ").append(warning).append("\n");
-            }
-        }
-        
-        if (!messages.isEmpty()) {
-            sb.append("\nMessages:\n");
-            for (String message : messages) {
-                sb.append("  - ").append(message).append("\n");
-            }
-        }
-        
-        return sb.toString();
-    }
-    
-    @Override
-    public String toString() {
-        return getSummary();
+        super.merge(other);
     }
 }

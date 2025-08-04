@@ -18,39 +18,47 @@
  */
 package org.apache.olingo.advanced.xmlparser.core;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Result of schema merge operation
+ * @deprecated Use OperationResult instead
  */
-public class MergeResult {
-    private final List<String> errors = new ArrayList<>();
-    private final List<String> warnings = new ArrayList<>();
-    private final List<String> messages = new ArrayList<>();
+@Deprecated
+public class MergeResult extends OperationResult {
+    
     private ValidationResult validationResult;
-    private boolean isSuccessful = true;
+    
+    public MergeResult() {
+        super(OperationType.MERGE);
+    }
     
     /**
      * Add an error message
+     * @deprecated Use addError(ResultType, String) instead
      */
+    @Deprecated
     public void addError(String error) {
-        errors.add(error);
-        isSuccessful = false;
+        addError(ResultType.MERGE_CONFLICT, error);
     }
     
     /**
      * Add a warning message
+     * @deprecated Use addWarning(ResultType, String) instead
      */
+    @Deprecated
     public void addWarning(String warning) {
-        warnings.add(warning);
+        addWarning(ResultType.TYPE_OVERRIDDEN, warning);
     }
     
     /**
      * Add an informational message
+     * @deprecated Use addInfo(String) instead
      */
+    @Deprecated
     public void addMessage(String message) {
-        messages.add(message);
+        addInfo(message);
     }
     
     /**
@@ -59,7 +67,7 @@ public class MergeResult {
     public void setValidationResult(ValidationResult validationResult) {
         this.validationResult = validationResult;
         if (validationResult != null && validationResult.hasErrors()) {
-            this.isSuccessful = false;
+            addError(ResultType.MERGE_VALIDATION_FAILED, "Pre-merge validation failed");
         }
     }
     
@@ -71,53 +79,57 @@ public class MergeResult {
     }
     
     /**
-     * Check if merge has errors
-     */
-    public boolean hasErrors() {
-        return !errors.isEmpty() || (validationResult != null && validationResult.hasErrors());
-    }
-    
-    /**
-     * Check if merge has warnings
-     */
-    public boolean hasWarnings() {
-        return !warnings.isEmpty() || (validationResult != null && validationResult.hasWarnings());
-    }
-    
-    /**
      * Check if merge is successful
+     * @deprecated Use isSuccessful() instead
      */
+    @Deprecated
     public boolean isSuccessful() {
-        return isSuccessful && !hasErrors();
+        return super.isSuccessful() && (validationResult == null || validationResult.isSuccessful());
     }
     
     /**
-     * Get all error messages (including validation errors)
+     * Get error messages as strings
+     * @deprecated Use getErrors() and access ResultItem objects instead
      */
-    public List<String> getErrors() {
-        List<String> allErrors = new ArrayList<>(errors);
+    @Deprecated
+    public List<String> getErrorMessages() {
+        List<String> allErrors = super.getErrors().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+        
         if (validationResult != null) {
-            allErrors.addAll(validationResult.getErrors());
+            allErrors.addAll(validationResult.getErrorMessages());
         }
         return allErrors;
     }
     
     /**
-     * Get all warning messages (including validation warnings)
+     * Get warning messages as strings
+     * @deprecated Use getWarnings() and access ResultItem objects instead
      */
-    public List<String> getWarnings() {
-        List<String> allWarnings = new ArrayList<>(warnings);
+    @Deprecated
+    public List<String> getWarningMessages() {
+        List<String> allWarnings = super.getWarnings().stream()
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+        
         if (validationResult != null) {
-            allWarnings.addAll(validationResult.getWarnings());
+            allWarnings.addAll(validationResult.getWarningMessages());
         }
         return allWarnings;
     }
     
     /**
-     * Get all informational messages (including validation messages)
+     * Get informational messages as strings
+     * @deprecated Use getItems() and filter for non-error/non-warning items instead
      */
+    @Deprecated
     public List<String> getMessages() {
-        List<String> allMessages = new ArrayList<>(messages);
+        List<String> allMessages = getItems().stream()
+                .filter(item -> !item.isError() && !item.isWarning())
+                .map(item -> item.getMessage())
+                .collect(Collectors.toList());
+        
         if (validationResult != null) {
             allMessages.addAll(validationResult.getMessages());
         }
@@ -126,12 +138,11 @@ public class MergeResult {
     
     /**
      * Merge another merge result into this one
+     * @deprecated Use merge(OperationResult) instead
      */
+    @Deprecated
     public void merge(MergeResult other) {
-        this.errors.addAll(other.errors);
-        this.warnings.addAll(other.warnings);
-        this.messages.addAll(other.messages);
-        this.isSuccessful = this.isSuccessful && other.isSuccessful;
+        super.merge(other);
         
         // Merge validation results if they exist
         if (other.validationResult != null) {
@@ -140,52 +151,5 @@ public class MergeResult {
             }
             this.validationResult.merge(other.validationResult);
         }
-    }
-    
-    /**
-     * Get a summary of the merge result
-     */
-    public String getSummary() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Merge Result: ").append(isSuccessful() ? "SUCCESS" : "FAILED").append("\n");
-        sb.append("Errors: ").append(getErrors().size()).append("\n");
-        sb.append("Warnings: ").append(getWarnings().size()).append("\n");
-        sb.append("Messages: ").append(getMessages().size()).append("\n");
-        
-        List<String> allErrors = getErrors();
-        if (!allErrors.isEmpty()) {
-            sb.append("\nErrors:\n");
-            for (String error : allErrors) {
-                sb.append("  - ").append(error).append("\n");
-            }
-        }
-        
-        List<String> allWarnings = getWarnings();
-        if (!allWarnings.isEmpty()) {
-            sb.append("\nWarnings:\n");
-            for (String warning : allWarnings) {
-                sb.append("  - ").append(warning).append("\n");
-            }
-        }
-        
-        List<String> allMessages = getMessages();
-        if (!allMessages.isEmpty()) {
-            sb.append("\nMessages:\n");
-            for (String message : allMessages) {
-                sb.append("  - ").append(message).append("\n");
-            }
-        }
-        
-        if (validationResult != null) {
-            sb.append("\nValidation Details:\n");
-            sb.append(validationResult.getSummary());
-        }
-        
-        return sb.toString();
-    }
-    
-    @Override
-    public String toString() {
-        return getSummary();
     }
 }

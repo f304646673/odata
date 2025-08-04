@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Test.Empty">
+      <!-- This schema is empty with no entity types, complex types, etc. -->
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>
