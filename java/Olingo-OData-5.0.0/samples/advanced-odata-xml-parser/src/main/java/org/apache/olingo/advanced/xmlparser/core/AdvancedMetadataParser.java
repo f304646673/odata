@@ -43,7 +43,6 @@ import org.apache.olingo.advanced.xmlparser.schema.ISchemaMerger;
 import org.apache.olingo.advanced.xmlparser.schema.SchemaMerger;
 import org.apache.olingo.advanced.xmlparser.schema.ISchemaValidator;
 import org.apache.olingo.advanced.xmlparser.schema.SchemaValidator;
-import org.apache.olingo.advanced.xmlparser.schema.TypeRegistry;
 import org.apache.olingo.advanced.xmlparser.dependency.IDependencyGraphManager;
 import org.apache.olingo.advanced.xmlparser.dependency.DependencyGraphManager;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -57,7 +56,7 @@ import org.apache.olingo.server.core.SchemaBasedEdmProvider;
  * Modular Advanced Metadata Parser that uses composition of smaller modules
  * to handle complex OData schema parsing with dependency resolution.
  */
-public class ModularAdvancedMetadataParser {
+public class AdvancedMetadataParser {
     
     private boolean detectCircularDependencies = true;
     private boolean allowCircularDependencies = false;
@@ -79,7 +78,7 @@ public class ModularAdvancedMetadataParser {
     /**
      * Constructor
      */
-    public ModularAdvancedMetadataParser() {
+    public AdvancedMetadataParser() {
         this.underlyingParser = new MetadataParser();
         
         // Initialize modular components
@@ -105,28 +104,28 @@ public class ModularAdvancedMetadataParser {
     /**
      * Configuration methods
      */
-    public ModularAdvancedMetadataParser detectCircularDependencies(boolean detect) {
+    public AdvancedMetadataParser detectCircularDependencies(boolean detect) {
         this.detectCircularDependencies = detect;
         return this;
     }
     
-    public ModularAdvancedMetadataParser allowCircularDependencies(boolean allow) {
+    public AdvancedMetadataParser allowCircularDependencies(boolean allow) {
         this.allowCircularDependencies = allow;
         return this;
     }
     
-    public ModularAdvancedMetadataParser enableCaching(boolean enable) {
+    public AdvancedMetadataParser enableCaching(boolean enable) {
         this.enableCaching = enable;
         this.cacheManager.setEnabled(enable);
         return this;
     }
     
-    public ModularAdvancedMetadataParser maxDependencyDepth(int depth) {
+    public AdvancedMetadataParser maxDependencyDepth(int depth) {
         this.maxDependencyDepth = depth;
         return this;
     }
     
-    public ModularAdvancedMetadataParser addReferenceResolver(ReferenceResolver resolver) {
+    public AdvancedMetadataParser addReferenceResolver(ReferenceResolver resolver) {
         this.referenceManager.addReferenceResolver(resolver);
         return this;
     }

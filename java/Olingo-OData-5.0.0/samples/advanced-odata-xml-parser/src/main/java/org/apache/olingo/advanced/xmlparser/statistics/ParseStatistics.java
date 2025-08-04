@@ -80,7 +80,7 @@ public class ParseStatistics {
     }
     public void addParsingTime(long time) { totalParsingTime += time; }
     
-    // Additional methods for ModularAdvancedMetadataParser
+    // Additional methods for AdvancedMetadataParser
     public void recordStart() { startTime = System.currentTimeMillis(); }
     public void recordEnd() { endTime = System.currentTimeMillis(); }
     public void incrementSchemasProcessed() { schemasProcessed++; }

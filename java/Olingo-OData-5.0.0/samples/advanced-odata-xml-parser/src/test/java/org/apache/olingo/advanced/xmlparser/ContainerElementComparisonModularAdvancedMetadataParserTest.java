@@ -2,10 +2,10 @@ package org.apache.olingo.advanced.xmlparser;
 
 import java.util.List;
 
+import org.apache.olingo.advanced.xmlparser.core.AdvancedMetadataParser;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.server.core.SchemaBasedEdmProvider;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import org.apache.olingo.advanced.xmlparser.core.ModularAdvancedMetadataParser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -15,19 +15,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Comprehensive unit tests for container element comparison methods in ModularAdvancedMetadataParser.
+ * Comprehensive unit tests for container element comparison methods in AdvancedMetadataParser.
  * Tests the strict OData 4.0 spec-compliant comparison logic for EntitySets, ActionImports,
  * FunctionImports, Singletons, and NavigationPropertyBindings.
  */
-class ContainerElementComparisonModularModularAdvancedMetadataParser {
+class ContainerElementComparisonModularAdvancedMetadataParser {
 
-    private ModularAdvancedMetadataParser parser;
+    private AdvancedMetadataParser parser;
     private String testResourcesPath;
     private String testResourcesRootPath;
 
     @BeforeEach
     void setUp() {
-        parser = new ModularAdvancedMetadataParser();
+        parser = new AdvancedMetadataParser();
         // Get the test resources path
         testResourcesPath = getClass().getClassLoader().getResource("test-xml").getPath();
         testResourcesRootPath = getClass().getClassLoader().getResource(".").getPath();
@@ -60,7 +60,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 
@@ -90,7 +90,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 
@@ -119,7 +119,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 
@@ -148,7 +148,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 
@@ -177,7 +177,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 
@@ -206,7 +206,7 @@ class ContainerElementComparisonModularModularAdvancedMetadataParser {
                 CsdlSchema csdlSchema2 = schemas2.get(0);
 
                 // Use reflection to test the private method areSchemasIdentical
-                java.lang.reflect.Method method = ModularAdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
+                java.lang.reflect.Method method = AdvancedMetadataParser.class.getDeclaredMethod("areSchemasIdentical", CsdlSchema.class, CsdlSchema.class);
                 method.setAccessible(true);
                 boolean identical = (Boolean) method.invoke(parser, csdlSchema1, csdlSchema2);
 

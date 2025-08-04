@@ -24,7 +24,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.olingo.advanced.xmlparser.core.ModularAdvancedMetadataParser;
+import org.apache.olingo.advanced.xmlparser.core.AdvancedMetadataParser;
 import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.advanced.xmlparser.statistics.ErrorType;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
@@ -46,20 +46,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Comprehensive test suite for ModularAdvancedMetadataParser covering all functionality.
+ * Comprehensive test suite for AdvancedMetadataParser covering all functionality.
  * Tests demonstrate the powerful features of the parser including dependency resolution,
  * circular dependency detection, caching, statistics, and error handling.
  */
-@DisplayName("ModularAdvancedMetadataParser Comprehensive Tests")
-public class ModularAdvancedMetadataParserTest {
+@DisplayName("AdvancedMetadataParser Comprehensive Tests")
+public class AdvancedMetadataParserTest {
 
-    private ModularAdvancedMetadataParser parser;
+    private AdvancedMetadataParser parser;
     private String testResourcesPath;
     private String testResourcesRootPath;
 
     @BeforeEach
     void setUp() {
-        parser = new ModularAdvancedMetadataParser();
+        parser = new AdvancedMetadataParser();
         // Get the test resources path
         testResourcesPath = getClass().getClassLoader().getResource("schemas").getPath();
         testResourcesRootPath = getClass().getClassLoader().getResource(".").getPath();
@@ -124,7 +124,7 @@ public class ModularAdvancedMetadataParserTest {
     void testParseAnnotatedSchema() throws Exception {
         String schemaPath = testResourcesPath + "/simple/annotated-schema.xml";
         
-        // Note: ModularAdvancedMetadataParser doesn't expose parseAnnotations directly
+        // Note: AdvancedMetadataParser doesn't expose parseAnnotations directly
         // The underlying parser is configured to parse annotations by default
         SchemaBasedEdmProvider provider = parser.buildEdmProvider(schemaPath);
         
@@ -399,7 +399,7 @@ public class ModularAdvancedMetadataParserTest {
     @DisplayName("Test configuration method chaining")
     void testConfigurationChaining() {
         // Test fluent API
-        ModularAdvancedMetadataParser configuredParser = new ModularAdvancedMetadataParser()
+        AdvancedMetadataParser configuredParser = new AdvancedMetadataParser()
             .detectCircularDependencies(true)
             .allowCircularDependencies(false)
             .enableCaching(true)
