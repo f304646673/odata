@@ -490,10 +490,63 @@ public class SchemaValidator implements ISchemaValidator {
     }
     
     private boolean areComplexTypesCompatible(CsdlComplexType existing, CsdlComplexType newType) {
-        // Simple compatibility check - just check if they have the same base type
-        if (existing.getBaseType() == null && newType.getBaseType() == null) return true;
-        if (existing.getBaseType() == null || newType.getBaseType() == null) return false;
+        // Check base type compatibility
+        if (existing.getBaseType() == null && newType.getBaseType() == null) {
+            // Both have no base type, check property compatibility
+            return arePropertiesCompatible(existing.getProperties(), newType.getProperties());
+        }
+        if (existing.getBaseType() == null || newType.getBaseType() == null) {
+            return false; // One has base type, other doesn't
+        }
         
-        return existing.getBaseType().equals(newType.getBaseType());
+        // Both have base types, they must be the same
+        if (!existing.getBaseType().equals(newType.getBaseType())) {
+            return false;
+        }
+        
+        // Check property compatibility
+        return arePropertiesCompatible(existing.getProperties(), newType.getProperties());
+    }
+    
+    /**
+     * Check if two property lists are compatible
+     */
+    private boolean arePropertiesCompatible(java.util.List<CsdlProperty> existingProps, java.util.List<CsdlProperty> newProps) {
+        if (existingProps == null && newProps == null) return true;
+        if (existingProps == null || newProps == null) return false;
+        
+        // Create maps for easier comparison
+        Map<String, CsdlProperty> existingMap = new HashMap<>();
+        for (CsdlProperty prop : existingProps) {
+            existingMap.put(prop.getName(), prop);
+        }
+        
+        Map<String, CsdlProperty> newMap = new HashMap<>();
+        for (CsdlProperty prop : newProps) {
+            newMap.put(prop.getName(), prop);
+        }
+        
+        // If the property sets are different, they're incompatible
+        if (!existingMap.keySet().equals(newMap.keySet())) {
+            return false;
+        }
+        
+        // Check each property for type compatibility
+        for (String propName : existingMap.keySet()) {
+            CsdlProperty existingProp = existingMap.get(propName);
+            CsdlProperty newProp = newMap.get(propName);
+            
+            // Check type compatibility
+            if (!existingProp.getType().equals(newProp.getType())) {
+                return false;
+            }
+            
+            // Check nullability compatibility
+            if (existingProp.isNullable() != newProp.isNullable()) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

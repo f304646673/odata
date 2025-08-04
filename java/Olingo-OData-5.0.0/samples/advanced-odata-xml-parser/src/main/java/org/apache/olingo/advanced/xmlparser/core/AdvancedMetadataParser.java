@@ -75,6 +75,7 @@ public class AdvancedMetadataParser {
     private final IReferenceResolverManager referenceManager;
     private final ISchemaValidator schemaValidator;
     private final ICacheManager cacheManager;
+    private final QualifierFixer qualifierFixer;
     
     /**
      * Constructor
@@ -89,6 +90,7 @@ public class AdvancedMetadataParser {
         this.referenceManager = new ReferenceResolverManager();
         this.schemaValidator = new SchemaValidator(statistics);
         this.cacheManager = new CacheManager(enableCaching);
+        this.qualifierFixer = new QualifierFixer();
         
         // Add default reference resolvers
         referenceManager.addReferenceResolver(new ClassPathReferenceResolver());
@@ -296,6 +298,14 @@ public class AdvancedMetadataParser {
             
             // Parse schema using configured parser
             SchemaBasedEdmProvider schemaProvider = parser.buildEdmProvider(new InputStreamReader(inputStream));
+            
+            // Fix missing qualifiers using our QualifierFixer
+            try {
+                qualifierFixer.fixQualifiers(schemaProvider, schemaPath);
+            } catch (Exception e) {
+                statistics.addError(ResultType.PARSING_ERROR, "Failed to fix qualifiers", schemaPath, e);
+                // Continue without qualifier fix - not critical
+            }
             
             // Cache the provider
             if (enableCaching) {

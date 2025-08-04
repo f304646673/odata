@@ -108,7 +108,7 @@ public enum ResultType {
      * Check if this is an error type
      */
     public boolean isError() {
-        return this.ordinal() <= SCHEMA_RESOLUTION_FAILED.ordinal();
+        return this.ordinal() <= INVALID_PARAMETER.ordinal();
     }
     
     /**

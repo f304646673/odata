@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.advanced.xmlparser.core.AdvancedMetadataParser;
-import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.advanced.xmlparser.core.ResultType;
+import org.apache.olingo.advanced.xmlparser.statistics.ParseStatistics;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -91,140 +91,14 @@ public class AdvancedMetadataParserTest {
         assertEquals("Customer", customerType.getName());
         assertEquals(3, customerType.getProperties().size());
         
-        // Debug: Let's also try directly with Olingo's MetadataParser to compare
-        try {
-            org.apache.olingo.server.core.MetadataParser directParser = new org.apache.olingo.server.core.MetadataParser()
-                .parseAnnotations(true)
-                .useLocalCoreVocabularies(true)
-                .implicitlyLoadCoreVocabularies(true);
-            
-            java.io.FileInputStream directInputStream = new java.io.FileInputStream(schemaPath);
-            SchemaBasedEdmProvider directProvider = 
-                directParser.buildEdmProvider(new java.io.InputStreamReader(directInputStream));
-            directInputStream.close();
-            
-            // Check annotations with direct parser
-            System.out.println("=== Direct Olingo Parser Results ===");
-            if (!directProvider.getSchemas().isEmpty()) {
-                CsdlSchema directSchema = directProvider.getSchemas().get(0);
-                if (directSchema.getEntityTypes() != null && !directSchema.getEntityTypes().isEmpty()) {
-                    CsdlEntityType directCustomerType = directSchema.getEntityTypes().get(0);
-                    System.out.println("Direct parser annotations: " + directCustomerType.getAnnotations());
-                    if (directCustomerType.getAnnotations() != null && !directCustomerType.getAnnotations().isEmpty()) {
-                        CsdlAnnotation directAnnotation = directCustomerType.getAnnotations().get(0);
-                        System.out.println("Direct annotation qualifier: " + directAnnotation.getQualifier());
-                        System.out.println("Direct annotation class: " + directAnnotation.getClass().getName());
-                        
-                        // 让我们通过反射来检查一下Qualifier字段
-                        try {
-                            java.lang.reflect.Field qualifierField = directAnnotation.getClass().getDeclaredField("qualifier");
-                            qualifierField.setAccessible(true);
-                            Object qualifierValue = qualifierField.get(directAnnotation);
-                            System.out.println("Direct annotation qualifier by reflection: " + qualifierValue);
-                        } catch (Exception e) {
-                            System.out.println("Failed to access qualifier field: " + e.getMessage());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Direct parser test failed: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        // Debug: Let's check what annotations are actually available
-        System.out.println("=== Advanced Parser Results ===");
-        System.out.println("Customer entity annotations: " + customerType.getAnnotations());
-        if (customerType.getAnnotations() != null && !customerType.getAnnotations().isEmpty()) {
-            CsdlAnnotation annotation = customerType.getAnnotations().get(0);
-            System.out.println("First annotation: " + annotation);
-            System.out.println("Annotation term: " + annotation.getTerm());
-            System.out.println("Annotation qualifier: " + annotation.getQualifier());
-            System.out.println("Annotation expression: " + annotation.getExpression());
-            System.out.println("Annotation class: " + annotation.getClass().getName());
-            
-            // 让我们通过反射来检查一下
-            try {
-                // 直接列出所有字段，不依赖于具体字段名
-                java.lang.reflect.Field[] fields = annotation.getClass().getDeclaredFields();
-                System.out.println("Available fields in annotation class:");
-                for (java.lang.reflect.Field field : fields) {
-                    field.setAccessible(true);
-                    Object value = field.get(annotation);
-                    System.out.println("  " + field.getName() + " (" + field.getType().getSimpleName() + "): " + value);
-                }
-            } catch (Exception e) {
-                System.out.println("Failed to access annotation fields: " + e.getMessage());
-            }
-        } else {
-            System.out.println("No annotations found on Customer entity!");
-        }
-        
-        // 我们发现了Olingo 5.0.0的一个bug：readAnnotations方法没有解析Qualifier属性
-        // 解决方案：我们需要手动从XML中解析Qualifier并设置到Annotation中
-        
-        System.out.println("=== Olingo Bug Detection: Missing Qualifier Parsing ===");
-        System.out.println("Olingo 5.0.0 MetadataParser.readAnnotations() method doesn't parse Qualifier attribute!");
-        System.out.println("This is a confirmed bug in lib/server-core-ext/src/main/java/org/apache/olingo/server/core/MetadataParser.java");
-        System.out.println("Line 655-667: readAnnotations method only sets Term and Expression, but missing Qualifier");
-        
-        // 现在让我们创建一个修复方案
-        System.out.println("=== Workaround Solution ===");
-        
-        // 手动从XML解析Qualifier
-        String xmlContent;
-        try (java.io.FileInputStream xmlInputStream = new java.io.FileInputStream(schemaPath);
-             java.io.InputStreamReader xmlReader = new java.io.InputStreamReader(xmlInputStream, "UTF-8")) {
-            StringBuilder sb = new StringBuilder();
-            char[] buffer = new char[1024];
-            int bytesRead;
-            while ((bytesRead = xmlReader.read(buffer)) != -1) {
-                sb.append(buffer, 0, bytesRead);
-            }
-            xmlContent = sb.toString();
-        }
-        
-        // 使用正则表达式提取Qualifier
-        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(
-            "<Annotation\\s+Term=\"([^\"]+)\"\\s+Qualifier=\"([^\"]+)\"");
-        java.util.regex.Matcher matcher = pattern.matcher(xmlContent);
-        
-        String expectedQualifier = null;
-        while (matcher.find()) {
-            String term = matcher.group(1);
-            String qualifier = matcher.group(2);
-            if ("Test.Basic.Info".equals(term)) {
-                expectedQualifier = qualifier;
-                System.out.println("Found in XML - Term: " + term + ", Qualifier: " + qualifier);
-                break;
-            }
-        }
-        
-        if (expectedQualifier != null && customerType.getAnnotations() != null && !customerType.getAnnotations().isEmpty()) {
-            // 手动设置Qualifier到Annotation（作为解决方案）
-            CsdlAnnotation annotation = customerType.getAnnotations().get(0);
-            annotation.setQualifier(expectedQualifier);
-            System.out.println("Manually set qualifier to: " + expectedQualifier);
-            System.out.println("Annotation after fix - Qualifier: " + annotation.getQualifier());
-        }
-        
-        // Also check schema-level annotations
-        System.out.println("Schema annotation groups: " + schema.getAnnotationGroups());
-        if (schema.getAnnotationGroups() != null && !schema.getAnnotationGroups().isEmpty()) {
-            System.out.println("Number of annotation groups: " + schema.getAnnotationGroups().size());
-            for (int i = 0; i < schema.getAnnotationGroups().size(); i++) {
-                System.out.println("Annotation group " + i + ": " + schema.getAnnotationGroups().get(i));
-            }
-        }
-        
-        // Check that annotation qualifier is properly retrieved (now should work with our fix)
+        // Check that annotation qualifier is properly retrieved (with Olingo bug fix)
         assertNotNull(customerType.getAnnotations());
         assertFalse(customerType.getAnnotations().isEmpty());
         
-        CsdlAnnotation finalAnnotation = customerType.getAnnotations().get(0);
-        assertEquals("Test.Basic.Info", finalAnnotation.getTerm());
-        assertEquals("Business", finalAnnotation.getQualifier()); // This should now work with our fix
-        assertNotNull(finalAnnotation.getExpression());
+        CsdlAnnotation annotation = customerType.getAnnotations().get(0);
+        assertEquals("Test.Basic.Info", annotation.getTerm());
+        assertEquals("Business", annotation.getQualifier()); // Should work with the MetadataParser fix
+        assertNotNull(annotation.getExpression());
         
         // Verify complex types
         assertNotNull(schema.getComplexTypes());
