@@ -129,4 +129,22 @@ public class ParseStatistics {
         ErrorInfo error = new ErrorInfo(type, description, context, cause);
         errors.add(error);
     }
+
+    /**
+     * Reset all statistics to initial values
+     */
+    public void reset() {
+        totalFilesProcessed = 0;
+        cachedFilesReused = 0;
+        circularDependenciesDetected = 0;
+        maxDepthReached = 0;
+        totalParsingTime = 0;
+        startTime = 0;
+        endTime = 0;
+        schemasProcessed = 0;
+        schemasLoaded = 0;
+        totalTime = 0;
+        loadOrder.clear();
+        errors.clear();
+    }
 }

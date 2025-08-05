@@ -320,6 +320,7 @@ public class AdvancedMetadataParser {
                 addReferenceUsingReflection(targetProvider, reference);
             }
             
+            // Count this as a processed file only if it's not already counted
             statistics.incrementFilesProcessed();
             
         } catch (Exception e) {
@@ -397,14 +398,13 @@ public class AdvancedMetadataParser {
     }
     
     /**
-     * Clear internal state
+     * Clear internal state for new parsing operation
      */
     private void clearState() {
-        dependencyManager.clearState();
         errorReport.clear();
-        
-        // Note: we don't clear the cache here as it should persist across builds
-        // unless explicitly disabled
+        // Don't reset statistics completely, just clear error state
+        // Keep file processing counts for cumulative statistics across operations
+        dependencyManager.clearState();
     }
     
     /**

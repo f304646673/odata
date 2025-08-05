@@ -48,36 +48,42 @@ public class DependencyGraphManager implements IDependencyGraphManager {
      * Add dependency to the graph
      */
     public void addDependency(String source, String target) {
-        dependencyGraph.computeIfAbsent(source, k -> new HashSet<>()).add(target);
+        String normalizedSource = normalizePath(source);
+        String normalizedTarget = normalizePath(target);
+        dependencyGraph.computeIfAbsent(normalizedSource, k -> new HashSet<>()).add(normalizedTarget);
     }
     
     /**
      * Check if schema is currently being loaded (to detect circular dependencies)
      */
     public boolean isCurrentlyLoading(String schemaPath) {
-        return currentlyLoading.contains(schemaPath);
+        String normalized = normalizePath(schemaPath);
+        return currentlyLoading.contains(normalized);
     }
     
     /**
      * Mark schema as currently loading
      */
     public void markLoading(String schemaPath) {
-        currentlyLoading.add(schemaPath);
+        String normalized = normalizePath(schemaPath);
+        currentlyLoading.add(normalized);
     }
     
     /**
      * Mark schema as finished loading
      */
     public void markFinished(String schemaPath) {
-        currentlyLoading.remove(schemaPath);
-        processedSchemas.add(schemaPath);
+        String normalized = normalizePath(schemaPath);
+        currentlyLoading.remove(normalized);
+        processedSchemas.add(normalized);
     }
     
     /**
      * Check if dependency graph contains a schema (has been processed)
      */
     public boolean containsSchema(String schemaPath) {
-        return dependencyGraph.containsKey(schemaPath);
+        String normalized = normalizePath(schemaPath);
+        return dependencyGraph.containsKey(normalized);
     }
     
     /**
@@ -206,5 +212,70 @@ public class DependencyGraphManager implements IDependencyGraphManager {
         dependencyGraph.clear();
         currentlyLoading.clear();
         processedSchemas.clear();
+    }
+
+    /**
+     * Normalize path for consistent comparison in circular dependency detection
+     */
+    private String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        // For absolute paths, use them as-is for comparison
+        if (isAbsolutePath(path)) {
+            return path.replace("\\", "/");
+        }
+
+        // Convert different path formats to a canonical form
+        String normalized = path.replace("\\", "/");
+
+        // Remove leading slashes
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+
+        // Handle different resource path formats
+        if (normalized.startsWith("schemas/")) {
+            return normalized;
+        }
+
+        // If it's just a filename in circular directory, normalize it
+        if (!normalized.contains("/") && (normalized.endsWith(".xml"))) {
+            return "schemas/circular/" + normalized;
+        }
+
+        // If it doesn't start with schemas/, assume it's a resource path
+        if (!normalized.startsWith("schemas/")) {
+            return "schemas/" + normalized;
+        }
+
+        return normalized;
+    }
+
+    /**
+     * Check if a path is absolute
+     */
+    private boolean isAbsolutePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+
+        // Windows absolute path (C:\ or D:\ etc.)
+        if (path.length() >= 3 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+            return true;
+        }
+
+        // Unix absolute path (starts with /)
+        if (path.startsWith("/")) {
+            return true;
+        }
+
+        // UNC path (\\server\share)
+        if (path.startsWith("\\\\")) {
+            return true;
+        }
+
+        return false;
     }
 }

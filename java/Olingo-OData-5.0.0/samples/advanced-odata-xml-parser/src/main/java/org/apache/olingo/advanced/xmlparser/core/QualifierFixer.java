@@ -97,14 +97,37 @@ public class QualifierFixer {
      */
     private String readFileContent(String filePath) throws IOException {
         StringBuilder content = new StringBuilder();
+
+        // Try to read as absolute path first
         try (InputStream inputStream = new FileInputStream(filePath)) {
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 content.append(new String(buffer, 0, bytesRead, "UTF-8"));
             }
+            return content.toString();
+        } catch (Exception e) {
+            // If absolute path fails, try as resource
+            try {
+                String resourcePath = filePath;
+                if (!resourcePath.startsWith("schemas/")) {
+                    resourcePath = "schemas/" + resourcePath;
+                }
+                InputStream resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
+                if (resourceStream != null) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = resourceStream.read(buffer)) != -1) {
+                        content.append(new String(buffer, 0, bytesRead, "UTF-8"));
+                    }
+                    resourceStream.close();
+                    return content.toString();
+                }
+            } catch (Exception ex) {
+                // Continue with original exception
+            }
+            throw new IOException("Could not read file: " + filePath, e);
         }
-        return content.toString();
     }
     
     /**
@@ -117,10 +140,31 @@ public class QualifierFixer {
             }
             
             for (CsdlSchema schema : provider.getSchemas()) {
+                // Fix qualifiers in schema-level annotations
+                fixAnnotationQualifiers(schema);
+
                 // Fix qualifiers in entity types
                 if (schema.getEntityTypes() != null) {
                     for (CsdlEntityType entityType : schema.getEntityTypes()) {
                         fixAnnotationQualifiers(entityType);
+
+                        // Fix qualifiers in entity type properties
+                        if (entityType.getProperties() != null) {
+                            for (Object property : entityType.getProperties()) {
+                                if (property instanceof CsdlAnnotatable) {
+                                    fixAnnotationQualifiers((CsdlAnnotatable) property);
+                                }
+                            }
+                        }
+
+                        // Fix qualifiers in navigation properties
+                        if (entityType.getNavigationProperties() != null) {
+                            for (Object navProperty : entityType.getNavigationProperties()) {
+                                if (navProperty instanceof CsdlAnnotatable) {
+                                    fixAnnotationQualifiers((CsdlAnnotatable) navProperty);
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -129,12 +173,174 @@ public class QualifierFixer {
                     for (Object complexType : schema.getComplexTypes()) {
                         if (complexType instanceof CsdlAnnotatable) {
                             fixAnnotationQualifiers((CsdlAnnotatable) complexType);
+
+                            // If complex type has properties, fix them too
+                            try {
+                                Object properties = complexType.getClass().getMethod("getProperties").invoke(complexType);
+                                if (properties instanceof java.util.List) {
+                                    for (Object property : (java.util.List<?>) properties) {
+                                        if (property instanceof CsdlAnnotatable) {
+                                            fixAnnotationQualifiers((CsdlAnnotatable) property);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // Ignore reflection errors
+                            }
                         }
                     }
                 }
-                
-                // Fix qualifiers in other annotatable elements
-                // Add more as needed...
+
+                // Fix qualifiers in enum types
+                if (schema.getEnumTypes() != null) {
+                    for (Object enumType : schema.getEnumTypes()) {
+                        if (enumType instanceof CsdlAnnotatable) {
+                            fixAnnotationQualifiers((CsdlAnnotatable) enumType);
+
+                            // Fix qualifiers in enum members
+                            try {
+                                Object members = enumType.getClass().getMethod("getMembers").invoke(enumType);
+                                if (members instanceof java.util.List) {
+                                    for (Object member : (java.util.List<?>) members) {
+                                        if (member instanceof CsdlAnnotatable) {
+                                            fixAnnotationQualifiers((CsdlAnnotatable) member);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // Ignore reflection errors
+                            }
+                        }
+                    }
+                }
+
+                // Fix qualifiers in type definitions
+                if (schema.getTypeDefinitions() != null) {
+                    for (Object typeDef : schema.getTypeDefinitions()) {
+                        if (typeDef instanceof CsdlAnnotatable) {
+                            fixAnnotationQualifiers((CsdlAnnotatable) typeDef);
+                        }
+                    }
+                }
+
+                // Fix qualifiers in terms
+                if (schema.getTerms() != null) {
+                    for (Object term : schema.getTerms()) {
+                        if (term instanceof CsdlAnnotatable) {
+                            fixAnnotationQualifiers((CsdlAnnotatable) term);
+                        }
+                    }
+                }
+
+                // Fix qualifiers in actions
+                if (schema.getActions() != null) {
+                    for (Object action : schema.getActions()) {
+                        if (action instanceof CsdlAnnotatable) {
+                            fixAnnotationQualifiers((CsdlAnnotatable) action);
+
+                            // Fix qualifiers in action parameters
+                            try {
+                                Object parameters = action.getClass().getMethod("getParameters").invoke(action);
+                                if (parameters instanceof java.util.List) {
+                                    for (Object parameter : (java.util.List<?>) parameters) {
+                                        if (parameter instanceof CsdlAnnotatable) {
+                                            fixAnnotationQualifiers((CsdlAnnotatable) parameter);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // Ignore reflection errors
+                            }
+                        }
+                    }
+                }
+
+                // Fix qualifiers in functions
+                if (schema.getFunctions() != null) {
+                    for (Object function : schema.getFunctions()) {
+                        if (function instanceof CsdlAnnotatable) {
+                            fixAnnotationQualifiers((CsdlAnnotatable) function);
+
+                            // Fix qualifiers in function parameters
+                            try {
+                                Object parameters = function.getClass().getMethod("getParameters").invoke(function);
+                                if (parameters instanceof java.util.List) {
+                                    for (Object parameter : (java.util.List<?>) parameters) {
+                                        if (parameter instanceof CsdlAnnotatable) {
+                                            fixAnnotationQualifiers((CsdlAnnotatable) parameter);
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                // Ignore reflection errors
+                            }
+                        }
+                    }
+                }
+
+                // Fix qualifiers in entity containers
+                if (schema.getEntityContainer() != null) {
+                    Object container = schema.getEntityContainer();
+                    if (container instanceof CsdlAnnotatable) {
+                        fixAnnotationQualifiers((CsdlAnnotatable) container);
+
+                        // Fix qualifiers in entity sets
+                        try {
+                            Object entitySets = container.getClass().getMethod("getEntitySets").invoke(container);
+                            if (entitySets instanceof java.util.List) {
+                                for (Object entitySet : (java.util.List<?>) entitySets) {
+                                    if (entitySet instanceof CsdlAnnotatable) {
+                                        fixAnnotationQualifiers((CsdlAnnotatable) entitySet);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Ignore reflection errors
+                        }
+
+                        // Fix qualifiers in singletons
+                        try {
+                            Object singletons = container.getClass().getMethod("getSingletons").invoke(container);
+                            if (singletons instanceof java.util.List) {
+                                for (Object singleton : (java.util.List<?>) singletons) {
+                                    if (singleton instanceof CsdlAnnotatable) {
+                                        fixAnnotationQualifiers((CsdlAnnotatable) singleton);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Ignore reflection errors
+                        }
+
+                        // Fix qualifiers in action imports
+                        try {
+                            Object actionImports = container.getClass().getMethod("getActionImports").invoke(container);
+                            if (actionImports instanceof java.util.List) {
+                                for (Object actionImport : (java.util.List<?>) actionImports) {
+                                    if (actionImport instanceof CsdlAnnotatable) {
+                                        fixAnnotationQualifiers((CsdlAnnotatable) actionImport);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Ignore reflection errors
+                        }
+
+                        // Fix qualifiers in function imports
+                        try {
+                            Object functionImports = container.getClass().getMethod("getFunctionImports").invoke(container);
+                            if (functionImports instanceof java.util.List) {
+                                for (Object functionImport : (java.util.List<?>) functionImports) {
+                                    if (functionImport instanceof CsdlAnnotatable) {
+                                        fixAnnotationQualifiers((CsdlAnnotatable) functionImport);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Ignore reflection errors
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             // Log error but don't fail the entire operation

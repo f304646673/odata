@@ -71,14 +71,34 @@ public class ReferenceResolverManager implements IReferenceResolverManager {
         
         // If that fails, try to resolve from test resources
         try {
-            String resourcePath = "schemas/" + referencePath;
+            // Check if it's an absolute path (contains drive letter or starts with /)
+            if (isAbsolutePath(referencePath)) {
+                // For absolute paths, try to load directly
+                try {
+                    InputStream fileStream = new java.io.FileInputStream(referencePath);
+                    return fileStream;
+                } catch (Exception e) {
+                    // If direct file access fails, try as resource
+                }
+            }
+
+            // Handle as relative path
+            String resourcePath = referencePath;
+
+            // Remove leading "schemas/" if present to avoid duplication
+            if (resourcePath.startsWith("schemas/")) {
+                resourcePath = resourcePath.substring("schemas/".length());
+            }
+
+            // Try with schemas/ prefix
+            resourcePath = "schemas/" + resourcePath;
             InputStream resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
             if (resourceStream != null) {
                 return resourceStream;
             }
             
             // Also try common subdirectories
-            String[] subdirs = {"dependencies", "circular", "deep", "invalid", "multi", "crossdir", "nested"};
+            String[] subdirs = {"dependencies", "circular", "deep", "invalid", "multi", "crossdir", "nested", "missing-elements", "namespace-merging", "provider-test"};
             for (String subdir : subdirs) {
                 resourcePath = "schemas/" + subdir + "/" + referencePath;
                 resourceStream = this.getClass().getClassLoader().getResourceAsStream(resourcePath);
@@ -111,6 +131,32 @@ public class ReferenceResolverManager implements IReferenceResolverManager {
     }
     
     /**
+     * Check if a path is absolute
+     */
+    private boolean isAbsolutePath(String path) {
+        if (path == null || path.isEmpty()) {
+            return false;
+        }
+
+        // Windows absolute path (C:\ or D:\ etc.)
+        if (path.length() >= 3 && Character.isLetter(path.charAt(0)) && path.charAt(1) == ':') {
+            return true;
+        }
+
+        // Unix absolute path (starts with /)
+        if (path.startsWith("/")) {
+            return true;
+        }
+
+        // UNC path (\\server\share)
+        if (path.startsWith("\\\\")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Extract edmx:Reference elements directly from XML to avoid Olingo's deduplication by namespace
      * (verified logic from AdvancedMetadataParser)
      */
@@ -121,12 +167,79 @@ public class ReferenceResolverManager implements IReferenceResolverManager {
                 return new java.util.HashSet<>();
             }
             
-            return xmlExtractor.extractReferencesFromXml(inputStream);
-            
+            Set<String> rawReferences = xmlExtractor.extractReferencesFromXml(inputStream);
+            Set<String> resolvedReferences = new java.util.HashSet<>();
+
+            // Resolve relative paths based on the current schema path
+            for (String ref : rawReferences) {
+                String resolvedRef = resolveRelativePath(schemaPath, ref);
+                resolvedReferences.add(resolvedRef);
+            }
+
+            return resolvedReferences;
+
         } catch (Exception e) {
             // If XML parsing fails, fall back to empty set
             // Let other parts of the system handle the error
             return new java.util.HashSet<>();
         }
+    }
+
+    /**
+     * Resolve relative paths based on the current schema path
+     */
+    private String resolveRelativePath(String currentSchemaPath, String referencePath) {
+        // If reference path is absolute or starts with schemas/, use as is
+        if (referencePath.startsWith("schemas/") || referencePath.startsWith("http")) {
+            return referencePath;
+        }
+
+        // Handle relative paths within the same directory
+        if (!referencePath.contains("/") && !referencePath.startsWith("../")) {
+            // Extract directory from current schema path
+            if (currentSchemaPath.contains("/")) {
+                String directory = currentSchemaPath.substring(0, currentSchemaPath.lastIndexOf("/"));
+                return directory + "/" + referencePath;
+            } else {
+                // If current schema has no directory, assume it's in a subdirectory
+                return "circular/" + referencePath;
+            }
+        }
+
+        return referencePath;
+    }
+
+    /**
+     * Normalize path for consistent comparison in circular dependency detection
+     */
+    private String normalizePath(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        // Convert different path formats to a canonical form
+        String normalized = path.replace("\\", "/");
+
+        // Remove leading slashes
+        while (normalized.startsWith("/")) {
+            normalized = normalized.substring(1);
+        }
+
+        // Handle different resource path formats
+        if (normalized.startsWith("schemas/")) {
+            return normalized;
+        }
+
+        // If it's just a filename in circular directory, normalize it
+        if (!normalized.contains("/") && (normalized.endsWith(".xml"))) {
+            return "schemas/circular/" + normalized;
+        }
+
+        // If it doesn't start with schemas/, assume it's a resource path
+        if (!normalized.startsWith("schemas/")) {
+            return "schemas/" + normalized;
+        }
+
+        return normalized;
     }
 }

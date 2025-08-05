@@ -14,3 +14,12 @@
 java/Olingo-OData-5.0.0/samples/odata-schema-validation-engine/logs/compliance-system.log
 java/Olingo-OData-5.0.0/samples/odata-compliance-system/logs/compliance-system.log
 java/Olingo-OData-5.0.0/odata-xml-processor/logs/odata-xml-processor.log
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*/*.Identifier
+java/Olingo-OData-5.0.0/samples/advanced-odata-xml-parser/*.Identifier
